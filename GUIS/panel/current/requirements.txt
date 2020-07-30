@@ -1,0 +1,9 @@
+pyautogui
+numpy
+pyqt5
+datetime
+pyserial
+matplotlib
+scipy
+pythonqwt
+sip

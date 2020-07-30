@@ -1,0 +1,8 @@
+Billy/Kieran
+	make_CPAL_labels.py:
+	update_daily_num function:
+		change the path of the old number from:
+			'/../../../Modules/BarcodePrinter/CpalLabels/cpalnum.txt'
+		to:
+			'/../../../Modules/BarcodePrinter/CpalLabels/dailytotal.txt'
+									--10/31/2019
