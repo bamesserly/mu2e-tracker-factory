@@ -3,6 +3,7 @@ python -m pip install kiwisolver==1.1.0
 python -m pip install matplotlib==3.1.0
 python -m pip install numpy==1.16.4
 python -m pip install Pillow==6.0.0
+python -m pip install pre-commit==2.6.0
 python -m pip install PyAutoGUI==0.9.44
 python -m pip install PyGetWindow==0.0.5
 python -m pip install PyMsgBox==1.0.6
