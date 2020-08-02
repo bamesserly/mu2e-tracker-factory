@@ -663,8 +663,10 @@ class TxtDataProcessor(DataProcessor):
         path_file = path_files[lab_version]
         path = (Path(__file__).parent / path_file).resolve()
         self.paths = dict(np.loadtxt(path, delimiter=",", dtype=str))
-        topdir = os.getenv("PANGUI_TOPDIR")
-        self.paths.update((k, topdir + v) for k, v in self.paths.items())
+
+        current_dir = os.path.dirname(__file__)
+        top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+        self.paths.update((k, top_dir + "/" + v) for k, v in self.paths.items()) # make paths absolute
 
         # Save directories as instance variables
         self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()

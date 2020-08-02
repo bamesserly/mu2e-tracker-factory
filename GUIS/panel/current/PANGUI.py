@@ -4575,7 +4575,9 @@ def except_hook(exctype, exception, tb):
 
 
 def checkPackages():
-    packageList = [  # list of packages to check, each tuple has the name of the package and a boolean to determine if the version is correct
+    # list of packages to check, each tuple has the name of the package and a
+    # boolean to determine if the version is correct
+    packageList = [  
         ("cycler", cycler.__version__ == "0.10.0"),
         ("kiwisolver", kiwisolver.__version__ == "1.1.0"),
         ("matplotlib", matplotlib.__version__ == "3.1.0"),
@@ -4599,8 +4601,10 @@ def checkPackages():
         if not package[
             1
         ]:  # if the boolean statement is false (if the version is incorrect)
-            # display a tkinter error with the following string as it's message (I apologize for putting 200+ characters on one line)
-            # package[0] gets the name of the package, and platform.node() gets the name of the computer
+            # display a tkinter error with the following string as it's message
+            # (I apologize for putting 200+ characters on one line)
+            # package[0] gets the name of the package, and platform.node() gets
+            # the name of the computer
             message = f"An incompatible version of {package[0]} is installed on this computer.  The GUI may not function normally, and DATA MAY NOT BE SAVED.  Contact a member of the software team for help, and mention that {package[0]} needs updating on {platform.node()}"
             packageErrorRoot = tkinter.Tk()  # create a tkinter root
             packageErrorRoot.withdraw()  # hide the root (hide the tiny blank window that tkinter wants)
@@ -4626,14 +4630,15 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)  # create new app to run
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
-    if LAB_VERSION:
-        path = (Path(__file__).parent / "paths-lab.txt").resolve()
-        paths = dict(np.loadtxt(path, delimiter=",", dtype=str))
-        topdir = os.getenv("PANGUI_TOPDIR")
-        paths.update((k, topdir + v) for k, v in paths.items())
-    # TODO paths.txt is deprecated
-    else:
-        paths = dict(np.loadtxt(Path("paths.txt").resolve(), delimiter=",", dtype=str))
+
+    # Load various location paths from the txt file paths-lab.txt
+    # Assume that PANGUI lives in GUIS/panel/current
+    current_dir = os.path.dirname(__file__)
+    top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+    paths_file_location = os.path.abspath(os.path.join(current_dir, "paths-lab.txt")) #absolute location of the txt file
+    paths = dict(np.loadtxt(paths_file_location, delimiter=",", dtype=str)) # load the paths
+    paths.update((k, top_dir + "/" + v) for k, v in paths.items()) # make paths absolute
+
     ctr = panelGUI(paths)  # create gui window
     ctr.show()  # show gui window
     app.exec_()  # go!

@@ -19,8 +19,6 @@ class Credentials:
         self.stationID = stationID
 
         # Location of Credentials information
-        # self.credentials_file = Path(__file__).parent / 'WorkerProficiencyChecklist.csv'
-        # self.credentials_file = Path('../Credentials/WorkerProficiencyChecklist.csv').resolve()
         self.credentials_file = Path(credentialsChecklist).resolve()
 
         self.getWorkerCredentials()
