@@ -1,49 +1,101 @@
 import shutil
 from os import path, listdir
+from pathlib import Path
 
-print("Initial PANGUI official production setup.")
-print("This script only needs to be run once.")
-print("\nCopying the Data/ dir and database.db from the network.")
-print(
-    """\nThis can take several minutes so it might be a good time to grab a
-cup of coffee."""
+print("===============================================")
+print("== Initial PANGUI official production setup. ==")
+print("== This script only needs to be run once.    ==")
+print("===============================================")
+
+# ===============================================================================
+# 1. Determine key paths
+# ===============================================================================
+# TODO get this from a environmental variable
+official_lab_production_top_dir = str("C:\\Users\\Mu2e\\Desktop\\Production")
+network_top_dir = "\\\\spa-mu2e-network\Files\Development_Environment"
+
+network_data_dir = path.abspath(path.abspath(path.join(network_top_dir, "Data/")))
+network_db = path.abspath(
+    path.abspath(path.join(network_top_dir, "Database/", "database.db"))
 )
 
-source_dir = "\\\\spa-mu2e-network\Files\Development_Environment"
-source_data_dir = path.abspath(path.abspath(path.join(source_dir, "Data/")))
-source_database = path.abspath(
-    path.abspath(path.join(source_dir, "Database/", "database.db"))
+local_top_dir = Path(path.dirname(__file__)).resolve()
+local_data_dir = path.abspath(path.abspath(path.join(local_top_dir, "Data/")))
+local_db = path.abspath(path.abspath(path.join(local_top_dir, "database.db")))
+
+# TODO "network" isn't accurate. "merge destination" is better.
+merge_destination_db_location_file = path.abspath(
+    path.join(local_top_dir, "Database", "networkDatabasePath.txt")
+)
+local_db_location_file = path.abspath(
+    path.join(local_top_dir, "Database", "localDatabasePath.txt")
 )
 
-destination_dir = path.dirname(__file__)
-destination_data_dir = path.abspath(path.abspath(path.join(destination_dir, "Data/")))
-destination_database = path.abspath(
-    path.abspath(path.join(destination_dir, "database.db"))
-)
+is_official_lab_production = official_lab_production_top_dir in str(local_top_dir)
+if not is_official_lab_production:
+    print("... Software development mode detected.")
+    print("    Will not automerge with the official network database.")
 
 
-# copy the data directory from the network to here
-print("\nBeginning copy of Data dir...")
+# ===============================================================================
+# 2. Copy Data/ and database from network to work area
+# ===============================================================================
+print("... Copying the Data/ dir and database.db from the network.")
+print("    This can take several minutes so grab a cup of coffee.")
+print("    Beginning copy of Data dir...")
 try:
-    shutil.copytree(source_data_dir, destination_data_dir)
-    print("\nDone copying Data dir.")
+    shutil.copytree(network_data_dir, local_data_dir)
+    print("... Done copying Data dir.")
 except FileExistsError as e:
-    print(
-        """\nData dir already exists here! If things aren't working, you
-might need to refresh this directory."""
-    )
-print("\nBeginning copy of the database.")
+    print("... Data dir already exists here!")
+    print("    If things aren't working, you might need to refresh this directory.")
 
+print("... Beginning copy of the database.")
 # copy the database from the network to here.
 # this first line helps shutil remember that it's connected to the network?
-listdir(path.abspath(path.join(source_dir, "Database/")))
-if not path.isfile(destination_database):
-    shutil.copy2(source_database, destination_dir)
-    print("\nDone copying the database!")
+listdir(path.abspath(path.join(network_top_dir, "Database/")))
+if not path.isfile(local_db):
+    shutil.copy2(network_db, local_top_dir)
+    print("... Done copying the database!")
 else:
-    print(
-        """\nDatabase already exists here! Consider a mergedown before you
-collect data, in case the dir is stale."""
-    )
+    print("... Database already exists here!")
+    print("    Consider a mergedown before you collect data, in case the db is stale.")
 
-print("\nAll Done.")
+# ===============================================================================
+# 3. Set locations of local and merge destination databases.
+#
+# Write them to txt files that databaseManager will read.
+#
+# For official lab panel production, the destination database IS the
+# database.db on the network. For software development, the destination
+# database is a dummy.db located in this directory.
+# ===============================================================================
+
+# Set local database location (never changes)
+with open(local_db_location_file, "w") as f:
+    f.write(str(local_top_dir.resolve()))
+
+# Merge destination depends on whether this is official lab panel production or
+# software development.
+# official --> merge with network
+# software --> merge with local dummy
+merge_destination_db = (
+    network_db
+    if is_official_lab_production
+    else path.join(local_top_dir, "Database", "dummy.db")
+)
+with open(merge_destination_db_location_file, "w") as f:
+    f.write(merge_destination_db)
+
+# ===============================================================================
+# 4. Finally, if this is software development, we need to make the dummy.db
+# ===============================================================================
+if not is_official_lab_production and not path.isfile(merge_destination_db):
+    print(
+        "... Copying the local database as dummy.db, which we'll set as the automerge destination."
+    )
+    print("    Again, this might take a few minutes.")
+    shutil.copyfile(local_db, merge_destination_db)
+
+
+print("Done!")
