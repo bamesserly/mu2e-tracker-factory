@@ -12,7 +12,7 @@ print("===============================================")
 # ===============================================================================
 # TODO get this from a environmental variable
 official_lab_production_top_dir = str("C:\\Users\\Mu2e\\Desktop\\Production")
-network_top_dir = "\\\\spa-mu2e-network\Files\Development_Environment"
+network_top_dir = "\\\\spa-mu2e-network\Files\Production_Environment"
 
 network_data_dir = path.abspath(path.abspath(path.join(network_top_dir, "Data/")))
 network_db = path.abspath(

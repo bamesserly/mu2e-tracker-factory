@@ -1,7 +1,7 @@
 # All paths are relative to the topdir which is two parent dirs above the
 # location of this file
 imagePath,Data/Panel_data/diagrams
-workerDirectory,Data/workers/panel_workers
+workerDirectory,Data/workers/panel workers
 panelDirectory,Data/Panel_data
 stepsDirectory,Data/Panel_data/Steps/
 credentialsChecklist,Data/workers/credentials/WorkerProficiencyChecklist.csv
