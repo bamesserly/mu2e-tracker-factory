@@ -1,18 +1,18 @@
 # All paths are relative to the topdir which is two parent dirs above the
 # location of this file
-imagePath,Data/Panel_data/diagrams
+imagePath,Data/Panel data/diagrams
 workerDirectory,Data/workers/panel workers
-panelDirectory,Data/Panel_data
-stepsDirectory,Data/Panel_data/Steps/
+panelDirectory,Data/Panel data
+stepsDirectory,Data/Panel data/Steps/
 credentialsChecklist,Data/workers/credentials/WorkerProficiencyChecklist.csv
-wireQC,Data/Panel_data/pass_qc/wire.csv
-moldReleasePath,Data/Panel_data/Mold Release/Mold Release.csv
-listsDirectory,Data/Panel_data/Lists/
-wire_tensioner_data,Data/Panel_data/wire_tensioner_data
-tensionbox_data_straw,Data/Panel_data\tensionbox_data\straw_measurements
-tensionbox_data_wire,Data/Panel_data\tensionbox_data\wire_measurements
-straw_tensioner_data,Data/Panel_data/straw_tensioner_data
-continuity_data,Data/Panel_data/wire_stringing_continuity_data
+wireQC,Data/Panel data/pass_qc/wire.csv
+moldReleasePath,Data/Panel data/Mold Release/Mold Release.csv
+listsDirectory,Data/Panel data/Lists/
+wire_tensioner_data,Data/Panel data/wire_tensioner_data
+tensionbox_data_straw,Data/Panel data\tensionbox_data\straw_measurements
+tensionbox_data_wire,Data/Panel data\tensionbox_data\wire_measurements
+straw_tensioner_data,Data/Panel data/straw_tensioner_data
+continuity_data,Data/Panel data/wire_stringing_continuity_data
 straw_tension_location,GUIS/panel/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
 wire_tension_location,GUIS/panel/current/tension_devices/wire_tensioner/wire_tension.py
 tensionbox_location,GUIS/panel/current/tension_devices/tension_box/tensionbox_window.py

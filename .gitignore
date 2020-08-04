@@ -2,3 +2,5 @@
 *.pyc
 *.swp
 Data/
+Database/localDatabasePath.txt
+Database/networkDatabasePath.txt
