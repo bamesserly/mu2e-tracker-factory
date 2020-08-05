@@ -666,7 +666,9 @@ class TxtDataProcessor(DataProcessor):
 
         current_dir = os.path.dirname(__file__)
         top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-        self.paths.update((k, top_dir + "/" + v) for k, v in self.paths.items()) # make paths absolute
+        self.paths.update(
+            (k, top_dir + "/" + v) for k, v in self.paths.items()
+        )  # make paths absolute
 
         # Save directories as instance variables
         self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()
@@ -1952,7 +1954,7 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordHeatTime, *self.parseTimeTuple(data[9])
         )  # Heat Time
         self.callMethod(
-            panel.recordPAAS, self.stripNumber(data[10]), None , "B"
+            panel.recordPAAS, self.stripNumber(data[10]), None, "B"
         )  # PIR Right B
 
     # Wire Tensions
@@ -2623,8 +2625,8 @@ class SQLDataProcessor(DataProcessor):
             self.timeDelta(
                 self.procedure.getEpoxyTime(), self.procedure.getEpoxyTimeRunning()
             ),  # Working Time of Epoxy
-            self.getBarcode(panel.getPAAS(L_R= None, letter='A')),                               # PAAS A barcode
-            self.getBarcode(panel.getPAAS(L_R= None, letter='C'))                                # PAAS C barcode
+            self.getBarcode(panel.getPAAS(L_R=None, letter="A")),  # PAAS A barcode
+            self.getBarcode(panel.getPAAS(L_R=None, letter="C")),  # PAAS C barcode
         ]
 
     # Straws
@@ -2649,7 +2651,7 @@ class SQLDataProcessor(DataProcessor):
             self.timeDelta(
                 self.procedure.getHeatTime(), self.procedure.getHeatTimeRunning()
             ),  # Heat Time
-            self.getBarcode(panel.getPAAS(L_R= None, letter='B'))                                # PAAS B barcode
+            self.getBarcode(panel.getPAAS(L_R=None, letter="B")),  # PAAS B barcode
         ]
 
     # Wire Tensions

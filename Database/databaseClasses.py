@@ -2319,12 +2319,12 @@ class Panel(StrawLocation):
         self._recordPart("MIDDLERIB_2", number)
 
     def getPAAS(self, L_R, letter):
-        return self._queryPartOnPanel("PAAS",  None, letter).one_or_none()
+        return self._queryPartOnPanel("PAAS", None, letter).one_or_none()
 
     def recordPAAS(self, number, L_R, letter):
         if number is not None:
             self._recordPart("PAAS", number, None, letter)
-        
+
     ## QUERY METHODS ##
 
     def _queryPartOnPanel(self, type, L_R=None, letter=None, on_L_R=None):
