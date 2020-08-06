@@ -280,7 +280,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each day
-        data_count = {1: 18, 2: 10, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 20, 2: 11, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
 
         # Make a list of Nones for each day (a list of lists, one list for each day)
         for day in data_count:
@@ -333,14 +333,6 @@ class panelGUI(QMainWindow):
             lambda: self.diagram_popup("d2_paas_attach.png")
         )
 
-        # The intention here was to save the gap data anytime it changes, but
-        # it inadvertently calls saveData during stopRunning so we crash.
-        ## connect the save data function to changing the gap combo boxes
-        # self.ui.leftgap.currentIndexChanged.connect(self.saveData)
-        # self.ui.rightgap.currentIndexChanged.connect(self.saveData)
-        # self.ui.maxgap.currentIndexChanged.connect(self.saveData)
-        # self.ui.mingap.currentIndexChanged.connect(self.saveData)
-
     def _init_day2_setup(self):
         ## Connect
         self.ui.panelInput2.installEventFilter(self)
@@ -384,6 +376,7 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_mixed,
             self.ui.epoxy_mixed_2,
             self.ui.heat_finished,
+            self.ui.paasBInput,
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -987,6 +980,13 @@ class panelGUI(QMainWindow):
         self.ui.alfInput.setValidator(valid_alf)
         self.ui.alfInput_2.setValidator(valid_alf)
 
+        valid_paasA = validator("(PAAS)\d{2}")
+        self.ui.paasAInput.setValidator(valid_paasA)
+        valid_paasB = validator("(PAAS)\d{2}")
+        self.ui.paasBInput.setValidator(valid_paasB)
+        valid_paasC = validator("(PAAS)\d{2}")
+        self.ui.paasCInput.setValidator(valid_paasC)
+
         set_validator(self.ui.baseInput1, "(BP)\d{3}")
 
         valid_lpal = validator("(LPAL)\d{4}")
@@ -1058,6 +1058,8 @@ class panelGUI(QMainWindow):
                 self.ui.mingap,
                 self.ui.maxgap,
                 self.ui.epoxy_batch1,
+                self.ui.paasAInput,
+                self.ui.paasCInput,
             ],
             # Day 2 Widgets
             [
@@ -1071,6 +1073,7 @@ class panelGUI(QMainWindow):
                 self.ui.temp4,
                 self.ui.temp4_2,
                 self.ui.heat_finished,
+                self.ui.paasBInput,
             ],
             # Day 3 Widgets
             [self.ui.panelInput3, self.ui.wireInput],
@@ -1253,12 +1256,10 @@ class panelGUI(QMainWindow):
         return all(results)
 
     """
-    checkDevice(self, type)
+    checkDevice(self)
 
-        Description: Checks if the device is inserted in any ports or not and if not,
-                    it generates a popup error message.
-
-        Parameter: type - String name of device.
+        Description: Returns an error unless exactly one arduino device is
+        plugged in.
     """
 
     def checkDevice(self, type):
@@ -1283,7 +1284,7 @@ class panelGUI(QMainWindow):
                 "Plug tension box into any USB port and try again.",
             )
 
-        if type == "strawTension" and len(arduino_ports) > 1:
+        if len(arduino_ports) > 1:
             error = True
             self.generateBox(
                 "critical",
@@ -2290,6 +2291,8 @@ class panelGUI(QMainWindow):
         )
         self.data[self.day_index][16] = self.ui.epoxy_batch1.text()
         self.data[self.day_index][17] = self.timerTuple(self.timers[1])
+        self.data[self.day_index][18] = self.ui.paasAInput.text()
+        self.data[self.day_index][19] = self.ui.paasCInput.text()
 
     def updateDataProcess2(self):
         self.data[self.day_index][0] = self.ui.panelInput2.text()
@@ -2310,6 +2313,7 @@ class panelGUI(QMainWindow):
             float(self.ui.temp4_2.text()) if self.ui.temp4_2.text() else None
         )  # PAAS-B Max Temp
         self.data[self.day_index][9] = self.timerTuple(self.timers[4])  # Heat Time
+        self.data[self.day_index][10] = self.ui.paasBInput.text()  # paas B input
 
     def updateDataProcess3(self):
         # Day-specific Data
@@ -2662,6 +2666,12 @@ class panelGUI(QMainWindow):
         if data[11] is not None:
             self.ui.alfInput_2.setText(data[11])
             self.ui.alfInput_2.setDisabled(True)
+        if data[18] is not None:
+            self.ui.paasAInput.setText(data[18])
+            self.ui.paasAInput.setDisabled(True)
+        if data[19] is not None:
+            self.ui.paasCInput.setText(data[19])
+            self.ui.paasCInput.setDisabled(True)
             self.ui.leftgap.setEnabled(True)
             self.ui.rightgap.setEnabled(True)
             self.ui.mingap.setEnabled(True)
@@ -2849,6 +2859,11 @@ class panelGUI(QMainWindow):
                 self.ui.temp4_2.setDisabled(
                     True
                 )  # disable paas B max temp line edit widget
+
+        # PAAS B Entry ---------------------------------------------------------------------------
+        if data[10] is not None:
+            self.ui.paasBInput.setText(data[10])
+            self.ui.paasBInput.setDisabled(True)
 
     """
     parseDay3Data(self, data)
@@ -3327,7 +3342,7 @@ class panelGUI(QMainWindow):
             return
 
         # Ensure that all input data is valid
-        if not self.validateInput(indices=range(12)):
+        if not self.validateInput(indices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 17, 18]):
             return
 
         # (Dis/En)able widgets
@@ -3348,6 +3363,8 @@ class panelGUI(QMainWindow):
                 self.ui.mirInput,
                 self.ui.alfInput,
                 self.ui.alfInput_2,
+                self.ui.paasAInput,
+                self.ui.paasCInput,
             ]
         )
         self.setWidgetsEnabled(
@@ -3379,7 +3396,7 @@ class panelGUI(QMainWindow):
     """
 
     def day1part2(self):
-        if not self.validateInput(indices=range(12, 17)):
+        if not self.validateInput(indices=range(16)):
             return
 
         # (En/Dis)able Stuff
@@ -3438,6 +3455,8 @@ class panelGUI(QMainWindow):
             self.ui.mirInput,
             self.ui.alfInput,
             self.ui.epoxy_batch1,
+            self.ui.paasAInput,
+            self.ui.paasCInput,
         ]
         self.setWidgetsEnabled(input_widgets)
         for w in input_widgets:
@@ -3512,6 +3531,7 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch_2,  # Epoxy input (top)
                 self.ui.epoxy_mixed_2,  # Epoxy mixed button (top)
                 self.ui.launch_straw_tensioner,  # Straw tensioner button
+                self.ui.paasBInput,  # PAAS B line edit
             ]
         )
 
@@ -3710,6 +3730,7 @@ class panelGUI(QMainWindow):
         self.ui.panelInput2.setText("")
         self.ui.pallet1code.setText("")
         self.ui.pallet2code.setText("")
+        self.ui.paasBInput.setText("")
         self.ui.epoxy_batch.setText("")
         self.ui.epoxy_batch_2.setText("")
         self.ui.temp4.setText("")
@@ -4575,6 +4596,7 @@ def except_hook(exctype, exception, tb):
 
 
 def checkPackages():
+
     # list of packages to check, each tuple has the name of the package and a
     # boolean to determine if the version is correct
     packageList = [
@@ -4601,10 +4623,8 @@ def checkPackages():
         if not package[
             1
         ]:  # if the boolean statement is false (if the version is incorrect)
-            # display a tkinter error with the following string as it's message
-            # (I apologize for putting 200+ characters on one line)
-            # package[0] gets the name of the package, and platform.node() gets
-            # the name of the computer
+            # display a tkinter error with the following string as it's message (I apologize for putting 200+ characters on one line)
+            # package[0] gets the name of the package, and platform.node() gets the name of the computer
             message = f"An incompatible version of {package[0]} is installed on this computer.  The GUI may not function normally, and DATA MAY NOT BE SAVED.  Contact a member of the software team for help, and mention that {package[0]} needs updating on {platform.node()}"
             packageErrorRoot = tkinter.Tk()  # create a tkinter root
             packageErrorRoot.withdraw()  # hide the root (hide the tiny blank window that tkinter wants)
