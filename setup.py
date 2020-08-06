@@ -1,6 +1,7 @@
-import shutil
+import shutil, os, sys
 from os import path, listdir
 from pathlib import Path
+from subprocess import Popen
 
 print("===============================================")
 print("== Initial PANGUI official production setup. ==")
@@ -11,7 +12,8 @@ print("===============================================")
 # 1. Determine key paths
 # ===============================================================================
 # TODO get this from a environmental variable
-official_lab_production_top_dir = str("C:\\Users\\mu2e\\Desktop\\Production")
+username = os.getenv("username")
+official_lab_production_top_dir = "C:\\Users\\{0}\\Desktop\\Production".format(username)
 network_top_dir = "\\\\spa-mu2e-network\Files\Production_Environment"
 
 network_data_dir = path.abspath(path.abspath(path.join(network_top_dir, "Data/")))
@@ -35,7 +37,6 @@ is_official_lab_production = official_lab_production_top_dir in str(local_top_di
 if not is_official_lab_production:
     print("... Software development mode detected.")
     print("    Will not automerge with the official network database.")
-
 
 # ===============================================================================
 # 2. Copy Data/ and database from network to work area
@@ -89,13 +90,21 @@ with open(merge_destination_db_location_file, "w") as f:
 
 # ===============================================================================
 # 4. Finally, if this is software development, we need to make the dummy.db
+# and setup autoformatter.
 # ===============================================================================
-if not is_official_lab_production and not path.isfile(merge_destination_db):
-    print(
-        "... Copying the local database as dummy.db, which we'll set as the automerge destination."
-    )
-    print("    Again, this might take a few minutes.")
-    shutil.copyfile(local_db, merge_destination_db)
+if not is_official_lab_production:
+    if not path.isfile(merge_destination_db):
+        print(
+            "... Copying the local database as dummy.db, which we'll set as the automerge destination."
+        )
+        print("    Again, this might take a few minutes.")
+        shutil.copyfile(local_db, merge_destination_db)
+
+    print("... Finally, setting up autoformatter.")
+    cmd = 'cd "{0}"; pre-commit install'.format(local_top_dir)
+    p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
+    p.communicate()
+    print("    Done setting up autoformatter.")
 
 
 print("Done!")
