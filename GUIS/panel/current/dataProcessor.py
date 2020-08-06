@@ -666,7 +666,9 @@ class TxtDataProcessor(DataProcessor):
 
         current_dir = os.path.dirname(__file__)
         top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-        self.paths.update((k, top_dir + "/" + v) for k, v in self.paths.items()) # make paths absolute
+        self.paths.update(
+            (k, top_dir + "/" + v) for k, v in self.paths.items()
+        )  # make paths absolute
 
         # Save directories as instance variables
         self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()

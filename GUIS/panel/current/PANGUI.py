@@ -4577,7 +4577,7 @@ def except_hook(exctype, exception, tb):
 def checkPackages():
     # list of packages to check, each tuple has the name of the package and a
     # boolean to determine if the version is correct
-    packageList = [  
+    packageList = [
         ("cycler", cycler.__version__ == "0.10.0"),
         ("kiwisolver", kiwisolver.__version__ == "1.1.0"),
         ("matplotlib", matplotlib.__version__ == "3.1.0"),
@@ -4635,9 +4635,15 @@ if __name__ == "__main__":
     # Assume that PANGUI lives in GUIS/panel/current
     current_dir = os.path.dirname(__file__)
     top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-    paths_file_location = os.path.abspath(os.path.join(current_dir, "paths-lab.txt")) #absolute location of the txt file
-    paths = dict(np.loadtxt(paths_file_location, delimiter=",", dtype=str)) # load the paths
-    paths.update((k, top_dir + "/" + v) for k, v in paths.items()) # make paths absolute
+    paths_file_location = os.path.abspath(
+        os.path.join(current_dir, "paths-lab.txt")
+    )  # absolute location of the txt file
+    paths = dict(
+        np.loadtxt(paths_file_location, delimiter=",", dtype=str)
+    )  # load the paths
+    paths.update(
+        (k, top_dir + "/" + v) for k, v in paths.items()
+    )  # make paths absolute
 
     ctr = panelGUI(paths)  # create gui window
     ctr.show()  # show gui window
