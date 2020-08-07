@@ -32,6 +32,3 @@ REM=============================================================================
 :sub
 robocopy \\spa-mu2e-network\Files\Production_Environment\Data C:\Users\%USERNAME%\Desktop\Production\Data /e
 robocopy C:\Users\%USERNAME%\Desktop\Production\Data \\spa-mu2e-network\Files\Production_Environment\Data /e
-
-robocopy \\spa-mu2e-network\Files\Production_Environment\Database\database.db C:\Users\%USERNAME%\Desktop\Production\database.db /e
-robocopy C:\Users\%USERNAME%\Desktop\Production\database.db \\spa-mu2e-network\Files\Production_Environment\Database\database.db /e

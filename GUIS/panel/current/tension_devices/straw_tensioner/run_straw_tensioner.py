@@ -1,5 +1,5 @@
 #### run_straw_tensioner.pyw
-#### Goal1: PyQt5 GUI for tensioning straws with Vernier force sensor 
+#### Goal1: PyQt5 GUI for tensioning straws with Vernier force sensor
 #### Goal2: Plots update in real time, data saves to csv file
 #### LargePrintEdition: Worker with tensioner can see GUI from across station
 
@@ -7,287 +7,362 @@
 import sys, queue, time, csv
 import qwt  ## requires pythonqwt, sip
 import threading, serial, os
-import serial.tools.list_ports     ## automatically get COM port
+import serial.tools.list_ports  ## automatically get COM port
 import numpy as np
 from datetime import datetime
-from PyQt5.QtCore import * 
-from PyQt5.QtGui import * 
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 DEBUG = False
-#from straw_tensioner_window import Ui_MainWindow   ## edit via straw_tensioner_window.ui in Qt Designer
+# from straw_tensioner_window import Ui_MainWindow   ## edit via straw_tensioner_window.ui in Qt Designer
 # moving Ui_MainWindow into this file makes the previous line redundant
- 
+
+
 class StrawTension(QMainWindow):
-     """ GUI to display data from Arduino Uno and Vernier force sensor DFS-BTA """
-     def __init__(self, port_loc = None, saveMethod = None, calibration=None, maxdatas=8824, wait=50.0, parent=None, networked=False, inGUI = -1):
-          super(StrawTension, self).__init__(parent) 
-          self.thdl = None  ## data thread
-          self.temp, self.uncertainty = [],[]
-          self.interval = QTimer()  ## wait interval between data points
-          self.port_loc = port_loc  ## maps sensor locations to COM ports
-          self.calibration = calibration  
-          self.maxdatas, self.wait = maxdatas, wait
-          self.directory = os.path.dirname(os.path.realpath(__file__))+'\\'  
-          self.networked = networked
-          self.saveMethod = saveMethod  # method from PANGUI to save data to DB
-          self.port_loc = self.getPortLoc()  # get arduino port
-          self.inGUI = inGUI  # if -1, this gui is operating independent of PANGUI, otherwise it's a panel number
+    """ GUI to display data from Arduino Uno and Vernier force sensor DFS-BTA """
 
-          self.ui = Ui_MainWindow()  ## set up GUI and plot axes
-          self.ui.setupUi(self)
-          if inGUI != -1:                              # if not running independently
-               self.ui.panel_id.setText(f'MN{inGUI}')       # set panel id line edit widget text
-               self.ui.panel_id.setDisabled(True)           # disable panel id line edit widget
+    def __init__(
+        self,
+        port_loc=None,
+        saveMethod=None,
+        calibration=None,
+        maxdatas=8824,
+        wait=50.0,
+        parent=None,
+        networked=False,
+        inGUI=-1,
+    ):
+        super(StrawTension, self).__init__(parent)
+        self.thdl = None  ## data thread
+        self.temp, self.uncertainty = [], []
+        self.interval = QTimer()  ## wait interval between data points
+        self.port_loc = port_loc  ## maps sensor locations to COM ports
+        self.calibration = calibration
+        self.maxdatas, self.wait = maxdatas, wait
+        self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
+        self.networked = networked
+        self.saveMethod = saveMethod  # method from PANGUI to save data to DB
+        self.port_loc = self.getPortLoc()  # get arduino port
+        self.inGUI = inGUI  # if -1, this gui is operating independent of PANGUI, otherwise it's a panel number
 
-          with open(self.directory+'straw_tensionvalues.csv','r') as f:
-               self.straw_tensionvalues = np.array([row for row in csv.reader(f,delimiter=',')][1:])
-          self.straw_number = self.ui.strawnumbox.value()
-          if self.ui.hmd_label.text():
-               self.hmd = self.ui.hmd_label.text()      ## relative humidity (%)
-          else: self.hmd = 26  # default text displayed in GUI
-          self.min_tension = self.straw_tensionvalues[:,2].astype(float)   ## minimum tension 
+        self.ui = Ui_MainWindow()  ## set up GUI and plot axes
+        self.ui.setupUi(self)
+        if inGUI != -1:  # if not running independently
+            self.ui.panel_id.setText(f"MN{inGUI}")  # set panel id line edit widget text
+            self.ui.panel_id.setDisabled(True)  # disable panel id line edit widget
 
-          self.tmpplot, self.tmpcurve = self.dynamic_plot('Tension (grams)',self.straw_tensionvalues,'lime')
+        with open(self.directory + "straw_tensionvalues.csv", "r") as f:
+            self.straw_tensionvalues = np.array(
+                [row for row in csv.reader(f, delimiter=",")][1:]
+            )
+        self.straw_number = self.ui.strawnumbox.value()
+        if self.ui.hmd_label.text():
+            self.hmd = self.ui.hmd_label.text()  ## relative humidity (%)
+        else:
+            self.hmd = 26  # default text displayed in GUI
+        self.min_tension = self.straw_tensionvalues[:, 2].astype(
+            float
+        )  ## minimum tension
 
-          self.ui.tplot_layout.addWidget(self.tmpplot)
-          self.ui.realtime_display.clicked.connect(self.start_data) ## set up buttons
-          #self.ui.pause_display.clicked.connect(self.pause_data)
-          self.interval.timeout.connect(self.next)
-          #self.ui.pause_display.setEnabled(False)
+        self.tmpplot, self.tmpcurve = self.dynamic_plot(
+            "Tension (grams)", self.straw_tensionvalues, "lime"
+        )
 
-          ## to add reset, send "1" to Arduino
-          
-          self.offset_zero = 0.0
-          self.calmode = False
-          self.ui.setzero.clicked.connect(self.zero)
-          #self.ui.pause_display.setEnabled(False)
+        self.ui.tplot_layout.addWidget(self.tmpplot)
+        self.ui.realtime_display.clicked.connect(self.start_data)  ## set up buttons
+        # self.ui.pause_display.clicked.connect(self.pause_data)
+        self.interval.timeout.connect(self.next)
+        # self.ui.pause_display.setEnabled(False)
 
-          ## adding force sensor zero as required startup step
-          self.ui.realtime_display.setDisabled(True)
-          #self.ui.statusbar.showMessage("Arduino connected: Press Tension Straw to begin")
-          self.ui.statusbar.showMessage("Arduino connected. Set switch on force sensor to 10N. Click Set Force Sensor Zero to begin.")
-          print('initialized')
-         
-     def start_data(self):
-          """ Start data collection """
-          self.ui.statusbar.showMessage('')
-          if self.ui.autoincrement.isChecked():  ## auto-increment straw number by two
-               x = self.ui.strawnumbox.value()
-               self.ui.strawnumbox.setValue(x+2)
+        ## to add reset, send "1" to Arduino
 
-          if self.ui.hmd_label.text():
-               self.hmd = self.ui.hmd_label.text()      ## relative humidity (%)
-          else: self.hmd = 26  # default text displayed in GUI
-               
-          self.straw_number = self.ui.strawnumbox.value()
-          self.nom_tension = float(self.straw_tensionvalues[self.straw_number,3])-float(self.hmd)
-          self.ui.nominal_label.setText('%5.2f' %float(self.nom_tension))
-          
-          self.temp, self.uncertainty = [],[]   ## clear plot of previous straw's tension
-          self.panel = self.ui.panel_id.text()
-          com = self.port_loc["Vernier Force Sensor"][0]
+        self.offset_zero = 0.0
+        self.calmode = False
+        self.ui.setzero.clicked.connect(self.zero)
+        # self.ui.pause_display.setEnabled(False)
 
-          qs = queue.Queue()
-          ## baud rate 9600 for Vernier sensor
-          if self.calmode ==True:  ## use raw data (no offset) to find offset
-               self.thdl = GetDataThread(self.straw_number,qs,0.0,self.panel,com,9600,networked=self.networked)
-          if self.calmode==False:  ## includes offset subtraction
-               self.thdl = GetDataThread(self.straw_number,qs,self.offset_zero,self.panel,com,9600,networked=self.networked)
-          self.thdl.start()
-          self.ui.realtime_display.setEnabled(False)
-          self.ui.setzero.setEnabled(False) 
-          self.interval.start(self.wait)
+        ## adding force sensor zero as required startup step
+        self.ui.realtime_display.setDisabled(True)
+        # self.ui.statusbar.showMessage("Arduino connected: Press Tension Straw to begin")
+        self.ui.statusbar.showMessage(
+            "Arduino connected. Set switch on force sensor to 10N. Click Set Force Sensor Zero to begin."
+        )
+        print("initialized")
 
-     def getPortLoc(self):
-          arduino_ports = [p.device for p in serial.tools.list_ports.comports()
-                         if 'Arduino' in p.description]
-          if len(arduino_ports)==0:  ## fix for Day2/Day3 General Nanosystems Computers
-               arduino_ports = [p.device for p in serial.tools.list_ports.comports()
-                         if 'USB Serial' in p.description]
-          if len(arduino_ports)<1:
-               print('Arduino not found \nPlug straw tensioner into any USB port')
-               time.sleep(2)
-               print("Exiting script")
-               sys.exit()
-          print("Arduino at {}".format(arduino_ports[0]))
-          ## Locations of sensors
-          return {"Vernier Force Sensor":[arduino_ports[0],0]}
-          
-     def dynamic_plot(self, data_type, st, color, xaxis=True):
-          plot = qwt.QwtPlot(self) 
-          plot.setCanvasBackground(Qt.black)
-          if xaxis: plot.setAxisTitle(qwt.QwtPlot.xBottom, 'Time (s)') 
-          plot.setAxisScale(qwt.QwtPlot.xBottom, 0, 10, 1) 
-          plot.setAxisTitle(qwt.QwtPlot.yLeft, data_type) 
-          plot.setAxisScale(qwt.QwtPlot.yLeft, 18, 28, 2) 
-          plot.replot() 
-          curve = qwt.QwtPlotCurve('') 
-          curve.setRenderHint(qwt.QwtPlotItem.RenderAntialiased) 
-          pen = QPen(QColor(color), 2)
-          curve.setPen(pen) 
-          curve.attach(plot)
-          ## add max straw tension, 850g for all straws
-          curvemax = qwt.QwtPlotCurve('max_tension') 
-          curvemax.attach(plot)
-          penlim = QPen(QColor("yellow"), 2)
-          curvemax.setPen(penlim)
-          curvemax.setData(np.arange(100),850*np.ones(100))
-          ## add min straw tension, depends on straw length     
-          self.curvemin = qwt.QwtPlotCurve('min_tension') 
-          self.curvemin.attach(plot)
-          self.curvemin.setPen(penlim)
-          self.curvemin.setData(np.arange(100),
-                                (float(self.min_tension[int(self.straw_number)])-float(self.hmd))*np.ones(100))
-          plot.replot()
-          return plot, curve
-      
-     def next(self):
-          """ Add next data to the plots """
-          data_list = list(self.thdl.transfer(self.thdl.qs))
-          if len(data_list) > 0 and data_list[-1][0][1]!='nan': ## skip blank data
-               data = dict(tension=data_list[-1][0][0],
-                           uncertainty=data_list[-1][0][1],
-                           timestamp=data_list[-1][1])
-               if self.calmode==True: ## use raw data in calibration mode
-                    caltmp = float(data['tension'])
-               if self.calmode==False:  ## data with offset subtracted
-                    caltmp = float(data['tension'])## includes subtraction of offset at zero
-               calhmd = float(data['uncertainty'])
-               state = data_list[-1][2]
-     
-               self.ui.tension_label.setText("%5.2f" % caltmp)   ## tension in label box
-               self.ui.unc_label.setText(str(calhmd))       ## uncertainty in label
-               if caltmp <= 850.0 and caltmp >= float(self.min_tension[int(self.straw_number)])-float(self.hmd):
-                    self.ui.rangepanel.setStyleSheet('background-color: green')
-                    message = 'Straw tension acceptable: move to next straw'
-               else:
-                    self.ui.rangepanel.setStyleSheet('background-color: red')
-                    message = "Straw tension outside acceptable range: repull straw"
-               
-               self.temp.append((data['timestamp'], caltmp))
-               self.uncertainty.append((data['timestamp'], calhmd))
-               if len(self.temp) > self.maxdatas: 
-                    self.temp.pop(0),self.uncertainty.pop(0)
-               t = [x[0] for x in self.temp]                     ## time (s)
-               tmp = [float(t[1]) for t in self.temp]            ## tension (grams force)
-               hmd = [float(h[1]) for h in self.uncertainty]     ## uncertainty (grams force)
-               ave = [sum(y)/float(len(y)) for y in [tmp]]
-               self.curvemin.setData(np.arange(100),
-                                     (float(self.min_tension[(self.straw_number)])-float(self.hmd))*np.ones(100))
-               for a in [[self.tmpplot,tmp,self.tmpcurve]]:
-                    a[0].setAxisScale(qwt.QwtPlot.xBottom, t[0], max(8, t[-1]))
-                    ymin,ymax = min(a[1])-3.0, max(max(a[1])+4.0,a[1][-1])
-                    a[0].setAxisScale(qwt.QwtPlot.yLeft, 0, 1000,100)
-                    a[2].setData(t, a[1])  ## add new data to the plots
-                    a[0].replot()
-               self.ui.ave_temp.setText("%5.2f" %tmp[-1])
-               self.ui.ave_temp.setStyleSheet("color: lime")
+    def start_data(self):
+        """ Start data collection """
+        self.ui.statusbar.showMessage("")
+        if self.ui.autoincrement.isChecked():  ## auto-increment straw number by two
+            x = self.ui.strawnumbox.value()
+            self.ui.strawnumbox.setValue(x + 2)
 
-               if DEBUG:
-                    state = b'end'
-               if state == b'end':
-                    self.saveMethod(self.ui.strawnumbox.value(), tmp[-1], hmd[-1])
-                    self.pause_data()
-                    self.ui.statusbar.showMessage(message)
+        if self.ui.hmd_label.text():
+            self.hmd = self.ui.hmd_label.text()  ## relative humidity (%)
+        else:
+            self.hmd = 26  # default text displayed in GUI
 
-               if self.calmode==True:
-                    if len(self.temp)>50:
-                         print('gathered 50 values')
-                         caldata = np.array(self.temp)
-                         if np.nanstd(caldata[:,1]) > 5:
-                              print("Uncertainty > 5g. Recalibrating")
-                              self.temp = []
-                         else:
-                              self.pause_data()
-                              self.offset_zero = np.nanmean(caldata[:,1])
-                              print('Calibration data collected: {:.2f}g offset at zero'.format(self.offset_zero))
-                              self.calmode = False
-                              self.ui.setzero.setEnabled(True)
-                              self.ui.realtime_display.setEnabled(True)
-                              self.ui.statusbar.showMessage("Force sensor zero set. Ready to tension straw.")
-                         
-                         
-                    
+        self.straw_number = self.ui.strawnumbox.value()
+        self.nom_tension = float(
+            self.straw_tensionvalues[self.straw_number, 3]
+        ) - float(self.hmd)
+        self.ui.nominal_label.setText("%5.2f" % float(self.nom_tension))
 
-     def pause_data(self): 
-          """ Pause data collection """
-          if self.thdl: ## must stop thread if it's running
-               self.thdl.join(0.1) ## make thread timeout
-               self.thdl = None
-          self.interval.stop()
-          QTimer.singleShot(180, lambda:
-                           self.ui.realtime_display.setEnabled(True))
-          #self.ui.pause_display.setEnabled(False)
-          QTimer.singleShot(180, lambda:
-                           self.ui.setzero.setEnabled(True))
-          
+        self.temp, self.uncertainty = [], []  ## clear plot of previous straw's tension
+        self.panel = self.ui.panel_id.text()
+        com = self.port_loc["Vernier Force Sensor"][0]
 
-     def zero(self):
-          """ Set zero by subtracting sensor offset at zero tension. """
-          self.ui.setzero.setEnabled(False)
-          self.calmode = True
-          self.start_data()
-          
+        qs = queue.Queue()
+        ## baud rate 9600 for Vernier sensor
+        if self.calmode == True:  ## use raw data (no offset) to find offset
+            self.thdl = GetDataThread(
+                self.straw_number,
+                qs,
+                0.0,
+                self.panel,
+                com,
+                9600,
+                networked=self.networked,
+            )
+        if self.calmode == False:  ## includes offset subtraction
+            self.thdl = GetDataThread(
+                self.straw_number,
+                qs,
+                self.offset_zero,
+                self.panel,
+                com,
+                9600,
+                networked=self.networked,
+            )
+        self.thdl.start()
+        self.ui.realtime_display.setEnabled(False)
+        self.ui.setzero.setEnabled(False)
+        self.interval.start(self.wait)
+
+    def getPortLoc(self):
+        arduino_ports = [
+            p.device
+            for p in serial.tools.list_ports.comports()
+            if "Arduino" in p.description
+        ]
+        if len(arduino_ports) == 0:  ## fix for Day2/Day3 General Nanosystems Computers
+            arduino_ports = [
+                p.device
+                for p in serial.tools.list_ports.comports()
+                if "USB Serial" in p.description
+            ]
+        if len(arduino_ports) < 1:
+            print("Arduino not found \nPlug straw tensioner into any USB port")
+            time.sleep(2)
+            print("Exiting script")
+            sys.exit()
+        print("Arduino at {}".format(arduino_ports[0]))
+        ## Locations of sensors
+        return {"Vernier Force Sensor": [arduino_ports[0], 0]}
+
+    def dynamic_plot(self, data_type, st, color, xaxis=True):
+        plot = qwt.QwtPlot(self)
+        plot.setCanvasBackground(Qt.black)
+        if xaxis:
+            plot.setAxisTitle(qwt.QwtPlot.xBottom, "Time (s)")
+        plot.setAxisScale(qwt.QwtPlot.xBottom, 0, 10, 1)
+        plot.setAxisTitle(qwt.QwtPlot.yLeft, data_type)
+        plot.setAxisScale(qwt.QwtPlot.yLeft, 18, 28, 2)
+        plot.replot()
+        curve = qwt.QwtPlotCurve("")
+        curve.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
+        pen = QPen(QColor(color), 2)
+        curve.setPen(pen)
+        curve.attach(plot)
+        ## add max straw tension, 850g for all straws
+        curvemax = qwt.QwtPlotCurve("max_tension")
+        curvemax.attach(plot)
+        penlim = QPen(QColor("yellow"), 2)
+        curvemax.setPen(penlim)
+        curvemax.setData(np.arange(100), 850 * np.ones(100))
+        ## add min straw tension, depends on straw length
+        self.curvemin = qwt.QwtPlotCurve("min_tension")
+        self.curvemin.attach(plot)
+        self.curvemin.setPen(penlim)
+        self.curvemin.setData(
+            np.arange(100),
+            (float(self.min_tension[int(self.straw_number)]) - float(self.hmd))
+            * np.ones(100),
+        )
+        plot.replot()
+        return plot, curve
+
+    def next(self):
+        """ Add next data to the plots """
+        data_list = list(self.thdl.transfer(self.thdl.qs))
+        if len(data_list) > 0 and data_list[-1][0][1] != "nan":  ## skip blank data
+            data = dict(
+                tension=data_list[-1][0][0],
+                uncertainty=data_list[-1][0][1],
+                timestamp=data_list[-1][1],
+            )
+            if self.calmode == True:  ## use raw data in calibration mode
+                caltmp = float(data["tension"])
+            if self.calmode == False:  ## data with offset subtracted
+                caltmp = float(
+                    data["tension"]
+                )  ## includes subtraction of offset at zero
+            calhmd = float(data["uncertainty"])
+            state = data_list[-1][2]
+
+            self.ui.tension_label.setText("%5.2f" % caltmp)  ## tension in label box
+            self.ui.unc_label.setText(str(calhmd))  ## uncertainty in label
+            if caltmp <= 850.0 and caltmp >= float(
+                self.min_tension[int(self.straw_number)]
+            ) - float(self.hmd):
+                self.ui.rangepanel.setStyleSheet("background-color: green")
+                message = "Straw tension acceptable: move to next straw"
+            else:
+                self.ui.rangepanel.setStyleSheet("background-color: red")
+                message = "Straw tension outside acceptable range: repull straw"
+
+            self.temp.append((data["timestamp"], caltmp))
+            self.uncertainty.append((data["timestamp"], calhmd))
+            if len(self.temp) > self.maxdatas:
+                self.temp.pop(0), self.uncertainty.pop(0)
+            t = [x[0] for x in self.temp]  ## time (s)
+            tmp = [float(t[1]) for t in self.temp]  ## tension (grams force)
+            hmd = [float(h[1]) for h in self.uncertainty]  ## uncertainty (grams force)
+            ave = [sum(y) / float(len(y)) for y in [tmp]]
+            self.curvemin.setData(
+                np.arange(100),
+                (float(self.min_tension[(self.straw_number)]) - float(self.hmd))
+                * np.ones(100),
+            )
+            for a in [[self.tmpplot, tmp, self.tmpcurve]]:
+                a[0].setAxisScale(qwt.QwtPlot.xBottom, t[0], max(8, t[-1]))
+                ymin, ymax = min(a[1]) - 3.0, max(max(a[1]) + 4.0, a[1][-1])
+                a[0].setAxisScale(qwt.QwtPlot.yLeft, 0, 1000, 100)
+                a[2].setData(t, a[1])  ## add new data to the plots
+                a[0].replot()
+            self.ui.ave_temp.setText("%5.2f" % tmp[-1])
+            self.ui.ave_temp.setStyleSheet("color: lime")
+
+            if DEBUG:
+                state = b"end"
+            if state == b"end":
+                self.saveMethod(self.ui.strawnumbox.value(), tmp[-1], hmd[-1])
+                self.pause_data()
+                self.ui.statusbar.showMessage(message)
+
+            if self.calmode == True:
+                if len(self.temp) > 50:
+                    print("gathered 50 values")
+                    caldata = np.array(self.temp)
+                    if np.nanstd(caldata[:, 1]) > 5:
+                        print("Uncertainty > 5g. Recalibrating")
+                        self.temp = []
+                    else:
+                        self.pause_data()
+                        self.offset_zero = np.nanmean(caldata[:, 1])
+                        print(
+                            "Calibration data collected: {:.2f}g offset at zero".format(
+                                self.offset_zero
+                            )
+                        )
+                        self.calmode = False
+                        self.ui.setzero.setEnabled(True)
+                        self.ui.realtime_display.setEnabled(True)
+                        self.ui.statusbar.showMessage(
+                            "Force sensor zero set. Ready to tension straw."
+                        )
+
+    def pause_data(self):
+        """ Pause data collection """
+        if self.thdl:  ## must stop thread if it's running
+            self.thdl.join(0.1)  ## make thread timeout
+            self.thdl = None
+        self.interval.stop()
+        QTimer.singleShot(180, lambda: self.ui.realtime_display.setEnabled(True))
+        # self.ui.pause_display.setEnabled(False)
+        QTimer.singleShot(180, lambda: self.ui.setzero.setEnabled(True))
+
+    def zero(self):
+        """ Set zero by subtracting sensor offset at zero tension. """
+        self.ui.setzero.setEnabled(False)
+        self.calmode = True
+        self.start_data()
+
 
 class GetDataThread(threading.Thread):
-     """ Read data from Arduino Uno and Vernier force sensor DFS-BTA"""
-     def __init__(self, stn, qs, cal, loc, COM, baudrate, timeout=0.08, networked=False): 
-          threading.Thread.__init__(self)
-          self.running = threading.Event() 
-          self.running.set()
-          self.qs = qs
-          self.stn = stn  ## straw position in panel
-          self.cal = cal  ## offset at zero tension
-          self.nano_params = {'port':COM,'baudrate':baudrate,'timeout':timeout}
-          if networked:  ## saving data to networked drive MU2E-CART1
-               #print('networked')
-               self.mu2ecart = '\\\MU2E-CART1\\Users\\Public\\Database Backup\\Panel data\\straw_tensioner_data\\'
-               self.datafile = self.mu2ecart+loc+'_'+ datetime.now().strftime("%Y-%m-%d")
-          else:
-               self.directory = os.path.dirname(os.path.realpath(__file__))+'\\'
-               self.datafile = self.directory+'straw_tension_data\\'+loc +'_'+ datetime.now().strftime("%Y-%m-%d")
-          if not os.path.isfile(self.datafile+'.csv'): 
-               with open(self.datafile+'.csv', mode='a+') as f:
-                    f.write('Date,StrawPosition,Tension(grams),Uncertainty(grams),Epoc\n')
+    """ Read data from Arduino Uno and Vernier force sensor DFS-BTA"""
 
-     def run(self):
-          print('thread running')
-          t0 = time.time()
-          self.nano = serial.Serial(**self.nano_params)
-          while self.running.isSet():
-               line = self.nano.readline().strip()
-               if line != b'':
-                    line = line.split(b' ')
-                    if len(line)==3 and line[2]!=b'nan':   ## skip partial lines and 'nan' uncertainty
-                         THdata = ["%5.2f" %(float(line[1])-float(self.cal)),"%5.2f" % float(line[2])]
-                         #print(THdata)
-                         print(line)
-                         timestamp = time.time()-t0
-                         state = line[0] ## b'reading' or b'end'
-                         self.qs.put((THdata,timestamp,state))
-                         # join thread on "end" signal: slope=-9, see Arduino code to edit
-                         if state == b'end':
-                              with open(self.datafile+'.csv', mode='a+') as f:  ## save to csv
-                                   f.write(datetime.now().strftime("%Y-%m-%d_%H%M%S") +',')
-                                   f.write(str(self.stn)+',')  ## straw position in panel
-                                   f.write(str(THdata[0])+',') ## tension (grams force)
-                                   f.write(str(THdata[1])+',') ## uncertainty (grams force)
-                                   f.write(str(time.time())+'\n')
-                              break                
-          self.nano.close()
-          
-        
-     def transfer(self,qs):
+    def __init__(self, stn, qs, cal, loc, COM, baudrate, timeout=0.08, networked=False):
+        threading.Thread.__init__(self)
+        self.running = threading.Event()
+        self.running.set()
+        self.qs = qs
+        self.stn = stn  ## straw position in panel
+        self.cal = cal  ## offset at zero tension
+        self.nano_params = {"port": COM, "baudrate": baudrate, "timeout": timeout}
+        if networked:  ## saving data to networked drive MU2E-CART1
+            # print('networked')
+            self.mu2ecart = "\\\MU2E-CART1\\Users\\Public\\Database Backup\\Panel data\\straw_tensioner_data\\"
+            self.datafile = (
+                self.mu2ecart + loc + "_" + datetime.now().strftime("%Y-%m-%d")
+            )
+        else:
+            self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
+            self.datafile = (
+                self.directory
+                + "..\\..\\..\\..\\..\\Data\\Panel Data\\external_gui_data\\straw_tension_data\\"
+                + loc
+                + "_"
+                + datetime.now().strftime("%Y-%m-%d")
+            )
+        if not os.path.isfile(self.datafile + ".csv"):
+            with open(self.datafile + ".csv", mode="a+") as f:
+                f.write("Date,StrawPosition,Tension(grams),Uncertainty(grams),Epoc\n")
+
+    def run(self):
+        print("thread running")
+        t0 = time.time()
+        self.nano = serial.Serial(**self.nano_params)
+        while self.running.isSet():
+            line = self.nano.readline().strip()
+            if line != b"":
+                line = line.split(b" ")
+                if (
+                    len(line) == 3 and line[2] != b"nan"
+                ):  ## skip partial lines and 'nan' uncertainty
+                    THdata = [
+                        "%5.2f" % (float(line[1]) - float(self.cal)),
+                        "%5.2f" % float(line[2]),
+                    ]
+                    # print(THdata)
+                    print(line)
+                    timestamp = time.time() - t0
+                    state = line[0]  ## b'reading' or b'end'
+                    self.qs.put((THdata, timestamp, state))
+                    # join thread on "end" signal: slope=-9, see Arduino code to edit
+                    if state == b"end":
+                        with open(
+                            self.datafile + ".csv", mode="a+"
+                        ) as f:  ## save to csv
+                            f.write(datetime.now().strftime("%Y-%m-%d_%H%M%S") + ",")
+                            f.write(str(self.stn) + ",")  ## straw position in panel
+                            f.write(str(THdata[0]) + ",")  ## tension (grams force)
+                            f.write(str(THdata[1]) + ",")  ## uncertainty (grams force)
+                            f.write(str(time.time()) + "\n")
+                        break
+        self.nano.close()
+
+    def transfer(self, qs):
         try:
-            yield qs.get(True,0.01)
+            yield qs.get(True, 0.01)
         except queue.Empty:
             return
-                
-     def join(self, timeout=None): 
-        self.running.clear() 
+
+    def join(self, timeout=None):
+        self.running.clear()
         threading.Thread.join(self, timeout)
-        print('thread joined')
+        print("thread joined")
 
 
 class Ui_MainWindow(object):
@@ -295,10 +370,14 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(745, 583)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.centralwidget.sizePolicy().hasHeightForWidth()
+        )
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setMinimumSize(QtCore.QSize(511, 518))
         self.centralwidget.setObjectName("centralwidget")
@@ -344,7 +423,9 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 2, 0, 1, 2)
         self.strawnumbox = QtWidgets.QSpinBox(self.top_layout)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.strawnumbox.sizePolicy().hasHeightForWidth())
@@ -369,7 +450,9 @@ class Ui_MainWindow(object):
         self.autoincrement.setObjectName("autoincrement")
         self.gridLayout_2.addWidget(self.autoincrement, 4, 0, 1, 3)
         self.rangepanel = QtWidgets.QGraphicsView(self.top_layout)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rangepanel.sizePolicy().hasHeightForWidth())
@@ -525,10 +608,14 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.rangepanel, 5, 0, 1, 3)
         self.gridLayout_3.addWidget(self.top_layout, 1, 0, 1, 1)
         self.plot_groupbox = QtWidgets.QGroupBox(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.plot_groupbox.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.plot_groupbox.sizePolicy().hasHeightForWidth()
+        )
         self.plot_groupbox.setSizePolicy(sizePolicy)
         self.plot_groupbox.setMinimumSize(QtCore.QSize(521, 361))
         self.plot_groupbox.setTitle("")
@@ -542,7 +629,9 @@ class Ui_MainWindow(object):
         self.bottomLayout = QtWidgets.QGridLayout()
         self.bottomLayout.setObjectName("bottomLayout")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
@@ -574,7 +663,9 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
         self.bottomLayout.addWidget(self.label_2, 0, 0, 2, 1)
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
@@ -610,10 +701,14 @@ class Ui_MainWindow(object):
         self.label_7.setObjectName("label_7")
         self.bottomLayout.addWidget(self.label_7, 1, 2, 2, 1)
         self.tension_label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.tension_label.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.tension_label.sizePolicy().hasHeightForWidth()
+        )
         self.tension_label.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
@@ -651,10 +746,14 @@ class Ui_MainWindow(object):
         self.tension_label.setObjectName("tension_label")
         self.bottomLayout.addWidget(self.tension_label, 2, 0, 1, 1)
         self.nominal_label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.nominal_label.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.nominal_label.sizePolicy().hasHeightForWidth()
+        )
         self.nominal_label.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
@@ -693,7 +792,9 @@ class Ui_MainWindow(object):
         self.nominal_label.setObjectName("nominal_label")
         self.bottomLayout.addWidget(self.nominal_label, 2, 1, 1, 1)
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
@@ -725,7 +826,9 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.bottomLayout.addWidget(self.label_4, 3, 0, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
@@ -757,7 +860,9 @@ class Ui_MainWindow(object):
         self.label_8.setObjectName("label_8")
         self.bottomLayout.addWidget(self.label_8, 3, 1, 2, 1)
         self.unc_label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.unc_label.sizePolicy().hasHeightForWidth())
@@ -842,26 +947,33 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "StrawTensioner"))
-        self.label_5.setText(_translate("MainWindow", "Straw Tensioner - Vernier Force Sensor"))
+        self.label_5.setText(
+            _translate("MainWindow", "Straw Tensioner - Vernier Force Sensor")
+        )
         self.label_3.setText(_translate("MainWindow", "Panel ID"))
         self.panel_id.setPlaceholderText(_translate("MainWindow", "MN000"))
         self.setzero.setText(_translate("MainWindow", "Set Force Sensor Zero"))
         self.label.setText(_translate("MainWindow", "Straw \n", "Number"))
         self.realtime_display.setText(_translate("MainWindow", "Tension Straw"))
-        self.autoincrement.setText(_translate("MainWindow", "Auto-Increment \n", "Straw Number"))
+        self.autoincrement.setText(
+            _translate("MainWindow", "Auto-Increment \n", "Straw Number")
+        )
         self.label_2.setText(_translate("MainWindow", "Tension (grams)"))
         self.label_6.setText(_translate("MainWindow", "Nominal Tension "))
-        self.label_7.setText(_translate("MainWindow", "Note: Nominal tension corrected by -1g for each +1% humidity"))
+        self.label_7.setText(
+            _translate(
+                "MainWindow",
+                "Note: Nominal tension corrected by -1g for each +1% humidity",
+            )
+        )
         self.tension_label.setText(_translate("MainWindow", "0"))
         self.label_4.setText(_translate("MainWindow", "Uncertainty"))
         self.label_8.setText(_translate("MainWindow", "Humidity (%)"))
         self.hmd_label.setPlaceholderText(_translate("MainWindow", "26"))
 
 
-
-
 if __name__ == "__main__":
-     '''
+    """
      arduino_ports = [p.device for p in serial.tools.list_ports.comports()
                       if 'Arduino' in p.description]
      if len(arduino_ports)==0:  ## fix for Day2/Day3 General Nanosystems Computers
@@ -875,12 +987,12 @@ if __name__ == "__main__":
      print("Arduino at {}".format(arduino_ports[0]))
      ## Locations of sensors
      port_loc = {"Vernier Force Sensor":[arduino_ports[0],0]}
-     '''
-     calibration = {"Vernier Force Sensor":None}
-     
-     app = QApplication(sys.argv) 
-     ctr = StrawTension(maxdatas=8824, wait=50.0, networked=False)
-     ctr.show()
-     ctr.resize(1600,1200)    # set to a comfy size
-     app.exec_()
+     """
+    calibration = {"Vernier Force Sensor": None}
+
+    app = QApplication(sys.argv)
+    ctr = StrawTension(maxdatas=8824, wait=50.0, networked=False)
+    ctr.show()
+    ctr.resize(1600, 1200)  # set to a comfy size
+    app.exec_()
 #### Test conditions: Python 3.7 32bit on Windows 64bit
