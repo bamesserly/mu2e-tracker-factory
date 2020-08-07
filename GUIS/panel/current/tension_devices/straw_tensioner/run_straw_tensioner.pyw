@@ -246,7 +246,7 @@ class GetDataThread(threading.Thread):
                self.datafile = self.mu2ecart+loc+'_'+ datetime.now().strftime("%Y-%m-%d")
           else:
                self.directory = os.path.dirname(os.path.realpath(__file__))+'\\'
-               self.datafile = self.directory+'straw_tension_data\\'+loc +'_'+ datetime.now().strftime("%Y-%m-%d")
+               self.datafile = self.directory+'..\\..\\..\\..\\..\\Data\\Panel Data\\external_gui_data\\straw_tension_data\\'+loc +'_'+ datetime.now().strftime("%Y-%m-%d")
           if not os.path.isfile(self.datafile+'.csv'): 
                with open(self.datafile+'.csv', mode='a+') as f:
                     f.write('Date,StrawPosition,Tension(grams),Uncertainty(grams),Epoc\n')

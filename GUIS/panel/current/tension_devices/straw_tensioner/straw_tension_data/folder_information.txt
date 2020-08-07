@@ -1,2 +1,0 @@
-by default, networked=True and data will be saved to MU2E-CART1.
-if testing locally instead, data will be saved to this folder. 
