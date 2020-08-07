@@ -153,12 +153,12 @@ class facileDBGUI(QMainWindow):
 
         def connectSpecial():
             return sqlite3.connect(
-                "file:Z:\Production_Environment\Database\database.db?mode=ro", uri=True
+                "file:Z:\Production_Environment\Data\database.db?mode=ro", uri=True
             )
             # return sqlite3.connect("file:/spa-mu2e-network/Files/Production_Environment/Database/database.db?mode=ro", uri=True)
 
         self.engine = sqla.create_engine(
-            "sqlite:///../../Database/database.db/", creator=connectSpecial
+            "sqlite:///../../Data/database.db/", creator=connectSpecial
         )  # create engine
 
         # try to use read only mode
