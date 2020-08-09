@@ -666,7 +666,9 @@ class TxtDataProcessor(DataProcessor):
 
         current_dir = os.path.dirname(__file__)
         top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-        self.paths.update((k, top_dir + "/" + v) for k, v in self.paths.items()) # make paths absolute
+        self.paths.update(
+            (k, top_dir + "/" + v) for k, v in self.paths.items()
+        )  # make paths absolute
 
         # Save directories as instance variables
         self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()
@@ -692,7 +694,7 @@ class TxtDataProcessor(DataProcessor):
     """
     saveData has two options for formats.  Whenever saveData is called, it'll
     make a decision on which save method to use.
-    
+
     Setting the USE_MARK_ONE constant to true will make it save in the DB friendly CSV format,
     and setting it to false will make it save in the human friendly CSV format.
     """
@@ -1913,11 +1915,19 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             self.procedure.recordEpoxyTime, *self.parseTimeTuple(data[17])
         )  # Working Time of Epoxy(H:M:S)
+        self.callMethod(
+            panel.recordPAAS, self.stripNumber(data[18]), None, "A"
+        )  # PAAS A
+        self.callMethod(
+            panel.recordPAAS, self.stripNumber(data[19]), None, "C"
+        )  # PAAS C
 
     # Straws
     def saveDataProcess2(self):
         # Get data from GUI
         data = self.getDayData()
+        # Get panel for easy access
+        panel = self.panel()
 
         # Call all getters to store data in sql database
         self.callMethod(
@@ -1943,6 +1953,9 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             self.procedure.recordHeatTime, *self.parseTimeTuple(data[9])
         )  # Heat Time
+        self.callMethod(
+            panel.recordPAAS, self.stripNumber(data[10]), None, "B"
+        )  # PIR Right B
 
     # Wire Tensions
     def saveDataProcess3(self):
@@ -2611,11 +2624,14 @@ class SQLDataProcessor(DataProcessor):
             self.epoxyBarcode(self.procedure.getEpoxyBatch()),  # Epoxy Batch
             self.timeDelta(
                 self.procedure.getEpoxyTime(), self.procedure.getEpoxyTimeRunning()
-            ),  # Working Time of Epoxy(
+            ),  # Working Time of Epoxy
+            self.getBarcode(panel.getPAAS(L_R=None, letter="A")),  # PAAS A barcode
+            self.getBarcode(panel.getPAAS(L_R=None, letter="C")),  # PAAS C barcode
         ]
 
     # Straws
     def loadDataProcess2(self):
+        panel = self.panel()
         return [
             self.getBarcode(self.panel()),  # Panel
             self.getBarcode(self.procedure.getLPAL(top_bot="top")),  # Upper LPAL
@@ -2635,6 +2651,7 @@ class SQLDataProcessor(DataProcessor):
             self.timeDelta(
                 self.procedure.getHeatTime(), self.procedure.getHeatTimeRunning()
             ),  # Heat Time
+            self.getBarcode(panel.getPAAS(L_R=None, letter="B")),  # PAAS B barcode
         ]
 
     # Wire Tensions

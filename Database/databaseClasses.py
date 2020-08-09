@@ -1,17 +1,17 @@
 """
     databaseClasses.py
-    
+
     'declarative_base' classes mirroring the sqlite database. These classes have additional data-handling functionality.
-    
+
     Author: Joe Dill
-    
+
     In this update: (5-29-19)
         -   Procedure-Procedure Schema implemented
             Explanation:
                 -   A "procedure" is when a panel/pallet goes through a station. This is one-to-one. Every pallet gets opperated on
-                    at each station. This table records that. 
+                    at each station. This table records that.
                 -   A "session" is when a group of workers login to a gui and do something. One gets created/ended every time a gui is opened/closed.
-                -   Procedures are linked to procedures in a separate to distinguish between procedures happening on panels and those happening on 
+                -   Procedures are linked to procedures in a separate to distinguish between procedures happening on panels and those happening on
                     CPAL rotations.
 """
 
@@ -129,7 +129,7 @@ class Query:
     queryCount
     (class method)
 
-        Runs a query on this class that returns a count of the number of entries that match the 
+        Runs a query on this class that returns a count of the number of entries that match the
         specifications, but not the mapped objects themselves
     """
 
@@ -481,12 +481,12 @@ class Procedure(BASE, OBJECT):
     """
     __init__
         Description:
-            Initialization method. This method is for internal use only. 
+            Initialization method. This method is for internal use only.
 
-        Input: 
+        Input:
             station         (Station)       Station where this procedure is being conducted.
             straw_location  (StrawLocation) StrawLocation being operated on during this procedure.
-            create_key      (Object)        Method only accepts the private Procedure.__create_key object, 
+            create_key      (Object)        Method only accepts the private Procedure.__create_key object,
                                             thus it is only accessible within the class.
     """
 
@@ -754,7 +754,7 @@ class PanelProcedure(Procedure):
         Description:
             Record that the given step has been executed for this procedure.
 
-        Input: 
+        Input:
             step    (PanelStep) Step that is being executed.
     """
 
@@ -1696,7 +1696,7 @@ class Pan7Procedure(PanelProcedure):
 """
 class Co2Procedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "co2"}
-    
+
     def _setDetails(self):
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_co2"
@@ -1708,20 +1708,20 @@ class Co2Procedure(Procedure):
 
     def setEpoxyBatch(self,batch):
         self.details.epoxy_batch = batch
-    
+
     def setEpoxyTime(self,duration):
         self.details.epoxy_time = duration
-    
+
     def setDp190(self,dp190):
         self.details.dp190 = dp190
 
 class LasrProcedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "lasr"}
-    
+
     @orm.reconstructor
     def init_on_load(self):
         super().init_on_load()
-    
+
     def _setDetails(self):
         class _FirstPosition(BASE, OBJECT):
             __tablename__ = "laser_cut_first_position"
@@ -1731,7 +1731,7 @@ class LasrProcedure(Procedure):
         class _ApproximateHumidity(BASE, OBJECT):
             __tablename__ = "laser_cut_approximate_humidity"
             humidity = Column(Integer, primary_key=True)
-            
+
         # Define details class
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_lasr"
@@ -1749,7 +1749,7 @@ class LasrProcedure(Procedure):
         # Record position if valid
         if position_entry:
             self.details.first_position = position
-    
+
     def setApproximateHumidity(self,humidity):
         # Make sure input is valid humidity
         position_entry = DM.query(LasrProcedure._ApproximateHumidity).\
@@ -1761,11 +1761,11 @@ class LasrProcedure(Procedure):
 
 class SilvProcedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "silv"}
-    
+
     @orm.reconstructor
     def init_on_load(self):
         super().init_on_load()
-    
+
     def _setDetails(self):
         # Define details class
         class Details(BASE, OBJECT):
@@ -1778,7 +1778,7 @@ class SilvProcedure(Procedure):
 
     def setEpoxyBatch(self,batch):
         self.details.epoxy_batch = batch
-    
+
     def setEpoxyTime(self,duration):
         self.details.epoxy_time = duration
 """
@@ -1887,9 +1887,9 @@ class Straw(BASE, OBJECT):
         Description:    Class method that returns a straw object when given a straw barcode
 
         Input:          (str)   Straw barcode
-        
+
         Return:         Straw object corresponding to given barcode
-        
+
         Ex: 'ST12345' ==> Straw(id=12345)
     """
 
@@ -2010,8 +2010,8 @@ class StrawLocation(BASE, OBJECT):
     (class method)
 
         Description:
-            This is the ultimate constructor for any StrawLocation class. Returns a queried 
-            StrawLocation (or derivative) if a number is provided. 
+            This is the ultimate constructor for any StrawLocation class. Returns a queried
+            StrawLocation (or derivative) if a number is provided.
             Otherwise, creates a new one (using the create_key).
 
         Input:
@@ -2019,7 +2019,7 @@ class StrawLocation(BASE, OBJECT):
             new         (bool)                      Set to True if this is a new StrawLocation
             pallet_id   (int)                       Applicable to pallets (CuttingPallet and Loading Pallet) only.
                                                     This is the number on the pallets 'CPALID##' barcode.
-        
+
         Output:
             An instance of 'cls' that is linked to an entry in the database.
     """
@@ -2317,6 +2317,13 @@ class Panel(StrawLocation):
 
     def recordMiddleRib2(self, number):
         self._recordPart("MIDDLERIB_2", number)
+
+    def getPAAS(self, L_R, letter):
+        return self._queryPartOnPanel("PAAS", None, letter).one_or_none()
+
+    def recordPAAS(self, number, L_R, letter):
+        if number is not None:
+            self._recordPart("PAAS", number, None, letter)
 
     ## QUERY METHODS ##
 

@@ -30,5 +30,5 @@ REM Then robocopy the lab computer UP to the network.
 REM TODO If the first command fails, then we risk overwriting
 REM=============================================================================
 :sub
-robocopy \\spa-mu2e-network\Files\Production_Environment C:\Users\%USERNAME%\Desktop\Production /e
-robocopy C:\Users\%USERNAME%\Desktop\Production \\spa-mu2e-network\Files\Production_Environment /e
+robocopy \\spa-mu2e-network\Files\Production_Environment\Data C:\Users\%USERNAME%\Desktop\Production\Data /e
+robocopy C:\Users\%USERNAME%\Desktop\Production\Data \\spa-mu2e-network\Files\Production_Environment\Data /e

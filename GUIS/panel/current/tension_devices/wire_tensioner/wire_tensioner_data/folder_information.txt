@@ -1,9 +1,0 @@
-This version of the wire tensioner has no ability to directly save to a csv
-file.
-
-Instead, this wire tensioner is to be called from within PANGUI.
-
-Data collected by this wire tensioner is passed to PANGUI through PANGUI's
-saveMethod, which is set as a member of the WireTensionerWindow.
-
-The Network option defaults to False, and this option is being depreciated.
