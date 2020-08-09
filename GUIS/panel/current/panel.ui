@@ -2992,7 +2992,7 @@ Tensioner</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_51">
                    <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="commentBox_2">
+                    <widget class="QPlainTextEdit" name="commentBox4">
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
@@ -3845,7 +3845,7 @@ Tensioner</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_52">
                      <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="day5CommentBox">
+                      <widget class="QPlainTextEdit" name="commentBox5">
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
@@ -4629,7 +4629,7 @@ Tensioner</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_34">
                      <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="commentBox4">
+                      <widget class="QPlainTextEdit" name="commentBox6">
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
@@ -5013,7 +5013,7 @@ Tensioner</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_43">
                      <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="commentBox5">
+                      <widget class="QPlainTextEdit" name="commentBox7">
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
@@ -6340,19 +6340,19 @@ Tensioner</string>
   <tabstop>picfour1_2</tabstop>
   <tabstop>picfour2_2</tabstop>
   <tabstop>picfour3_2</tabstop>
-  <tabstop>commentBox_2</tabstop>
+  <tabstop>commentBox4</tabstop>
   <tabstop>saveButton</tabstop>
-  <tabstop>day5CommentBox</tabstop>
+  <tabstop>commentBox5</tabstop>
   <tabstop>day5CommentSaveButton</tabstop>
   <tabstop>picfour1_3</tabstop>
   <tabstop>picfour3_3</tabstop>
   <tabstop>picfour2_3</tabstop>
-  <tabstop>commentBox4</tabstop>
+  <tabstop>commentBox6</tabstop>
   <tabstop>saveButton4</tabstop>
   <tabstop>picfour1</tabstop>
   <tabstop>paas_attach_3</tabstop>
   <tabstop>picfour3</tabstop>
-  <tabstop>commentBox5</tabstop>
+  <tabstop>commentBox7</tabstop>
   <tabstop>saveButton5</tabstop>
   <tabstop>picfive1</tabstop>
   <tabstop>failSelect</tabstop>

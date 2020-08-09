@@ -918,24 +918,12 @@ class panelGUI(QMainWindow):
             )
         )
 
-        # here
-        # self.ui.epoxyMixedLP.clicked.connect(self.pro4part1L)
-        # self.ui.epoxy_inject1.clicked.connect(lambda : self.stopTimer(2))
-        # self.ui.epoxy_inject2.clicked.connect(lambda : self.stopTimer(3))
-        # self.ui.heat_finished.clicked.connect(self.day2CheckTemp)
-        # self.ui.heat_finished4.clicked.connect(self.day4CheckTemp)
-        # self.ui.epoxy_applied42.clicked.connect(lambda : self.stopTimer(7))
-        # self.ui.epoxy_applied41.clicked.connect(lambda : self.stopTimer(6))
-        # self.ui.epoxy_applied5_2.clicked.connect(lambda : self.stopTimer(9))
-        # self.ui.epoxy_applied5_3.clicked.connect(lambda : self.stopTimer(10))
 
         for input in self.panelInput:
             input.editingFinished.connect(self.loadDay)
             input.editingFinished.connect(lambda: input.setEnabled(False))
             input.returnPressed.connect(lambda: None)
 
-        # self.ui.epoxy_applied5_2.clicked.connect(self.day5part2_2)
-        # self.ui.epoxy_applied5_3.clicked.connect(self.day5part3_2)
 
     def _init_validators(self):
         # TODO: write more comments in here
@@ -2175,15 +2163,15 @@ class panelGUI(QMainWindow):
     def saveComments(self, comments=""):
 
         if comments == "":
-            # Get Comment box [<boxes>][<index we want>]  (yes, these names are correct and in order...  -_-)
+            # Get Comment box [<boxes>][<index we want>]
             box = [
                 self.ui.commentBox1,
                 self.ui.commentBox2,
                 self.ui.commentBox3,
-                self.ui.commentBox_2,
-                self.ui.day5CommentBox,
                 self.ui.commentBox4,
                 self.ui.commentBox5,
+                self.ui.commentBox6,
+                self.ui.commentBox7,
             ][self.day_index]
             # Extract text
             comments = box.document().toPlainText()
@@ -3243,7 +3231,7 @@ class panelGUI(QMainWindow):
                 self.ui.temp4_5.setDisabled(True)
 
     """
-    parseDay5Data(self, data)
+    parseday7Data(self, data)
 
         Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
                     UI elements to ensure the GUI state is consistent with normal use.
@@ -3257,8 +3245,8 @@ class panelGUI(QMainWindow):
         #     self.ui.panelInput7.setText(str(data[0]))
 
         ## Note from Billy
-        ## The day5loadData function return a list of size 4
-        ## The original design for parseDay5Data requires a list of size 5
+        ## The day7loadData function return a list of size 4
+        ## The original design for parseday7Data requires a list of size 5
         ## Change my code if you need
         if data[0] is not None:
             self.ui.panelInput7.setText(str(data[0]))
@@ -4020,7 +4008,7 @@ class panelGUI(QMainWindow):
     ###  |____/ \__,_|\__, | |____/|_/_/\_\
     ###               |___/
     """
-    day4part1(self)
+    day6part1(self)
 
         Description: Function called by Start Button. Validates the Panel Number Input, and checks that the supplies list has been checked off.
                  Starts the main timer.
@@ -4069,7 +4057,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day4part2(self)
+    day6part2(self)
 
         Description: Function called when 'Epoxy Mixed' button 1 is clicked. Validates Epoxy Input 1, and starts epoxy timer 1.
 
@@ -4105,7 +4093,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day4part2_2(self)
+    day6part2_2(self)
 
         Description: Function called when Epoxy Applied Button 1 is clicked. Records the elapsed time of the the first epoxy session.
 
@@ -4131,7 +4119,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day4part3(self)
+    day6part3(self)
 
         Description: Function called when Epoxy Mixed Button 2 is clicked. Validates Epoxy Batch Inputs 2 and 3, and starts the second day 4
                  epoxy timer.
@@ -4162,7 +4150,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day4part3_2(self)
+    day6part3_2(self)
 
         Description: Function called when Epoxy Applied Button 2 is clicked. Records the elapsed time for day 4 epoxy session 2.
 
@@ -4182,7 +4170,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day4part4(self)
+    day6part4(self)
 
         Description: Function called when Heat Start Button is clicked. Starts the heating timer thread.
 
@@ -4206,7 +4194,7 @@ class panelGUI(QMainWindow):
         self.startTimer(8)
 
     """
-    day4part4_2(self)
+    day6part4_2(self)
 
         Description: Function that ends the heating timer and records the max temperatures.
 
@@ -4226,7 +4214,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day4CheckTemp(self)
+    day6CheckTemp(self)
 
         Description: Function called when Heat Finished Button is clicked. Checkes that something has been entered into the temperature input boxes (line edits).
                  If not, highlights the boxes with no text input.
@@ -4238,7 +4226,7 @@ class panelGUI(QMainWindow):
             self.day6part4_2()
 
     """
-    resetDay4(self)
+    resetday6(self)
 
         Description: Resets the data and UI elements for day 4 to how they were before the day began.
 
@@ -4284,7 +4272,7 @@ class panelGUI(QMainWindow):
     ###               |___/
 
     """
-    day5part1(self)
+    day7part1(self)
 
         Description: Function called when Start Button is clicked. Validates that all supplies have been checked off, and that a valid panel 
                  number has been input. If so, the day begins. Otherwise, highlights prerequisite steps before day begins.
@@ -4324,7 +4312,7 @@ class panelGUI(QMainWindow):
         self.startRunning()
 
     """
-    day5part2(self)
+    day7part2(self)
 
         Description: Function called when Epoxy Mixed Button (Left) clicked. Validates the epoxy batch, and then starts the 
                  epoxy timer thread for left side flooding.
@@ -4354,7 +4342,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day5part2_2(self)
+    day7part2_2(self)
 
         Description: Function called when Epoxy Applied Button (Left) is pressed. Ends epoxy fill timer for left side.
         
@@ -4369,7 +4357,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day5part3(self)
+    day7part3(self)
 
         Description: Function called when Epoxy Mixed Button (Right) is pressed. Validates epoxy batch input, then
                  starts the epoxy fill timer for the right side.
@@ -4398,7 +4386,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day5part3_2(self)
+    day7part3_2(self)
 
         Description: Function called when Epoxy Applied Button (Right) is pressed. Stops the epoxy fill timer for the right side, and
                  records the data.
@@ -4415,7 +4403,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    resetDay5(self)
+    resetday7(self)
 
         Description: Resets the UI elements and data list for panel day 5 to the state before the day was started.
 
