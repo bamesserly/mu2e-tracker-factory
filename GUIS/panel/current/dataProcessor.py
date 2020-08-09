@@ -471,12 +471,12 @@ class DataProcessor(ABC):
 
     def getDay(self):
         try:
-            return self.gui.day
+            return self.gui.pro
         except AttributeError:
             return None
 
     def getDayIndex(self):
-        return self.gui.day_index
+        return self.gui.pro_index
 
     def getData(self):
         return self.gui.data

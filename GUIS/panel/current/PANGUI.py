@@ -131,7 +131,7 @@ class panelGUI(QMainWindow):
     """
     class panelGUI5
 
-    Description: The main class for the panel GUI. This class handles all of the days, as well as saving and loading data.
+    Description: The main class for the panel GUI. This class handles all of the pros, as well as saving and loading data.
                  The class inherhits from QMainWindow in order to function as a proper GUI.
     """
 
@@ -209,7 +209,7 @@ class panelGUI(QMainWindow):
         self.DP = None  # Defined in openGUi
 
         ## Default Indexes
-        self.ui.daySelection.setCurrentIndex(1)
+        self.ui.proSelection.setCurrentIndex(1)
         self.ui.tabWidget.setCurrentIndex(0)
         self.ui.suppliesList.setCurrentIndex(0)
 
@@ -222,17 +222,17 @@ class panelGUI(QMainWindow):
         # Panel Input
         self._init_panel_input()
 
-        # Setup each day
-        self._init_day1_setup()
-        self._init_day2_setup()
-        self._init_day3_setup()
+        # Setup each pro
+        self._init_pro1_setup()
+        self._init_pro2_setup()
+        self._init_pro3_setup()
         self._init_pro4_setup()  # process 4: pin protector
         self._init_pro5_setup()  # process 5: high voltage tests
-        self._init_day6_setup()
-        self._init_day7_setup()
+        self._init_pro6_setup()
+        self._init_pro7_setup()
         self._init_failure_setup()
 
-        # Grouping common elements by day to make accessing more general
+        # Grouping common elements by pro to make accessing more general
         self._init_widget_lists()
 
         self._init_connect()
@@ -270,21 +270,21 @@ class panelGUI(QMainWindow):
         self._init_highlighting()
 
         # Start GUI default locked
-        self.day = 0
+        self.pro = 0
         self.LockGUI.emit(DEBUG)
 
     def _init_data_lists(self):
 
-        ## DAY DATA
+        ## pro DATA
         # Initialize data lists
         self.data = []
 
-        # Specify number of data values collected for each day
+        # Specify number of data values collected for each pro
         data_count = {1: 20, 2: 11, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
 
-        # Make a list of Nones for each day (a list of lists, one list for each day)
-        for day in data_count:
-            self.data.append([None for _ in range(data_count[day])])
+        # Make a list of Nones for each pro (a list of lists, one list for each pro)
+        for pro in data_count:
+            self.data.append([None for _ in range(data_count[pro])])
 
     def _init_tensionWindows(self):
         self.strawTensionWindow = None
@@ -306,11 +306,11 @@ class panelGUI(QMainWindow):
         ]
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
 
-    def _init_day1_setup(self):
+    def _init_pro1_setup(self):
         ## Connect
         self.ui.panelInput1.installEventFilter(self)
-        self.ui.epoxy_mixed1.clicked.connect(self.day1part2)
-        self.ui.epoxy_applied1.clicked.connect(self.day1CheckEpoxySteps)
+        self.ui.epoxy_mixed1.clicked.connect(self.pro1part2)
+        self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
@@ -333,7 +333,7 @@ class panelGUI(QMainWindow):
             lambda: self.diagram_popup("d2_paas_attach.png")
         )
 
-    def _init_day2_setup(self):
+    def _init_pro2_setup(self):
         ## Connect
         self.ui.panelInput2.installEventFilter(self)
 
@@ -343,26 +343,26 @@ class panelGUI(QMainWindow):
         self.ui.picone2_2.clicked.connect(
             lambda: self.diagram_popup("d2_mix_epoxy.png")
         )
-        self.ui.epoxy_mixed.clicked.connect(self.day2part2)
-        self.ui.heat_start.clicked.connect(self.day2Heating)
-        self.ui.epoxy_inject2.clicked.connect(self.day2part2_3)
-        self.ui.epoxy_mixed_2.clicked.connect(self.day2part2_2)
-        self.ui.epoxy_inject1.clicked.connect(self.day2EpoxyInjected)
-        self.ui.heat_finished.clicked.connect(self.day2CheckTemp)
+        self.ui.epoxy_mixed.clicked.connect(self.pro2part2)
+        self.ui.heat_start.clicked.connect(self.pro2Heating)
+        self.ui.epoxy_inject2.clicked.connect(self.pro2part2_3)
+        self.ui.epoxy_mixed_2.clicked.connect(self.pro2part2_2)
+        self.ui.epoxy_inject1.clicked.connect(self.pro2EpoxyInjected)
+        self.ui.heat_finished.clicked.connect(self.pro2CheckTemp)
 
         ## Timers
-        self.day2TimerNum1 = [self.ui.hour_disp, self.ui.min_disp, self.ui.sec_disp]
-        self.day2TimerNum2 = [
+        self.pro2TimerNum1 = [self.ui.hour_disp, self.ui.min_disp, self.ui.sec_disp]
+        self.pro2TimerNum2 = [
             self.ui.hour_disp_2,
             self.ui.min_disp_2,
             self.ui.sec_disp_2,
         ]
-        self.day2TimerNum3 = [
+        self.pro2TimerNum3 = [
             self.ui.hour_disp_3,
             self.ui.min_disp_3,
             self.ui.sec_disp_3,
         ]
-        self.day2Timers = [self.day2TimerNum1, self.day2TimerNum2, self.day2TimerNum3]
+        self.pro2Timers = [self.pro2TimerNum1, self.pro2TimerNum2, self.pro2TimerNum3]
 
         # Disable Widgets
         disabled_widgets = [
@@ -385,14 +385,14 @@ class panelGUI(QMainWindow):
         self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
         self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
 
-    def _init_day3_setup(self):
+    def _init_pro3_setup(self):
         ## Connect
         self.ui.panelInput3.installEventFilter(self)
 
         ## Disable Widgets
         self.ui.wireInput.setDisabled(False)
 
-        ## Setup Day 3 drop down menus
+        ## Setup pro 3 drop down menus
         rcItems = [
             "Select",
             "Pass: No Continuity",
@@ -662,17 +662,17 @@ class panelGUI(QMainWindow):
         for i, box in enumerate(self.isTripped):
             box.stateChanged.connect(lambda changed, index=i: boxSaveHV(index))
 
-    def _init_day6_setup(self):
+    def _init_pro6_setup(self):
         self.ui.panelInput6.installEventFilter(self)
 
         ## Connect Triggers
         # Progression between parts
-        self.ui.epoxy_mixed41.clicked.connect(self.day6part2)
-        self.ui.epoxy_mixed42.clicked.connect(self.day6part3)
-        self.ui.heat_start4.clicked.connect(self.day6part4)
-        self.ui.epoxy_applied41.clicked.connect(self.day6part2_2)
-        self.ui.epoxy_applied42.clicked.connect(self.day6part3_2)
-        self.ui.heat_finished4.clicked.connect(self.day6CheckTemp)
+        self.ui.epoxy_mixed41.clicked.connect(self.pro6part2)
+        self.ui.epoxy_mixed42.clicked.connect(self.pro6part3)
+        self.ui.heat_start4.clicked.connect(self.pro6part4)
+        self.ui.epoxy_applied41.clicked.connect(self.pro6part2_2)
+        self.ui.epoxy_applied42.clicked.connect(self.pro6part3_2)
+        self.ui.heat_finished4.clicked.connect(self.pro6CheckTemp)
 
         # Images
         self.ui.picfour1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
@@ -693,12 +693,12 @@ class panelGUI(QMainWindow):
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
-    def _init_day7_setup(self):
+    def _init_pro7_setup(self):
         self.ui.panelInput7.installEventFilter(self)
-        self.ui.epoxy_mixed5_2.clicked.connect(self.day7part2)
-        self.ui.epoxy_applied5_2.clicked.connect(self.day7part2_2)
-        self.ui.epoxy_mixed5_3.clicked.connect(self.day7part3)
-        self.ui.epoxy_applied5_3.clicked.connect(self.day7part3_2)
+        self.ui.epoxy_mixed5_2.clicked.connect(self.pro7part2)
+        self.ui.epoxy_applied5_2.clicked.connect(self.pro7part2_2)
+        self.ui.epoxy_mixed5_3.clicked.connect(self.pro7part3)
+        self.ui.epoxy_applied5_3.clicked.connect(self.pro7part3_2)
 
     def _init_timers(self):
         self.timers = [
@@ -739,7 +739,7 @@ class panelGUI(QMainWindow):
                 self.ui.min_disp_13,
                 self.ui.sec_disp_13,
                 lambda: self.Timer_5.emit(),
-            ),  # 5 -> vestigial, use one that isn't associated with day 3 to keep stuff moving
+            ),  # 5 -> vestigial, use one that isn't associated with pro 3 to keep stuff moving
             QLCDTimer(
                 self.ui.hour_disp_8,
                 self.ui.min_disp_8,
@@ -870,7 +870,7 @@ class panelGUI(QMainWindow):
 
     def _init_connect(self):
         set_focus = (
-            lambda index: self.panelInput[self.day_index].setFocus()
+            lambda index: self.panelInput[self.pro_index].setFocus()
             if (index == 2 and self.getCurrentPanel() == "")
             else None
         )
@@ -884,7 +884,7 @@ class panelGUI(QMainWindow):
             )
         )
 
-        self.ui.DaySelectButtons.buttonClicked.connect(self.openGUI)
+        self.ui.proSelectButtons.buttonClicked.connect(self.openGUI)
 
         # Save buttons
         for btn in self.ui.saveButtons.buttons():
@@ -892,8 +892,8 @@ class panelGUI(QMainWindow):
             btn.clicked.connect(lambda: [self.saveData(), self.saveComments()])
             # When the save button is pressed, self.saveData and self.saveComments will be called.
 
-        # Day select back button
-        self.ui.dayReturnButton.clicked.connect(self.backToDaySelect)
+        # pro select back button
+        self.ui.proReturnButton.clicked.connect(self.backToproSelect)
 
         # Supplies list change page buttons
         supply_tabs = 2
@@ -920,7 +920,7 @@ class panelGUI(QMainWindow):
 
 
         for input in self.panelInput:
-            input.editingFinished.connect(self.loadDay)
+            input.editingFinished.connect(self.loadpro)
             input.editingFinished.connect(lambda: input.setEnabled(False))
             input.returnPressed.connect(lambda: None)
 
@@ -1007,18 +1007,18 @@ class panelGUI(QMainWindow):
             self.ui.startButton7,
         ]
 
-        # without the loop it would look like self.ui.startButton1.clicked.connect(self.day1part1)
+        # without the loop it would look like self.ui.startButton1.clicked.connect(self.pro1part1)
         for btn in self.startButtons:
             btn.clicked.connect(
                 lambda: {
-                    1: self.day1part1,
-                    2: self.day2part1,
-                    3: self.day3part1,
+                    1: self.pro1part1,
+                    2: self.pro2part1,
+                    3: self.pro3part1,
                     4: self.pro4part0,
                     5: self.pro5part0,
-                    6: self.day6part1,
-                    7: self.day7part1,
-                }[self.day]()
+                    6: self.pro6part1,
+                    7: self.pro7part1,
+                }[self.pro]()
             )
 
         """
@@ -1027,7 +1027,7 @@ class panelGUI(QMainWindow):
         """
 
         self.widgets = [
-            # Day 1 Widgets
+            # pro 1 Widgets
             [
                 self.ui.panelInput1,
                 self.ui.baseInput1,
@@ -1049,7 +1049,7 @@ class panelGUI(QMainWindow):
                 self.ui.paasAInput,
                 self.ui.paasCInput,
             ],
-            # Day 2 Widgets
+            # pro 2 Widgets
             [
                 self.ui.panelInput2,
                 self.ui.pallet1code,
@@ -1063,7 +1063,7 @@ class panelGUI(QMainWindow):
                 self.ui.heat_finished,
                 self.ui.paasBInput,
             ],
-            # Day 3 Widgets
+            # pro 3 Widgets
             [self.ui.panelInput3, self.ui.wireInput],
             # Pro 4 Widgets --> can't be entered randomly
             [
@@ -1084,9 +1084,9 @@ class panelGUI(QMainWindow):
                 self.ui.epoxyCuredLOP,
                 self.ui.epoxyCuredROP,
             ],
-            # Day 5 Widgets
+            # pro 5 Widgets
             [self.ui.panelInput5],
-            # Day 6 Widgets
+            # pro 6 Widgets
             [
                 self.ui.panelInput6,
                 self.ui.frameInput,
@@ -1103,7 +1103,7 @@ class panelGUI(QMainWindow):
                 self.ui.temp4_5,
                 self.ui.heat_finished4,
             ],
-            # Day 7 Widgets
+            # pro 7 Widgets
             [
                 self.ui.panelInput7,
                 self.ui.epoxy_batch5_2,
@@ -1125,7 +1125,7 @@ class panelGUI(QMainWindow):
         ]
 
         # Lambda expression that gets text from the panel input line.
-        self.getCurrentPanel = lambda: self.panelInput[self.day_index].text()
+        self.getCurrentPanel = lambda: self.panelInput[self.pro_index].text()
 
     def _init_finish_button(self):
         self.finishButton = self.ui.FinishButton
@@ -1133,9 +1133,9 @@ class panelGUI(QMainWindow):
         self.finishButton.clicked.connect(lambda: self.suppliesList.clearMoldRelease())
         self.finishButton.clicked.connect(
             lambda: self.timers[5].stop()
-            if self.stepsList.allStepsChecked() and self.day == 3
+            if self.stepsList.allStepsChecked() and self.pro == 3
             else None
-        )  # Stop the day 3 timer when finish button is pushed     TODO: for pro 5?
+        )  # Stop the pro 3 timer when finish button is pushed     TODO: for pro 5?
         self.finishButton.clicked.connect(
             lambda clicked: self.stopRunning(self.finishButton.text() == "Pause")
         )
@@ -1188,14 +1188,14 @@ class panelGUI(QMainWindow):
     """
     validateInput(self, widgets = None, indices = None)
 
-        Description: Handles validating the input of widgets for all days. Can handle two types of widgets,
+        Description: Handles validating the input of widgets for all pros. Can handle two types of widgets,
         QLineEdit and QComboBox. It is assumed that the QLineEdit has a QRegularExpressionValidator on it.
         A valid input is a QLineEdit that has text that matches its validator, or a QComboBox whose index
         is not 0. If a widget has invalid input, it is highlighted. If the widget has valid input, highlighting
         is removed.
 
         Parameter: widgets - A list of QWidgets to be validated. If none supplied, defaults to the list of
-            widgets for the current day.
+            widgets for the current pro.
         Parameter: indices - A list of ints that give the indices of the widget list to validate. If no list
             is supplied, validates the whole list.
 
@@ -1207,7 +1207,7 @@ class panelGUI(QMainWindow):
             return
 
         if widgets == None:  # if no widgets, find some
-            widgets = self.widgets[self.day_index]
+            widgets = self.widgets[self.pro_index]
 
         if not indices == None:
             results = [None] * len(indices)
@@ -1257,7 +1257,7 @@ class panelGUI(QMainWindow):
             for p in serial.tools.list_ports.comports()
             if "Arduino" in p.description
         ]
-        if len(arduino_ports) == 0:  ## fix for Day2/Day3 General Nanosystems Computers
+        if len(arduino_ports) == 0:  ## fix for pro2/pro3 General Nanosystems Computers
             arduino_ports = [
                 p.device
                 for p in serial.tools.list_ports.comports()
@@ -1293,21 +1293,21 @@ class panelGUI(QMainWindow):
     """
     openGUI(self, btn)
 
-        Description: The function connected to the day select buttons. Sets the current day, and opens the appropriate GUI day. This function
-                    also calls the suppliesList class to generate the appropriate supplies list, sets the credential checker to the correct day
+        Description: The function connected to the pro select buttons. Sets the current pro, and opens the appropriate GUI pro. This function
+                    also calls the suppliesList class to generate the appropriate supplies list, sets the credential checker to the correct pro
                     and starts the secondary thread for credential checking and main timer updating.
 
-        Parameter: btn - The QPushButton corresponding to the day button clicked
+        Parameter: btn - The QPushButton corresponding to the pro button clicked
     """
 
     def openGUI(self, btn):
-        # Get Day Information
-        self.day = int(btn.objectName()[3:-6])
-        print("Day selected: ", self.day)
-        self.day_index = self.day - 1
-        self.ui.daySelection.setCurrentIndex(0)
-        self.ui.GUIday.setCurrentIndex(self.day_index)
-        self.panelInput[self.day_index].setEnabled(True)
+        # Get pro Information
+        self.pro = int(btn.objectName()[3:-6])
+        print("pro selected: ", self.pro)
+        self.pro_index = self.pro - 1
+        self.ui.proSelection.setCurrentIndex(0)
+        self.ui.GUIpro.setCurrentIndex(self.pro_index)
+        self.panelInput[self.pro_index].setEnabled(True)
 
         # Data Processor
         self.DP = DataProcessor(
@@ -1319,7 +1319,7 @@ class panelGUI(QMainWindow):
         )
 
         # Supplies List
-        self.suppliesList.setDay(self.day)
+        self.suppliesList.setpro(self.pro)
         self.suppliesList.setSaveMoldReleaseMethod(self.DP.saveMoldRelease)
         self.suppliesList.setSaveTPSMethod(self.DP.saveTPS)
         self.suppliesList.loadSuppliesList(*self.DP.loadTPS())
@@ -1336,11 +1336,11 @@ class panelGUI(QMainWindow):
 
         # Update tab text
         if not DEBUG:
-            day = f"Panel Day {self.day}"
-            supply = f"Day {self.day} Supplies List"
+            pro = f"Panel pro {self.pro}"
+            supply = f"pro {self.pro} Supplies List"
             self.ui.tabWidget.setTabText(1, supply + " *Locked*")
             self.ui.tabWidget.setTabEnabled(1, False)
-            self.ui.tabWidget.setTabText(2, day + " *Locked*")
+            self.ui.tabWidget.setTabText(2, pro + " *Locked*")
             self.ui.tabWidget.setTabEnabled(2, False)
 
         # Start credential thread if not already started
@@ -1363,13 +1363,13 @@ class panelGUI(QMainWindow):
         self.mainTimer.start()
 
         ## Gui Operations
-        # Disable day return
-        self.ui.dayReturnButton.setDisabled(True)
+        # Disable pro return
+        self.ui.proReturnButton.setDisabled(True)
 
         # Enable
         self.setWidgetsEnabled(
             [
-                self.ui.saveButtons.buttons()[self.day_index],  # Save Button
+                self.ui.saveButtons.buttons()[self.pro_index],  # Save Button
                 self.stepsList.getCurrentStep().getCheckbox(),  # First step checkbox
                 self.finishButton,  # Finish button
             ]
@@ -1394,9 +1394,9 @@ class panelGUI(QMainWindow):
 
         Description:    This function is called when any of the finish buttons are clicked. 
                         Saves all data and disables the finish button. Also
-                        handles the case where the day is being paused.
+                        handles the case where the pro is being paused.
 
-        Parameter: pause - Boolean value that determines if day is being paused or ended.
+        Parameter: pause - Boolean value that determines if pro is being paused or ended.
     """
 
     def stopRunning(self, pause=False):
@@ -1423,13 +1423,13 @@ class panelGUI(QMainWindow):
             self.DP.saveFinish()
 
             # Gui Operations
-            self.ui.saveButtons.buttons()[self.day_index].setDisabled(True)
+            self.ui.saveButtons.buttons()[self.pro_index].setDisabled(True)
             self.finishButton.setDisabled(True)
-            self.ui.dayReturnButton.setDisabled(False)
+            self.ui.proReturnButton.setDisabled(False)
             self.finishButton.setDisabled(True)
 
-            # Go back to the day select page
-            self.backToDaySelect()
+            # Go back to the pro select page
+            self.backToproSelect()
 
     def closeEvent(self, event):
         """
@@ -1492,14 +1492,14 @@ class panelGUI(QMainWindow):
         return False  # return false (to indicate no filtering has taken place... ?)
 
     """
-    checkProgress(self, day, x)
+    checkProgress(self, pro, x)
 
         Description: This function is called whenever a checkbox is checked. It disables the clicked checkbox, and enables
                     the next one (as all checkboxes start disabled). This is done in order of steps, to ensure steps are 
                     checked off in order. Also emits signal to save data when checkbox clicked, and enables the finish
                     button when all steps are checked.
 
-        Parameter: day - The panel day that is currently being run
+        Parameter: pro - The panel pro that is currently being run
         Parameter: x - The index of the checkbox that emitted the signal to call this method
     """
 
@@ -1520,23 +1520,23 @@ class panelGUI(QMainWindow):
             self.finishButton.setText("Finish")
 
     """
-    backToDaySelect(self)
+    backToproSelect(self)
 
-        Description: The function connected to the day return button. Resets all data and UI elements, then
-                 returns to the day selection screen.
+        Description: The function connected to the pro return button. Resets all data and UI elements, then
+                 returns to the pro selection screen.
     """
 
-    def backToDaySelect(self):
-        # Call reset function for current day
+    def backToproSelect(self):
+        # Call reset function for current pro
         [
-            self.resetDay1,
-            self.resetDay2,
-            self.resetDay3,
+            self.resetpro1,
+            self.resetpro2,
+            self.resetpro3,
             self.resetPro4,
             self.resetPro5,
-            self.resetDay6,
-            self.resetDay7,
-        ][self.day_index]()
+            self.resetpro6,
+            self.resetpro7,
+        ][self.pro_index]()
 
         # Reset data and dataTime lists to lists of None
         self._init_data_lists()
@@ -1566,13 +1566,13 @@ class panelGUI(QMainWindow):
         self.ui.suppliesList.setCurrentIndex(0)
 
         # Reset tab indexes
-        self.ui.daySelection.setCurrentIndex(1)
+        self.ui.proSelection.setCurrentIndex(1)
         self.ui.tabWidget.setCurrentIndex(0)
 
     """
     partsError(self)
 
-        Description: The error function for if the start button for the day has been clicked, but not all of the supplies in the
+        Description: The error function for if the start button for the pro has been clicked, but not all of the supplies in the
                  supplies list have been checked off. Generates an error message in a box, then sets the current view to the
                  supplies list.
     """
@@ -1581,7 +1581,7 @@ class panelGUI(QMainWindow):
         self.generateBox(
             "critical",
             "Parts List Not Checked",
-            "All tools, parts, and supplies must be checked off before day can begin.",
+            "All tools, parts, and supplies must be checked off before pro can begin.",
         )
         self.ui.tabWidget.setCurrentIndex(1)
         self.ui.suppliesList.setCurrentIndex(0)
@@ -1589,7 +1589,7 @@ class panelGUI(QMainWindow):
     """
     moldReleaseError(self)
 
-        Description: Error function for if mold released supplies for the day have not been checked off. Generates an error box
+        Description: Error function for if mold released supplies for the pro have not been checked off. Generates an error box
                  listing the items to be mold released/checked off, and sets the current view to the mold release list.
     """
 
@@ -1600,7 +1600,7 @@ class panelGUI(QMainWindow):
         self.generateBox(
             "critical",
             "Mold Release List Not Checked",
-            f"The following items need to be mold released prior to starting this day:\n{str_items}",
+            f"The following items need to be mold released prior to starting this pro:\n{str_items}",
         )
         self.ui.tabWidget.setCurrentIndex(1)
         self.ui.suppliesList.setCurrentIndex(1)
@@ -1621,9 +1621,9 @@ class panelGUI(QMainWindow):
         self.DP.savePause()
         # Include a comment
         self.DP.saveComment(
-            f"Day {self.day} Paused by {self.dialogBox.pauseWorker}\nReason: {self.dialogBox.getComment()}",
+            f"pro {self.pro} Paused by {self.dialogBox.pauseWorker}\nReason: {self.dialogBox.getComment()}",
             self.getCurrentPanel(),
-            self.day,
+            self.pro,
         )
         ## Stop all timers
         self.timersRunning = [t for t in self.timers if t.isRunning()]
@@ -1633,9 +1633,9 @@ class panelGUI(QMainWindow):
     resume(self)
 
         Description: Handles resuming the GUI. This function is connected to the resume button in the popup dialog box for
-                 pausing. Writes a new step saying "Day _ Resumed", and restarts and stopped timers. This function is
+                 pausing. Writes a new step saying "pro _ Resumed", and restarts and stopped timers. This function is
                  only called if resumed from the dialog box. If the GUI is paused and then closed, the normal load
-                 function will handle resuming the day.
+                 function will handle resuming the pro.
     """
 
     def resume(self):
@@ -1808,7 +1808,7 @@ class panelGUI(QMainWindow):
     def failure(self):
         ## Reset style sheets
         # Panel
-        # self.panelInput[self.day_index].setStyleSheet('')
+        # self.panelInput[self.pro_index].setStyleSheet('')
         # Entire failure box
         self.ui.failSelect.setStyleSheet("")
         # Fail select tab (anchor, straw, etc...)
@@ -1830,7 +1830,7 @@ class panelGUI(QMainWindow):
         # Check for....
         # Panel
         if self.getCurrentPanel() == "":
-            # self.panelInput[self.day_index].setStyleSheet('background-color:rgb(149, 186, 255)')
+            # self.panelInput[self.pro_index].setStyleSheet('background-color:rgb(149, 186, 255)')
             self.ui.failStatus.setText("Enter Panel ID")
             valid = False
 
@@ -2045,24 +2045,24 @@ class panelGUI(QMainWindow):
     lockGUI(self, credentials)
 
         Description: Locks or unlocks the GUI tabs depending on whether ANY logged in worker has valid credentials
-                    for the current day. Locked tabs cannot be accessed.
+                    for the current pro. Locked tabs cannot be accessed.
 
         Parameter: credentials - Boolean value specifying if ANY logged in worker has valid credentials.
     """
 
     def lockGUI(self, credentials):
-        day = f"Panel Day {self.day}"
-        supply = f"Day {self.day} Supplies List"
+        pro = f"Panel pro {self.pro}"
+        supply = f"pro {self.pro} Supplies List"
 
         if credentials:
             self.ui.tabWidget.setTabText(1, supply)
             self.ui.tabWidget.setTabEnabled(1, True)
-            self.ui.tabWidget.setTabText(2, day)
+            self.ui.tabWidget.setTabText(2, pro)
             self.ui.tabWidget.setTabEnabled(2, True)
         else:
             self.ui.tabWidget.setTabText(1, supply + " *Locked*")
             self.ui.tabWidget.setTabEnabled(1, False)
-            self.ui.tabWidget.setTabText(2, day + " *Locked*")
+            self.ui.tabWidget.setTabText(2, pro + " *Locked*")
             self.ui.tabWidget.setTabEnabled(2, False)
 
     def main(self):
@@ -2157,7 +2157,7 @@ class panelGUI(QMainWindow):
         Description: Handles the saving of comments. Takes any comments from the comment box, and moves them to the
                  previous comments box, giving them a timestamp. Ignores blank comments. Sends comments to the 
                  data processor to be saved. Can give the function the comment to save, or it will get the comment 
-                 from the appropriate day's comment box.
+                 from the appropriate pro's comment box.
     """
 
     def saveComments(self, comments=""):
@@ -2172,7 +2172,7 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox5,
                 self.ui.commentBox6,
                 self.ui.commentBox7,
-            ][self.day_index]
+            ][self.pro_index]
             # Extract text
             comments = box.document().toPlainText()
             # Reset comment display
@@ -2186,7 +2186,7 @@ class panelGUI(QMainWindow):
 
         try:
             self.DP.saveComment(
-                comments, self.getCurrentPanel(), self.day
+                comments, self.getCurrentPanel(), self.pro
             )  # try to save comment
         except Exception:
             # If it fails, generate a message box and return
@@ -2214,12 +2214,12 @@ class panelGUI(QMainWindow):
     """
     updateData(self)
 
-        Description:    Calls the appropriate save data function for the day, then processes the list to turn all data
+        Description:    Calls the appropriate save data function for the pro, then processes the list to turn all data
                         that fails bool(data) to None
     """
 
     def updateData(self):
-        # Call method appropriate for the day
+        # Call method appropriate for the pro
         [
             self.updateDataProcess1,
             self.updateDataProcess2,
@@ -2228,168 +2228,168 @@ class panelGUI(QMainWindow):
             self.updateDataProcess5,
             self.updateDataProcess6,
             self.updateDataProcess7,
-        ][self.day_index]()
+        ][self.pro_index]()
 
         # Process the updated data list by replacing all elements in the list that don't pass bool(el) with None
-        self.data[self.day_index] = [
-            (el if bool(el) else None) for el in self.data[self.day_index]
+        self.data[self.pro_index] = [
+            (el if bool(el) else None) for el in self.data[self.pro_index]
         ]
 
     """
     processXUpdateData(self)
 
-        Description: Save function used to save the data for panel day X. Gets the data currently in all input fields,
+        Description: Save function used to save the data for panel pro X. Gets the data currently in all input fields,
                     then writes it to the file.
 
         Parameter: file - The python file object that is used to write the data to the appropriate file
     """
 
     def updateDataProcess1(self):
-        self.data[self.day_index][0] = self.ui.panelInput1.text()
-        self.data[self.day_index][1] = self.ui.baseInput1.text()
-        self.data[self.day_index][2] = self.ui.birInput.text()
-        self.data[self.day_index][3] = self.ui.pirInputLA.text()
-        self.data[self.day_index][4] = self.ui.pirInputLB.text()
-        self.data[self.day_index][5] = self.ui.pirInputLC.text()
-        self.data[self.day_index][6] = self.ui.pirInputRA.text()
-        self.data[self.day_index][7] = self.ui.pirInputRB.text()
-        self.data[self.day_index][8] = self.ui.pirInputRC.text()
-        self.data[self.day_index][9] = self.ui.mirInput.text()
-        self.data[self.day_index][10] = self.ui.alfInput.text()
-        self.data[self.day_index][11] = self.ui.alfInput_2.text()
-        self.data[self.day_index][12] = (
+        self.data[self.pro_index][0] = self.ui.panelInput1.text()
+        self.data[self.pro_index][1] = self.ui.baseInput1.text()
+        self.data[self.pro_index][2] = self.ui.birInput.text()
+        self.data[self.pro_index][3] = self.ui.pirInputLA.text()
+        self.data[self.pro_index][4] = self.ui.pirInputLB.text()
+        self.data[self.pro_index][5] = self.ui.pirInputLC.text()
+        self.data[self.pro_index][6] = self.ui.pirInputRA.text()
+        self.data[self.pro_index][7] = self.ui.pirInputRB.text()
+        self.data[self.pro_index][8] = self.ui.pirInputRC.text()
+        self.data[self.pro_index][9] = self.ui.mirInput.text()
+        self.data[self.pro_index][10] = self.ui.alfInput.text()
+        self.data[self.pro_index][11] = self.ui.alfInput_2.text()
+        self.data[self.pro_index][12] = (
             int(self.ui.leftgap.currentText())
             if self.ui.leftgap.currentIndex() != 0
             else None
         )
-        self.data[self.day_index][13] = (
+        self.data[self.pro_index][13] = (
             int(self.ui.rightgap.currentText())
             if self.ui.rightgap.currentIndex() != 0
             else None
         )
-        self.data[self.day_index][14] = (
+        self.data[self.pro_index][14] = (
             int(self.ui.mingap.currentText())
             if self.ui.mingap.currentIndex() != 0
             else None
         )
-        self.data[self.day_index][15] = (
+        self.data[self.pro_index][15] = (
             int(self.ui.maxgap.currentText())
             if self.ui.maxgap.currentIndex() != 0
             else None
         )
-        self.data[self.day_index][16] = self.ui.epoxy_batch1.text()
-        self.data[self.day_index][17] = self.timerTuple(self.timers[1])
-        self.data[self.day_index][18] = self.ui.paasAInput.text()
-        self.data[self.day_index][19] = self.ui.paasCInput.text()
+        self.data[self.pro_index][16] = self.ui.epoxy_batch1.text()
+        self.data[self.pro_index][17] = self.timerTuple(self.timers[1])
+        self.data[self.pro_index][18] = self.ui.paasAInput.text()
+        self.data[self.pro_index][19] = self.ui.paasCInput.text()
 
     def updateDataProcess2(self):
-        self.data[self.day_index][0] = self.ui.panelInput2.text()
-        self.data[self.day_index][1] = self.ui.pallet1code.text()  # Upper LPAL
-        self.data[self.day_index][2] = self.ui.pallet2code.text()  # Lower LPAL
-        self.data[self.day_index][3] = self.ui.epoxy_batch.text()  # Lower Epoxy
-        self.data[self.day_index][4] = self.timerTuple(
+        self.data[self.pro_index][0] = self.ui.panelInput2.text()
+        self.data[self.pro_index][1] = self.ui.pallet1code.text()  # Upper LPAL
+        self.data[self.pro_index][2] = self.ui.pallet2code.text()  # Lower LPAL
+        self.data[self.pro_index][3] = self.ui.epoxy_batch.text()  # Lower Epoxy
+        self.data[self.pro_index][4] = self.timerTuple(
             self.timers[2]
         )  # Lower Epoxy Time
-        self.data[self.day_index][5] = self.ui.epoxy_batch_2.text()  # Upper Epoxy
-        self.data[self.day_index][6] = self.timerTuple(
+        self.data[self.pro_index][5] = self.ui.epoxy_batch_2.text()  # Upper Epoxy
+        self.data[self.pro_index][6] = self.timerTuple(
             self.timers[3]
         )  # Upper Epoxy Time
-        self.data[self.day_index][7] = (
+        self.data[self.pro_index][7] = (
             float(self.ui.temp4.text()) if self.ui.temp4.text() else None
         )  # PAAS-A Max Temp
-        self.data[self.day_index][8] = (
+        self.data[self.pro_index][8] = (
             float(self.ui.temp4_2.text()) if self.ui.temp4_2.text() else None
         )  # PAAS-B Max Temp
-        self.data[self.day_index][9] = self.timerTuple(self.timers[4])  # Heat Time
-        self.data[self.day_index][10] = self.ui.paasBInput.text()  # paas B input
+        self.data[self.pro_index][9] = self.timerTuple(self.timers[4])  # Heat Time
+        self.data[self.pro_index][10] = self.ui.paasBInput.text()  # paas B input
 
     def updateDataProcess3(self):
-        # Day-specific Data
-        self.data[self.day_index][0] = self.ui.panelInput3.text()
-        self.data[self.day_index][1] = self.ui.wireInput.text()
-        self.data[self.day_index][2] = self.timerTuple(self.timers[5])
+        # pro-specific Data
+        self.data[self.pro_index][0] = self.ui.panelInput3.text()
+        self.data[self.pro_index][1] = self.ui.wireInput.text()
+        self.data[self.pro_index][2] = self.timerTuple(self.timers[5])
         # scroll area is saved/updated differently
 
     def updateDataProcess4(self):
-        self.data[self.day_index][0] = self.ui.panelInput4.text()  # panel input
-        self.data[self.day_index][
+        self.data[self.pro_index][0] = self.ui.panelInput4.text()  # panel input
+        self.data[self.pro_index][
             1
         ] = self.ui.epoxy_batch_3.text()  # clear epoxy left - batch
-        self.data[self.day_index][2] = self.timerTuple(
+        self.data[self.pro_index][2] = self.timerTuple(
             self.timers[11]
         )  # clear epoxy left - application duration
-        self.data[self.day_index][3] = self.timerTuple(
+        self.data[self.pro_index][3] = self.timerTuple(
             self.timers[12]
         )  # clear epoxy left - cure duration
-        self.data[self.day_index][
+        self.data[self.pro_index][
             4
         ] = self.ui.epoxy_batch_4.text()  # clear epoxy right - batch
-        self.data[self.day_index][5] = self.timerTuple(
+        self.data[self.pro_index][5] = self.timerTuple(
             self.timers[13]
         )  # clear epoxy right - application duration
-        self.data[self.day_index][6] = self.timerTuple(
+        self.data[self.pro_index][6] = self.timerTuple(
             self.timers[14]
         )  # clear epoxy right - cure duration
-        self.data[self.day_index][
+        self.data[self.pro_index][
             7
         ] = self.ui.epoxy_batch_5.text()  # silver epoxy left - batch
-        self.data[self.day_index][8] = self.timerTuple(
+        self.data[self.pro_index][8] = self.timerTuple(
             self.timers[15]
         )  # silver epoxy left - application duration
-        self.data[self.day_index][9] = self.timerTuple(
+        self.data[self.pro_index][9] = self.timerTuple(
             self.timers[17]
         )  # silver epoxy left - cure duration
-        self.data[self.day_index][
+        self.data[self.pro_index][
             10
         ] = self.ui.epoxy_batch_6.text()  # silver epoxy right - batch
-        self.data[self.day_index][11] = self.timerTuple(
+        self.data[self.pro_index][11] = self.timerTuple(
             self.timers[16]
         )  # silver epoxy right - application duration
-        self.data[self.day_index][12] = self.timerTuple(
+        self.data[self.pro_index][12] = self.timerTuple(
             self.timers[18]
         )  # silver epoxy right - cure duration
 
     def updateDataProcess5(self):
         # looking for HV measurements? They bypass this.data and get saved
         # directly to the DP via saveHVMeasurement.
-        if len(self.data[self.day_index]) == 0:
-            self.data[self.day_index].append(self.ui.panelInput5.text())
-        self.data[self.day_index][0] = self.ui.panelInput5.text()
+        if len(self.data[self.pro_index]) == 0:
+            self.data[self.pro_index].append(self.ui.panelInput5.text())
+        self.data[self.pro_index][0] = self.ui.panelInput5.text()
 
     def updateDataProcess6(self):
-        self.data[self.day_index][0] = self.ui.panelInput6.text()
-        self.data[self.day_index][1] = self.ui.frameInput.text()
-        self.data[self.day_index][2] = self.ui.mrInput1.text()
-        self.data[self.day_index][3] = self.ui.mrInput2.text()
-        self.data[self.day_index][4] = (
+        self.data[self.pro_index][0] = self.ui.panelInput6.text()
+        self.data[self.pro_index][1] = self.ui.frameInput.text()
+        self.data[self.pro_index][2] = self.ui.mrInput1.text()
+        self.data[self.pro_index][3] = self.ui.mrInput2.text()
+        self.data[self.pro_index][4] = (
             int(self.ui.bpmirgapL.currentText())
             if self.ui.bpmirgapL.currentIndex() != 0
             else None
         )
-        self.data[self.day_index][5] = (
+        self.data[self.pro_index][5] = (
             int(self.ui.bpmirgapR.currentText())
             if self.ui.bpmirgapR.currentIndex() != 0
             else None
         )
-        self.data[self.day_index][6] = self.ui.epoxy_batch41.text()
-        self.data[self.day_index][7] = self.timerTuple(self.timers[6])
-        self.data[self.day_index][8] = self.ui.epoxy_batch42.text()
-        self.data[self.day_index][9] = self.ui.epoxy_batch42_2.text()
-        self.data[self.day_index][10] = self.timerTuple(self.timers[7])
-        self.data[self.day_index][11] = (
+        self.data[self.pro_index][6] = self.ui.epoxy_batch41.text()
+        self.data[self.pro_index][7] = self.timerTuple(self.timers[6])
+        self.data[self.pro_index][8] = self.ui.epoxy_batch42.text()
+        self.data[self.pro_index][9] = self.ui.epoxy_batch42_2.text()
+        self.data[self.pro_index][10] = self.timerTuple(self.timers[7])
+        self.data[self.pro_index][11] = (
             float(self.ui.temp4_4.text()) if self.ui.temp4_4.text() else None
         )
-        self.data[self.day_index][12] = (
+        self.data[self.pro_index][12] = (
             float(self.ui.temp4_5.text()) if self.ui.temp4_5.text() else None
         )
-        self.data[self.day_index][13] = self.timerTuple(self.timers[8])
+        self.data[self.pro_index][13] = self.timerTuple(self.timers[8])
 
     def updateDataProcess7(self):
-        self.data[self.day_index][0] = self.ui.panelInput7.text()
-        self.data[self.day_index][1] = self.ui.epoxy_batch5_2.text()
-        self.data[self.day_index][2] = self.timerTuple(self.timers[9])
-        self.data[self.day_index][3] = self.ui.epoxy_batch5_3.text()
-        self.data[self.day_index][4] = self.timerTuple(self.timers[10])
+        self.data[self.pro_index][0] = self.ui.panelInput7.text()
+        self.data[self.pro_index][1] = self.ui.epoxy_batch5_2.text()
+        self.data[self.pro_index][2] = self.timerTuple(self.timers[9])
+        self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
+        self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
     ###  _                    _   ____        _          __  __      _   _               _
     ### | |    ___   __ _  __| | |  _ \  __ _| |_ __ _  |  \/  | ___| |_| |__   ___   __| |___
@@ -2398,14 +2398,14 @@ class panelGUI(QMainWindow):
     ### |_____\___/ \__,_|\__,_| |____/ \__,_|\__\__,_| |_|  |_|\___|\__|_| |_|\___/ \__,_|___/
 
     """
-    loadDay(self)
+    loadpro(self)
 
         Description:    Called when after a complete panel ID is entered in any of the panel input fields. 
                         Trys to load previous data and steps completed with the data processor, returned in a long list. 
                         If found, also tries calls the appropriate parsing functions to return the GUI to its previous state.
     """
 
-    def loadDay(self):
+    def loadpro(self):
         ### Load Data
 
         ## Try to load all previous data
@@ -2420,33 +2420,33 @@ class panelGUI(QMainWindow):
         if not any(
             el is not None for el in data[1:]
         ):  # Everything in data list except for panel
-            if not self.day == 5:
+            if not self.pro == 5:
                 return
 
         ### Save data to corresponding data-storing instance variable
 
-        self.data[self.day_index] = data
+        self.data[self.pro_index] = data
         self.mainTimer.setElapsedTime(elapsed_time)
 
         ### Parse Data to Display
 
-        ## Day Data
-        # Get proper parse method for this day
-        parse_day = [
-            self.parseDay1Data,
-            self.parseDay2Data,
-            self.parseDay3Data,
+        ## pro Data
+        # Get proper parse method for this pro
+        parse_pro = [
+            self.parsepro1Data,
+            self.parsepro2Data,
+            self.parsepro3Data,
             self.parsePro4Data,
             self.parsePro5Data,
-            self.parseDay6Data,
-            self.parseDay7Data,
+            self.parsepro6Data,
+            self.parsepro7Data,
         ]
 
         # Call method giving 'data' as input.
-        parse_day[self.day_index](data)
+        parse_pro[self.pro_index](data)
 
         ## Process 3 continuity data
-        if self.day == 3:
+        if self.pro == 3:
             measurements = self.loadContinuityMeasurements()
             # Possibilities:
             #   - None: No measurements saved at all
@@ -2458,7 +2458,7 @@ class panelGUI(QMainWindow):
                 self.parseContinuityMeasurements(measurements)
 
         ## Process 5 HV data
-        if self.day == 5:
+        if self.pro == 5:
             # [(current_left0, current_right0, is_tripped0), (current_left1, current_right1, is_tripped1), ... ]
             # (None,None,None) if no measurement at that position.
             measurements = self.loadHVMeasurements()
@@ -2479,12 +2479,12 @@ class panelGUI(QMainWindow):
 
         ## Enable finish and save
         self.setWidgetsEnabled(
-            [self.ui.saveButtons.buttons()[self.day_index], self.finishButton]
+            [self.ui.saveButtons.buttons()[self.pro_index], self.finishButton]
         )
 
-        ## Disable start and "back to day select" buttons
+        ## Disable start and "back to pro select" buttons
         self.setWidgetsDisabled(
-            [self.startButtons[self.day_index], self.ui.dayReturnButton]
+            [self.startButtons[self.pro_index], self.ui.proReturnButton]
         )
 
         ## Unless all the steps have been completed, set the finish/pause button text to "Pause"
@@ -2555,9 +2555,9 @@ class panelGUI(QMainWindow):
             self.finishButton.setText("Finish")
 
     """
-    parseDay3WireData(self)
+    parsepro3WireData(self)
 
-        Description:    This function handles additional data that is saved in day 3 (continuity, wire position, and wire resistance).
+        Description:    This function handles additional data that is saved in pro 3 (continuity, wire position, and wire resistance).
                         It sets the appropriate values in the drop down menus.
 
         Input: Lists of wire data ordered by panel position
@@ -2609,7 +2609,7 @@ class panelGUI(QMainWindow):
         """
 
     """
-    parseDay1Data(self, data)
+    parsepro1Data(self, data)
 
         Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
                     UI elements to ensure the GUI state is consistent with normal use.
@@ -2617,7 +2617,7 @@ class panelGUI(QMainWindow):
         Parameter: data - A list of the parsed input data
     """
 
-    def parseDay1Data(self, data):
+    def parsepro1Data(self, data):
         if data[0] is not None:
             self.ui.panelInput1.setText(data[0])
             self.ui.panelInput1.setDisabled(True)
@@ -2693,7 +2693,7 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied1.setDisabled(True)
 
     """
-    parseDay2Data(self, data)
+    parsepro2Data(self, data)
 
         Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
                     UI elements to ensure the GUI state is consistent with normal use.
@@ -2711,7 +2711,7 @@ class panelGUI(QMainWindow):
         9 - heat timer (timer tuple)
     """
 
-    def parseDay2Data(self, data):
+    def parsepro2Data(self, data):
         # panel number ---------------------------------------------------------------------------
         if data[0] is not None:  # if panel num data exists
             self.ui.panelInput2.setText(
@@ -2854,7 +2854,7 @@ class panelGUI(QMainWindow):
             self.ui.paasBInput.setDisabled(True)
 
     """
-    parseDay3Data(self, data)
+    parsepro3Data(self, data)
 
         Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
                     UI elements to ensure the GUI state is consistent with normal use.
@@ -2862,7 +2862,7 @@ class panelGUI(QMainWindow):
         Parameter: data - A list of the parsed input data
     """
 
-    def parseDay3Data(self, data):
+    def parsepro3Data(self, data):
         if data[0] is not None:
             self.ui.panelInput3.setText(data[0])
             self.ui.panelInput3.setDisabled(True)
@@ -3116,7 +3116,7 @@ class panelGUI(QMainWindow):
         # needs to have a valid panel before that can be pushed, so really there's nothing to parse!
         # So really all this does is validates the panel input and prints stuff if it's invalid
         if not self.validateInput(indices=[0]):
-            print("\n\nDAY 5 PANEL INPUT VALIDATION FAILED\n\n")
+            print("\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n")
 
     """
     parsepro4Data(self, data)
@@ -3127,7 +3127,7 @@ class panelGUI(QMainWindow):
         Parameter: data - A list of the parsed input data
     """
 
-    def parseDay6Data(self, data):
+    def parsepro6Data(self, data):
         if data[0] is not None:
             self.ui.panelInput6.setText(data[0])
             self.ui.panelInput6.setDisabled(True)
@@ -3231,7 +3231,7 @@ class panelGUI(QMainWindow):
                 self.ui.temp4_5.setDisabled(True)
 
     """
-    parseday7Data(self, data)
+    parsepro7Data(self, data)
 
         Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
                     UI elements to ensure the GUI state is consistent with normal use.
@@ -3239,14 +3239,14 @@ class panelGUI(QMainWindow):
         Parameter: data - A list of the parsed input data
     """
 
-    def parseDay7Data(self, data):
-        # print("data passed to parseDay7Data is", data)
+    def parsepro7Data(self, data):
+        # print("data passed to parsepro7Data is", data)
         # if data[0] is not None:
         #     self.ui.panelInput7.setText(str(data[0]))
 
         ## Note from Billy
-        ## The day7loadData function return a list of size 4
-        ## The original design for parseday7Data requires a list of size 5
+        ## The pro7loadData function return a list of size 4
+        ## The original design for parsepro7Data requires a list of size 5
         ## Change my code if you need
         if data[0] is not None:
             self.ui.panelInput7.setText(str(data[0]))
@@ -3309,9 +3309,9 @@ class panelGUI(QMainWindow):
     ###              |___/
 
     """
-    day1Part1(self)
+    pro1Part1(self)
 
-        Description: The function called when the day 1 start button is clicked. Validates barcode input, and checks if supplies list is checked
+        Description: The function called when the pro 1 start button is clicked. Validates barcode input, and checks if supplies list is checked
                  off. The main timer is also started if everything is correct.
 
         Disables: Barcode Inputs
@@ -3322,8 +3322,8 @@ class panelGUI(QMainWindow):
                 
     """
 
-    def day1part1(self):
-        # print("DAY 1 PART 1")
+    def pro1part1(self):
+        # print("pro 1 PART 1")
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
@@ -3372,10 +3372,10 @@ class panelGUI(QMainWindow):
         self.startRunning()
 
     """
-    day1part2(self)
+    pro1part2(self)
 
         Description: The function called when the 'Epoxy Mixed' button is pressed. This function checks that an epoxy batch, and all gap measurements
-                 have been input, as well as that the correct steps have been checked off. Starts the timer thread for the day 1 epoxy timer.
+                 have been input, as well as that the correct steps have been checked off. Starts the timer thread for the pro 1 epoxy timer.
 
         Disables: Epoxy Batch
                   Epoxy Mixed Button
@@ -3383,7 +3383,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Applied Button
     """
 
-    def day1part2(self):
+    def pro1part2(self):
         if not self.validateInput(indices=range(16)):
             return
 
@@ -3398,7 +3398,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day1CheckEpoxySteps(self)
+    pro1CheckEpoxySteps(self)
 
         Description: Function called when 'Masking Removed' button is pressed. This function checks to make sure the appropriate steps
                  have been checked off. If they have, the epoxy timer is ended.
@@ -3406,7 +3406,7 @@ class panelGUI(QMainWindow):
         Disables: Epoxy Applied Button
     """
 
-    def day1CheckEpoxySteps(self):
+    def pro1CheckEpoxySteps(self):
         # Stop timer
         self.timers[1].stop()
         self.ui.epoxy_applied1.setDisabled(True)
@@ -3415,9 +3415,9 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    resetDay1(self)
+    resetpro1(self)
 
-        Description: The function to reset all day 1 data and UI elements to the state before day 1 is started.
+        Description: The function to reset all pro 1 data and UI elements to the state before pro 1 is started.
 
         Disables: Finish Button
                   Checkboxes
@@ -3426,7 +3426,7 @@ class panelGUI(QMainWindow):
                  Barcode Inputs
     """
 
-    def resetDay1(self):
+    def resetpro1(self):
         self.data[0] = [None for x in self.data[0]]
 
         # Reset input widgets (panel input, parts input, epoxy_input)
@@ -3474,9 +3474,9 @@ class panelGUI(QMainWindow):
     ###              |___/
 
     """
-    day2part1(self)
+    pro2part1(self)
 
-        Description: The function called when the day 2 start button is pressed. Validates that a panel number has been supplied, as well as
+        Description: The function called when the pro 2 start button is pressed. Validates that a panel number has been supplied, as well as
                  loading pallet numbers, and that the supplies list has been checked off. Starts the main timer.
 
         Disables: Panel Number Input
@@ -3487,8 +3487,8 @@ class panelGUI(QMainWindow):
                  Epoxy Mixed Buttons
     """
 
-    def day2part1(self):
-        # print("DAY 2 PART 1")
+    def pro2part1(self):
+        # print("pro 2 PART 1")
 
         # Ensure supplies checked off
         if not (self.checkSupplies() or DEBUG):
@@ -3527,7 +3527,7 @@ class panelGUI(QMainWindow):
         self.startRunning()
 
     """
-    day2part2(self)
+    pro2part2(self)
 
         Description: The function called by clicking the first 'Epoxy Mixed' button. If there is an epoxy batch,
                     the timer for epoxying is started, otherwise the batch is highlighted.
@@ -3537,7 +3537,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Injected Button 1
     """
 
-    def day2part2(self):
+    def pro2part2(self):
         # Ensure valid input
         if not self.validateInput(indices=[3]):
             return
@@ -3570,7 +3570,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day2part2_2(self)
+    pro2part2_2(self)
 
         Description: The function called by the second 'Epoxy Mixed' button. Validates the second epoxy batch number, and
                  starts the second epoxy timer thread.
@@ -3581,7 +3581,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Injected Button 2
     """
 
-    def day2part2_2(self):
+    def pro2part2_2(self):
         # Ensure valid input
         if not self.validateInput(indices=[5]):
             return False
@@ -3601,7 +3601,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day2part2_3(self)
+    pro2part2_3(self)
 
         Description: Function called by clicking the second 'Epoxy Injected' button.
 
@@ -3610,7 +3610,7 @@ class panelGUI(QMainWindow):
         Enables: Heat Start Button
     """
 
-    def day2part2_3(self):
+    def pro2part2_3(self):
 
         # Stop the timer
         self.stopTimer(3)
@@ -3623,7 +3623,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day2part2_4(self)
+    pro2part2_4(self)
 
         Description: Function called by the 'Heat Finished' button. Records the maximum temperatures and heating time.
 
@@ -3632,7 +3632,7 @@ class panelGUI(QMainWindow):
                   Heat Finished Button
     """
 
-    def day2part2_4(self):
+    def pro2part2_4(self):
 
         # Reset stylesheets of temperature inputs
         self.ui.temp4.setStyleSheet("")
@@ -3648,7 +3648,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day2EpoxyInjected(self)
+    pro2EpoxyInjected(self)
 
         Description: Function called by clicking first 'Epoxy Injected' button.
 
@@ -3658,7 +3658,7 @@ class panelGUI(QMainWindow):
                  Epoxy Mixed Button 2
     """
 
-    def day2EpoxyInjected(self):
+    def pro2EpoxyInjected(self):
         # stop the corresponding timer
         self.stopTimer(2)
         # Disable first epoxy button
@@ -3670,9 +3670,9 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day2Heating(self)
+    pro2Heating(self)
 
-        Description: Function called by clicking 'Heat Start' button. Starts the day 2 heating timer thread.
+        Description: Function called by clicking 'Heat Start' button. Starts the pro 2 heating timer thread.
 
         Disables: Heat Start Button
 
@@ -3681,7 +3681,7 @@ class panelGUI(QMainWindow):
                  PAAS-B Max Temp Input
     """
 
-    def day2Heating(self):
+    def pro2Heating(self):
         # Disable start heat button
         self.ui.heat_start.setDisabled(True)
 
@@ -3692,15 +3692,15 @@ class panelGUI(QMainWindow):
         # Start Timer
         self.startTimer(4)
 
-    def day2CheckTemp(self):
+    def pro2CheckTemp(self):
         if self.validateInput(indices=[7, 8]):
             self.stopTimer(4)
-            self.day2part2_4()
+            self.pro2part2_4()
 
     """
-    resetDay2(self)
+    resetpro2(self)
 
-        Description: The function to reset the day 2 data and UI elements to the state before day 2 was started.
+        Description: The function to reset the pro 2 data and UI elements to the state before pro 2 was started.
 
         Disables: Finish Button
                   Checkboxes
@@ -3709,7 +3709,7 @@ class panelGUI(QMainWindow):
                  Loading Pallet Inputs
     """
 
-    def resetDay2(self):
+    def resetpro2(self):
         self.data[1] = [None for x in self.data[1]]
         self.ui.startbutton2.setEnabled(True)
         self.ui.panelInput2.setEnabled(True)
@@ -3735,7 +3735,7 @@ class panelGUI(QMainWindow):
     ###              |___/
 
     """
-    day3part1(self)
+    pro3part1(self)
 
         Description: Function called by Start Button. Validates the Panel Number Input and Wire Input, while also checking that the supplies
                  list is checked off. Starts both the main timer, and the wire insertion timer.
@@ -3750,8 +3750,8 @@ class panelGUI(QMainWindow):
                  Wire Resistance Comboboxes
     """
 
-    def day3part1(self):
-        # print("DAY 3 PART 1")
+    def pro3part1(self):
+        # print("pro 3 PART 1")
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
@@ -3795,16 +3795,16 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    resetDay3(self)
+    resetpro3(self)
 
-        Description: Function that resets the day 3 data list and UI elements to the state before the day began.
+        Description: Function that resets the pro 3 data list and UI elements to the state before the pro began.
 
         Disables: Continuity Comboboxes
                   Wire Position Comboboxes
                   Wire Resistance Comboboxes
     """
 
-    def resetDay3(self):
+    def resetpro3(self):
         self.data[2] = [None for x in self.data[2]]
         self.ui.panelInput3.setEnabled(True)
         self.ui.wireInput.setEnabled(True)
@@ -4008,7 +4008,7 @@ class panelGUI(QMainWindow):
     ###  |____/ \__,_|\__, | |____/|_/_/\_\
     ###               |___/
     """
-    day6part1(self)
+    pro6part1(self)
 
         Description: Function called by Start Button. Validates the Panel Number Input, and checks that the supplies list has been checked off.
                  Starts the main timer.
@@ -4021,7 +4021,7 @@ class panelGUI(QMainWindow):
                  Gap Measurement Drop Down Menus
     """
 
-    def day6part1(self):
+    def pro6part1(self):
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
@@ -4057,7 +4057,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day6part2(self)
+    pro6part2(self)
 
         Description: Function called when 'Epoxy Mixed' button 1 is clicked. Validates Epoxy Input 1, and starts epoxy timer 1.
 
@@ -4068,7 +4068,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Applied Button 1
     """
 
-    def day6part2(self):
+    def pro6part2(self):
         # Check valid input
         if not self.validateInput(indices=range(4, 7)):
             return
@@ -4093,7 +4093,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day6part2_2(self)
+    pro6part2_2(self)
 
         Description: Function called when Epoxy Applied Button 1 is clicked. Records the elapsed time of the the first epoxy session.
 
@@ -4103,7 +4103,7 @@ class panelGUI(QMainWindow):
                  Epoxy Batch Inputs 2 and 3
     """
 
-    def day6part2_2(self):
+    def pro6part2_2(self):
 
         self.stopTimer(6)
 
@@ -4119,9 +4119,9 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day6part3(self)
+    pro6part3(self)
 
-        Description: Function called when Epoxy Mixed Button 2 is clicked. Validates Epoxy Batch Inputs 2 and 3, and starts the second day 4
+        Description: Function called when Epoxy Mixed Button 2 is clicked. Validates Epoxy Batch Inputs 2 and 3, and starts the second pro 4
                  epoxy timer.
 
         Disables: Epoxy Batch Inputs 2 and 3
@@ -4130,7 +4130,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Applied Button 2
     """
 
-    def day6part3(self):
+    def pro6part3(self):
         # Verify input
         if not self.validateInput(indices=[8, 9]):
             return
@@ -4150,16 +4150,16 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day6part3_2(self)
+    pro6part3_2(self)
 
-        Description: Function called when Epoxy Applied Button 2 is clicked. Records the elapsed time for day 4 epoxy session 2.
+        Description: Function called when Epoxy Applied Button 2 is clicked. Records the elapsed time for pro 4 epoxy session 2.
 
         Disables: Epoxy Applied Button 2
 
         Enables: Heat Start Button
     """
 
-    def day6part3_2(self):
+    def pro6part3_2(self):
         # Stop the timer
         self.stopTimer(7)
         # Enable/Disable
@@ -4170,7 +4170,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day6part4(self)
+    pro6part4(self)
 
         Description: Function called when Heat Start Button is clicked. Starts the heating timer thread.
 
@@ -4181,7 +4181,7 @@ class panelGUI(QMainWindow):
                  PAAS-C Max Temp Input
     """
 
-    def day6part4(self):
+    def pro6part4(self):
 
         self.ui.heat_start4.setDisabled(True)
 
@@ -4194,7 +4194,7 @@ class panelGUI(QMainWindow):
         self.startTimer(8)
 
     """
-    day6part4_2(self)
+    pro6part4_2(self)
 
         Description: Function that ends the heating timer and records the max temperatures.
 
@@ -4203,7 +4203,7 @@ class panelGUI(QMainWindow):
                   PAAS-C Max Temp Input
     """
 
-    def day6part4_2(self):
+    def pro6part4_2(self):
 
         # Disable widgets
         self.setWidgetsDisabled(
@@ -4214,21 +4214,21 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day6CheckTemp(self)
+    pro6CheckTemp(self)
 
         Description: Function called when Heat Finished Button is clicked. Checkes that something has been entered into the temperature input boxes (line edits).
                  If not, highlights the boxes with no text input.
     """
 
-    def day6CheckTemp(self):
+    def pro6CheckTemp(self):
         if self.validateInput(indices=[11, 12]):
             self.stopTimer(8)
-            self.day6part4_2()
+            self.pro6part4_2()
 
     """
-    resetday6(self)
+    resetpro6(self)
 
-        Description: Resets the data and UI elements for day 4 to how they were before the day began.
+        Description: Resets the data and UI elements for pro 4 to how they were before the pro began.
 
         Disables: Finish Button
                   Steps Checkboxes
@@ -4240,7 +4240,7 @@ class panelGUI(QMainWindow):
                  Middle Rib Number Inputs
     """
 
-    def resetDay6(self):
+    def resetpro6(self):
         self.data[3] = [None for x in self.data[3]]
         self.ui.panelInput6.setText("")
         self.ui.bpmirgapL.setCurrentIndex(0)
@@ -4272,10 +4272,10 @@ class panelGUI(QMainWindow):
     ###               |___/
 
     """
-    day7part1(self)
+    pro7part1(self)
 
         Description: Function called when Start Button is clicked. Validates that all supplies have been checked off, and that a valid panel 
-                 number has been input. If so, the day begins. Otherwise, highlights prerequisite steps before day begins.
+                 number has been input. If so, the pro begins. Otherwise, highlights prerequisite steps before pro begins.
         
         Disables: Start Button
                   Panel Number Input
@@ -4285,7 +4285,7 @@ class panelGUI(QMainWindow):
                  Step 1 Checkbox
     """
 
-    def day7part1(self):
+    def pro7part1(self):
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
@@ -4312,7 +4312,7 @@ class panelGUI(QMainWindow):
         self.startRunning()
 
     """
-    day7part2(self)
+    pro7part2(self)
 
         Description: Function called when Epoxy Mixed Button (Left) clicked. Validates the epoxy batch, and then starts the 
                  epoxy timer thread for left side flooding.
@@ -4323,7 +4323,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Applied Button (Left)
     """
 
-    def day7part2(self):
+    def pro7part2(self):
 
         # Verify input
         if not self.validateInput(indices=[1]):
@@ -4342,14 +4342,14 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day7part2_2(self)
+    pro7part2_2(self)
 
         Description: Function called when Epoxy Applied Button (Left) is pressed. Ends epoxy fill timer for left side.
         
         Disables: Epoxy Applied Button (Left)
     """
 
-    def day7part2_2(self):
+    def pro7part2_2(self):
         self.stopTimer(9)
         # Disable widget
         self.ui.epoxy_applied5_2.setDisabled(True)
@@ -4357,7 +4357,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day7part3(self)
+    pro7part3(self)
 
         Description: Function called when Epoxy Mixed Button (Right) is pressed. Validates epoxy batch input, then
                  starts the epoxy fill timer for the right side.
@@ -4368,7 +4368,7 @@ class panelGUI(QMainWindow):
         Enables: Epoxy Applied Button (Right)
     """
 
-    def day7part3(self):
+    def pro7part3(self):
 
         # Validate input
         if not self.validateInput(indices=[3]):
@@ -4386,7 +4386,7 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    day7part3_2(self)
+    pro7part3_2(self)
 
         Description: Function called when Epoxy Applied Button (Right) is pressed. Stops the epoxy fill timer for the right side, and
                  records the data.
@@ -4394,7 +4394,7 @@ class panelGUI(QMainWindow):
         Disables: Epoxy Applied Button (Right)
     """
 
-    def day7part3_2(self):
+    def pro7part3_2(self):
         self.stopTimer(10)
         # Disable widgets
         self.ui.epoxy_applied5_3.setDisabled(True)
@@ -4403,9 +4403,9 @@ class panelGUI(QMainWindow):
         self.saveData()
 
     """
-    resetday7(self)
+    resetpro7(self)
 
-        Description: Resets the UI elements and data list for panel day 5 to the state before the day was started.
+        Description: Resets the UI elements and data list for panel pro 5 to the state before the pro was started.
 
         Disables: Finish Button
                   Step Checkboxes
@@ -4414,7 +4414,7 @@ class panelGUI(QMainWindow):
                  Panel Number Input
     """
 
-    def resetDay7(self):
+    def resetpro7(self):
         self.data[4] = [None for x in self.data[4]]
         self.ui.panelInput7.setText("")
         self.ui.epoxy_batch5_2.setText("")
@@ -4524,6 +4524,8 @@ class panelGUI(QMainWindow):
             1600, 1200
         )  # resize for readability (default is 400x200?)
 
+    # creates wire tensioner gui window
+    # uses StrawTension from GUIs/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
     def wireTensionPopup(self):
 
         # Method to save the wire tension measurements
@@ -4545,6 +4547,8 @@ class panelGUI(QMainWindow):
             # Show the window
             self.wireTensionWindow.show()
 
+    # creates tension box gui window
+    # uses StrawTension from GUIs/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
     def tensionboxPopup(self):
         if self.checkDevice("tensionBox") == False:
             if self.tensionBoxWindow is None:
@@ -4563,6 +4567,11 @@ class panelGUI(QMainWindow):
                     panel=self.getCurrentPanel(),
                 )
             self.tensionBoxWindow.show()
+    
+    # creates panel heater gui window
+    # uses StrawTension from GUIs/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
+    def panelHeaterPopup(self):
+        pass
 
 
 def except_hook(exctype, exception, tb):

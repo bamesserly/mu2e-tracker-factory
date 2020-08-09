@@ -16,7 +16,7 @@ import string
 
 class SuppliesList:
     """
-    __init__(self, Tools, Parts, Supplies, MoldRelease, day, saveTPSMethod, saveMoldReleaseMethod)
+    __init__(self, Tools, Parts, Supplies, MoldRelease, pro, saveTPSMethod, saveMoldReleaseMethod)
 
         Description: Class initializer that sets up some class variables and calls the setup() method.
 
@@ -24,7 +24,7 @@ class SuppliesList:
         Parameter: Parts - QGroupBox object corresponding to the parts box.
         Parameter: Supplies - QGroupBox object corresponding to the supplies box.
         Parameter: MoldRelease - QGroupBox object corresponding to the mold release box.
-        Parameter: day - Integer specifying the current panel day to load tools, parts, and supplies.
+        Parameter: pro - Integer specifying the current panel pro to load tools, parts, and supplies.
         Parameter: saveTPSMethod - Function that save when when a Tool, Part, or Supply get checked off.
         Parameter: saveMoldReleaseMethod - Function that save when an item is mold released.
     """
@@ -35,13 +35,13 @@ class SuppliesList:
         Parts,
         Supplies,
         MoldRelease,
-        day=0,
+        pro=0,
         saveTPSMethod=None,
         saveMoldReleaseMethod=None,
     ):
 
         self.partsCheckboxes = []
-        self.day = day
+        self.pro = pro
         self.saveTPSMethod = saveTPSMethod
         self.saveMoldReleaseMethod = saveMoldReleaseMethod
 
@@ -226,15 +226,15 @@ class SuppliesList:
         self.workers = workers
 
     """
-    setDay(self, day)
+    setpro(self, pro)
 
-        Description: Sets the current day to the value specified.
+        Description: Sets the current pro to the value specified.
 
-        Parameter: day - Integer specifying the current panel day.
+        Parameter: pro - Integer specifying the current panel pro.
     """
 
-    def setDay(self, day):
-        self.day = day
+    def setpro(self, pro):
+        self.pro = pro
 
     """
     setMoldReleaseWidget(self, widget)
@@ -317,9 +317,9 @@ class SuppliesList:
     """
     getMoldReleaseItems(self)
 
-        Description: Returns all items on the mold release list to be mold released for the current day.
+        Description: Returns all items on the mold release list to be mold released for the current pro.
 
-        Returns: String list of all mold release items relevant to the current day.
+        Returns: String list of all mold release items relevant to the current pro.
     """
 
     def getMoldReleaseItems(self):
@@ -330,7 +330,7 @@ class SuppliesList:
     """
     getUncheckedMoldReleaseItems(self)
 
-        Description: Gets all items on the mold release list that have not been checked off for the current day.
+        Description: Gets all items on the mold release list that have not been checked off for the current pro.
 
         Returns: String list of part names that have not been checked off.
     """
@@ -697,7 +697,7 @@ class SuppliesList:
     """
     loadSuppliesList(self)
 
-        Description: Loads the supplies list for the day, and then generates the UI buttons, checkboxes, and labels.
+        Description: Loads the supplies list for the pro, and then generates the UI buttons, checkboxes, and labels.
     """
 
     def loadSuppliesList(self, tools, parts, supplies):
@@ -1037,7 +1037,7 @@ class SuppliesList:
     clearMoldRelease(self)
 
         Description: Resets the mold release list to default, with no items being checked off. Clears labels and re-enables checkboxes.
-                 Called at the end of panel day five.
+                 Called at the end of panel pro five.
     """
 
     def clearMoldRelease(self):
@@ -1140,7 +1140,7 @@ class SuppliesList:
     """
     moldReleaseChecked(self)
 
-        Description: Checks that all relevant mold release items for the day have been checked off.
+        Description: Checks that all relevant mold release items for the pro have been checked off.
 
         Returns: Boolean value, True if all items checked off, False otherwise.
     """
@@ -1153,7 +1153,7 @@ class SuppliesList:
     """
     deleteLists(self)
 
-        Description: Deletes the supply and mold release lists. This is needed when the back to day select button
+        Description: Deletes the supply and mold release lists. This is needed when the back to pro select button
                  is pressed, and a new supplies list is loaded. Without this, the new list is simply put on
                  top of the old list, resulting in it looking bad, and allowing for unintended behavior. Calls
                  to deleteLater() have been removed. Technically, this can result in memory leaks. The total memory
@@ -1170,7 +1170,7 @@ class SuppliesList:
             self.toolWidget.setParent(None)
             # self.toolWidget.deleteLater()
 
-            # self.toolsLayout.setParent(None)   # crash in backtodayselect
+            # self.toolsLayout.setParent(None)   # crash in backtoproselect
             # self.toolsLayout.deleteLater()
 
             self.partScrollArea.setParent(None)
@@ -1179,7 +1179,7 @@ class SuppliesList:
             self.partWidget.setParent(None)
             # self.partWidget.deleteLater()
 
-            # self.partsLayout.setParent(None)     # crash in backtodayselect
+            # self.partsLayout.setParent(None)     # crash in backtoproselect
             # self.partsLayout.deleteLater()
 
             self.supplyScrollArea.setParent(None)
@@ -1188,7 +1188,7 @@ class SuppliesList:
             self.supplyWidget.setParent(None)
             # self.supplyWidget.deleteLater()
 
-            # self.suppliesLayout.setParent(None)     # crash in backtodayselect
+            # self.suppliesLayout.setParent(None)     # crash in backtoproselect
             # self.suppliesLayout.deleteLater()
 
             self.moldReleaseWidget.setParent(None)
@@ -1197,7 +1197,7 @@ class SuppliesList:
             self.moldScrollArea.setParent(None)
             # self.moldScrollArea.deleteLater()
 
-            # self.moldReleaseLayout.setParent(None)   # crash in backtodayselect
+            # self.moldReleaseLayout.setParent(None)   # crash in backtoproselect
             # self.moldReleaseLayout.deleteLater()
 
             self.acceptButton.setParent(None)

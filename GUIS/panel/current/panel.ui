@@ -25,9 +25,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
-     <widget class="QStackedWidget" name="daySelection">
+     <widget class="QStackedWidget" name="proSelection">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_5">
@@ -491,7 +491,7 @@
            </attribute>
            <layout class="QGridLayout" name="gridLayout_14">
             <item row="0" column="0">
-             <widget class="QStackedWidget" name="GUIday">
+             <widget class="QStackedWidget" name="GUIpro">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -499,7 +499,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -2691,8 +2691,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>738</width>
-                       <height>212</height>
+                       <width>81</width>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -3854,7 +3854,7 @@ Tensioner</string>
                       </widget>
                      </item>
                      <item row="1" column="0">
-                      <widget class="QPushButton" name="day5CommentSaveButton">
+                      <widget class="QPushButton" name="pro5CommentSaveButton">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                          <horstretch>0</horstretch>
@@ -5177,7 +5177,7 @@ Tensioner</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="dayReturnButton">
+                 <widget class="QPushButton" name="proReturnButton">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -6008,7 +6008,7 @@ Tensioner</string>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
-         <widget class="QPushButton" name="Day1Select">
+         <widget class="QPushButton" name="pro1Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6026,12 +6026,12 @@ Tensioner</string>
            <string>Process 1 - Inner Ring</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QPushButton" name="Day2Select">
+         <widget class="QPushButton" name="pro2Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6049,12 +6049,12 @@ Tensioner</string>
            <string>Process 2 - Straws</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QPushButton" name="Day3Select">
+         <widget class="QPushButton" name="pro3Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6072,12 +6072,12 @@ Tensioner</string>
            <string>Process 3 - Sense Wire</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QPushButton" name="Day4Select">
+         <widget class="QPushButton" name="pro4Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6095,12 +6095,12 @@ Tensioner</string>
            <string>Process 4 - Pin Protectors</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QPushButton" name="Day5Select">
+         <widget class="QPushButton" name="pro5Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6118,12 +6118,12 @@ Tensioner</string>
            <string>Process 5 - High Voltage</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QPushButton" name="Day6Select">
+         <widget class="QPushButton" name="pro6Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6141,12 +6141,12 @@ Tensioner</string>
            <string>Process 6 - Manifold</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QPushButton" name="Day7Select">
+         <widget class="QPushButton" name="pro7Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6164,12 +6164,12 @@ Tensioner</string>
            <string>Process 7 - Flooding</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QPushButton" name="Day8Select">
+         <widget class="QPushButton" name="proy8Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6187,12 +6187,12 @@ Tensioner</string>
            <string>Process 8 - Final QC</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="8" column="0">
-         <widget class="QPushButton" name="Day9Select">
+         <widget class="QPushButton" name="pro9Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6210,7 +6210,7 @@ Tensioner</string>
            <string>Process 9 - Storage</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
@@ -6343,7 +6343,7 @@ Tensioner</string>
   <tabstop>commentBox4</tabstop>
   <tabstop>saveButton</tabstop>
   <tabstop>commentBox5</tabstop>
-  <tabstop>day5CommentSaveButton</tabstop>
+  <tabstop>pro5CommentSaveButton</tabstop>
   <tabstop>picfour1_3</tabstop>
   <tabstop>picfour3_3</tabstop>
   <tabstop>picfour2_3</tabstop>
@@ -6362,7 +6362,7 @@ Tensioner</string>
   <tabstop>submitFailure</tabstop>
   <tabstop>previousComments</tabstop>
   <tabstop>FinishButton</tabstop>
-  <tabstop>dayReturnButton</tabstop>
+  <tabstop>proReturnButton</tabstop>
   <tabstop>portal1</tabstop>
   <tabstop>panelInput3_2</tabstop>
   <tabstop>tabWidget</tabstop>
@@ -6372,26 +6372,26 @@ Tensioner</string>
   <tabstop>nextButton</tabstop>
   <tabstop>pinFail</tabstop>
   <tabstop>previousButton_2</tabstop>
-  <tabstop>Day9Select</tabstop>
+  <tabstop>pro9Select</tabstop>
   <tabstop>nextButton_2</tabstop>
-  <tabstop>Day2Select</tabstop>
-  <tabstop>Day8Select</tabstop>
+  <tabstop>pro2Select</tabstop>
+  <tabstop>proy8Select</tabstop>
   <tabstop>portal3</tabstop>
   <tabstop>portal2</tabstop>
-  <tabstop>Day3Select</tabstop>
+  <tabstop>pro3Select</tabstop>
   <tabstop>portal4</tabstop>
-  <tabstop>Day4Select</tabstop>
-  <tabstop>Day5Select</tabstop>
-  <tabstop>Day6Select</tabstop>
-  <tabstop>Day7Select</tabstop>
-  <tabstop>Day1Select</tabstop>
+  <tabstop>pro4Select</tabstop>
+  <tabstop>pro5Select</tabstop>
+  <tabstop>pro6Select</tabstop>
+  <tabstop>pro7Select</tabstop>
+  <tabstop>pro1Select</tabstop>
   <tabstop>paasBInput</tabstop>
  </tabstops>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="saveButtons"/>
-  <buttongroup name="DaySelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="proSelectButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
