@@ -17,7 +17,7 @@ Using [Ctrl] + K + 0 collapses all functions and sections, making it much easier
 
 Original Authors: Jacob Christy, Kate Ciampa, Ben Hiltbrand
 Updated/Expanded by: Adam Arnett, Himanshu Joshi
-Date of Last Update: 7/6/2020
+Date of Last Update: 8/9/2020
 
 """
 
@@ -85,6 +85,7 @@ from dataProcessor import MultipleDataProcessor as DataProcessor
 from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
 from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
 from tension_devices.tension_box.tensionbox_window import TensionBox
+from tension_devices.panel_heater.PanelHeater import HeatControl
 
 # Import QLCDTimer from Modules
 sys.path.insert(
@@ -214,7 +215,7 @@ class panelGUI(QMainWindow):
         self.ui.suppliesList.setCurrentIndex(0)
 
         # Tension pop-up windows
-        self._init_tensionWindows()
+        self._init_deviceWindows()
 
         # Worker Portal
         self._init_worker_portal()
@@ -286,10 +287,11 @@ class panelGUI(QMainWindow):
         for pro in data_count:
             self.data.append([None for _ in range(data_count[pro])])
 
-    def _init_tensionWindows(self):
+    def _init_deviceWindows(self):
         self.strawTensionWindow = None
         self.wireTensionWindow = None
         self.tensionBoxWindow = None
+        self.panelHeaterWindow = None
 
     def _init_worker_portal(self):
         self.Current_workers = [
@@ -311,6 +313,7 @@ class panelGUI(QMainWindow):
         self.ui.panelInput1.installEventFilter(self)
         self.ui.epoxy_mixed1.clicked.connect(self.pro1part2)
         self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
+        self.ui.pro1PanelHeater.clicked.connect(self.panelHeaterPopup)
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
@@ -382,8 +385,9 @@ class panelGUI(QMainWindow):
 
         ## Launch vernier straw tensioner connected to self.DP
         self.ui.launch_straw_tensioner.clicked.connect(self.strawTensionPopup)
-        self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
-        self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
+        self.ui.pro2PanelHeater.clicked.connect(self.panelHeaterPopup)
+        #self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
+        #self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
 
     def _init_pro3_setup(self):
         ## Connect
@@ -673,6 +677,7 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_applied41.clicked.connect(self.pro6part2_2)
         self.ui.epoxy_applied42.clicked.connect(self.pro6part3_2)
         self.ui.heat_finished4.clicked.connect(self.pro6CheckTemp)
+        self.ui.pro6PanelHeater.clicked.connect(self.panelHeaterPopup)
 
         # Images
         self.ui.picfour1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
@@ -1250,7 +1255,7 @@ class panelGUI(QMainWindow):
         plugged in.
     """
 
-    def checkDevice(self, type):
+    def checkDevice(self):
         error = False
         arduino_ports = [
             p.device
@@ -1268,8 +1273,8 @@ class panelGUI(QMainWindow):
             error = True
             self.generateBox(
                 "critical",
-                "Tension device not found",
-                "Plug tension box into any USB port and try again.",
+                "Device not found",
+                "Plug device into any USB port and try again.",
             )
 
         if len(arduino_ports) > 1:
@@ -4507,10 +4512,9 @@ class panelGUI(QMainWindow):
         def saveStrawTensionMeasurement(position, tension, uncertainty):
             self.DP.saveStrawTensionMeasurement(position, tension, uncertainty)
 
-        # the checkDevice funciton should be here, but it isn't for debugging purposes
-        if (
-            self.strawTensionWindow is None
-        ):  # if there's no strawTension window present...
+        if self.checkDevice() == True:  # if no device,
+            return                          # return from this function
+        if (self.strawTensionWindow is None):  # if there's no strawTension window present...
             self.strawTensionWindow = StrawTension(  # make one! (creating it doesn't show it though)
                 saveMethod=lambda position, tension, uncertainty: saveStrawTensionMeasurement(  # pass it a save method, so it can...
                     position, tension, uncertainty
@@ -4525,7 +4529,7 @@ class panelGUI(QMainWindow):
         )  # resize for readability (default is 400x200?)
 
     # creates wire tensioner gui window
-    # uses StrawTension from GUIs/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
+    # uses wireTensionWindow from GUIs/current/tension_devices/wire_tensioner/wire_tensioner.py
     def wireTensionPopup(self):
 
         # Method to save the wire tension measurements
@@ -4533,7 +4537,7 @@ class panelGUI(QMainWindow):
             self.ui.panelInput3_2.setText(str(calibration))
             self.DP.saveWireTensionMeasurement(pos, tension, timer, calibration)
 
-        if self.checkDevice("wireTension") == False:
+        if self.checkDevice() == False:
             if self.wireTensionWindow is None:
                 # Construct Wire Tension Window whose save method is to call the two methods defined above
                 self.wireTensionWindow = WireTensionWindow(
@@ -4548,9 +4552,9 @@ class panelGUI(QMainWindow):
             self.wireTensionWindow.show()
 
     # creates tension box gui window
-    # uses StrawTension from GUIs/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
+    # uses TensionBox from GUIs/current/tension_devices/tension_box/tensionbox_window.py
     def tensionboxPopup(self):
-        if self.checkDevice("tensionBox") == False:
+        if self.checkDevice() == False:
             if self.tensionBoxWindow is None:
                 self.tensionBoxWindow = TensionBox(
                     saveMethod=(
@@ -4569,9 +4573,22 @@ class panelGUI(QMainWindow):
             self.tensionBoxWindow.show()
     
     # creates panel heater gui window
-    # uses StrawTension from GUIs/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
+    # uses HeatControl from GUIs/current/tension_devices/panel_heater/PanelHeater.py
     def panelHeaterPopup(self):
-        pass
+        
+        # NEEDS SAVE METHOD
+
+        if self.checkDevice() == True:  # if no device connected,
+            return                      # return from this function
+        
+        if self.panelHeaterWindow == None:  # if no window yet,
+            # get the current panel ID (one of the inputs will have text, the others will have none)
+            panelID = f'{self.ui.panelInput6.text()}{self.ui.panelInput2.text()}{self.ui.panelInput1.text()}'
+            self.panelHeaterWindow = HeatControl(
+                port = "GUI",
+                panel = panelID
+            )
+        
 
 
 def except_hook(exctype, exception, tb):
