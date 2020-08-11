@@ -32,7 +32,7 @@ Date of Last Update: 7/6/2020
 import inspect
 import pyautogui
 from PIL import Image
-import sys, time, os, tkinter, traceback, serial, platform
+import sys, time, os, tkinter, traceback, serial, platform, re
 from datetime import datetime
 from threading import Thread, enumerate as enumerateThreads
 import numpy as np
@@ -980,11 +980,11 @@ class panelGUI(QMainWindow):
         self.ui.alfInput.setValidator(valid_alf)
         self.ui.alfInput_2.setValidator(valid_alf)
 
-        valid_paasA = validator("(PAAS)\d{2}")
+        valid_paasA = validator("(PAAS A-)\d{2}")
         self.ui.paasAInput.setValidator(valid_paasA)
-        valid_paasB = validator("(PAAS)\d{2}")
+        valid_paasB = validator("(PAAS B-)\d{2}")
         self.ui.paasBInput.setValidator(valid_paasB)
-        valid_paasC = validator("(PAAS)\d{2}")
+        valid_paasC = validator("(PAAS C-)\d{2}")
         self.ui.paasCInput.setValidator(valid_paasC)
 
         set_validator(self.ui.baseInput1, "(BP)\d{3}")
@@ -2667,10 +2667,12 @@ class panelGUI(QMainWindow):
             self.ui.alfInput_2.setText(data[11])
             self.ui.alfInput_2.setDisabled(True)
         if data[18] is not None:
-            self.ui.paasAInput.setText(data[18])
+            # regular expression in next code line removes non-numerical characters from the string
+            # necessary because some data was saved with a different PAAS barcode format; this allows any format to be loaded
+            self.ui.paasAInput.setText('PAAS A-' + re.sub(r"\D", "", data[18]))
             self.ui.paasAInput.setDisabled(True)
         if data[19] is not None:
-            self.ui.paasCInput.setText(data[19])
+            self.ui.paasCInput.setText('PAAS C-' + re.sub(r"\D", "", data[19]))
             self.ui.paasCInput.setDisabled(True)
             self.ui.leftgap.setEnabled(True)
             self.ui.rightgap.setEnabled(True)
@@ -2862,7 +2864,9 @@ class panelGUI(QMainWindow):
 
         # PAAS B Entry ---------------------------------------------------------------------------
         if data[10] is not None:
-            self.ui.paasBInput.setText(data[10])
+            # regular expression in next code line removes non-numerical characters from the string
+            # necessary because some data was saved with a different PAAS barcode format; this allows any format to be loaded
+            self.ui.paasBInput.setText('PAAS B-' + re.sub(r"\D", "", data[10]))
             self.ui.paasBInput.setDisabled(True)
 
     """
