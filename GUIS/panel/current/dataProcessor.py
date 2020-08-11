@@ -330,6 +330,10 @@ class DataProcessor(ABC):
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         pass
 
+    @abstractmethod
+    def savePanelHeaterMeasurement(self, paasLetter, probe1Temp, probe2Temp):
+        pass
+
     """
     saveTensionboxMeasurement(self,is_straw,position,length,frequency,pulse_width,tension)
 
@@ -575,6 +579,10 @@ class MultipleDataProcessor(DataProcessor):
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
         for dp in self.processors:
             dp.saveContinuityMeasurement(position, continuity_str, wire_position)
+
+    def savePanelHeaterMeasurement(self, paasLetter, probe1Temp, probe2Temp):
+        for dp in self.processors:
+            dp.savePanelHeaterMeasurement(paasLetter, probe1Temp, probe2Temp)
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         for dp in self.processors:
@@ -1212,6 +1220,9 @@ class TxtDataProcessor(DataProcessor):
                 writer.writerow(row)
             if not written:
                 writer.writerow(new_row)
+
+    def savePanelHeaterMeasurement(self, paasLetter, probe1Temp, probe2Temp):
+        pass
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         # only works to a certain degree right now...
@@ -2299,6 +2310,15 @@ class SQLDataProcessor(DataProcessor):
                 "Top 1/3": "top",
             }[wire_position],
         )
+
+    def savePanelHeaterMeasurement(self, paasLetter, probe1Temp, probe2Temp):
+        if self.ensureProcedure():
+            '''
+            self.procedure.recordPanelTemp(
+                paasLetter, probe1Temp, probe2Temp
+            )
+            '''
+            print("savePanelHeaterMeasurement needs to be written for SQL processor!!!")
 
     # Called directly by the GUI in the initialization of Process 5
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
