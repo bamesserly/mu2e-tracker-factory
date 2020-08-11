@@ -386,8 +386,8 @@ class panelGUI(QMainWindow):
         ## Launch vernier straw tensioner connected to self.DP
         self.ui.launch_straw_tensioner.clicked.connect(self.strawTensionPopup)
         self.ui.pro2PanelHeater.clicked.connect(self.panelHeaterPopup)
-        #self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
-        #self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
+        # self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
+        # self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
 
     def _init_pro3_setup(self):
         ## Connect
@@ -923,12 +923,10 @@ class panelGUI(QMainWindow):
             )
         )
 
-
         for input in self.panelInput:
             input.editingFinished.connect(self.loadpro)
             input.editingFinished.connect(lambda: input.setEnabled(False))
             input.returnPressed.connect(lambda: None)
-
 
     def _init_validators(self):
         # TODO: write more comments in here
@@ -4513,8 +4511,10 @@ class panelGUI(QMainWindow):
             self.DP.saveStrawTensionMeasurement(position, tension, uncertainty)
 
         if self.checkDevice() == True:  # if no device,
-            return                          # return from this function
-        if (self.strawTensionWindow is None):  # if there's no strawTension window present...
+            return  # return from this function
+        if (
+            self.strawTensionWindow is None
+        ):  # if there's no strawTension window present...
             self.strawTensionWindow = StrawTension(  # make one! (creating it doesn't show it though)
                 saveMethod=lambda position, tension, uncertainty: saveStrawTensionMeasurement(  # pass it a save method, so it can...
                     position, tension, uncertainty
@@ -4571,24 +4571,26 @@ class panelGUI(QMainWindow):
                     panel=self.getCurrentPanel(),
                 )
             self.tensionBoxWindow.show()
-    
+
     # creates panel heater gui window
     # uses HeatControl from GUIs/current/tension_devices/panel_heater/PanelHeater.py
     def panelHeaterPopup(self):
-        
         # NEEDS SAVE METHOD
-
         if self.checkDevice() == True:  # if no device connected,
-            return                      # return from this function
-        
+            return  # return from this function
+
         if self.panelHeaterWindow == None:  # if no window yet,
             # get the current panel ID (one of the inputs will have text, the others will have none)
-            panelID = f'{self.ui.panelInput6.text()}{self.ui.panelInput2.text()}{self.ui.panelInput1.text()}'
+            panelID = f"{self.ui.panelInput6.text()}{self.ui.panelInput2.text()}{self.ui.panelInput1.text()}"
             self.panelHeaterWindow = HeatControl(
-                port = "GUI",
-                panel = panelID
+                port="GUI",
+                panel=panelID,
+                saveMethod=(
+                    lambda temp_paas_a, temp_paas_bc: self.DP.savePanelTempMeasurement(
+                        temp_paas_a, temp_paas_b
+                    )
+                ),
             )
-        
 
 
 def except_hook(exctype, exception, tb):
