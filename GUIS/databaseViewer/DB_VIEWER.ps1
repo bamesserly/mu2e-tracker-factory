@@ -1,2 +1,2 @@
-cd Z:\Production_Environment\GUIS\viewerWIP
+cd Z:\Production_Environment\GUIS\databaseViewer
 python facileDBMain.py
