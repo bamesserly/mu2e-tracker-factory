@@ -4531,7 +4531,6 @@ class panelGUI(QMainWindow):
     # creates wire tensioner gui window
     # uses wireTensionWindow from GUIs/current/tension_devices/wire_tensioner/wire_tensioner.py
     def wireTensionPopup(self):
-
         # Method to save the wire tension measurements
         def saveWireTensionMeasurement(pos, tension, timer, calibration):
             self.ui.panelInput3_2.setText(str(calibration))
@@ -4575,7 +4574,6 @@ class panelGUI(QMainWindow):
     # creates panel heater gui window
     # uses HeatControl from GUIs/current/tension_devices/panel_heater/PanelHeater.py
     def panelHeaterPopup(self):
-        # NEEDS SAVE METHOD
         if self.checkDevice() == True:  # if no device connected,
             return  # return from this function
 
@@ -4586,11 +4584,12 @@ class panelGUI(QMainWindow):
                 port="GUI",
                 panel=panelID,
                 saveMethod=(
-                    lambda temp_paas_a, temp_paas_bc: self.DP.savePanelTempMeasurement(
-                        temp_paas_a, temp_paas_b
+                    lambda temp_paas_a, temp_paas_bc: (
+                        self.DP.savePanelTempMeasurement(temp_paas_a, temp_paas_bc)
                     )
                 ),
             )
+            self.panelHeaterWindow.show()
 
 
 def except_hook(exctype, exception, tb):
@@ -4612,7 +4611,6 @@ def except_hook(exctype, exception, tb):
 
 
 def checkPackages():
-
     # list of packages to check, each tuple has the name of the package and a
     # boolean to determine if the version is correct
     packageList = [

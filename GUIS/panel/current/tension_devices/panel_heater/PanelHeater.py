@@ -174,7 +174,7 @@ class DataThread(threading.Thread):
         self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
         self.datafile = (
             self.directory
-            + "heat_control_data\\"
+            + "..\\..\\..\\..\\..\\Data\\Panel Data\\external_gui_data\\heat_control_data\\"
             + panel
             + "_"
             + dt.now().strftime("%Y-%m-%d")

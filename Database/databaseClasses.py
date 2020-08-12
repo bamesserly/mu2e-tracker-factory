@@ -1009,7 +1009,6 @@ class Pan2Procedure(PanelProcedure):
         self.commit()
 
     def recordStrawTension(self, position, tension, uncertainty):
-        # print("recordStrawTension", position, tension, uncertainty)
         StrawTensionMeasurement(
             procedure=self, position=position, tension=tension, uncertainty=uncertainty
         ).commit()
@@ -2677,10 +2676,10 @@ class PanelTempMeasurement(BASE, OBJECT):
     temp_paas_a = Column(REAL)
     temp_paas_bc = Column(REAL)
 
-    def __init__(self, procedure, temp_paas_a, temp_paas_b):
+    def __init__(self, procedure, temp_paas_a, temp_paas_bc):
         self.procedure = procedure.id
-        temp_paas_a = temp_paas_a
-        temp_paas_bc = temp_paas_bc
+        self.temp_paas_a = temp_paas_a
+        self.temp_paas_bc = temp_paas_bc
 
 
 class StrawTensionMeasurement(BASE, OBJECT):
