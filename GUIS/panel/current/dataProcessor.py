@@ -330,6 +330,10 @@ class DataProcessor(ABC):
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         pass
 
+    @abstractmethod
+    def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
+        pass
+
     """
     saveTensionboxMeasurement(self,is_straw,position,length,frequency,pulse_width,tension)
 
@@ -471,12 +475,12 @@ class DataProcessor(ABC):
 
     def getDay(self):
         try:
-            return self.gui.day
+            return self.gui.pro
         except AttributeError:
             return None
 
     def getDayIndex(self):
-        return self.gui.day_index
+        return self.gui.pro_index
 
     def getData(self):
         return self.gui.data
@@ -575,6 +579,10 @@ class MultipleDataProcessor(DataProcessor):
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
         for dp in self.processors:
             dp.saveContinuityMeasurement(position, continuity_str, wire_position)
+
+    def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
+        for dp in self.processors:
+            dp.savePanelTempMeasurement(temp_paas_a, temp_paas_bc)
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         for dp in self.processors:
@@ -1212,6 +1220,9 @@ class TxtDataProcessor(DataProcessor):
                 writer.writerow(row)
             if not written:
                 writer.writerow(new_row)
+
+    def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
+        pass
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         # only works to a certain degree right now...
@@ -2299,6 +2310,10 @@ class SQLDataProcessor(DataProcessor):
                 "Top 1/3": "top",
             }[wire_position],
         )
+
+    def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
+        if self.ensureProcedure():
+            self.procedure.recordPanelTempMeasurement(temp_paas_a, temp_paas_bc)
 
     # Called directly by the GUI in the initialization of Process 5
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):

@@ -718,17 +718,14 @@ class ProcedureTimestamp(BASE, OBJECT):
 
 class PanelProcedure(Procedure):
     ## INITIALIZATION ##
-
     def __init__(self, station, straw_location, create_key):
         super().__init__(station, straw_location, create_key)
 
     ## PANEL ##
-
     def getPanel(self):
         return self.getStrawLocation()
 
     ## FAILURE ##
-
     def recordFailure(self, position, failure_type, failure_mode, comment):
         failure = Failure(
             procedure=self.id,
@@ -769,6 +766,23 @@ class PanelProcedure(Procedure):
             .group_by(PanelStepExecution.panel_step)
             .all()
         )
+
+    """
+    recordPanelTempMeasurement
+        Description:
+            Record up to 2 panel temperatures. Used for processes 1, 2, and 6.
+            Process 1: PAAS-A only
+            Process 2: PAAS-A and PAAS-B
+            Process 6: PAAS-A and PAAS-C
+            The table's second temp field does double duty as either no PAAS,
+            PAAS-B, OR PAAS-C. Which it is can be inferred from the procedure.
+
+    """
+
+    def recordPanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
+        PanelTempMeasurement(
+            procedure=self, temp_paas_a=temp_paas_a, temp_paas_bc=temp_paas_bc
+        ).commit()
 
 
 # IR
@@ -833,7 +847,6 @@ class Pan1Procedure(PanelProcedure):
         self.commit()
 
     def getEpoxyTime(self):
-
         if self.details.epoxy_time_running == 0:
             return self.details.epoxy_time
         if self.details.epoxy_time_running == 1:
@@ -996,7 +1009,6 @@ class Pan2Procedure(PanelProcedure):
         self.commit()
 
     def recordStrawTension(self, position, tension, uncertainty):
-        # print("recordStrawTension", position, tension, uncertainty)
         StrawTensionMeasurement(
             procedure=self, position=position, tension=tension, uncertainty=uncertainty
         ).commit()
@@ -1849,7 +1861,6 @@ class PanelStation(Station):
 
 
 class Straw(BASE, OBJECT):
-
     # Create Key - Prevents direct use of __init__
     __create_key = object()
 
@@ -2656,6 +2667,19 @@ class WorkerLogin(BASE, OBJECT):
 
 
 ### MEASUREMENTS ###
+
+
+class PanelTempMeasurement(BASE, OBJECT):
+    __tablename__ = "panel_heat"
+    id = Column(Integer, primary_key=True)
+    procedure = Column(Integer, ForeignKey("procedure.id"))
+    temp_paas_a = Column(REAL)
+    temp_paas_bc = Column(REAL)
+
+    def __init__(self, procedure, temp_paas_a, temp_paas_bc):
+        self.procedure = procedure.id
+        self.temp_paas_a = temp_paas_a
+        self.temp_paas_bc = temp_paas_bc
 
 
 class StrawTensionMeasurement(BASE, OBJECT):

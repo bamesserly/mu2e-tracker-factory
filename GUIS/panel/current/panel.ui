@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1537</width>
+    <width>1793</width>
     <height>756</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
-     <widget class="QStackedWidget" name="daySelection">
+     <widget class="QStackedWidget" name="proSelection">
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -490,8 +490,32 @@
             <string>Panel</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_14">
-            <item row="0" column="0">
-             <widget class="QStackedWidget" name="GUIday">
+            <item row="0" column="2">
+             <widget class="QGroupBox" name="stepsBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>300</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="title">
+               <string>Steps:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QStackedWidget" name="GUIpro">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -499,13 +523,10 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>5</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
-                <property name="sizeConstraint">
-                 <enum>QLayout::SetNoConstraint</enum>
-                </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="sizePolicy">
@@ -533,465 +554,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QGroupBox" name="bir_box">
-                  <property name="palette">
-                   <palette>
-                    <active/>
-                    <inactive/>
-                    <disabled/>
-                   </palette>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>BIR Installation</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_23">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Left gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QComboBox" name="leftgap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="currentText">
-                      <string>Select</string>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QLabel" name="label_30">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Min BP/BIR gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="3">
-                    <widget class="QComboBox" name="mingap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_27">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Right gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QComboBox" name="rightgap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="2">
-                    <widget class="QLabel" name="label_29">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Max BP/BIR gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="3">
-                    <widget class="QComboBox" name="maxgap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="1" column="0">
+                <item row="1" column="0" colspan="2">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <property name="sizeConstraint">
                    <enum>QLayout::SetNoConstraint</enum>
@@ -1451,7 +1014,465 @@
                   </item>
                  </layout>
                 </item>
-                <item row="3" column="0">
+                <item row="2" column="0" colspan="2">
+                 <widget class="QGroupBox" name="bir_box">
+                  <property name="palette">
+                   <palette>
+                    <active/>
+                    <inactive/>
+                    <disabled/>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>BIR Installation</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_3">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_23">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Left gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="leftgap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="currentText">
+                      <string>Select</string>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_30">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Min BP/BIR gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QComboBox" name="mingap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_27">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Right gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="rightgap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_29">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Max BP/BIR gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QComboBox" name="maxgap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="2">
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
                   <property name="sizeConstraint">
                    <enum>QLayout::SetNoConstraint</enum>
@@ -1705,6 +1726,14 @@
                  </layout>
                 </item>
                 <item row="4" column="0">
+                 <widget class="QPushButton" name="pro1PanelHeater">
+                  <property name="text">
+                   <string>Launch Panel 
+Heater GUI</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
                  <widget class="QGroupBox" name="groupBox_12">
                   <property name="palette">
                    <palette>
@@ -1870,9 +1899,15 @@
                </layout>
               </widget>
               <widget class="QWidget" name="p2Straws">
-               <layout class="QGridLayout" name="gridLayout_60">
+               <layout class="QGridLayout" name="gridLayout_63">
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_613">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>12</pointsize>
@@ -2034,26 +2069,13 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="4" rowspan="2">
-                   <widget class="QPushButton" name="launch_straw_tensioner">
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="paasBInput">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>12</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Launch 
-Straw 
-Tension 
-GUI</string>
                     </property>
                    </widget>
                   </item>
@@ -2071,18 +2093,21 @@ GUI</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="paasBInput"/>
-                  </item>
                  </layout>
                 </item>
                 <item row="2" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0">
-                  <item>
+                 <layout class="QGridLayout" name="gridLayout_62">
+                  <item row="0" column="0">
                    <widget class="QGroupBox" name="groupBox_52">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="font">
                      <font>
-                      <pointsize>10</pointsize>
+                      <pointsize>11</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -2094,10 +2119,15 @@ GUI</string>
                      <item row="1" column="0">
                       <widget class="QLineEdit" name="epoxy_batch">
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                        </font>
                        </property>
                        <property name="text">
                         <string/>
@@ -2107,8 +2137,34 @@ GUI</string>
                        </property>
                       </widget>
                      </item>
+                     <item row="2" column="0" colspan="3">
+                      <widget class="QPushButton" name="epoxy_mixed">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Mixed</string>
+                       </property>
+                      </widget>
+                     </item>
                      <item row="0" column="0" colspan="3">
                       <widget class="QLabel" name="label_617">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="font">
                         <font>
                          <weight>50</weight>
@@ -2122,42 +2178,28 @@ GUI</string>
                      </item>
                      <item row="1" column="1" colspan="2">
                       <widget class="QLabel" name="label_615">
-                       <property name="text">
-                        <string>Epoxy Sample</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0" colspan="3">
-                      <widget class="QPushButton" name="epoxy_mixed">
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
-                       <property name="font">
-                        <font>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
                        <property name="text">
-                        <string>Epoxy Mixed</string>
+                        <string>Epoxy Sample</string>
                        </property>
                       </widget>
                      </item>
                      <item row="4" column="0" colspan="3">
                       <widget class="QPushButton" name="epoxy_inject1">
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -2167,12 +2209,12 @@ GUI</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0" colspan="3">
+                     <item row="5" column="0" colspan="3">
                       <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,1,1">
                        <item>
                         <widget class="QLCDNumber" name="hour_disp">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
@@ -2182,7 +2224,7 @@ GUI</string>
                        <item>
                         <widget class="QLCDNumber" name="min_disp">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
@@ -2192,7 +2234,7 @@ GUI</string>
                        <item>
                         <widget class="QLCDNumber" name="sec_disp">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
@@ -2204,11 +2246,17 @@ GUI</string>
                     </layout>
                    </widget>
                   </item>
-                  <item>
+                  <item row="0" column="1">
                    <widget class="QGroupBox" name="groupBox_53">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="font">
                      <font>
-                      <pointsize>10</pointsize>
+                      <pointsize>11</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -2217,53 +2265,14 @@ GUI</string>
                      <string>Top Row</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_22">
-                     <item row="1" column="0">
-                      <widget class="QLineEdit" name="epoxy_batch_2">
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>6</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1" colspan="2">
-                      <widget class="QLabel" name="label_616">
-                       <property name="text">
-                        <string>Epoxy Sample</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0" colspan="3">
-                      <widget class="QPushButton" name="epoxy_inject2">
-                       <property name="font">
-                        <font>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Epoxy Injected</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0" colspan="3">
-                      <widget class="QPushButton" name="epoxy_mixed_2">
-                       <property name="font">
-                        <font>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Epoxy Mixed</string>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="0" column="0" colspan="3">
                       <widget class="QLabel" name="label_618">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="font">
                         <font>
                          <weight>50</weight>
@@ -2275,27 +2284,128 @@ GUI</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0" colspan="3">
+                     <item row="1" column="0">
+                      <widget class="QLineEdit" name="epoxy_batch_2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="maxLength">
+                        <number>6</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0" colspan="3">
+                      <widget class="QPushButton" name="epoxy_mixed_2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Mixed</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1" colspan="2">
+                      <widget class="QLabel" name="label_616">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Sample</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="0" colspan="3">
+                      <widget class="QPushButton" name="epoxy_inject2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Injected</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0" colspan="3">
                       <layout class="QHBoxLayout" name="horizontalLayout_12">
                        <item>
-                        <widget class="QLCDNumber" name="hour_disp_2"/>
+                        <widget class="QLCDNumber" name="hour_disp_2">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <widget class="QLCDNumber" name="min_disp_2"/>
+                        <widget class="QLCDNumber" name="min_disp_2">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <widget class="QLCDNumber" name="sec_disp_2"/>
+                        <widget class="QLCDNumber" name="sec_disp_2">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </item>
                     </layout>
                    </widget>
                   </item>
-                  <item>
+                  <item row="0" column="2">
                    <widget class="QGroupBox" name="groupBox_51">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="font">
                      <font>
-                      <pointsize>10</pointsize>
+                      <pointsize>11</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -2304,81 +2414,14 @@ GUI</string>
                      <string>Heating</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_23">
-                     <item row="0" column="0" colspan="3">
-                      <widget class="QPushButton" name="heat_start">
-                       <property name="font">
-                        <font>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Heat Start</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0">
-                      <widget class="QLineEdit" name="temp4_2">
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>3</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0" colspan="3">
-                      <widget class="QPushButton" name="heat_finished">
-                       <property name="font">
-                        <font>
-                         <pointsize>12</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Heat Finished</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLineEdit" name="temp4">
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>3</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1" colspan="2">
-                      <widget class="QLabel" name="label_619">
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>PAAS-B Max Temp [C]</string>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="2" column="1" colspan="2">
                       <widget class="QLabel" name="label_614">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="font">
                         <font>
                          <weight>50</weight>
@@ -2390,18 +2433,144 @@ GUI</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="0" colspan="3">
+                     <item row="0" column="0" colspan="3">
+                      <widget class="QPushButton" name="heat_start">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Heat Start</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1" colspan="2">
+                      <widget class="QLabel" name="label_619">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>PAAS-B Max Temp [C]</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QLineEdit" name="temp4_2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="maxLength">
+                        <number>3</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLineEdit" name="temp4">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="maxLength">
+                        <number>3</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0" colspan="3">
                       <layout class="QHBoxLayout" name="horizontalLayout_13">
                        <item>
-                        <widget class="QLCDNumber" name="hour_disp_3"/>
+                        <widget class="QLCDNumber" name="hour_disp_3">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <widget class="QLCDNumber" name="min_disp_3"/>
+                        <widget class="QLCDNumber" name="min_disp_3">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <widget class="QLCDNumber" name="sec_disp_3"/>
+                        <widget class="QLCDNumber" name="sec_disp_3">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
+                     </item>
+                     <item row="4" column="0" colspan="3">
+                      <widget class="QPushButton" name="heat_finished">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Heat Finished</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -2409,8 +2578,110 @@ GUI</string>
                  </layout>
                 </item>
                 <item row="3" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_15">
-                  <item>
+                 <layout class="QGridLayout" name="gridLayout_61">
+                  <item row="1" column="0">
+                   <widget class="QGroupBox" name="groupBox_19">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="title">
+                     <string>Informative Images/Gifs</string>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_25">
+                     <item row="2" column="1">
+                      <widget class="QPushButton" name="timer_instructions">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Heating Timer Instructions</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QPushButton" name="picone2_2">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Mixing</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QPushButton" name="paas_attach_2">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Attaching PAAS Plates</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QGroupBox" name="groupBox_20">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="title">
+                     <string>Launch GUIs</string>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_60">
+                     <item row="1" column="1">
+                      <widget class="QPushButton" name="pro2PanelHeater">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Panel Heater</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QPushButton" name="launch_straw_tensioner">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Straw Tensioner</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" rowspan="2">
                    <widget class="QGroupBox" name="groupBox_54">
                     <property name="font">
                      <font>
@@ -2435,90 +2706,33 @@ GUI</string>
                        </property>
                       </widget>
                      </item>
+                     <item row="0" column="1">
+                      <widget class="QPushButton" name="saveButton2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>14</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Save</string>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">saveButtons</string>
+                       </attribute>
+                      </widget>
+                     </item>
                     </layout>
                    </widget>
                   </item>
-                  <item>
-                   <widget class="QPushButton" name="saveButton2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>14</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Save</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">saveButtons</string>
-                    </attribute>
-                   </widget>
-                  </item>
                  </layout>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QGroupBox" name="groupBox_19">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Informative Images/Gifs</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_25">
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="timer_instructions">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Heating Timer Instructions</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="picone2_2">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Epoxy Mixing</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QPushButton" name="paas_attach_2">
-                     <property name="font">
-                      <font>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Attaching PAAS Plates</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
                 </item>
                </layout>
               </widget>
@@ -2691,7 +2905,7 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>738</width>
+                       <width>994</width>
                        <height>212</height>
                       </rect>
                      </property>
@@ -2992,7 +3206,7 @@ Tensioner</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_51">
                    <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="commentBox_2">
+                    <widget class="QPlainTextEdit" name="commentBox4">
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
@@ -3820,7 +4034,7 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>356</width>
+                       <width>484</width>
                        <height>539</height>
                       </rect>
                      </property>
@@ -3845,7 +4059,7 @@ Tensioner</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_52">
                      <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="day5CommentBox">
+                      <widget class="QPlainTextEdit" name="commentBox5">
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
@@ -3854,7 +4068,7 @@ Tensioner</string>
                       </widget>
                      </item>
                      <item row="1" column="0">
-                      <widget class="QPushButton" name="day5CommentSaveButton">
+                      <widget class="QPushButton" name="pro5CommentSaveButton">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                          <horstretch>0</horstretch>
@@ -3955,7 +4169,7 @@ Tensioner</string>
               </widget>
               <widget class="QWidget" name="p6Manifold">
                <layout class="QGridLayout" name="gridLayout_40">
-                <item row="0" column="0" colspan="3">
+                <item row="0" column="0" colspan="4">
                  <layout class="QGridLayout" name="gridLayout_36">
                   <item row="0" column="0" rowspan="2" colspan="2">
                    <widget class="QLabel" name="label_25">
@@ -4252,7 +4466,7 @@ Tensioner</string>
                   </item>
                  </layout>
                 </item>
-                <item row="1" column="0">
+                <item row="1" column="0" colspan="2">
                  <widget class="QGroupBox" name="groupBox_15">
                   <property name="font">
                    <font>
@@ -4265,13 +4479,6 @@ Tensioner</string>
                    <string>Baseplate/IR Epoxy</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_37">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_131">
-                     <property name="text">
-                      <string>Epoxy Batch:</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="0" colspan="2">
                     <widget class="QPushButton" name="epoxy_mixed41">
                      <property name="enabled">
@@ -4289,6 +4496,26 @@ Tensioner</string>
                      </property>
                     </widget>
                    </item>
+                   <item row="0" column="1">
+                    <widget class="QLineEdit" name="epoxy_batch41">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>6</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_131">
+                     <property name="text">
+                      <string>Epoxy Batch:</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="3" column="0" colspan="2">
                     <widget class="QPushButton" name="epoxy_applied41">
                      <property name="enabled">
@@ -4303,19 +4530,6 @@ Tensioner</string>
                      </property>
                      <property name="text">
                       <string>Epoxy Applied</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QLineEdit" name="epoxy_batch41">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>6</number>
                      </property>
                     </widget>
                    </item>
@@ -4356,7 +4570,7 @@ Tensioner</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="1" column="2">
                  <widget class="QGroupBox" name="groupBox_16">
                   <property name="font">
                    <font>
@@ -4475,7 +4689,7 @@ Tensioner</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="1" column="2">
+                <item row="1" column="3">
                  <widget class="QGroupBox" name="groupBox_21">
                   <property name="font">
                    <font>
@@ -4492,38 +4706,6 @@ Tensioner</string>
                     <widget class="QLabel" name="label_2">
                      <property name="text">
                       <string>PAAS-A</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0" colspan="4">
-                    <layout class="QHBoxLayout" name="horizontalLayout_23">
-                     <item>
-                      <widget class="QLCDNumber" name="hour_disp_16"/>
-                     </item>
-                     <item>
-                      <widget class="QLCDNumber" name="min_disp_16"/>
-                     </item>
-                     <item>
-                      <widget class="QLCDNumber" name="sec_disp_16"/>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="3" column="2" colspan="2">
-                    <widget class="QLineEdit" name="temp4_4">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>3</number>
                      </property>
                     </widget>
                    </item>
@@ -4546,17 +4728,29 @@ Tensioner</string>
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="2" colspan="2">
+                    <widget class="QLineEdit" name="temp4_4">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>3</number>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="2" column="0" colspan="4">
                     <widget class="QLabel" name="label">
                      <property name="text">
                       <string>Maximum Temperature [C]</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0" colspan="2">
-                    <widget class="QLabel" name="label_8">
-                     <property name="text">
-                      <string>PAAS-C</string>
                      </property>
                     </widget>
                    </item>
@@ -4610,10 +4804,30 @@ Tensioner</string>
                      </item>
                     </layout>
                    </item>
+                   <item row="4" column="0" colspan="2">
+                    <widget class="QLabel" name="label_8">
+                     <property name="text">
+                      <string>PAAS-C</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="4">
+                    <layout class="QHBoxLayout" name="horizontalLayout_23">
+                     <item>
+                      <widget class="QLCDNumber" name="hour_disp_16"/>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="min_disp_16"/>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="sec_disp_16"/>
+                     </item>
+                    </layout>
+                   </item>
                   </layout>
                  </widget>
                 </item>
-                <item row="2" column="0" colspan="3">
+                <item row="2" column="0" colspan="4">
                  <layout class="QHBoxLayout" name="horizontalLayout_20">
                   <item>
                    <widget class="QGroupBox" name="groupBox_22">
@@ -4629,7 +4843,7 @@ Tensioner</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_34">
                      <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="commentBox4">
+                      <widget class="QPlainTextEdit" name="commentBox6">
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
@@ -4665,7 +4879,7 @@ Tensioner</string>
                   </item>
                  </layout>
                 </item>
-                <item row="3" column="0" colspan="3">
+                <item row="3" column="2" colspan="2">
                  <widget class="QGroupBox" name="groupBox_14">
                   <property name="font">
                    <font>
@@ -4754,11 +4968,20 @@ Tensioner</string>
                   </layout>
                  </widget>
                 </item>
+                <item row="3" column="0" colspan="2">
+                 <widget class="QPushButton" name="pro6PanelHeater">
+                  <property name="text">
+                   <string>Launch Panel 
+Heater GUI</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
                <zorder>groupBox_21</zorder>
                <zorder>groupBox_15</zorder>
                <zorder>groupBox_16</zorder>
                <zorder>groupBox_14</zorder>
+               <zorder>pro6PanelHeater</zorder>
               </widget>
               <widget class="QWidget" name="p7Flooding">
                <layout class="QGridLayout" name="gridLayout_45">
@@ -5013,7 +5236,7 @@ Tensioner</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_43">
                      <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="commentBox5">
+                      <widget class="QPlainTextEdit" name="commentBox7">
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
@@ -5078,31 +5301,7 @@ Tensioner</string>
               <widget class="QWidget" name="p9Storage"/>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QGroupBox" name="stepsBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>300</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="title">
-               <string>Steps:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
+            <item row="0" column="3">
              <layout class="QVBoxLayout" name="verticalLayout_8">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -5177,7 +5376,7 @@ Tensioner</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="dayReturnButton">
+                 <widget class="QPushButton" name="proReturnButton">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -6008,7 +6207,7 @@ Tensioner</string>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
-         <widget class="QPushButton" name="Day1Select">
+         <widget class="QPushButton" name="pro1Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6026,12 +6225,12 @@ Tensioner</string>
            <string>Process 1 - Inner Ring</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QPushButton" name="Day2Select">
+         <widget class="QPushButton" name="pro2Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6049,12 +6248,12 @@ Tensioner</string>
            <string>Process 2 - Straws</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QPushButton" name="Day3Select">
+         <widget class="QPushButton" name="pro3Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6072,12 +6271,12 @@ Tensioner</string>
            <string>Process 3 - Sense Wire</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QPushButton" name="Day4Select">
+         <widget class="QPushButton" name="pro4Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6095,12 +6294,12 @@ Tensioner</string>
            <string>Process 4 - Pin Protectors</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QPushButton" name="Day5Select">
+         <widget class="QPushButton" name="pro5Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6118,12 +6317,12 @@ Tensioner</string>
            <string>Process 5 - High Voltage</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QPushButton" name="Day6Select">
+         <widget class="QPushButton" name="pro6Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6141,12 +6340,12 @@ Tensioner</string>
            <string>Process 6 - Manifold</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QPushButton" name="Day7Select">
+         <widget class="QPushButton" name="pro7Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6164,12 +6363,12 @@ Tensioner</string>
            <string>Process 7 - Flooding</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QPushButton" name="Day8Select">
+         <widget class="QPushButton" name="proy8Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6187,12 +6386,12 @@ Tensioner</string>
            <string>Process 8 - Final QC</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
         <item row="8" column="0">
-         <widget class="QPushButton" name="Day9Select">
+         <widget class="QPushButton" name="pro9Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -6210,7 +6409,7 @@ Tensioner</string>
            <string>Process 9 - Storage</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">DaySelectButtons</string>
+           <string notr="true">proSelectButtons</string>
           </attribute>
          </widget>
         </item>
@@ -6258,7 +6457,6 @@ Tensioner</string>
   <tabstop>panelInput2</tabstop>
   <tabstop>pallet1code</tabstop>
   <tabstop>pallet2code</tabstop>
-  <tabstop>launch_straw_tensioner</tabstop>
   <tabstop>epoxy_batch</tabstop>
   <tabstop>epoxy_mixed</tabstop>
   <tabstop>epoxy_inject1</tabstop>
@@ -6268,7 +6466,6 @@ Tensioner</string>
   <tabstop>heat_start</tabstop>
   <tabstop>temp4</tabstop>
   <tabstop>temp4_2</tabstop>
-  <tabstop>heat_finished</tabstop>
   <tabstop>panelInput3</tabstop>
   <tabstop>wireInput</tabstop>
   <tabstop>startbutton3</tabstop>
@@ -6332,27 +6529,24 @@ Tensioner</string>
   <tabstop>commentBox1</tabstop>
   <tabstop>saveButton1</tabstop>
   <tabstop>timer_instructions</tabstop>
-  <tabstop>picone2_2</tabstop>
-  <tabstop>paas_attach_2</tabstop>
-  <tabstop>saveButton2</tabstop>
   <tabstop>commentBox3</tabstop>
   <tabstop>saveButton3</tabstop>
   <tabstop>picfour1_2</tabstop>
   <tabstop>picfour2_2</tabstop>
   <tabstop>picfour3_2</tabstop>
-  <tabstop>commentBox_2</tabstop>
+  <tabstop>commentBox4</tabstop>
   <tabstop>saveButton</tabstop>
-  <tabstop>day5CommentBox</tabstop>
-  <tabstop>day5CommentSaveButton</tabstop>
+  <tabstop>commentBox5</tabstop>
+  <tabstop>pro5CommentSaveButton</tabstop>
   <tabstop>picfour1_3</tabstop>
   <tabstop>picfour3_3</tabstop>
   <tabstop>picfour2_3</tabstop>
-  <tabstop>commentBox4</tabstop>
+  <tabstop>commentBox6</tabstop>
   <tabstop>saveButton4</tabstop>
   <tabstop>picfour1</tabstop>
   <tabstop>paas_attach_3</tabstop>
   <tabstop>picfour3</tabstop>
-  <tabstop>commentBox5</tabstop>
+  <tabstop>commentBox7</tabstop>
   <tabstop>saveButton5</tabstop>
   <tabstop>picfive1</tabstop>
   <tabstop>failSelect</tabstop>
@@ -6362,7 +6556,7 @@ Tensioner</string>
   <tabstop>submitFailure</tabstop>
   <tabstop>previousComments</tabstop>
   <tabstop>FinishButton</tabstop>
-  <tabstop>dayReturnButton</tabstop>
+  <tabstop>proReturnButton</tabstop>
   <tabstop>portal1</tabstop>
   <tabstop>panelInput3_2</tabstop>
   <tabstop>tabWidget</tabstop>
@@ -6372,26 +6566,26 @@ Tensioner</string>
   <tabstop>nextButton</tabstop>
   <tabstop>pinFail</tabstop>
   <tabstop>previousButton_2</tabstop>
-  <tabstop>Day9Select</tabstop>
+  <tabstop>pro9Select</tabstop>
   <tabstop>nextButton_2</tabstop>
-  <tabstop>Day2Select</tabstop>
-  <tabstop>Day8Select</tabstop>
+  <tabstop>pro2Select</tabstop>
+  <tabstop>proy8Select</tabstop>
   <tabstop>portal3</tabstop>
   <tabstop>portal2</tabstop>
-  <tabstop>Day3Select</tabstop>
+  <tabstop>pro3Select</tabstop>
   <tabstop>portal4</tabstop>
-  <tabstop>Day4Select</tabstop>
-  <tabstop>Day5Select</tabstop>
-  <tabstop>Day6Select</tabstop>
-  <tabstop>Day7Select</tabstop>
-  <tabstop>Day1Select</tabstop>
+  <tabstop>pro4Select</tabstop>
+  <tabstop>pro5Select</tabstop>
+  <tabstop>pro6Select</tabstop>
+  <tabstop>pro7Select</tabstop>
+  <tabstop>pro1Select</tabstop>
   <tabstop>paasBInput</tabstop>
  </tabstops>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="saveButtons"/>
-  <buttongroup name="DaySelectButtons"/>
+  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
