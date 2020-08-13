@@ -830,6 +830,17 @@ class TxtDataProcessor(DataProcessor):
                     "\n".join(steps)
                 )  # go two lines down, write Steps:, then go another line down and write the list of steps
 
+    # Helper method for save data functions:
+    def loadRawSteps(self):
+        if not self.checkPanelFileExistsMk2():
+            return list()
+        file = self.getPanelPathMk2().open("r").readlines()
+        for i in range(len(file)):
+            line = file[i]
+            if line.strip() == "Steps:":
+                return file[i + 1 :]
+        return list()
+
     ## TIME EVENTS ##
 
     def saveStart(self):
@@ -1325,9 +1336,6 @@ class TxtDataProcessor(DataProcessor):
         pass
 
     def loadContinuityMeasurements(self, position=None):
-        pass
-
-    def loadRawSteps(self):
         pass
 
     def loadTimestamps(self):
@@ -1835,7 +1843,7 @@ class SQLDataProcessor(DataProcessor):
         text = ""
         current_pro = 0
         for c in comments:
-            pro = Procedure.queryWithId(c.procedure).getStation().getPro()
+            pro = Procedure.queryWithId(c.procedure).getStation().getDay()
 
             # Add pro header
             if pro > current_pro:
