@@ -53,10 +53,10 @@ class DataProcessor(ABC):
     """#USED
     saveData(self)
 
-        Description: The generic save function that saves all data for a given day.
+        Description: The generic save function that saves all data for a given pro.
 
         Data Saved:
-            - Day-specific data
+            - Pro-specific data
             - Steps completed
             - Comments
     """
@@ -210,7 +210,7 @@ class DataProcessor(ABC):
     getCommentText(self)
 
         Description:    Returns all comments for the panel consolidated into
-                        one large string with timestamps and day headers.
+                        one large string with timestamps and pro headers.
     """
 
     @abstractmethod
@@ -371,20 +371,20 @@ class DataProcessor(ABC):
 
     ## LOAD METHODS
 
-    # TODO update this comment to reflect "days"-> "process"
+    # TODO update this comment to reflect "pros"-> "process"
     """#USED
     loadData
 
-        Description:    Returns all data previously saved for this day
-                            - day-specific data
+        Description:    Returns all data previously saved for this pro
+                            - pro-specific data
                             - corresponding timestamps
                             - steps completed
-                            (if day 3)
+                            (if pro 3)
                             - continuity, wire position, resistance, and corresponding timestamps (if 6 more lists)
 
         Returns: List of lists
             [
-            day data,
+            pro data,
             data timestamps,
             elapsed_time, (integer, number of seconds)
             steps completed,
@@ -438,7 +438,7 @@ class DataProcessor(ABC):
     """#USED
     loadSteps(self)
 
-        Description:    Returns an ordered list of steps to be completed during this day.
+        Description:    Returns an ordered list of steps to be completed during this pro.
 
         Return list(Step)
     """
@@ -450,7 +450,7 @@ class DataProcessor(ABC):
     """
     loadContinuityMeasurements(self,position=None)
 
-        Description:    Loads all or one of the continuity measurements (day 3).
+        Description:    Loads all or one of the continuity measurements (pro 3).
 
         Input:  position (int)  Position of wire to load continuity for. If None, this
                                 method should return all the continuity measurements for the panel.
@@ -473,20 +473,20 @@ class DataProcessor(ABC):
     ### GETTERS ###
     # Gets variables from gui that are necessary for saving data properly
 
-    def getDay(self):
+    def getPro(self):
         try:
             return self.gui.pro
         except AttributeError:
             return None
 
-    def getDayIndex(self):
+    def getProIndex(self):
         return self.gui.pro_index
 
     def getData(self):
         return self.gui.data
 
-    def getDayData(self):
-        return self.getData()[self.getDayIndex()]
+    def getProData(self):
+        return self.getData()[self.getProIndex()]
 
     def getPanel(self):
         return self.gui.getCurrentPanel()
@@ -656,7 +656,7 @@ class TxtDataProcessor(DataProcessor):
         super().__init__(gui)
         self._init_directories(lab_version)
         self.credentialChecker = Credentials(
-            "pan" + str(self.getDay()), self.paths["credentialsChecklist"]
+            "pan" + str(self.getPro()), self.paths["credentialsChecklist"]
         )
         self.sessionWorkers = []
         self.workerInformation = []
@@ -714,20 +714,20 @@ class TxtDataProcessor(DataProcessor):
             self.saveDataMkI()  # save in database friendly CSV
 
     def saveDataMkI(self):
-        # what day/process?
-        day = self.getDay()
+        # what pro/process?
+        pro = self.getPro()
         # get data from the gui to save
-        data = self.getDayData()
+        data = self.getProData()
 
         header = {
-            1: self._day1header,
-            2: self._day2header,
-            3: self._day3header,
+            1: self._pro1header,
+            2: self._pro2header,
+            3: self._pro3header,
             4: self._pro4header,
             5: self._pro5header,
-            6: self._day6header,
-            7: self._day7header,
-        }[self.getDay()]()
+            6: self._pro6header,
+            7: self._pro7header,
+        }[self.getPro()]()
 
         # Count number of steps
         # loadRawSteps() returns a list of steps from the human
@@ -772,10 +772,10 @@ class TxtDataProcessor(DataProcessor):
                 file.write(row)
 
     def saveDataMkII(self):
-        # what day/process?
-        day = self.getDay()
+        # what pro/process?
+        pro = self.getPro()
         # get data to be saved
-        data = self.getDayData()
+        data = self.getProData()
 
         # each header function returns a list of the variables that need to be saved
         # in the same order they appear in the data list.  However, the headers begin
@@ -784,21 +784,21 @@ class TxtDataProcessor(DataProcessor):
         # the beginning of the header list, when writing it with data, the corresponding
         # index in header will be one higher than in data.
         header = {
-            1: self._day1header,
-            2: self._day2header,
-            3: self._day3header,
+            1: self._pro1header,
+            2: self._pro2header,
+            3: self._pro3header,
             4: self._pro4header,
             5: self._pro5header,
-            6: self._day6header,
-            7: self._day7header,
-        }[self.getDay()]()
+            6: self._pro6header,
+            7: self._pro7header,
+        }[self.getPro()]()
 
         # steps are automatically saved periodically while gui is running
         # We will collect them now, and write later.
         steps = [line.strip() for line in self.loadRawSteps() if line != "\n"]
 
         # open file to write to
-        with self.getPanelPath().open("w") as file:
+        with self.getPanelPathMk2().open("w") as file:
             # write timestamp
             file.write("Timestamp," + self.timestamp() + "\n")
 
@@ -833,16 +833,16 @@ class TxtDataProcessor(DataProcessor):
     ## TIME EVENTS ##
 
     def saveStart(self):
-        self.saveStep(step_name=f"Day {self.getDay()} Start")
+        self.saveStep(step_name=f"Pro {self.getPro()} Start")
 
     def savePause(self):
-        self.saveStep(step_name=f"Day {self.getDay()} Paused")
+        self.saveStep(step_name=f"Pro {self.getPro()} Paused")
 
     def saveResume(self):
-        self.saveStep(step_name=f"Day {self.getDay()} Resumed")
+        self.saveStep(step_name=f"Pro {self.getPro()} Resumed")
 
     def saveFinish(self):
-        self.saveStep(step_name=f"Day {self.getDay()} Finished")
+        self.saveStep(step_name=f"Pro {self.getPro()} Finished")
 
     def handleClose(self):
         pass
@@ -916,7 +916,7 @@ class TxtDataProcessor(DataProcessor):
         self.workerInformation.append(
             [
                 worker_id,
-                str(self.getDay()),
+                str(self.getPro()),
                 datetime.now().strftime("%Y-%m-%d %H:%M"),
                 None,
             ]
@@ -1074,7 +1074,7 @@ class TxtDataProcessor(DataProcessor):
     def saveStep(self, step_name):
 
         # If no file yet exists, save it before appending this step
-        if not self.checkPanelFileExists():
+        if not self.checkPanelFileExistsMk2():
 
             self.saveData()
 
@@ -1082,7 +1082,7 @@ class TxtDataProcessor(DataProcessor):
         step = ",".join([self.timestamp(), step_name] + self.sessionWorkers).strip()
 
         # Append to file
-        with self.getPanelPath().open("a") as file:  # append mode
+        with self.getPanelPathMk2().open("a") as file:  # append mode
 
             file.write("\n" + step)
 
@@ -1108,7 +1108,7 @@ class TxtDataProcessor(DataProcessor):
             file.write(f"\n{','.join(data)}")
 
         ## Save comment:
-        self.saveComment(comment, self.getPanel(), self.getDay())
+        self.saveComment(comment, self.getPanel(), self.getPro())
 
     def saveStrawTensionMeasurement(self, position, tension, uncertainty):
         straw_header = "Date,Panel,StrawPosition,Tension(grams),Uncertainty(grams),Epoc"
@@ -1309,295 +1309,80 @@ class TxtDataProcessor(DataProcessor):
         qcdwires = qcdwires[1:]
         return wire in qcdwires
 
-    ## LOAD METHODS ####
+# Defunct Load methods that all just pass
+############################################################################
 
     def loadData(self):
-        # Define all lists of data to return later
-        data = list()
-        elapsed_time = timedelta()
-        steps_completed = int()
-        continuity = list()
-        hv = list()
-        wire_position = list()
-        resistance = list()
-        continuity_time = list()
-
-        # Path
-
-        path = self.getPanelPath()
-        # print("Loading data from text file:",path)
-
-        """
-        When reading data with next(reader) for day 3,
-            the first use gives the header
-            the second use gives the non-iterative data (panel, workers, etc.)
-            the third use gives the straw numbers (a pretty useless list since it's an int thats the same as it's index in a list 0-95)
-            the fourth use gives a list of continuity, 96 of 'Pass: No Continuity', 'Fail: Left Continuity', or 'Fail: Right Continuity'
-            the fifth use gives a list of straw positions, 96 of  'Upper 1/3', 'Middle 1/3', or 'Lower 1/3'
-            the sixth use gives a list of 96 'Finite's in a row apparently.  (maybe there's another option ?)
-            the seventh use gives an empty list
-            the eigth use gives ['step_number', 'time_completed', 'step_name']
-            the after the eigth use it gives steps, ie: ['1', '2018-12-14_11:40', 'scan_setup'] or ['3', '2018-12-14_11:40', 'threads']
-
-        next(reader) gives lists of strings in a space seperated format
-        day 3 and pro 5 are special, but all of the rest should be in the format
-
-            <header (a list of variables (their names) that should be present)>
-            <those variables in the order they appear in in the header>
-            <???>
-            <empty line>
-            <completed steps and stuff>
-
-        """
-
-        # Open file and get data only if path exists
-        if path.exists():
-            with path.open("r") as file:
-                reader = csv.reader(file)
-                print("1------------------", next(reader))  # Skip header
-                # print("2-----------------------",next(reader))
-                # print("3----------------------",next(reader))
-                # print("4--------------------",next(reader))
-                # print("5-----------------------",next(reader))
-                # print("6----------------------",next(reader))
-                # print("7--------------------",next(reader))
-                # print("8-----------------------",next(reader))
-                # print("9----------------------",next(reader))
-                # print("10--------------------",next(reader))
-
-                # Day-specific data and associated times
-                day = self.getDay()
-                data = self.filterDataForInput(next(reader)[1:])
-                next(reader)  # Skip timestamps
-                """
-                # If this is day three, also extract all wire measurements
-                if self.getDay() == 3:
-                    print("2-----------------------",next(reader)) # Skip straw positions
-                    #continuity = next(reader)
-                    #wire_position = next(reader)
-                    print("3-----------------------",next(reader))
-                    print("4----------------------",next(reader))
-                    print("5--------------------",next(reader))
-                    print("6--------------------",next(reader))
-                    print("7--------------------",next(reader))
-                    print("8--------------------",next(reader))
-                    print("9--------------------",next(reader))
-                    print("10--------------------",next(reader))
-                    print("11--------------------",next(reader))
-                    #resistance = next(reader)
-                    #continuity_time = next(reader)
-                else:
-                    self.filterDataForInput(next(reader)[1:0])"""
-
-                # Elapsed time, needs to read [1] if > 1 day otherwise [0]
-                elapsed_time = next(reader)
-                if "day" in elapsed_time[0]:
-                    elapsed_time = self.str2timedelta(
-                        elapsed_time[1], elapsed_time[0][0]
-                    )  # [1] passes H:MM:SS, [0][0] passes number of days
-                else:
-                    elapsed_time = self.str2timedelta(elapsed_time[0])
-
-                ## STEPS
-
-                # Collect all other entries as the steps
-                l = list(reader)
-
-                # Find the index of the "Steps:" title
-                for i, el in enumerate(l):
-                    if "Steps:" in el:
-                        break
-
-                # All lines after the title are the steps
-                steps = [s[1] for s in l[i + 1 :]]
-
-                # Only count as completed steps the lines that 1) contain data and 2) aren't talking about start, pause, resume, etc...
-                count = lambda line: any(line) and not any(
-                    s in line for s in ["Start", "Paused", "Resumed", "Finished"]
-                )
-
-                # Apply this filter to the list of steps
-                steps = list(filter(count, steps))
-
-                steps_completed = len(
-                    steps
-                )  # Only need to tell the GUI the number of steps that were completed
-
-        # Return list of lists (with elapsed time)
-        day = self.getDay()
-        return [data, elapsed_time, steps_completed]
+        pass
 
     def loadTPS(self):
-        # TPS means tools, parts, supplies
-        with self.getListPath().open("r") as file:
-            reader = csv.reader(file)
-
-            # Reads through file
-            all_rows = list(reader)
-            all_rows = list(filter(lambda x: x != [], all_rows))
-            tools = list(
-                filter(
-                    lambda x: x != [],
-                    all_rows[all_rows.index(["TOOLS"]) + 1 : all_rows.index(["PARTS"])],
-                )
-            )
-            parts = list(
-                filter(
-                    lambda x: x != [],
-                    all_rows[
-                        all_rows.index(["PARTS"]) + 1 : all_rows.index(["SUPPLIES"])
-                    ],
-                )
-            )
-            supplies = list(
-                filter(lambda x: x != [], all_rows[all_rows.index(["SUPPLIES"]) + 1 :])
-            )
-            # Output: 3 lists of lists (tools, parts, and supplies)
-            #   - Format of inner lists: [(str) Tool name, (bool) checked off, (str) worker id, (str) timestamp]
-
-        # Process list from str --> desired data type
-        def convertDataTypes(lst):
-            for i, data in enumerate(lst):
-                item, state, worker, timestamp = data  # Parse into 4 parts
-
-                # Convert
-                state = state.upper() == "TRUE"  # Convert to boolean
-                if timestamp:
-                    timestamp = datetime.strptime(
-                        timestamp, "%Y-%m-%d %H:%M"
-                    )  # Convert to datetime
-                else:
-                    timestamp = None
-
-                # Overwrite line in list
-                lst[i] = [item, state, worker, timestamp]
-            return lst
-
-        tools = convertDataTypes(tools)
-        parts = convertDataTypes(parts)
-        supplies = convertDataTypes(supplies)
-
-        return tools, parts, supplies
+        pass
 
     def loadMoldRelease(self):
-        # get day
-        Day = self.getDay()
-        items = []
-
-        # Read file into list
-        with self.getMoldReleasePath().open("r") as file:
-            reader = csv.reader(file)
-            all_rows = list(reader)
-            all_rows = list(filter(lambda x: x != [], all_rows))
-
-        # Process contents into predictable datatypes
-        for i, line in enumerate(all_rows):
-            # Example : PAAS-A,TRUE,WK-DAMBROSE01,2019-06-13 16:29
-            item, boolean, worker, timestamp = line
-            # Turn boolean from str --> bool
-            boolean = boolean.upper() == "TRUE"
-            # Turn timestamp form str --> datetime
-            if timestamp:
-                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-            else:
-                timestamp = None
-            # Update line
-            one_line = [item, boolean, worker, timestamp]
-            items.append(one_line)
-
-        # Return list
-        return items
+        pass
 
     def loadSteps(self):
-        steps = []  # List that will accumulate Step objects
-
-        if Path.exists(self.getStepsPath()):
-            with self.getStepsPath().open("r") as f:
-                reader = csv.reader(f, delimiter=";")
-                names = []
-
-                for index, row in enumerate(reader):
-                    if len(row) == 6:
-                        if row[0].isnumeric():
-                            try:
-                                steps.append(Step(*row))
-                                names.append(row[0])
-                            except Exception:
-                                print("exception in loading steps")
-                        else:
-                            i = 1
-                            s = row[0][:i]
-
-                            while s.isnumeric():
-                                i += 1
-                                s = row[0][:i]
-
-                            major = row[0][: i - 1]
-
-                            try:
-                                steps[names.index(major)].addSubstep(Step(*row))
-                            except Exception:
-                                print(f"Unable to find parent step for step {row[0]}")
-
-            l = list(zip([n.getNumber().zfill(2) for n in steps], steps))
-            l.sort()
-            steps = [j for i, j in l]
-
-        return steps
+        pass
 
     def loadContinuityMeasurements(self, position=None):
         pass
 
-    ##########################################################################
+    def loadRawSteps(self):
+        pass
 
-    ### PANEL INFO ###
+    def loadTimestamps(self):
+        pass
 
-    def getPanelPath(self):
+############################################################################
+
+    # Pathway Functions
+    # All of the following functions either return a file pathway in the form
+    # of a string, or a boolean for weather or not a file exists.
+
+    def getPanelPathMk2(self):
         # ("getPanelPath:", self.getPanel())
         return (
-            self.panelDirectory / f"Day {self.getDay()} data" / f"{self.getPanel()}.csv"
+            self.panelDirectory / f"Day {self.getPro()} data" / f"{self.getPanel()}.csv"
         )
 
     def getPanelPathMkI(self):
         return (
             self.panelDirectory
-            / f"Day {self.getDay()} data"
+            / f"Day {self.getPro()} data"
             / f"{self.getPanel()}_DB.csv"
         )
 
-    # for future day 3 saving
     def getPanelLongContinuityDataPath(self):
         return (
             self.panelDirectory
-            / f"Day {self.getDay()} data"
+            / f"Day {self.getPro()} data"
             / f"{self.getPanel()}LongContinuityData.csv"
         )
 
-    # for future pro 5 saving
     def getPanelLongHVDataPath(self):
         return (
             self.panelDirectory
-            / f"Day {self.getDay()} data"
+            / f"Day {self.getPro()} data"
             / f"{self.getPanel()}LongHVData.csv"
         )
 
     def getListPath(self):
-        return Path(f"{self.listDirectory}\Day {self.getDay()}.txt").resolve()
+        return Path(f"{self.listDirectory}\Day {self.getPro()}.txt").resolve()
 
     def getMoldReleasePath(self):
         return Path(self.paths["moldReleasePath"]).resolve()
 
     def getStepsPath(self):
-        return Path(self.stepsDirectory / f"Day {self.getDay()}.csv").resolve()
+        return Path(self.stepsDirectory / f"Day {self.getPro()}.csv").resolve()
 
-    def checkPanelFileExists(self):
-        return self.getPanelPath().exists()
+    def checkPanelFileExistsMk2(self):
+        return self.getPanelPathMk2().exists()
 
     def checkPanelFileExistsMk1(self):
         return self.getPanelPathMkI.exists()
 
     def getCommentFileAddress(self, proNum):
-        return self.commentDirectory / f"{self.getPanel()}_pro_{proNum}.txt"
+        return self.commentDirectory / f"{self.getPanel()}_day_{proNum}.txt"
 
     def getWireTensionerPath(self):
         return (
@@ -1623,12 +1408,12 @@ class TxtDataProcessor(DataProcessor):
             self.wireTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
         )
 
-    ### DAY-SPECIFIC DATA ###
-    # Each header function returns the info that's present in every text file of the corresponding day/pro
+    # Header Functions
+    # Each header function returns the info that's present in every text file of the corresponding pro/pro
     # The number at the beginning is the number of variables to be saved.  That's quicker than using len().
-    # All of the rest are the variables for the corresponding day/pro in the order they appear in the text file and
+    # All of the rest are the variables for the corresponding pro/pro in the order they appear in the text file and
     # in the data list in gui main.  The number at the beginning should be the same in data_count in gui main.
-    def _day1header(self):
+    def _pro1header(self):
         return [
             18,
             "Panel ID",
@@ -1651,7 +1436,7 @@ class TxtDataProcessor(DataProcessor):
             "Working Time of Epoxy(H:M:S)",
         ]
 
-    def _day2header(self):
+    def _pro2header(self):
         return [
             10,
             "Panel ID",
@@ -1666,10 +1451,9 @@ class TxtDataProcessor(DataProcessor):
             "Heat Time",
         ]
 
-    def _day3header(self):
+    def _pro3header(self):
         return [2, "Panel ID", "Sense Wire Batch"]
 
-    # (process 4) Pin protectors and omega pieces
     def _pro4header(self):
         return [
             13,
@@ -1688,11 +1472,10 @@ class TxtDataProcessor(DataProcessor):
             "Omega Piece Cure Time (H:M:S) (Right)",
         ]
 
-    # (process 5) High voltage test (most data saved in different file)
     def _pro5header(self):
         return [1, "Panel ID"]
 
-    def _day6header(self):
+    def _pro6header(self):
         return [
             14,
             "Panel ID",
@@ -1711,7 +1494,7 @@ class TxtDataProcessor(DataProcessor):
             "Heating Time (H:M:S)",
         ]
 
-    def _day7header(self):
+    def _pro7header(self):
         return [
             5,
             "Panel ID",
@@ -1721,133 +1504,11 @@ class TxtDataProcessor(DataProcessor):
             "Flood Epoxy Work Time (H:M:S) (Right)",
         ]
 
-    ### LOAD DATA ###
-    def loadRawSteps(self):
-        if not self.checkPanelFileExists():
-            return list()
-        file = self.getPanelPath().open("r").readlines()
-        for i in range(len(file)):
-            line = file[i]
-            if line.strip() == "Steps:":
-                return file[i + 1 :]
-        return list()
-
-    def loadTimestamps(self):
-        # Path
-        path = self.getPanelPath()
-
-        # Open file and get data only if path exists
-        if path.exists():
-            with path.open("r") as file:
-                reader = csv.reader(file)
-                next(reader)  # Skip header
-                next(reader)  # Skip data
-                current = next(reader)
-                l = self.datetimeList(current)
-                return l[1:]
-
-    ### HELPER METHODS ###
-    """
-    filterDataForOutput(self, data)
-
-        Description: Used to handle output of data. In order to prevent "None" from being written for data values
-                    that have not been set yet, all "None" entries are filtered to empty strings. This is to provide
-                    a cleaner output file, as well as to make input parsing easier.
-
-        Parameter: data - The data list for the day that is being run
-
-        Return: The same data list, with "None" entries replaced by empty strings
-    """
-
-    @staticmethod
-    def filterDataForOutput(data):
-        return ["" if x is None else x for x in data]
-
-    """
-    filterDataForInput(self, data)
-
-        Description: Used to handle loading data from the data file. Takes all empty string entries and sets "None" in
-                    their place.
-
-        Parameter: data - The data list created from parsing the data file
-
-        Return: The data list with empty string entries replaced by "None"
-    """
-
-    @staticmethod
-    def filterDataForInput(data):
-        return [None if x == "" else x for x in data]
-
-    @staticmethod
-    def str2Datetime(dt_str):
-        ret = None
-
-        # Try different potential formats...
-        try:
-            # Example: 2018-10-31_14:42
-            ret = datetime.strptime(dt_str, "%Y-%m-%d_%H:%M")
-        except ValueError:
-            pass
-
-        try:
-            # Example: 14:42
-            ret = datetime.strptime(dt_str, "%H:%M")
-        except ValueError:
-            pass
-
-        try:
-            # Example: 10/31/18 9:57
-            ret = datetime.strptime(dt_str, "%m/%d/%y %H:%M")
-        except ValueError:
-            pass
-        try:
-            # Example: 10/31/18 9:57
-            ret = datetime.strptime(dt_str, "%d day, %H:%M")
-        except ValueError:
-            pass
-        try:
-            # Example: 10/31/18 9:57
-            ret = datetime.strptime(dt_str, "%d days %H:%M")
-        except ValueError:
-            pass
-
-        # If none work, return None
-        return ret
-
-    @classmethod
-    def datetimeList(cls, lst):
-        return [cls.str2Datetime(dt) for dt in lst]
-
-    @staticmethod
-    def datetime2StrList(dt_list):
-        return [
-            (dt.strftime("%Y-%m-%d %H:%M") if dt is not None else str())
-            for dt in dt_list
-        ]
-
-    @staticmethod
-    def str2timedelta(dlta_str, numDays=0):
-        t = [int(float(x)) for x in dlta_str.split(":")]
-        return timedelta(days=(int(numDays)), hours=t[0], minutes=t[1], seconds=t[2])
 
     @staticmethod
     def timestamp():
         return datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    @staticmethod
-    def timeTuple2str(td, isRunning):
-        return ("*" if isRunning else "") + str(td)
-
-    @classmethod
-    def filterData(cls, input):
-        if input == None:
-            return ""
-        elif type(input) is tuple:
-            return cls.timeTuple2str(*input)
-        else:
-            return str(input)
-
-        # Txt above
 
 
 class SQLDataProcessor(DataProcessor):
@@ -1856,8 +1517,8 @@ class SQLDataProcessor(DataProcessor):
 
         # Classes to interact with the database
         self.station = Station.panelStation(
-            day=self.getDay()
-        )  # BUG: this is returning None
+            day=self.getPro()
+        )  # DO NOT CHANGE "day" IN THE ABOVE LINE TO "pro"
         self.session = self.station.startSession()
         self.procedure = None
 
@@ -1869,7 +1530,7 @@ class SQLDataProcessor(DataProcessor):
         if not self.ensureProcedure():
             return
 
-        # Save Day-Specific data
+        # Save Pro-Specific data
         {
             1: self.saveDataProcess1,
             2: self.saveDataProcess2,
@@ -1878,12 +1539,12 @@ class SQLDataProcessor(DataProcessor):
             5: self.saveDataProcess5,
             6: self.saveDataProcess6,
             7: self.saveDataProcess7,
-        }[self.getDay()]()
+        }[self.getPro()]()
 
     # IR
     def saveDataProcess1(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
 
         # Get panel for easy access
         panel = self.panel()
@@ -1936,7 +1597,7 @@ class SQLDataProcessor(DataProcessor):
     # Straws
     def saveDataProcess2(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
         # Get panel for easy access
         panel = self.panel()
 
@@ -1971,7 +1632,7 @@ class SQLDataProcessor(DataProcessor):
     # Wire Tensions
     def saveDataProcess3(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
 
         # Call all getters to store data in sql database
         self.callMethod(
@@ -1984,7 +1645,7 @@ class SQLDataProcessor(DataProcessor):
     # Pin Protectors
     def saveDataProcess4(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
 
         # Call all getters to store data in sql database
         self.callMethod(
@@ -2036,7 +1697,7 @@ class SQLDataProcessor(DataProcessor):
     # HV
     def saveDataProcess5(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
 
         # If you're looking for recordHVMeasurement, it's called separately in
         # saveHVMeasurement, which is called in the GUI in the initization of
@@ -2045,7 +1706,7 @@ class SQLDataProcessor(DataProcessor):
     # Manifold
     def saveDataProcess6(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
 
         # Get panel for easy access
         panel = self.panel()
@@ -2093,7 +1754,7 @@ class SQLDataProcessor(DataProcessor):
     # Flooding
     def saveDataProcess7(self):
         # Get data from GUI
-        data = self.getDayData()
+        data = self.getProData()
 
         # Call all getters to store data in sql database
         self.callMethod(
@@ -2172,15 +1833,15 @@ class SQLDataProcessor(DataProcessor):
 
         # Assemble text
         text = ""
-        current_day = 0
+        current_pro = 0
         for c in comments:
-            day = Procedure.queryWithId(c.procedure).getStation().getDay()
+            pro = Procedure.queryWithId(c.procedure).getStation().getPro()
 
-            # Add day header
-            if day > current_day:
-                current_day = day
-                header = f"Day {current_day} Comments"
-                if current_day != 1:
+            # Add pro header
+            if pro > current_pro:
+                current_pro = pro
+                header = f"Pro {current_pro} Comments"
+                if current_pro != 1:
                     header = "\n\n" + header
                 text += header
 
@@ -2339,7 +2000,7 @@ class SQLDataProcessor(DataProcessor):
         # TODO I've had so many details is None errors that we should consider
         # making this a try catch.
         if self.ensureProcedure():
-            # Day-specific data
+            # Pro-specific data
             data = {
                 1: self.loadDataProcess1,
                 2: self.loadDataProcess2,
@@ -2348,7 +2009,7 @@ class SQLDataProcessor(DataProcessor):
                 5: self.loadDataProcess5,
                 6: self.loadDataProcess6,
                 7: self.loadDataProcess7,
-            }[self.getDay()]()
+            }[self.getPro()]()
 
             # Elapsed Time
             elapsed_time = timedelta(seconds=self.procedure.getElapsedTime())
@@ -2502,7 +2163,7 @@ class SQLDataProcessor(DataProcessor):
         # If no procedure has been defined yet, define one.
         if self.procedure is None:
             self.session.startPanelProcedure(
-                day=self.getDay(), panel_number=self.getPanelNumber()
+                day=self.getPro(), panel_number=self.getPanelNumber()
             )
             self.procedure = self.session.getProcedure()
 
@@ -2614,7 +2275,7 @@ class SQLDataProcessor(DataProcessor):
         else:
             return (None,)
 
-    ## DAY-SPECIFIC DATA LOAD
+    ## PRO-SPECIFIC DATA LOAD
 
     # IR
     def loadDataProcess1(self):
