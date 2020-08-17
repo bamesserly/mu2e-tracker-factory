@@ -47,6 +47,7 @@ from PyQt5.QtGui import *
 from design import Ui_MainWindow
 from resistanceMeter import Resistance
 from measureByHand import MeasureByHandPopup
+from dataProcessor import MultipleDataProcessor as DataProcessor
 
 os.chdir(os.path.dirname(__file__))
 sys.path.insert(0, '..\\Upload')
@@ -59,6 +60,18 @@ from removeStraw import *
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / 'Data')))
 from workers.credentials.credentials import Credentials
 
+######## Global variables ##########
+# Set each true/false to save the data collected when this gui is run to that platform.
+# Note: Both can be true.
+SAVE_TO_TXT = True
+SAVE_TO_SQL = True
+
+# Indicate which data processor you want to use for data-checking (ex: checkCredentials)
+# PRIMARY_DP =   'TXT'
+PRIMARY_DP =   'SQL'
+
+##Upload to Fermi Lab database, two modes: 'prod' and 'dev'
+upload_mode = 'dev'
 
 
 class CompletionTrack(QtWidgets.QDialog):
@@ -149,6 +162,14 @@ class CompletionTrack(QtWidgets.QDialog):
         self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
         self.saveFile = ''
 
+         # Data Processor
+        self.DP = DataProcessor(
+            gui         =   self,
+            save2txt    =   SAVE_TO_TXT,
+            save2SQL    =   SAVE_TO_SQL,
+            sql_primary =   bool(PRIMARY_DP == 'SQL')
+        )
+
         #Measurement Status
         self.collectData_counter = 0
         self.collectData_limit = 500
@@ -216,6 +237,20 @@ class CompletionTrack(QtWidgets.QDialog):
             Current_worker, ok = QInputDialog.getText(self, 'Worker Log In', 'Scan your worker ID:')
             if not ok:
                 return
+            Current_worker = Current_worker.upper()
+            if self.DP.checkCredentials() == False:
+                QMessageBox.question(self, 'WRONG WORKER ID','Did you type in the correct worker ID?', QMessageBox.Retry)
+                return
+            self.DP.saveLogin(Current_worker)
+            if PRIMARY_DP == 'SQL':
+                if self.DP.validateWorkerID(Current_worker) == False:
+                    QMessageBox.question(self, 'WRONG WORKER ID','Did you type in the correct worker ID?', QMessageBox.Retry)
+                    return
+            elif PRIMARY_DP == 'TXT':
+                if self.DP.checkCredentials() == False:
+                    QMessageBox.question(self, 'WRONG WORKER ID','Did you type in the correct worker ID?', QMessageBox.Retry)
+                    return
+            self.DP.saveLogin(Current_worker)
             self.sessionWorkers.append(Current_worker)
             self.Current_workers[portalNum].setText(Current_worker)
             print('Welcome ' + self.Current_workers[portalNum].text() + ' :)')
@@ -224,11 +259,12 @@ class CompletionTrack(QtWidgets.QDialog):
         elif label == 'Log Out':
             self.justLogOut = self.Current_workers[portalNum].text()
             self.sessionWorkers.remove(self.Current_workers[portalNum].text())
+            self.DP.saveLogout(self.Current_workers[portalNum].text().upper())
             print('Goodbye ' + self.Current_workers[portalNum].text() + ' :(')
             Current_worker = ''
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText('Log In')
-        self.saveWorkers()
+        self.DP.saveWorkers()
         self.justLogOut = ''
 
     def saveWorkers(self):
