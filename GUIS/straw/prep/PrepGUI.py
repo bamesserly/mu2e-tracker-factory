@@ -52,8 +52,8 @@ SAVE_TO_TXT = True
 SAVE_TO_SQL = True
 
 # Indicate which data processor you want to use for data-checking (ex: checkCredentials)
-PRIMARY_DP =   'TXT'
-# PRIMARY_DP =   'SQL'
+# PRIMARY_DP =   'TXT'
+PRIMARY_DP =   'SQL'
 
 ##Upload to Fermi Lab database, two modes: 'prod' and 'dev'
 upload_mode = 'dev'
