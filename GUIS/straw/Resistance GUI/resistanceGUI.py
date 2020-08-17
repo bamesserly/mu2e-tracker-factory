@@ -259,6 +259,7 @@ class CompletionTrack(QtWidgets.QDialog):
             if not ok:
                 return
             Current_worker = Current_worker.upper()
+            self.sessionWorkers.append(Current_worker)
             if PRIMARY_DP == "SQL":
                 if self.DP.validateWorkerID(Current_worker) == False:
                     QMessageBox.question(
@@ -279,7 +280,6 @@ class CompletionTrack(QtWidgets.QDialog):
                     return
             self.DP.saveLogin(Current_worker)
             self.DP.saveStart()
-            self.sessionWorkers.append(Current_worker)
             self.Current_workers[portalNum].setText(Current_worker)
             print("Welcome " + self.Current_workers[portalNum].text() + " :)")
             btn.setText("Log Out")
@@ -865,7 +865,7 @@ class CompletionTrack(QtWidgets.QDialog):
         temp, humid = self.getTempHumid()
         # temp, humid = 0, 0
         uploadWorker = self.sessionWorkers[0]
-        uploader = getUploader(self.stationID)("prod")
+        uploader = getUploader(self.stationID)(upload_mode)
         passed = True
 
         for straw_index, straw in enumerate(self.strawIDs):
@@ -916,7 +916,7 @@ class CompletionTrack(QtWidgets.QDialog):
         if buttonReply == QMessageBox.Yes:
             # Save data
             self.save()
-            self.uploadData()
+            # self.uploadData()
             # self.resetGUI()
 
             """#Ask to reset

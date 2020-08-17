@@ -241,7 +241,6 @@ class TxtDataProcessor(DataProcessor):
         # Save directories as instance variables
         ## copied from the second constructor
         self.palletDirectory = os.path.dirname(__file__) + '/../../../Data/Pallets/' 
-        self.prepDirectory = os.path.dirname(__file__) + '/../../../Data/Straw Prep Data/'
         self.boardPath = os.path.dirname(__file__) + '/../../../Data/Status Board 464/'
         self.workerDirectory = os.path.dirname(__file__) + '/../../../Data/workers/straw workers/CO2 endpiece insertion/'
         self.epoxyDirectory = os.path.dirname(__file__) + '/../../../Data/CO2 endpiece data/'
@@ -489,56 +488,6 @@ class SQLDataProcessor(DataProcessor):
                 CO2(self.procedure.id,straw,True)
 
     
-    '''
-    saveStraw(self)
-
-        Description: Creates 23/24 instances of Straw, StrawPosition
-                    and StrawPresent and logs data into Prep Table.
-    '''
-    def saveStraw(self):
-        i=0
-        while i <  len(self.gui.strawIDs):
-            # Get strawID
-
-            strawID = self.gui.strawIDs[i]
-            strawID = self.stripNumber(strawID)
-
-            # Check if the top straw exists
-            if strawID is not None:
-                # Get batch
-                batch = self.gui.batchBarcodes[i]
-                
-                # get procedure
-                procedure = self.procedure
-
-                # get pallet
-                pallet = procedure.getStrawLocation()
-
-                # Construct and save the straw object
-                currS = Straw.Straw(strawID,batch,pallet.id)
-
-                ## Get position number 
-                # 24 straws: 0-23
-                # 23 straws: 1-23
-                positionNum = i
-                if self.gui.strawCount == 23:
-                    positionNum += 1
-                
-                # Save straw position
-                posObj = StrawPosition(currS.id,pallet.id,positionNum)
-
-                # Save straw presence
-                StrawPresent(currS.id, posObj.id)
-                ## Save prep measurement
-                # get paper_pull_grade and evaluation
-                ppg = self.gui.paperPullGrades[i]
-                ppg = ppg[3:]
-                if ppg == "A" or ppg == "B":
-                    pass_fail = True
-                else:
-                    pass_fail = False
-                StrawPrep(procedure.id,currS.id,ppg,pass_fail)    
-            i += 1
 
 
     def saveWorkers(self):

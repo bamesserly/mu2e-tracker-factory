@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import *
 from pynput.keyboard import Key, Controller
 from pathlib import Path
 from co2 import Ui_MainWindow  ## edit via Qt Designer
+from dataProcessor import MultipleDataProcessor as DataProcessor
 
 #os.chdir(os.path.dirname(__file__))
 os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +40,19 @@ pyautogui.FAILSAFE = True #Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
+
+######## Global variables ##########
+# Set each true/false to save the data collected when this gui is run to that platform.
+# Note: Both can be true.
+SAVE_TO_TXT = True
+SAVE_TO_SQL = True
+
+# Indicate which data processor you want to use for data-checking (ex: checkCredentials)
+# PRIMARY_DP =   'TXT'
+PRIMARY_DP  =   'SQL'
+
+##Upload to Fermi Lab database, two modes: 'prod' and 'dev'
+upload_mode = 'dev'
 
 class CO2(QMainWindow):
     def __init__(self, webapp=None, parent=None):
@@ -74,8 +88,6 @@ class CO2(QMainWindow):
         self.straws = []
         self.sessionWorkers = []
 
-        self.timing = False
-        self.startTime = 0
 
         self.ui.sec_disp.setNumDigits(2)
         self.ui.sec_disp.setSegmentStyle(2)
@@ -84,7 +96,21 @@ class CO2(QMainWindow):
         self.ui.hour_disp.setNumDigits(2)
         self.ui.hour_disp.setSegmentStyle(2)
         self.justLogOut = ''
-        self.saveWorkers()
+
+        # Data Processor
+        self.DP = DataProcessor(
+            gui         =   self,
+            save2txt    =   SAVE_TO_TXT,
+            save2SQL    =   SAVE_TO_SQL,
+            sql_primary =   bool(PRIMARY_DP == 'SQL')
+        )
+
+        # Progression Information
+        self.dataSaved = False
+
+        #Timing info
+        self.timing = False
+        self.startTime = None
 
     def Change_worker_ID(self, btn):
         label = btn.text()
@@ -95,6 +121,15 @@ class CO2(QMainWindow):
             if not ok:
                 return
             self.sessionWorkers.append(Current_worker)
+            if PRIMARY_DP == 'SQL':
+                if self.DP.validateWorkerID(Current_worker) == False:
+                    QMessageBox.question(self, 'WRONG WORKER ID','Did you type in the correct worker ID?', QMessageBox.Retry)
+                    return
+            elif PRIMARY_DP == 'TXT':
+                if self.DP.checkCredentials() == False:
+                    QMessageBox.question(self, 'WRONG WORKER ID','Did you type in the correct worker ID?', QMessageBox.Retry)
+                    return
+            self.DP.saveLogin(Current_worker)
             self.Current_workers[portalNum].setText(Current_worker)
             print('Welcome ' + self.Current_workers[portalNum].text() + ' :)')
             btn.setText('Log Out')
@@ -103,11 +138,12 @@ class CO2(QMainWindow):
             portalNum = int(btn.objectName().strip('portal')) - 1
             self.justLogOut = self.Current_workers[portalNum].text()
             self.sessionWorkers.remove(self.Current_workers[portalNum].text())
+            self.DP.saveLogout(Current_worker)
             print('Goodbye ' + self.Current_workers[portalNum].text() + ' :(')
             Current_worker = ''
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText('Log In')
-        self.saveWorkers()
+        self.DP.saveWorkers()
         self.justLogOut = ''
         
     def saveWorkers(self):
@@ -144,7 +180,7 @@ class CO2(QMainWindow):
 
     def lockGUI(self):
         self.ui.tab_widget.setTabText(1, 'CO2 Endpiece')
-        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
+        if not self.DP.checkCredentials():
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, 'CO2 Endpiece *Locked*')
 
@@ -218,8 +254,10 @@ class CO2(QMainWindow):
                 self.ui.DP190BatchInput.setDisabled(True)
                 self.ui.start.setDisabled(True)
                 self.ui.viewButton.setEnabled(True)
-                #self.ui.finishInsertion.setEnabled(True)
+                self.ui.finishInsertion.setEnabled(True)
                 self.stopWatch()
+                #Begin timing
+                self.startTiming()
             except StrawFailedError as error:
                 QMessageBox.critical(self, "Testing Error", "Unable to test this pallet:\n" + error.message)
                 self.editPallet()
@@ -303,8 +341,9 @@ class CO2(QMainWindow):
         else:
             return False
 
-    def stopWatch(self):
+    def startTiming(self):
         self.startTime = time.time()
+        self.DP.saveStart()
         self.timing = True
 
         self.ui.finishInsertion.setEnabled(True)
@@ -312,10 +351,11 @@ class CO2(QMainWindow):
             
     def timeUp(self):
         self.timing = False
+        self.DP.saveFinish()
         self.ui.finishInsertion.setDisabled(True)
         self.ui.finish.setEnabled(True)
         
-    def saveData(self):
+    def loadStraws(self):
         if os.path.exists(self.palletDirectory + self.palletID + '\\' + self.palletNum + '.csv'):
             with open(self.palletDirectory + self.palletID + '\\' + self.palletNum + '.csv') as palletFile:
                 dummy = csv.reader(palletFile)
@@ -328,37 +368,22 @@ class CO2(QMainWindow):
                             if entry > 1 and entry < 50:
                                 if entry%2 == 0:
                                     self.straws.append(pallet[row][entry])
-            with open(self.palletDirectory + self.palletID + '\\' + self.palletNum + '.csv', 'a') as palletWrite:
-                palletWrite.write('\n')
-                palletWrite.write(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M') + ',')
-                palletWrite.write(self.stationID + ',')
-                for straw in self.straws:
-                    palletWrite.write(straw)
-                    palletWrite.write(',')
-                    if straw != '':
-                        palletWrite.write('P')
-                    palletWrite.write(',')
-                i = 0
-                for worker in self.sessionWorkers:
-                    palletWrite.write(worker.lower())
-                    if i != len(self.sessionWorkers) - 1:
-                        palletWrite.write(',')
-                    i = i + 1
-        with open(self.epoxyDirectory + self.palletNum + '.csv', 'w+') as file:
-            header = 'Timestamp, Pallet ID, Epoxy Batch #, DP190 Batch #, CO2 endpiece insertion time (H:M:S), workers ***NEWLINE: Comments (optional)***\n'
-            file.write(header)
-            file.write(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M') + ',')
-            file.write(self.palletID + ',' + self.epoxyBatch + ',' + self.DP190Batch + ',')
-            file.write(str(self.ui.hour_disp.intValue()) + ':' + str(self.ui.min_disp.intValue()) + ':' + str(self.ui.sec_disp.intValue()) + ',')
-            i = 0
-            for worker in self.sessionWorkers:
-                file.write(worker)
-                if i != len(self.sessionWorkers) - 1:
-                    file.write(',')
-                i = i + 1
-            if self.ui.commentBox.document().toPlainText() != '':
-                file.write('\n' + self.ui.commentBox.document().toPlainText())
-        file.close()
+
+    def saveData(self):
+        self.loadStraws()
+        print("Saving data...")
+        self.DP.saveData()
+        print("Saving data: done")
+        try:
+            pass
+        except Exception:
+            self.generateBox('critical', 'Save Error', 'Error encountered trying to save data.')
+        
+        self.dataSaved = True
+
+        print("dataSaved: " + str(self.dataSaved))
+
+        self.ui.finish.setDisabled(True)
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
 
@@ -366,7 +391,7 @@ class CO2(QMainWindow):
         QMessageBox.about(self, "Upload", "Now attempting data upload.")
 
         uploadWorker = self.sessionWorkers[0]
-        uploader = getUploader(self.stationID)('prod')
+        uploader = getUploader(self.stationID)(upload_mode)
         passed = True
         
         for straw in self.straws:
@@ -416,25 +441,35 @@ class CO2(QMainWindow):
 
     def finish(self):
         self.saveData()
-        self.uploadData()
+        self.DP.saveComment(self.ui.commentBox.document().toPlainText())
+        self.DP.handleClose()
+        # self.uploadData()
         self.resetGUI()
 
     def closeEvent(self, event):
+        self.DP.handleClose()
         event.accept()
         sys.exit(0)
+    
+    def getElapsedTime(self):
+        return self.running
         
     def main(self):
         while True:
 
             if self.timing:
-                running = time.time() - self.startTime
-                self.ui.hour_disp.display(int(running/3600))
-                self.ui.min_disp.display(int(running/60)%60)
-                self.ui.sec_disp.display(int(running)%60)
+                if self.startTime == None:
+                    self.startTime = time.time()
+
+                # Update time display
+                self.running = time.time() - self.startTime
+                self.ui.hour_disp.display(int(self.running/3600))
+                self.ui.min_disp.display(int(self.running/60)%60)
+                self.ui.sec_disp.display(int(self.running)%60)
 
             self.lockGUI()
-            time.sleep(.01)
             app.processEvents()
+            time.sleep(.05)
         
 def except_hook(cls, exception, traceback):
     sys.__excepthook__(cls, exception, traceback)
