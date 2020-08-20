@@ -45,6 +45,14 @@ if not USE_MARK_ONE and not USE_MARK_TWO:
     )
     # raise Exception("NO TEXT PROCESSOR SELECTED")
 
+#   ___  _         _                  _    ______                                       
+#  / _ \| |       | |                | |   | ___ \                                      
+# / /_\ \ |__  ___| |_ _ __ __ _  ___| |_  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+# |  _  | '_ \/ __| __| '__/ _` |/ __| __| |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
+# | | | | |_) \__ \ |_| | | (_| | (__| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
+# \_| |_/_.__/|___/\__|_|  \__,_|\___|\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
+#                                                                                       
+#                                                                                       
 
 class DataProcessor(ABC):
     def __init__(self, gui):
@@ -502,6 +510,14 @@ class DataProcessor(ABC):
     def getTimer(self):
         return self.gui.mainTimer.getElapsedTime()
 
+# ___  ___      _ _   _  ______                                       
+# |  \/  |     | | | (_) | ___ \                                      
+# | .  . |_   _| | |_ _  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+# | |\/| | | | | | __| | |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
+# | |  | | |_| | | |_| | | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
+# \_|  |_/\__,_|_|\__|_| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
+#                                                                     
+#                                                                     
 
 class MultipleDataProcessor(DataProcessor):
     def __init__(
@@ -651,6 +667,15 @@ class MultipleDataProcessor(DataProcessor):
         return self.primaryDP.loadHVMeasurements()
 
 
+#  _____    _    ______                                       
+# |_   _|  | |   | ___ \                                      
+#   | |_  _| |_  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+#   | \ \/ / __| |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
+#   | |>  <| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
+#   \_/_/\_\\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
+#                                                             
+#                                                             
+
 class TxtDataProcessor(DataProcessor):
     def __init__(self, gui, lab_version=True):
         super().__init__(gui)
@@ -697,7 +722,16 @@ class TxtDataProcessor(DataProcessor):
             self.paths["straw_tensioner_data"]
         ).resolve()
 
-    ### METHODS TO IMPLEMENT    ##############################################
+    
+    #  _____                  ___  ___     _   _               _     
+    # /  ___|                 |  \/  |    | | | |             | |    
+    # \ `--.  __ ___   _____  | .  . | ___| |_| |__   ___   __| |___ 
+    #  `--. \/ _` \ \ / / _ \ | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
+    # /\__/ / (_| |\ V /  __/ | |  | |  __/ |_| | | | (_) | (_| \__ \
+    # \____/ \__,_| \_/ \___| \_|  |_/\___|\__|_| |_|\___/ \__,_|___/
+
+    # Some work great, others are totally busted.
+    # And their helper functions
 
     """
     saveData has two options for formats.  Whenever saveData is called, it'll
@@ -830,46 +864,25 @@ class TxtDataProcessor(DataProcessor):
                     "\n".join(steps)
                 )  # go two lines down, write Steps:, then go another line down and write the list of steps
 
-    # Helper method for save data functions:
-    def loadRawSteps(self):
-        if not self.checkPanelFileExistsMk2():
-            return list()
-        file = self.getPanelPathMk2().open("r").readlines()
-        for i in range(len(file)):
-            line = file[i]
-            if line.strip() == "Steps:":
-                return file[i + 1 :]
-        return list()
-
-    ## TIME EVENTS ##
-
+    # add a start step to panel's pro file
     def saveStart(self):
         self.saveStep(step_name=f"Pro {self.getPro()} Start")
 
+    # add a pause step to panel's pro file
     def savePause(self):
         self.saveStep(step_name=f"Pro {self.getPro()} Paused")
 
+    # add a resume step to panel's pro file
     def saveResume(self):
         self.saveStep(step_name=f"Pro {self.getPro()} Resumed")
 
+    # add a finish step to panel's pro file
     def saveFinish(self):
         self.saveStep(step_name=f"Pro {self.getPro()} Finished")
 
-    def handleClose(self):
-        pass
-
-    ## WORKER PORTAL ##
-
-    """
-    saveWorkers(self)
-
-        Description: Saves workers logging in and out to a file, so the times a person was working on the panel can
-                    be reviewed later if necessary.
-
-        Parameter: worker - String containing the worker ID of the worker who just logged in or out
-        Parameter: login - Boolean value specifying if the given worker logged in (True) or logged out (False)
-    """
-
+    # saves worker login/out
+    # worker is the worker's ID as a string
+    # login = True --> logging in, login = False --> logging out
     def saveWorkers(self, worker, login):
         path = Path(self.paths["workerDirectory"]).resolve()
         lockFile = path / "workers.lock"
@@ -921,6 +934,7 @@ class TxtDataProcessor(DataProcessor):
         f.close()
         os.remove(lockFile)
 
+    # calls saveWorkers()
     def saveLogin(self, worker_id):
         worker_id = worker_id.strip().upper()
         self.sessionWorkers.append(worker_id)
@@ -934,6 +948,7 @@ class TxtDataProcessor(DataProcessor):
         )
         self.saveWorkers(worker_id, login=True)
 
+    # calls saveWorkers()
     def saveLogout(self, worker_id):
         worker_id = worker_id.strip().upper()
         self.sessionWorkers.remove(worker_id)
@@ -945,32 +960,7 @@ class TxtDataProcessor(DataProcessor):
         except:
             self.saveWorkers(worker_id, login=False)
 
-    def validateWorkerID(self, worker):
-        if self.validWorkers == []:
-            path = Path(self.paths["credentialsChecklist"])
-            if path.exists():
-                with path.open("r") as file:
-                    reader = csv.reader(file)
-                    next(reader)
-
-                    for row in reader:
-                        self.validWorkers.append(row[0].upper())
-            else:
-                print("Unable to read worker list")
-
-        return worker.upper() in self.validWorkers
-
-    def getSessionWorkers(self):
-        return self.sessionWorkers
-
-    def workerLoggedIn(self, worker):
-        return any([worker.upper() in info for info in self.workerInformation])
-
-    def checkCredentials(self):
-        return self.credentialChecker.checkCredentials(self.sessionWorkers)
-
-    ## SAVE COMMENTS ##
-
+    # add a comment to panel's comment file
     def saveComment(self, text, panNum, proNum):
         comment = text.strip()  # remove whitespace around text
 
@@ -993,95 +983,15 @@ class TxtDataProcessor(DataProcessor):
                 f"\n{comment}\n"
             )  # add new line, a comment, and another new line
 
-    def getCommentText(
-        self,
-    ):  # read 7 files and return one big string, only called once in pangui
-        allComments = ""  # string to put comments into
-
-        for proNum in range(1, 8):  # for nubmers 1-7
-            try:  # try to:
-                comments = (
-                    self.getCommentFileAddress(proNum).open("r").read()
-                )  # get comments from procedure <proNum> comments file
-            except FileNotFoundError:  # if the file doesn't exist
-                comments = f"No comments for procedure {proNum}\n"  # add text that theres no comments
-            allComments += comments  # add the comments we just got
-
-        return allComments  # return all the comments!
-
-    ## OTHER SAVE METHODS (STEPS, SUPPLIES, FAILURES, ETC...) ##
-
+    # save tools, supplies, parts list (DEFUNCT)
     def saveTPS(self, tps, item, state):
-        worker = ""
-        timestamp = ""
+        return "", 0
 
-        # Read-in entire current list
-        data = list(self.getListPath().open("r").readlines())
-
-        # Adjust line in list corresponding to new item
-        right_section = False
-        for i, line in enumerate(data):
-            if line.strip().lower() == tps:
-                right_section = True
-            if right_section:
-                line = line.split(",")
-                if line[0] == item:
-                    worker = ""
-                    timestamp = ""
-                    if state:
-                        worker = self.getSessionWorkers()[0]
-                        timestamp = self.timestamp()
-                    data[i] = ",".join([item, str(state).upper(), worker, timestamp])
-                    break  # No need to continue iteration after updating this line
-
-        # Re-write file
-        with self.getListPath().open("w") as file:
-            for line in data:
-                line = line.strip()
-                if line:
-                    if line.upper() in ["SUPPLIES", "PARTS"]:
-                        line = "\n" + line
-                    file.write(line + "\n")
-
-        return (
-            worker,
-            (datetime.strptime(timestamp, "%Y-%m-%d %H:%M") if timestamp else None),
-        )
-
+    # save mold release (DEFUNCT)
     def saveMoldRelease(self, item, state):
+        return "", 0
 
-        # Load in current data
-        data = self.loadMoldRelease()
-
-        return_worker = ""
-        return_timestamp = None
-
-        # Look for line with this item and append it
-        for i, line in enumerate(data):
-            if item == line[0]:
-                return_worker = self.getSessionWorkers()[0]
-                return_timestamp = datetime.now()
-                data[i] = [item, state, return_worker, return_timestamp]
-                break
-
-        # Overwrite current file with updated list
-        with self.getMoldReleasePath().open("w") as file:
-            for item, state, worker, timestamp in data:
-                file.write(
-                    ",".join(
-                        [
-                            item,
-                            str(state).upper(),
-                            worker,
-                            timestamp.strftime("%Y-%m-%d %H:%M")
-                            if timestamp is not None
-                            else str(),
-                        ]
-                    )
-                )
-                file.write("\n")
-        return return_worker, return_timestamp
-
+    # add a step line to existing txt file
     def saveStep(self, step_name):
 
         # If no file yet exists, save it before appending this step
@@ -1097,6 +1007,7 @@ class TxtDataProcessor(DataProcessor):
 
             file.write("\n" + step)
 
+    # adds a failure comment, parameters are details about the failure
     def saveFailure(self, failure_type, failure_mode, straw_position, comment):
         ## Save Failure
         with (self.failDirectory / f"{failure_type.title()}.csv").open("a") as file:
@@ -1121,87 +1032,18 @@ class TxtDataProcessor(DataProcessor):
         ## Save comment:
         self.saveComment(comment, self.getPanel(), self.getPro())
 
+    # update all straw tension measurements for panel (DEFUNCT)
+    # parameters are lists of data
     def saveStrawTensionMeasurement(self, position, tension, uncertainty):
-        straw_header = "Date,Panel,StrawPosition,Tension(grams),Uncertainty(grams),Epoc"
-        if not self.getStrawTensionerPath().exists():
-            with (self.getStrawTensionerPath()).open("a") as straw_data:
-                straw_data.write(straw_header)
-                straw_data.write(
-                    "\n"
-                    + self.timestamp()
-                    + ","
-                    + self.getPanel()
-                    + ","
-                    + str(position)
-                    + ","
-                    + str(tension)
-                    + ","
-                    + str(uncertainty)
-                    + ","
-                    + str(datetime.now().timestamp())
-                )
+        pass
 
-        else:
-            with (self.getStrawTensionerPath()).open("a") as straw_data:
-                straw_data.write(
-                    "\n"
-                    + self.timestamp()
-                    + ","
-                    + self.getPanel()
-                    + ","
-                    + str(position)
-                    + ","
-                    + str(tension)
-                    + ","
-                    + str(uncertainty)
-                    + ","
-                    + str(datetime.now().timestamp())
-                )
-
+    # update all wire tension measurements for panel (DEFUNCT)
+    # parameters are lists of data
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
-        wire_header = (
-            "Date,Panel,WirePosition,Tension(grams),WireTimer(seconds),Epoc,Calibration"
-        )
-        if not self.getWireTensionerPath().exists():
-            with (self.getWireTensionerPath()).open("a") as wire_data:
-                wire_data.write(wire_header)
-                wire_data.write(
-                    "\n"
-                    + self.timestamp()
-                    + ","
-                    + self.getPanel()
-                    + ","
-                    + str(position)
-                    + ","
-                    + str(tension)
-                    + ","
-                    + str(wire_timer)
-                    + ","
-                    + str(datetime.now().timestamp())
-                    + ","
-                    + str(calib_factor)
-                )
+        pass
 
-        else:
-            with (self.getWireTensionerPath()).open("a") as wire_data:
-                wire_data.write(
-                    "\n"
-                    + self.timestamp()
-                    + ","
-                    + self.getPanel()
-                    + ","
-                    + str(position)
-                    + ","
-                    + str(tension)
-                    + ","
-                    + str(wire_timer)
-                    + ","
-                    + str(datetime.now().timestamp())
-                    + ","
-                    + str(calib_factor)
-                )
-
-    # gets passed 3 lists (straw position, continuity, wire position)
+    # update all continuity measurements for panel
+    # parameters are lists of data
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
         # The original author didn't comment this function so:
         # REFER TO saveHVMeasurement() FOR INFO ON HOW THIS WORKS
@@ -1232,9 +1074,12 @@ class TxtDataProcessor(DataProcessor):
             if not written:
                 writer.writerow(new_row)
 
+    # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
         pass
 
+    # update all HV measurements for panel
+    # parameters are lists of data
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         # only works to a certain degree right now...
 
@@ -1291,45 +1136,25 @@ class TxtDataProcessor(DataProcessor):
 
             if not written:  # if the new row is actually new and not an update...
                 writer.writerow(newRow)  # write it!
+    
+    # save tension measurement (DEFUNCT)
+    def saveTensionboxMeasurement(self):
+        pass
 
-    def saveTensionboxMeasurement(
-        self, panel, is_straw, position, length, frequency, pulse_width, tension
-    ):
-        # Get file path using panel and is_straw
-        file = {True: self.getStrawTensionBoxPath, False: self.getWireTensionBoxPath}[
-            is_straw
-        ](panel)
-        # If path doesn't exist, create it and write the header
-        if not file.exists():
-            with file.open("w+") as f:
-                f.write(
-                    "Timestamp,Panel,Position,Length,Frequency,PulseWidth,Tension,Epoch"
-                )
-        # Append measurement at the end of the file
-        with file.open("a") as f:
-            f.write(
-                f"{self.timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}, {datetime.now().timestamp()}"
-            )
 
-    def wireQCd(self, wire):
-        qcdwires = []
-        with Path(self.paths["wireQC"]).resolve().open("r") as f:
-            reader = csv.reader(f, delimiter=",")
-            for row in reader:
-                qcdwires.append(row[0])
-        qcdwires = qcdwires[1:]
-        return wire in qcdwires
-
-# Defunct Load methods that all just pass
-############################################################################
+    #  _                     _  ___  ___     _   _               _     
+    # | |                   | | |  \/  |    | | | |             | |    
+    # | |     ___   __ _  __| | | .  . | ___| |_| |__   ___   __| |___ 
+    # | |    / _ \ / _` |/ _` | | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
+    # | |___| (_) | (_| | (_| | | |  | |  __/ |_| | | | (_) | (_| \__ \
+    # \_____/\___/ \__,_|\__,_| \_|  |_/\___|\__|_| |_|\___/ \__,_|___/
+    # Defunct Load methods that all just pass
+    # EXCEPT THE LAST TWO
 
     def loadData(self):
         pass
 
     def loadTPS(self):
-        pass
-
-    def loadMoldRelease(self):
         pass
 
     def loadSteps(self):
@@ -1341,9 +1166,53 @@ class TxtDataProcessor(DataProcessor):
     def loadTimestamps(self):
         pass
 
-############################################################################
+    # Helper method for save data functions:
+    def loadRawSteps(self):
+        if not self.checkPanelFileExistsMk2():
+            return list()
+        file = self.getPanelPathMk2().open("r").readlines()
+        for i in range(len(file)):
+            line = file[i]
+            if line.strip() == "Steps:":
+                return file[i + 1 :]
+        return list()
+    
+    # Helper method for save data functions:
+    def loadMoldRelease(self):
+        items = []
 
-    # Pathway Functions
+        # Read file into list
+        with self.getMoldReleasePath().open("r") as file:
+            reader = csv.reader(file)
+            all_rows = list(reader)
+            all_rows = list(filter(lambda x: x != [], all_rows))
+
+        # Process contents into predictable datatypes
+        for i, line in enumerate(all_rows):
+            # Example : PAAS-A,TRUE,WK-DAMBROSE01,2019-06-13 16:29
+            item, boolean, worker, timestamp = line
+            # Turn boolean from str --> bool
+            boolean = boolean.upper() == "TRUE"
+            # Turn timestamp form str --> datetime
+            if timestamp:
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
+            else:
+                timestamp = None
+            # Update line
+            one_line = [item, boolean, worker, timestamp]
+            items.append(one_line)
+
+        # Return list
+        return items
+
+    # ______     _   _                         ______                _   _                 
+    # | ___ \   | | | |                        |  ___|              | | (_)                
+    # | |_/ /_ _| |_| |____      ____ _ _   _  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___ 
+    # |  __/ _` | __| '_ \ \ /\ / / _` | | | | |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+    # | | | (_| | |_| | | \ V  V / (_| | |_| | | | | |_| | | | | (__| |_| | (_) | | | \__ \
+    # \_|  \__,_|\__|_| |_|\_/\_/ \__,_|\__, | \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+    #                                    __/ |                                             
+    #                                   |___/                                              
     # All of the following functions either return a file pathway in the form
     # of a string, or a boolean for weather or not a file exists.
 
@@ -1416,7 +1285,13 @@ class TxtDataProcessor(DataProcessor):
             self.wireTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
         )
 
-    # Header Functions
+    #  _   _                _            ______                _   _                 
+    # | | | |              | |           |  ___|              | | (_)                
+    # | |_| | ___  __ _  __| | ___ _ __  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___ 
+    # |  _  |/ _ \/ _` |/ _` |/ _ \ '__| |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+    # | | | |  __/ (_| | (_| |  __/ |    | | | |_| | | | | (__| |_| | (_) | | | \__ \
+    # \_| |_/\___|\__,_|\__,_|\___|_|    \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+
     # Each header function returns the info that's present in every text file of the corresponding pro/pro
     # The number at the beginning is the number of variables to be saved.  That's quicker than using len().
     # All of the rest are the variables for the corresponding pro/pro in the order they appear in the text file and
@@ -1513,11 +1388,91 @@ class TxtDataProcessor(DataProcessor):
         ]
 
 
+    # ___  ____            _   _      _                     
+    # |  \/  (_)          | | | |    | |                    
+    # | .  . |_ ___  ___  | |_| | ___| |_ __   ___ _ __ ___ 
+    # | |\/| | / __|/ __| |  _  |/ _ \ | '_ \ / _ \ '__/ __|
+    # | |  | | \__ \ (__  | | | |  __/ | |_) |  __/ |  \__ \
+    # \_|  |_/_|___/\___| \_| |_/\___|_| .__/ \___|_|  |___/
+    #                                  | |                  
+    #                                  |_|                  
+    # Other helper functions
+
+    # make a human readable timestamp
     @staticmethod
     def timestamp():
         return datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    # check if wire spool has been QC'd
+    # returns a boolean
+    def wireQCd(self, wire):
+        qcdwires = []
+        with Path(self.paths["wireQC"]).resolve().open("r") as f:
+            reader = csv.reader(f, delimiter=",")
+            for row in reader:
+                qcdwires.append(row[0])
+        qcdwires = qcdwires[1:]
+        return wire in qcdwires
+    
+    # gets all comments for all pros and returns a big string
+    def getCommentText(self,):  
+        # read 7 files and return one big string, only called once in pangui
+        allComments = ""  # string to put comments into
+
+        for proNum in range(1, 8):  # for nubmers 1-7
+            try:  # try to:
+                comments = (
+                    self.getCommentFileAddress(proNum).open("r").read()
+                )  # get comments from procedure <proNum> comments file
+            except FileNotFoundError:  # if the file doesn't exist
+                comments = f"No comments for procedure {proNum}\n"  # add text that theres no comments
+            allComments += comments  # add the comments we just got
+
+        return allComments  # return all the comments!
+    
+    # check if worker has street cred
+    def checkCredentials(self):
+        return self.credentialChecker.checkCredentials(self.sessionWorkers)
+    
+    # another check if worker has street cred
+    def validateWorkerID(self, worker):
+        if self.validWorkers == []:
+            path = Path(self.paths["credentialsChecklist"])
+            if path.exists():
+                with path.open("r") as file:
+                    reader = csv.reader(file)
+                    next(reader)
+
+                    for row in reader:
+                        self.validWorkers.append(row[0].upper())
+            else:
+                print("Unable to read worker list")
+
+        return worker.upper() in self.validWorkers
+
+    # returns list of current workers
+    def getSessionWorkers(self):
+        return self.sessionWorkers
+
+    # TBH no idea what this does but getting
+    # rid of it causes a crash
+    def workerLoggedIn(self, worker):
+        return any([worker.upper() in info for info in self.workerInformation])
+    
+    # does things for SQL processor, not TXT.
+    # needs to exist to appease the python gods?
+    def handleClose(self):
+        pass
 
 
+#  _____  _____ _      ______                                       
+# /  ___||  _  | |     | ___ \                                      
+# \ `--. | | | | |     | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+#  `--. \| | | | |     |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
+# /\__/ /\ \/' / |____ | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
+# \____/  \_/\_\_____/ \_|  |_|  \___/ \___\___||___/___/\___/|_|   
+#                                                                   
+#                                                                   
 
 class SQLDataProcessor(DataProcessor):
     def __init__(self, gui):
@@ -2455,6 +2410,15 @@ class SQLDataProcessor(DataProcessor):
             ),  # Flood Epoxy Work Time (Right)
         ]
 
+
+# ___  ___      _       
+# |  \/  |     (_)      
+# | .  . | __ _ _ _ __  
+# | |\/| |/ _` | | '_ \ 
+# | |  | | (_| | | | | |
+# \_|  |_/\__,_|_|_| |_|
+#                       
+#                       
 
 def main():
     MultipleDataProcessor(object(), save2txt=True, save2SQL=True)
