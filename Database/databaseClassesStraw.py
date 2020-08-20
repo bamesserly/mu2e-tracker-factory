@@ -2536,7 +2536,7 @@ class Resistance(BASE, OBJECT):
     outside_outside_resistance = Column(REAL)
     outside_outside_method = Column(String)
     evaluation = Column(BOOLEAN)
-    timestamp = Column(Integer)
+    timestamp= Column(Integer, default=int(datetime.now().timestamp()))
 
     def __init__(self, procedure, straw, inside_inside_resistance,inside_inside_method,inside_outside_resistance,inside_outside_method,outside_inside_resistance,\
          outside_inside_method, outside_outside_resistance, outside_outside_method, evaluation):
@@ -2575,7 +2575,7 @@ class LeakTest(BASE, OBJECT):
     leak_rate = Column(REAL)
     uncertainty = Column(REAL)
     evaluation = Column(BOOLEAN)
-    timestamp = Column(Integer)
+    timestamp= Column(Integer, default=int(datetime.now().timestamp()))
 
     def _init_(self, procedure, straw, leak_rate, uncertainty, evaluation):
         self.procedure = procedure
@@ -2583,6 +2583,7 @@ class LeakTest(BASE, OBJECT):
         self.leak_rate = leak_rate
         self.uncertainty = uncertainty
         self.evaluation = evaluation
+        self.commit()
 
 class LaserCut(BASE, OBJECT):
     __tablename__ = 'measurement_lasr'
@@ -2590,12 +2591,13 @@ class LaserCut(BASE, OBJECT):
     procedure = Column(Integer, ForeignKey('procedure.id'))
     straw = Column(Integer, ForeignKey('straw.id'))
     position = Column(Integer)
-    timestamp = Column(Integer)
+    timestamp= Column(Integer, default=int(datetime.now().timestamp()))
 
     def _init_(self, procedure, straw, position):
         self.procedure = procedure
         self.straw = straw
         self.position = position
+        self.commit()
 
 class SilverEpoxy(BASE, OBJECT):
     __tablename__ = 'measurement_silv'
