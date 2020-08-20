@@ -3868,7 +3868,7 @@ class panelGUI(QMainWindow):
 
         self.ui.epoxyMixedLOP.setEnabled(True)
         self.ui.epoxyMixedROP.setEnabled(True)
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
         self.startRunning()
         self.saveData()
@@ -3885,7 +3885,7 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch_3.setDisabled(True)
         self.ui.epoxyInjectedLP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     # connected to epoxy mixed for RP, starts timer 13
     # INDEX 4 POINTS TO ROP BATCH
@@ -3899,33 +3899,33 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch_4.setDisabled(True)
         self.ui.epoxyInjectedRP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def applyEpoxyLPP(self):
         self.stopTimer(11)
         self.ui.epoxyInjectedLP.setDisabled(True)
         self.ui.epoxyFinishedLP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def applyEpoxyRPP(self):
         self.stopTimer(13)
         self.ui.epoxyInjectedRP.setDisabled(True)
         self.ui.epoxyFinishedRP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def cureEpoxyLPP(self):
         self.stopTimer(12)
         self.ui.epoxyFinishedLP.setDisabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def cureEpoxyRPP(self):
         self.stopTimer(14)
         self.ui.epoxyFinishedRP.setDisabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def mixEpoxyLOP(self):
         if not (self.validateInput(indices=[3])):
@@ -3937,7 +3937,7 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch_5.setDisabled(True)
         self.ui.epoxyAppliedLOP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def mixEpoxyROP(self):
         if not (self.validateInput(indices=[4])):
@@ -3949,21 +3949,21 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch_6.setDisabled(True)
         self.ui.epoxyAppliedROP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def applyEpoxyLOP(self):
         self.stopTimer(15)
         self.ui.epoxyAppliedLOP.setDisabled(True)
         self.ui.epoxyCuredLOP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def applyEpoxyROP(self):
         self.stopTimer(16)
         self.ui.epoxyAppliedROP.setDisabled(True)
         self.ui.epoxyCuredROP.setEnabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def cureEpoxyLOP(self):
         self.stopTimer(17)
@@ -3974,7 +3974,7 @@ class panelGUI(QMainWindow):
         self.stopTimer(18)
         self.ui.epoxyCuredROP.setDisabled(True)
         self.saveData()
-        self.ui.commentBox_2.setFocus()
+        self.ui.commentBox2.setFocus()
 
     def resetPro4(self):
         self.ui.panelInput4.setText("")
