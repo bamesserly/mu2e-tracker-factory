@@ -1,4 +1,3 @@
-#
 # PrepGUI.py
 # 
 # Straw Prep (Paper Pull) GUI v. 2.1
@@ -14,8 +13,7 @@
 #   - Modified prep data format (alligns strawID, batchBarcode, and PPG)
 #   - Avoid duplicate prepped pallets -Billy Li
 #
-# Last Editted: 09/17/19
-#
+# Last Editted: 08/22/20
 
 import pyautogui
 import time
@@ -199,7 +197,7 @@ class Prep(QMainWindow):
         self.DP.saveWorkers()
         
     def lockGUI(self):
-        if not self.DP.checkCredentials():
+        if  not self.credentialChecker.checkCredentials(self.sessionWorkers):
             self.resetGUI()
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, 'Straw Prep *Locked*')
