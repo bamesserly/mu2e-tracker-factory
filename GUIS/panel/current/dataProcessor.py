@@ -674,7 +674,22 @@ class MultipleDataProcessor(DataProcessor):
 #   | |>  <| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
 #   \_/_/\_\\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
 #                                                             
-#                                                             
+
+# Current capabilities:
+# Save panel pro data (anything entered directly into the GUI panel tab)
+# Save comments and failures
+# Save starts, pauses, and finishes
+# Save worker logins and logouts
+# Save steps
+# Save continuity measurements
+# Save HV measurements
+
+# Current incapabilities:
+# Load (everything)
+# Save tension measurements (wire, straw, tensionbox)
+# Save panel heating measurements
+# Save tools, parts, supplies
+# Save mold release
 
 class TxtDataProcessor(DataProcessor):
     def __init__(self, gui, lab_version=True):
@@ -748,8 +763,6 @@ class TxtDataProcessor(DataProcessor):
             self.saveDataMkI()  # save in database friendly CSV
 
     def saveDataMkI(self):
-        # what pro/process?
-        pro = self.getPro()
         # get data from the gui to save
         data = self.getProData()
 
@@ -806,8 +819,6 @@ class TxtDataProcessor(DataProcessor):
                 file.write(row)
 
     def saveDataMkII(self):
-        # what pro/process?
-        pro = self.getPro()
         # get data to be saved
         data = self.getProData()
 
@@ -983,14 +994,6 @@ class TxtDataProcessor(DataProcessor):
                 f"\n{comment}\n"
             )  # add new line, a comment, and another new line
 
-    # save tools, supplies, parts list (DEFUNCT)
-    def saveTPS(self, tps, item, state):
-        return "", 0
-
-    # save mold release (DEFUNCT)
-    def saveMoldRelease(self, item, state):
-        return "", 0
-
     # add a step line to existing txt file
     def saveStep(self, step_name):
 
@@ -1032,16 +1035,6 @@ class TxtDataProcessor(DataProcessor):
         ## Save comment:
         self.saveComment(comment, self.getPanel(), self.getPro())
 
-    # update all straw tension measurements for panel (DEFUNCT)
-    # parameters are lists of data
-    def saveStrawTensionMeasurement(self, position, tension, uncertainty):
-        pass
-
-    # update all wire tension measurements for panel (DEFUNCT)
-    # parameters are lists of data
-    def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
-        pass
-
     # update all continuity measurements for panel
     # parameters are lists of data
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
@@ -1073,10 +1066,6 @@ class TxtDataProcessor(DataProcessor):
                 writer.writerow(row)
             if not written:
                 writer.writerow(new_row)
-
-    # save panel heating measurement (DEFUNCT)
-    def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
-        pass
 
     # update all HV measurements for panel
     # parameters are lists of data
@@ -1140,6 +1129,28 @@ class TxtDataProcessor(DataProcessor):
     # save tension measurement (DEFUNCT)
     def saveTensionboxMeasurement(self):
         pass
+
+    # save panel heating measurement (DEFUNCT)
+    def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
+        pass
+
+    # update all wire tension measurements for panel (DEFUNCT)
+    # parameters are lists of data
+    def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        pass
+
+    # update all straw tension measurements for panel (DEFUNCT)
+    # parameters are lists of data
+    def saveStrawTensionMeasurement(self, position, tension, uncertainty):
+        pass
+
+    # save tools, supplies, parts list (DEFUNCT)
+    def saveTPS(self, tps, item, state):
+        return "", 0
+
+    # save mold release (DEFUNCT)
+    def saveMoldRelease(self, item, state):
+        return "", 0
 
 
     #  _                     _  ___  ___     _   _               _     
