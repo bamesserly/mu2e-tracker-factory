@@ -121,7 +121,7 @@ class LoopingReusableThread(ReusableThread, LoopingThread):
     def run(self):
         dateTimeObj = datetime.now()
         timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        print("Automerge complete in L2 : ", timestampStr)
+        print("Automerge complete: ", timestampStr)
         LoopingThread.run(self)
 
 
