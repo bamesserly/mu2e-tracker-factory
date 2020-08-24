@@ -1,4 +1,0 @@
-Billy:
-	WriteToFile modified to debug
-	Now it has been rolled back
-		2019-10-24

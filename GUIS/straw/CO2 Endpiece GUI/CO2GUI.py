@@ -221,7 +221,7 @@ class CO2(QMainWindow):
 
     def lockGUI(self):
         self.ui.tab_widget.setTabText(1, "CO2 Endpiece")
-        if not self.DP.checkCredentials():
+        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, "CO2 Endpiece *Locked*")
 
