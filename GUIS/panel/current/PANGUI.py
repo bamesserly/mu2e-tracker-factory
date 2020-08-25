@@ -17,7 +17,6 @@ Using [Ctrl] + K + 0 collapses all functions and sections, making it much easier
 
 Original Authors: Jacob Christy, Kate Ciampa, Ben Hiltbrand
 Updated/Expanded by: Adam Arnett, Himanshu Joshi
-Date of Last Update: 8/9/2020
 
 """
 
@@ -281,7 +280,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 20, 2: 11, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -1051,12 +1050,12 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch1,
                 self.ui.paasAInput,
                 self.ui.paasCInput,
+                self.ui.pallet1code,
+                self.ui.pallet2code
             ],
             # pro 2 Widgets
             [
                 self.ui.panelInput2,
-                self.ui.pallet1code,
-                self.ui.pallet2code,
                 self.ui.epoxy_batch,
                 self.ui.epoxy_inject1,
                 self.ui.epoxy_batch_2,
@@ -2284,27 +2283,28 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][17] = self.timerTuple(self.timers[1])
         self.data[self.pro_index][18] = self.ui.paasAInput.text()
         self.data[self.pro_index][19] = self.ui.paasCInput.text()
+        self.data[self.pro_index][20] = self.ui.pallet1code.text()
+        self.data[self.pro_index][21] = self.ui.pallet2code.text()
+
 
     def updateDataProcess2(self):
         self.data[self.pro_index][0] = self.ui.panelInput2.text()
-        self.data[self.pro_index][1] = self.ui.pallet1code.text()  # Upper LPAL
-        self.data[self.pro_index][2] = self.ui.pallet2code.text()  # Lower LPAL
-        self.data[self.pro_index][3] = self.ui.epoxy_batch.text()  # Lower Epoxy
-        self.data[self.pro_index][4] = self.timerTuple(
+        self.data[self.pro_index][1] = self.ui.epoxy_batch.text()  # Lower Epoxy
+        self.data[self.pro_index][2] = self.timerTuple(
             self.timers[2]
         )  # Lower Epoxy Time
-        self.data[self.pro_index][5] = self.ui.epoxy_batch_2.text()  # Upper Epoxy
-        self.data[self.pro_index][6] = self.timerTuple(
+        self.data[self.pro_index][3] = self.ui.epoxy_batch_2.text()  # Upper Epoxy
+        self.data[self.pro_index][4] = self.timerTuple(
             self.timers[3]
         )  # Upper Epoxy Time
-        self.data[self.pro_index][7] = (
+        self.data[self.pro_index][5] = (
             float(self.ui.temp4.text()) if self.ui.temp4.text() else None
         )  # PAAS-A Max Temp
-        self.data[self.pro_index][8] = (
+        self.data[self.pro_index][6] = (
             float(self.ui.temp4_2.text()) if self.ui.temp4_2.text() else None
         )  # PAAS-B Max Temp
-        self.data[self.pro_index][9] = self.timerTuple(self.timers[4])  # Heat Time
-        self.data[self.pro_index][10] = self.ui.paasBInput.text()  # paas B input
+        self.data[self.pro_index][7] = self.timerTuple(self.timers[4])  # Heat Time
+        self.data[self.pro_index][8] = self.ui.paasBInput.text()  # paas B input
 
     def updateDataProcess3(self):
         # pro-specific Data
@@ -2694,6 +2694,12 @@ class panelGUI(QMainWindow):
                 self.startTimer(1)
             else:
                 self.ui.epoxy_applied1.setDisabled(True)
+        if data[20] is not None:
+            self.ui.pallet1code.setText(data[20])
+            self.ui.pallet1code.setDisabled(True)
+        if data[21] is not None:
+            self.ui.pallet2code.setText(data[21])
+            self.ui.pallet2code.setDisabled(True)
 
     """
     parsepro2Data(self, data)
@@ -2722,39 +2728,14 @@ class panelGUI(QMainWindow):
             )  # set text of panel line edit widget to number
             self.ui.panelInput2.setDisabled(True)  # disable panel line edit
 
-        # pallet codes----------------------------------------------------------------------------
-        if data[1] is not None:  # if upper pallet code data exists
-            self.ui.pallet1code.setText(
-                data[1]
-            )  # set text of upper pallet line edit widget to code
-            self.ui.pallet1code.setDisabled(True)  # disable upper pallet line edit
-        if data[2] is not None:  # if lower pallet code data exists
-            self.ui.pallet2code.setText(
-                data[2]
-            )  # set text of lower pallet line edit widget to code
-            self.ui.pallet2code.setDisabled(True)  # disable lower pallet line edit
-
-        if data[1] is not None and data[2] is not None:  # if BOTH pallet codes exist
-            self.ui.epoxy_batch.setEnabled(
-                True
-            )  # enable lower epoxy batch line edit widget
-            self.ui.epoxy_mixed.setEnabled(True)  # enable lower epoxy mix button
-            self.ui.epoxy_batch_2.setEnabled(
-                True
-            )  # enable upper epoxy batch line edit widget
-            self.ui.epoxy_mixed_2.setEnabled(True)  # enable upper epoxy mix button
-            self.ui.launch_straw_tensioner.setEnabled(
-                True
-            )  # enable launch straw tensioner button
-
         # lower epoxy ----------------------------------------------------------------------------
-        if data[3] is not None:  # if lower epoxy batch num data exists
+        if data[1] is not None:  # if lower epoxy batch num data exists
             self.ui.epoxy_batch.setText(
-                data[3]
+                data[1]
             )  # set text of lower epoxy line edit widget to num
 
         if (
-            data[4] is not None
+            data[2] is not None
         ):  # if lower epoxy timer data exists (if timer has been started)
             self.ui.epoxy_mixed.setDisabled(True)  # disable lower epoxy mixed button
             self.ui.epoxy_batch.setDisabled(
@@ -2762,7 +2743,7 @@ class panelGUI(QMainWindow):
             )  # disable lower epoxy batch line edit widget
 
             elapsed_time, running = data[
-                4
+                2
             ]  # extract data from timer tuple [<timedeltaObj>, <isRunningBool>]
             self.timers[2].setElapsedTime(
                 elapsed_time
@@ -2778,13 +2759,13 @@ class panelGUI(QMainWindow):
                 )  # disable lower epoxy inject button (timer must have been stopped)
 
         # upper epoxy ----------------------------------------------------------------------------
-        if data[5] is not None:  # if upper epoxy batch num data exists
+        if data[3] is not None:  # if upper epoxy batch num data exists
             self.ui.epoxy_batch_2.setText(
-                data[5]
+                data[3]
             )  # set text of upper epoxy line edit widget to num
 
         if (
-            data[6] is not None
+            data[4] is not None
         ):  # if upper epoxy timer data exists (if timer has been started)
             self.ui.epoxy_mixed_2.setDisabled(True)  # disable upper epoxy mixed button
             self.ui.epoxy_batch_2.setDisabled(
@@ -2792,7 +2773,7 @@ class panelGUI(QMainWindow):
             )  # disable upper epoxy batch line edit widget
 
             elapsed_time, running = data[
-                6
+                4
             ]  # extract data from timer tuple [<timedeltaObj>, <isRunningBool>]
             self.timers[3].setElapsedTime(
                 elapsed_time
@@ -2811,20 +2792,20 @@ class panelGUI(QMainWindow):
                 )  # enable heat start button (epoxy stuff has been finished)
 
         # heat stuff -----------------------------------------------------------------------------
-        if data[7] is not None:  # if paas A max temp num data exists
+        if data[4] is not None:  # if paas A max temp num data exists
             self.ui.temp4.setText(
-                str(data[7])
+                str(data[4])
             )  # set text of paas A max temp line edit widget to num
-        if data[8] is not None:  # if paas B max temp num data exists
+        if data[6] is not None:  # if paas B max temp num data exists
             self.ui.temp4_2.setText(
-                str(data[8])
+                str(data[6])
             )  # set text of paas B max temp line edit widget to num
 
-        if data[9] is not None:  # if heat timer data exists (if timer has been started)
+        if data[7] is not None:  # if heat timer data exists (if timer has been started)
             self.ui.heat_start.setDisabled(True)  # disable heat start button
 
             elapsed_time, running = data[
-                9
+                7
             ]  # extract timer tuple data [<timedeltaObj>, <isRunningBool>]
             self.timers[4].setElapsedTime(
                 elapsed_time
@@ -2852,8 +2833,8 @@ class panelGUI(QMainWindow):
                 )  # disable paas B max temp line edit widget
 
         # PAAS B Entry ---------------------------------------------------------------------------
-        if data[10] is not None:
-            self.ui.paasBInput.setText(data[10])
+        if data[8] is not None:
+            self.ui.paasBInput.setText(data[8])
             self.ui.paasBInput.setDisabled(True)
 
     """
@@ -3448,6 +3429,8 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch1,
             self.ui.paasAInput,
             self.ui.paasCInput,
+            self.ui.pallet1code,
+            self.ui.pallet2code
         ]
         self.setWidgetsEnabled(input_widgets)
         for w in input_widgets:
@@ -3498,7 +3481,7 @@ class panelGUI(QMainWindow):
             return
 
         # Ensure valid input
-        if not self.validateInput(indices=range(3)):
+        if not self.validateInput(indices=range(1)):
             return
 
         # Set focus on epoxy input
@@ -3508,9 +3491,7 @@ class panelGUI(QMainWindow):
         self.setWidgetsDisabled(
             [
                 self.ui.startbutton2,
-                self.ui.panelInput2,
-                self.ui.pallet1code,
-                self.ui.pallet2code,
+                self.ui.panelInput2
             ]
         )
 
@@ -3716,8 +3697,6 @@ class panelGUI(QMainWindow):
         self.data[1] = [None for x in self.data[1]]
         self.ui.startbutton2.setEnabled(True)
         self.ui.panelInput2.setEnabled(True)
-        self.ui.pallet1code.setEnabled(True)
-        self.ui.pallet2code.setEnabled(True)
         self.ui.panelInput2.setText("")
         self.ui.pallet1code.setText("")
         self.ui.pallet2code.setText("")
