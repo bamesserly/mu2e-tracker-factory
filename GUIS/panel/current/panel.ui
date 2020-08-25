@@ -1056,6 +1056,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>Lower Layer Straws</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="1" column="0">
                     <widget class="QLineEdit" name="pallet2code">
                      <property name="sizePolicy">
@@ -1069,36 +1076,6 @@
                      </property>
                      <property name="maxLength">
                       <number>8</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QLabel" name="label_4">
-                     <property name="text">
-                      <string>Lower Layer Straws</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0" colspan="2">
-                    <widget class="QPushButton" name="viewstraws2">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::ClickFocus</enum>
-                     </property>
-                     <property name="text">
-                      <string>Check Straws</string>
                      </property>
                     </widget>
                    </item>
@@ -2905,8 +2882,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>994</width>
-                       <height>212</height>
+                       <width>81</width>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4034,8 +4011,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>484</width>
-                       <height>539</height>
+                       <width>281</width>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -6582,8 +6559,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="saveButtons"/>
   <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
-  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
