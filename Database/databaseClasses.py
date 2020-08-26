@@ -810,6 +810,42 @@ class Pan1Procedure(PanelProcedure):
             epoxy_time_timestamp = Column(Integer)
 
         return Details
+# Getters/Setters
+
+    def _setLPAL(self, lpal, top_bot):
+        if top_bot in ["top", "bot"]:
+            if top_bot == "top":
+                self.details.lpal_top = lpal.id
+            if top_bot == "bot":
+                self.details.lpal_bot = lpal.id
+            self.commit()
+
+    def loadFromLPAL(self, lpal_num, top_bot):
+        # Query Objects
+        lpal = StrawLocation.LPAL(lpal_num)
+        straws = lpal.getStraws()
+        panel = self.getPanel()
+        # Equation mapping lpal straw list index to panel position
+        position = lambda pos: 2 * pos + {"top": 1, "bot": 0}[top_bot]
+        # Execute all removes from lpal and moves to panel.
+        entries = []
+        for i in range(len(straws)):
+            s = straws[i]
+            if s is None:
+                continue
+            entries.append(lpal.removeStraw(s, commit=False))
+            entries.append(panel.addStraw(straw=s, position=position(i), commit=False))
+        DM.commitEntries(entries)
+        # Record LPAL in details table aswell
+        self._setLPAL(lpal, top_bot)
+
+    def getLPAL(self, top_bot):
+        # Get id from details class
+        lpal_id = {"top": self.details.lpal_top, "bot": self.details.lpal_bot}[top_bot]
+        # Return result of Query for Loading Pallet
+        # Note, this will return None if no lpal
+        # has been recorded yet.
+        return LoadingPallet.queryWithId(lpal_id)
 
     def getLeftGap(self):
         return self.details.left_gap
@@ -898,40 +934,6 @@ class Pan2Procedure(PanelProcedure):
         return Details
 
     # Getters/Setters
-    def _setLPAL(self, lpal, top_bot):
-        if top_bot in ["top", "bot"]:
-            if top_bot == "top":
-                self.details.lpal_top = lpal.id
-            if top_bot == "bot":
-                self.details.lpal_bot = lpal.id
-            self.commit()
-
-    def loadFromLPAL(self, lpal_num, top_bot):
-        # Query Objects
-        lpal = StrawLocation.LPAL(lpal_num)
-        straws = lpal.getStraws()
-        panel = self.getPanel()
-        # Equation mapping lpal straw list index to panel position
-        position = lambda pos: 2 * pos + {"top": 1, "bot": 0}[top_bot]
-        # Execute all removes from lpal and moves to panel.
-        entries = []
-        for i in range(len(straws)):
-            s = straws[i]
-            if s is None:
-                continue
-            entries.append(lpal.removeStraw(s, commit=False))
-            entries.append(panel.addStraw(straw=s, position=position(i), commit=False))
-        DM.commitEntries(entries)
-        # Record LPAL in details table aswell
-        self._setLPAL(lpal, top_bot)
-
-    def getLPAL(self, top_bot):
-        # Get id from details class
-        lpal_id = {"top": self.details.lpal_top, "bot": self.details.lpal_bot}[top_bot]
-        # Return result of Query for Loading Pallet
-        # Note, this will return None if no lpal
-        # has been recorded yet.
-        return LoadingPallet.queryWithId(lpal_id)
 
     def getEpoxyBatchLower(self):
         return self.details.epoxy_batch_lower
