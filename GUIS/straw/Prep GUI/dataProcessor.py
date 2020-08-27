@@ -150,19 +150,19 @@ class MultipleDataProcessor(DataProcessor):
         self.gui = gui
         self.processors = []
         # Instantiate Data Processors
-        txtdp = None
-        sqldp = None
+        self.txtdp = None
+        self.sqldp = None
         if save2txt:
-            txtdp = TxtDataProcessor(self.gui)
-            self.processors.append(txtdp)
+            self.txtdp = TxtDataProcessor(self.gui)
+            self.processors.append(self.txtdp)
         if save2SQL:
-            sqldp = SQLDataProcessor(self.gui)
-            self.processors.append(sqldp)
+            self.sqldp = SQLDataProcessor(self.gui)
+            self.processors.append(self.sqldp)
         # Set primary
         if sql_primary:
-            self.primaryDP = sqldp
+            self.primaryDP = self.sqldp
         else:
-            self.primaryDP = txtdp
+            self.primaryDP = self.txtdp
         # Put all others in list
         self.otherDPs   = [dp for dp in self.processors if dp != self.primaryDP]
 
@@ -179,25 +179,37 @@ class MultipleDataProcessor(DataProcessor):
 
 
 
-    ## METHODS DONE BY PRIMARY PROCESSOR ##
+    ## METHODS DONE BY SQL PROCESSOR ##
 
     def saveStart(self):
-            self.primaryDP.saveStart()
+        self.sqldp.saveStart()
 
     def savePause(self):
-            self.primaryDP.savePause()
+        self.sqldp.savePause()
         
     def saveResume(self):
-            self.primaryDP.saveResume()
+        self.sqldp.saveResume()
         
     def saveFinish(self):
-            self.primaryDP.saveFinish()
+        self.sqldp.saveFinish()
     
     def saveComment(self,text):
-            self.primaryDP.saveComment(text)
+        self.sqldp.saveComment(text)
 
     def handleClose(self):
-            self.primaryDP.handleClose()
+        self.sqldp.handleClose()
+    
+    def saveLogin(self,worker):
+        self.sqldp.saveLogin(worker)
+        
+    def saveLogout(self,worker):
+        self.sqldp.saveLogout(worker)
+
+    def getCommentText(self):
+        return self.sqldp.getCommentText()
+
+
+    ## METHODS DONE BY PRIMARY PROCESSOR ##
 
     def validateWorkerID(self,worker):
         return self.primaryDP.validateWorkerID(worker)
@@ -208,20 +220,8 @@ class MultipleDataProcessor(DataProcessor):
     def workerLoggedIn(self,worker):
         return self.primaryDP.workerLoggedIn(worker)
     
-    def saveLogin(self,worker):
-            self.primaryDP.saveLogin(worker)
-        
-    def saveLogout(self,worker):
-            self.primaryDP.saveLogout(worker)
-
     def checkCredentials(self):
         return self.primaryDP.checkCredentials()
-
-    def getCommentText(self):
-        return self.primaryDP.getCommentText()
-        
-    def loadData(self):
-        return self.primaryDP.loadData()
 
 
 class TxtDataProcessor(DataProcessor):
