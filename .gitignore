@@ -4,5 +4,3 @@
 Data/
 Database/localDatabasePath.txt
 Database/networkDatabasePath.txt
-.vscode/
-*.svg
