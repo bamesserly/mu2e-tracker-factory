@@ -100,7 +100,7 @@ self.resetGUI()
 ```
 4. I don't know about the upload function here. It was used to upload data to fermilab. This part it's better to check with current GUI team lead. 
 
-######function: resetGUI
+###### function: resetGUI
 1. copy paste the initialization of GUI class (SQL version)
 
 ###### function: closeEvent
