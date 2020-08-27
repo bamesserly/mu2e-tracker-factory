@@ -29,10 +29,12 @@ from pathlib import Path
 from design import Ui_MainWindow  ## edit via Qt Designer
 from dataProcessor import MultipleDataProcessor as DataProcessor
 
-#os.chdir(os.path.dirname(__file__))
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, '../Upload')
-from masterUpload import *
+# ###################################################################
+# os.chdir(os.path.dirname(__file__))
+# os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.insert(0, '../Upload')
+# from masterUpload import *
+# ###################################################################S
 
 
 #os.chdir(os.path.dirname(__file__))
