@@ -808,6 +808,8 @@ class Pan1Procedure(PanelProcedure):
             epoxy_time = Column(Integer)
             epoxy_time_running = Column(BOOLEAN)
             epoxy_time_timestamp = Column(Integer)
+            lpal_top = Column(Integer, ForeignKey("straw_location.id"))
+            lpal_bot = Column(Integer, ForeignKey("straw_location.id"))
 
         return Details
 # Getters/Setters
