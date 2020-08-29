@@ -172,3 +172,6 @@ def getElapsedTime(self):
 1. You can copy paste the code from PrepGUI's `dataProcessor.py` under this function, and remember to change worker directory. This implementation is applicable to other GUIs.
 
 >Gaoxiang (Leon): I will be busy next semester, so I don't have time to continue working on these GUIs. Therefore, I left this note. 
+
+#### Resistance GUI (ohms) and CO2 Endpiece GUI (C-O2)
+##### I've also implemented these two GUIs but has no time to test them. You can find them in lab computer #8 ```C:\Users\Mu2e\Documents\Leon's Code\```
