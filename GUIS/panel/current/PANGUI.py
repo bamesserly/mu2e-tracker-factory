@@ -280,7 +280,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 23, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -313,6 +313,8 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_mixed1.clicked.connect(self.pro1part2)
         self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
         self.ui.pro1PanelHeater.clicked.connect(self.panelHeaterPopup)
+        self.ui.validateStraws.clicked.connect(self.checkLPALs)
+        # data[22] = bool for straw validation
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
@@ -1519,6 +1521,9 @@ class panelGUI(QMainWindow):
         self.saveStep(step.name)  # changed
 
         if self.stepsList.allStepsChecked():
+            # force user to validate straws before finishing
+            if self.pro == 1 and not self.data[23]:
+                return
             self.finishButton.setText("Finish")
 
     """
@@ -2283,9 +2288,12 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][17] = self.timerTuple(self.timers[1])
         self.data[self.pro_index][18] = self.ui.paasAInput.text()
         self.data[self.pro_index][19] = self.ui.paasCInput.text()
-        self.data[self.pro_index][20] = self.ui.pallet1code.text()
-        self.data[self.pro_index][21] = self.ui.pallet2code.text()
-
+        self.data[self.pro_index][20] = (
+            str(self.ui.pallet1code.text()) if self.ui.pallet1code.text() else None
+            )
+        self.data[self.pro_index][21] = (
+            str(self.ui.pallet2code.text()) if self.ui.pallet2code.text() else None
+            )
 
     def updateDataProcess2(self):
         self.data[self.pro_index][0] = self.ui.panelInput2.text()
@@ -3349,8 +3357,13 @@ class panelGUI(QMainWindow):
                 # Epoxy entry and button
                 self.ui.epoxy_batch1,
                 self.ui.epoxy_mixed1,
+                self.ui.pallet1code,
+                self.ui.pallet2code
             ]
         )
+        
+        # LPAL not yet validated
+        self.data[22] = False
 
         # Start Running
         self.startRunning()
@@ -3397,6 +3410,18 @@ class panelGUI(QMainWindow):
 
         # Save with data processor
         self.saveData()
+
+    # Validate LPALs
+    def checkLPALs(self):
+        if not self.validateInput(indices=[20,21]):
+            return
+        self.ui.lpalLabel.setText("LPALs Validated.")
+        self.data[22] = True
+
+        if self.stepsList.allStepsChecked():
+            self.finishButton.setText("Finish")
+
+
 
     """
     resetpro1(self)

@@ -1932,12 +1932,14 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             panel.recordPAAS, self.stripNumber(data[19]), None, "C"
         )  # PAAS C
-        self.callMethod(
-            self.procedure.loadFromLPAL, self.stripNumber(data[20]), "top"
-        )  # Upper LPAL
-        self.callMethod(
-            self.procedure.loadFromLPAL, self.stripNumber(data[21]), "bot"
-        )  # Lower LPAL
+        if data[20] is not None:
+            self.callMethod(
+                self.procedure.loadFromLPAL, self.stripNumber(data[20]), "top"
+            )  # Upper LPAL
+        if data[21] is not None:
+            self.callMethod(
+                self.procedure.loadFromLPAL, self.stripNumber(data[21]), "bot"
+            )  # Lower LPAL
 
     # Straws
     def saveDataProcess2(self):
