@@ -386,8 +386,8 @@ class panelGUI(QMainWindow):
         ## Launch vernier straw tensioner connected to self.DP
         self.ui.launch_straw_tensioner.clicked.connect(self.strawTensionPopup)
         self.ui.pro2PanelHeater.clicked.connect(self.panelHeaterPopup)
-        # self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
-        # self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
+        self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
+        self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
 
     def _init_pro3_setup(self):
         ## Connect
