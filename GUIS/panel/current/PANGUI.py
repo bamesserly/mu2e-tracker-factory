@@ -286,6 +286,7 @@ class panelGUI(QMainWindow):
         for pro in data_count:
             self.data.append([None for _ in range(data_count[pro])])
 
+
     def _init_deviceWindows(self):
         self.strawTensionWindow = None
         self.wireTensionWindow = None
@@ -3363,7 +3364,7 @@ class panelGUI(QMainWindow):
         )
         
         # LPAL not yet validated
-        self.data[22] = False
+        self.data[0][22] = False
 
         # Start Running
         self.startRunning()
