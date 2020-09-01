@@ -1127,8 +1127,24 @@ class TxtDataProcessor(DataProcessor):
                 writer.writerow(newRow)  # write it!
     
     # save tension measurement (DEFUNCT)
-    def saveTensionboxMeasurement(self):
-        pass
+    def saveTensionboxMeasurement(
+        self, panel, is_straw, position, length, frequency, pulse_width, tension
+    ):
+        # Get file path using panel and is_straw    
+        file = {True: self.getStrawTensionBoxPath, False: self.getWireTensionBoxPath}[  
+            is_straw    
+        ](panel)    
+        # If path doesn't exist, create it and write the header 
+        if not file.exists():   
+            with file.open("w+") as f:  
+                f.write(    
+                    "Timestamp,Panel,Position,Length,Frequency,PulseWidth,Tension,Epoch"    
+                )   
+        # Append measurement at the end of the file 
+        with file.open("a") as f:   
+            f.write(    
+                f"{self.timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}, {datetime.now().timestamp()}" 
+            )
 
     # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
