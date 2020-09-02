@@ -48,5 +48,3 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.menuMenu.setTitle(_translate("MainWindow", "Menu"))
         self.actionRefresh.setText(_translate("MainWindow", "Refresh"))
-
-

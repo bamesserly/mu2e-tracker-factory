@@ -134,11 +134,19 @@ class Ui_MainWindow(object):
         self.paas2_box.setItemText(2, _translate("MainWindow", "PAAS-C"))
         self.paas2_box.setItemText(3, _translate("MainWindow", "None"))
         self.label.setText(_translate("MainWindow", "2nd PAAS Type"))
-        self.label_2.setText(_translate("MainWindow", "Choose PAAS to heat with PAAS-A. If heating PAAS-A only, choose \'None\'."))
+        self.label_2.setText(
+            _translate(
+                "MainWindow",
+                "Choose PAAS to heat with PAAS-A. If heating PAAS-A only, choose 'None'.",
+            )
+        )
         self.label_3.setText(_translate("MainWindow", "PAAS-A Temperature [C]"))
         self.label_4.setText(_translate("MainWindow", "Temperature vs. Time"))
         self.label_6.setText(_translate("MainWindow", "2nd PAAS Temperature [C]"))
         self.end_data.setText(_translate("MainWindow", "End Data Collection"))
-        self.label_5.setText(_translate("MainWindow", "Calibration: PAAS-B/C RTDs in corners where temperature can be 5-8C lower than bulk surface. Expect apparent 5-8C difference with PAAS-A reading, due to calibration such that bulk surface will track PAAS-A to within 5C."))
-
-
+        self.label_5.setText(
+            _translate(
+                "MainWindow",
+                "Calibration: PAAS-B/C RTDs in corners where temperature can be 5-8C lower than bulk surface. Expect apparent 5-8C difference with PAAS-A reading, due to calibration such that bulk surface will track PAAS-A to within 5C.",
+            )
+        )
