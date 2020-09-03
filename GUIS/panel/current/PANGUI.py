@@ -315,7 +315,6 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
         self.ui.pro1PanelHeater.clicked.connect(self.panelHeaterPopup)
         self.ui.validateStraws.clicked.connect(self.checkLPALs)
-        # data[22] = bool for straw validation
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
@@ -2704,6 +2703,13 @@ class panelGUI(QMainWindow):
                 self.startTimer(1)
             else:
                 self.ui.epoxy_applied1.setDisabled(True)
+
+        # loading from DB doesn't pass the validation bool for
+        # the LPAL input, so it's added to the list here
+        if len(data) == 22:
+            self.data[0].append(False)
+            if data[20] is not None and data[21] is not None:
+                self.data[0][22] = True
         if data[20] is not None:
             self.ui.pallet1code.setText(data[20])
             self.ui.pallet1code.setDisabled(True)
@@ -3418,10 +3424,14 @@ class panelGUI(QMainWindow):
         if not self.validateInput(indices=[19,20]):
             return
         self.ui.lpalLabel.setText("Straws Validated.")
+        print(self.data)
+        print(len(self.data[0]))
         self.data[0][22] = True
 
         if self.stepsList.allStepsChecked():
             self.finishButton.setText("Finish")
+        
+        self.saveData()
 
 
 
