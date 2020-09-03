@@ -1523,7 +1523,8 @@ class panelGUI(QMainWindow):
 
         if self.stepsList.allStepsChecked():
             # force user to validate straws before finishing
-            if self.pro == 1 and not self.data[23]:
+
+            if self.pro == 1 and not self.data[0][22]:
                 return
             self.finishButton.setText("Finish")
 
@@ -3414,10 +3415,10 @@ class panelGUI(QMainWindow):
 
     # Validate LPALs
     def checkLPALs(self):
-        if not self.validateInput(indices=[20,21]):
+        if not self.validateInput(indices=[19,20]):
             return
-        self.ui.lpalLabel.setText("LPALs Validated.")
-        self.data[22] = True
+        self.ui.lpalLabel.setText("Straws Validated.")
+        self.data[0][22] = True
 
         if self.stepsList.allStepsChecked():
             self.finishButton.setText("Finish")
