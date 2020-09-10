@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>935</width>
-    <height>479</height>
+    <height>486</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,9 +17,9 @@
    <widget class="QPushButton" name="start_button">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>220</y>
-      <width>141</width>
+      <x>20</x>
+      <y>320</y>
+      <width>191</width>
       <height>71</height>
      </rect>
     </property>
@@ -37,9 +37,9 @@
    <widget class="QComboBox" name="paas2_box">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>110</y>
-      <width>141</width>
+      <x>20</x>
+      <y>90</y>
+      <width>191</width>
       <height>51</height>
      </rect>
     </property>
@@ -55,25 +55,25 @@
     </item>
     <item>
      <property name="text">
-      <string>PAAS-B</string>
+      <string>PAAS-B (Process 2)</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>PAAS-C</string>
+      <string>PAAS-C (Process 6)</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>None</string>
+      <string>None (Process 1)</string>
      </property>
     </item>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>30</y>
+      <x>20</x>
+      <y>20</y>
       <width>161</width>
       <height>51</height>
      </rect>
@@ -92,10 +92,10 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>223</x>
+      <x>220</x>
       <y>20</y>
       <width>20</width>
-      <height>401</height>
+      <height>421</height>
      </rect>
     </property>
     <property name="orientation">
@@ -105,10 +105,10 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>20</x>
       <y>40</y>
       <width>181</width>
-      <height>91</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">
@@ -249,9 +249,9 @@
    <widget class="QPushButton" name="end_data">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>350</y>
-      <width>141</width>
+      <x>20</x>
+      <y>400</y>
+      <width>191</width>
       <height>41</height>
      </rect>
     </property>
@@ -277,6 +277,108 @@
     </property>
     <property name="text">
      <string>Calibration: PAAS-B/C RTDs in corners where temperature can be 5-8C lower than bulk surface. Expect apparent 5-8C difference with PAAS-A reading, due to calibration such that bulk surface will track PAAS-A to within 5C.</string>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>160</y>
+      <width>191</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Temperature Setpoint</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>190</y>
+      <width>51</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Futura Md BT,sans-serif';&quot;&gt;°C&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelsp">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>420</y>
+      <width>181</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Current setpoint:</string>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="setpt_box">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>200</y>
+      <width>61</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <item>
+     <property name="text">
+      <string>55</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>34</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>230</y>
+      <width>181</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Use 55C for all processes except for funnels. For straw installation, use 34C while funnels are in place and change to 55C after funnel removal.</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
