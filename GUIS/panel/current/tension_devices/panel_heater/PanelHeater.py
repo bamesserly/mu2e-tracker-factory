@@ -31,7 +31,7 @@ class HeatControl(QMainWindow):
     """ Python interface to collect and visualize data from PAAS heater control system """
 
     def __init__(
-        self, port, panel, wait=60000, ndatapts=600, parent=None, saveMethod=None
+        self, port, panel, wait=120000, ndatapts=300, parent=None, saveMethod=None
     ):
         super(HeatControl, self).__init__(parent)
         if port == "GUI":  # PANGUI doesn't have a get port function

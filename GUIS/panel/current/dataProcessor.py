@@ -45,14 +45,15 @@ if not USE_MARK_ONE and not USE_MARK_TWO:
     )
     # raise Exception("NO TEXT PROCESSOR SELECTED")
 
-#   ___  _         _                  _    ______                                       
-#  / _ \| |       | |                | |   | ___ \                                      
-# / /_\ \ |__  ___| |_ _ __ __ _  ___| |_  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+#   ___  _         _                  _    ______
+#  / _ \| |       | |                | |   | ___ \
+# / /_\ \ |__  ___| |_ _ __ __ _  ___| |_  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __
 # |  _  | '_ \/ __| __| '__/ _` |/ __| __| |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
-# | | | | |_) \__ \ |_| | | (_| | (__| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
-# \_| |_/_.__/|___/\__|_|  \__,_|\___|\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
-#                                                                                       
-#                                                                                       
+# | | | | |_) \__ \ |_| | | (_| | (__| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |
+# \_| |_/_.__/|___/\__|_|  \__,_|\___|\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|
+#
+#
+
 
 class DataProcessor(ABC):
     def __init__(self, gui):
@@ -510,14 +511,16 @@ class DataProcessor(ABC):
     def getTimer(self):
         return self.gui.mainTimer.getElapsedTime()
 
-# ___  ___      _ _   _  ______                                       
-# |  \/  |     | | | (_) | ___ \                                      
-# | .  . |_   _| | |_ _  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+
+# ___  ___      _ _   _  ______
+# |  \/  |     | | | (_) | ___ \
+# | .  . |_   _| | |_ _  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __
 # | |\/| | | | | | __| | |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
-# | |  | | |_| | | |_| | | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
-# \_|  |_/\__,_|_|\__|_| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
-#                                                                     
-#                                                                     
+# | |  | | |_| | | |_| | | |  | | | (_) | (_|  __/\__ \__ \ (_) | |
+# \_|  |_/\__,_|_|\__|_| \_|  |_|  \___/ \___\___||___/___/\___/|_|
+#
+#
+
 
 class MultipleDataProcessor(DataProcessor):
     def __init__(
@@ -667,13 +670,13 @@ class MultipleDataProcessor(DataProcessor):
         return self.primaryDP.loadHVMeasurements()
 
 
-#  _____    _    ______                                       
-# |_   _|  | |   | ___ \                                      
-#   | |_  _| |_  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+#  _____    _    ______
+# |_   _|  | |   | ___ \
+#   | |_  _| |_  | |_/ / __ ___   ___ ___  ___ ___  ___  _ __
 #   | \ \/ / __| |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
-#   | |>  <| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
-#   \_/_/\_\\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|   
-#                                                             
+#   | |>  <| |_  | |  | | | (_) | (_|  __/\__ \__ \ (_) | |
+#   \_/_/\_\\__| \_|  |_|  \___/ \___\___||___/___/\___/|_|
+#
 
 # Current capabilities:
 # Save panel pro data (anything entered directly into the GUI panel tab)
@@ -690,6 +693,7 @@ class MultipleDataProcessor(DataProcessor):
 # Save panel heating measurements
 # Save tools, parts, supplies
 # Save mold release
+
 
 class TxtDataProcessor(DataProcessor):
     def __init__(self, gui, lab_version=True):
@@ -737,10 +741,9 @@ class TxtDataProcessor(DataProcessor):
             self.paths["straw_tensioner_data"]
         ).resolve()
 
-    
-    #  _____                  ___  ___     _   _               _     
-    # /  ___|                 |  \/  |    | | | |             | |    
-    # \ `--.  __ ___   _____  | .  . | ___| |_| |__   ___   __| |___ 
+    #  _____                  ___  ___     _   _               _
+    # /  ___|                 |  \/  |    | | | |             | |
+    # \ `--.  __ ___   _____  | .  . | ___| |_| |__   ___   __| |___
     #  `--. \/ _` \ \ / / _ \ | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
     # /\__/ / (_| |\ V /  __/ | |  | |  __/ |_| | | | (_) | (_| \__ \
     # \____/ \__,_| \_/ \___| \_|  |_/\___|\__|_| |_|\___/ \__,_|___/
@@ -1125,10 +1128,26 @@ class TxtDataProcessor(DataProcessor):
 
             if not written:  # if the new row is actually new and not an update...
                 writer.writerow(newRow)  # write it!
-    
+
     # save tension measurement (DEFUNCT)
-    def saveTensionboxMeasurement(self):
-        pass
+    def saveTensionboxMeasurement(
+        self, panel, is_straw, position, length, frequency, pulse_width, tension
+    ):
+        # Get file path using panel and is_straw
+        file = {True: self.getStrawTensionBoxPath, False: self.getWireTensionBoxPath}[
+            is_straw
+        ](panel)
+        # If path doesn't exist, create it and write the header
+        if not file.exists():
+            with file.open("w+") as f:
+                f.write(
+                    "Timestamp,Panel,Position,Length,Frequency,PulseWidth,Tension,Epoch"
+                )
+        # Append measurement at the end of the file
+        with file.open("a") as f:
+            f.write(
+                f"{self.timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}, {datetime.now().timestamp()}"
+            )
 
     # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
@@ -1152,10 +1171,9 @@ class TxtDataProcessor(DataProcessor):
     def saveMoldRelease(self, item, state):
         return "", 0
 
-
-    #  _                     _  ___  ___     _   _               _     
-    # | |                   | | |  \/  |    | | | |             | |    
-    # | |     ___   __ _  __| | | .  . | ___| |_| |__   ___   __| |___ 
+    #  _                     _  ___  ___     _   _               _
+    # | |                   | | |  \/  |    | | | |             | |
+    # | |     ___   __ _  __| | | .  . | ___| |_| |__   ___   __| |___
     # | |    / _ \ / _` |/ _` | | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
     # | |___| (_) | (_| | (_| | | |  | |  __/ |_| | | | (_) | (_| \__ \
     # \_____/\___/ \__,_|\__,_| \_|  |_/\___|\__|_| |_|\___/ \__,_|___/
@@ -1187,7 +1205,7 @@ class TxtDataProcessor(DataProcessor):
             if line.strip() == "Steps:":
                 return file[i + 1 :]
         return list()
-    
+
     # Helper method for save data functions:
     def loadMoldRelease(self):
         items = []
@@ -1216,14 +1234,14 @@ class TxtDataProcessor(DataProcessor):
         # Return list
         return items
 
-    # ______     _   _                         ______                _   _                 
-    # | ___ \   | | | |                        |  ___|              | | (_)                
-    # | |_/ /_ _| |_| |____      ____ _ _   _  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___ 
+    # ______     _   _                         ______                _   _
+    # | ___ \   | | | |                        |  ___|              | | (_)
+    # | |_/ /_ _| |_| |____      ____ _ _   _  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
     # |  __/ _` | __| '_ \ \ /\ / / _` | | | | |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
     # | | | (_| | |_| | | \ V  V / (_| | |_| | | | | |_| | | | | (__| |_| | (_) | | | \__ \
     # \_|  \__,_|\__|_| |_|\_/\_/ \__,_|\__, | \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
-    #                                    __/ |                                             
-    #                                   |___/                                              
+    #                                    __/ |
+    #                                   |___/
     # All of the following functions either return a file pathway in the form
     # of a string, or a boolean for weather or not a file exists.
 
@@ -1296,9 +1314,9 @@ class TxtDataProcessor(DataProcessor):
             self.wireTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
         )
 
-    #  _   _                _            ______                _   _                 
-    # | | | |              | |           |  ___|              | | (_)                
-    # | |_| | ___  __ _  __| | ___ _ __  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___ 
+    #  _   _                _            ______                _   _
+    # | | | |              | |           |  ___|              | | (_)
+    # | |_| | ___  __ _  __| | ___ _ __  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
     # |  _  |/ _ \/ _` |/ _` |/ _ \ '__| |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
     # | | | |  __/ (_| | (_| |  __/ |    | | | |_| | | | | (__| |_| | (_) | | | \__ \
     # \_| |_/\___|\__,_|\__,_|\___|_|    \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
@@ -1398,22 +1416,21 @@ class TxtDataProcessor(DataProcessor):
             "Flood Epoxy Work Time (H:M:S) (Right)",
         ]
 
-
-    # ___  ____            _   _      _                     
-    # |  \/  (_)          | | | |    | |                    
-    # | .  . |_ ___  ___  | |_| | ___| |_ __   ___ _ __ ___ 
+    # ___  ____            _   _      _
+    # |  \/  (_)          | | | |    | |
+    # | .  . |_ ___  ___  | |_| | ___| |_ __   ___ _ __ ___
     # | |\/| | / __|/ __| |  _  |/ _ \ | '_ \ / _ \ '__/ __|
     # | |  | | \__ \ (__  | | | |  __/ | |_) |  __/ |  \__ \
     # \_|  |_/_|___/\___| \_| |_/\___|_| .__/ \___|_|  |___/
-    #                                  | |                  
-    #                                  |_|                  
+    #                                  | |
+    #                                  |_|
     # Other helper functions
 
     # make a human readable timestamp
     @staticmethod
     def timestamp():
         return datetime.now().strftime("%Y-%m-%d %H:%M")
-    
+
     # check if wire spool has been QC'd
     # returns a boolean
     def wireQCd(self, wire):
@@ -1424,9 +1441,9 @@ class TxtDataProcessor(DataProcessor):
                 qcdwires.append(row[0])
         qcdwires = qcdwires[1:]
         return wire in qcdwires
-    
+
     # gets all comments for all pros and returns a big string
-    def getCommentText(self,):  
+    def getCommentText(self,):
         # read 7 files and return one big string, only called once in pangui
         allComments = ""  # string to put comments into
 
@@ -1440,11 +1457,11 @@ class TxtDataProcessor(DataProcessor):
             allComments += comments  # add the comments we just got
 
         return allComments  # return all the comments!
-    
+
     # check if worker has street cred
     def checkCredentials(self):
         return self.credentialChecker.checkCredentials(self.sessionWorkers)
-    
+
     # another check if worker has street cred
     def validateWorkerID(self, worker):
         if self.validWorkers == []:
@@ -1469,21 +1486,22 @@ class TxtDataProcessor(DataProcessor):
     # rid of it causes a crash
     def workerLoggedIn(self, worker):
         return any([worker.upper() in info for info in self.workerInformation])
-    
+
     # does things for SQL processor, not TXT.
     # needs to exist to appease the python gods?
     def handleClose(self):
         pass
 
 
-#  _____  _____ _      ______                                       
-# /  ___||  _  | |     | ___ \                                      
-# \ `--. | | | | |     | |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+#  _____  _____ _      ______
+# /  ___||  _  | |     | ___ \
+# \ `--. | | | | |     | |_/ / __ ___   ___ ___  ___ ___  ___  _ __
 #  `--. \| | | | |     |  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
-# /\__/ /\ \/' / |____ | |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
-# \____/  \_/\_\_____/ \_|  |_|  \___/ \___\___||___/___/\___/|_|   
-#                                                                   
-#                                                                   
+# /\__/ /\ \/' / |____ | |  | | | (_) | (_|  __/\__ \__ \ (_) | |
+# \____/  \_/\_\_____/ \_|  |_|  \___/ \___\___||___/___/\___/|_|
+#
+#
+
 
 class SQLDataProcessor(DataProcessor):
     def __init__(self, gui):
@@ -2424,14 +2442,15 @@ class SQLDataProcessor(DataProcessor):
         ]
 
 
-# ___  ___      _       
-# |  \/  |     (_)      
-# | .  . | __ _ _ _ __  
-# | |\/| |/ _` | | '_ \ 
+# ___  ___      _
+# |  \/  |     (_)
+# | .  . | __ _ _ _ __
+# | |\/| |/ _` | | '_ \
 # | |  | | (_| | | | | |
 # \_|  |_/\__,_|_|_| |_|
-#                       
-#                       
+#
+#
+
 
 def main():
     MultipleDataProcessor(object(), save2txt=True, save2SQL=True)
