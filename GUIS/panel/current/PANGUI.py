@@ -1136,12 +1136,21 @@ class panelGUI(QMainWindow):
     def _init_finish_button(self):
         self.finishButton = self.ui.FinishButton
         self.finishButton.setDisabled(True)
+        
+        # save all the current data
+        self.finishButton.clicked.connect(self.saveData)
+
+        # clear mold release
         self.finishButton.clicked.connect(lambda: self.suppliesList.clearMoldRelease())
+
+        # stop vestigal timer that creates many bugs if we get rid of it
         self.finishButton.clicked.connect(
             lambda: self.timers[5].stop()
             if self.stepsList.allStepsChecked() and self.pro == 3
             else None
-        )  # Stop the pro 3 timer when finish button is pushed     TODO: for pro 5?
+        )  # Stop the pro 3 timer when finish button is pushed
+
+        # stop running current process
         self.finishButton.clicked.connect(
             lambda clicked: self.stopRunning(self.finishButton.text() == "Pause")
         )
@@ -1409,6 +1418,7 @@ class panelGUI(QMainWindow):
 
         # Pause GUI
         if pause:
+            self.saveData()
             self.dialogBox = DialogBox(self.DP.getSessionWorkers())
             self.dialogBox.connectClose(self.closeGUI)
             self.dialogBox.connectResume(self.resume)
@@ -1418,7 +1428,7 @@ class panelGUI(QMainWindow):
         else:
 
             # Timer Information
-            self.stopAllTimers()
+            self.stopAllTimers() # toki wo tomare
 
             # Supplies List
             # self.suppliesList.clearTPS()
