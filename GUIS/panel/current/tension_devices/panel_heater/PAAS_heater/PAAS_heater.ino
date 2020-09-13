@@ -16,18 +16,15 @@ float setpointB = 43.6;
 float setpointC = 50.0; 
 int valA=255;
 int valB=255;
-float Pa=5.0;
-float Pb=5.0;
+float Pa=5.0;  
+float Pb=5.0;  
 float tempA;
 float temp2;
+float usrsp;  // [0724] user choice setpoint temperature 
 
-float setpoint2;  //[0622]
-char paas2='x'; //[0624] will get user input
-//const char paas2 = 'b'; // identification of 2nd PAAS plate used with PAAS-A 
-//if (paas2=='b') setpoint2=setpointB;
-//else setpoint2=setpointC; // PA only does not use sp2
-
-const int32_t wait = 8;//temp, will be 60;  // 60seconds
+float setpoint2;  
+char paas2='x'; // placeholder for user input
+const int32_t wait = 8; // time between data points [seconds]
 const int32_t holdtime = 300; // [minutes] time to hold temperature at setpoint
 int32_t holdstart;
 uint8_t state=0;
@@ -42,29 +39,33 @@ void setup() {
   maxamp.begin(MAX31865_2WIRE);
   maxamp2.begin(MAX31865_2WIRE);
   //display_status();
-  //wdt_enable(WDTO_2S); //[0624] wait to enable until user enter paas type
+  //wdt_enable(WDTO_2S); 
 }
 
 void loop() {
   while (Serial.available() && (paas2!='b' && paas2!='c' && paas2!='0')){ // only collects paas2 once
     Serial.println("Enter second PAAS type (B or C) or enter 0 if heating PAAS-A only");
-    char usrkey[10];  // character array to get paas2. size >=2 since newline counts as char
+    char usrkey[5];  // character array to get paas2 and user choice setpoint 
     byte len = Serial.readBytesUntil('\n',usrkey,sizeof(usrkey));  // read bytes into usrkey until hit enter
-    //Serial.println(usrkey);
-    paas2=usrkey[0];
-    //Serial.println(paas2);
     usrkey[len]=0; 
-    char *pKbd = usrkey;
+    char *pKbd = usrkey; 
     paas2 = *pKbd;  
-    pKbd++;
+    pKbd++; 
+    usrsp = atof(pKbd); 
+    if (usrsp<=55 && usrsp>0){  // limit to 55C; sp>0 checks if value collected from user input
+      if (usrsp!=setpointA){  //new setpoint
+        state=0;            // resets holdstart to get full holdtime at new setpoint
+        setpointA = usrsp; 
+        setpointB = min(setpointA,44);   // testing to get better match at low temp
+        setpointC = min(setpointA,50);   // testing to get better match at low temp
+        //setpointB = setpointA*0.87-0.73;  // approx, based on PAAS-B correction for RTD location
+        //setpointC = setpointA*0.91+0.37; // approx, based on PAAS-C correction for RTD location
+      }
+    }
   }
   if (paas2=='b' | paas2=='c' | paas2=='0'){  // type of paas selected, do heat stuff
-    //Serial.println("has escaped from user input while");
-    //Serial.println(paas2);
     if (paas2=='b') setpoint2=setpointB;
     else setpoint2=setpointC; // PA only does not use sp2
-    //Serial.println(setpoint2);
-
     //wdt_enable(WDTO_2S); // measurements and PWM values take about 332ms
     static uint32_t start;  
     uint32_t now = millis();  
@@ -99,7 +100,7 @@ void loop() {
     delay(10);
     //wdt_reset();
   Serial.println("reseting paas2");
-  paas2='x'; //temp for build python interface
+  paas2='x'; // python interface resends choice on next pass
   while (!Serial.available()) delay(100);
     
   }
@@ -107,7 +108,6 @@ void loop() {
 
 void temp_control(){
   tempA = maxamp.temperature(RNOMINAL_PTCO, RREF);
-  //Serial.print("paas2 ");Serial.println(paas2);
   if (paas2!='0'){
     float dT;
     temp2 = maxamp2.temperature(RNOMINAL_PTCO2, RREF);
@@ -141,13 +141,14 @@ void temp_control(){
 }
 
 void display_status(){
-  Serial.println("PAAS-B: RTD in corner -> expect lower temperature than surface");
-  Serial.println("PAAS-C: testing calibration -> expect apparent temp. diff. up to 5C");
+  //Serial.println("PAAS-B: RTD in corner -> expect lower temperature than surface");
+  //Serial.println("PAAS-C: testing calibration -> expect apparent temp. diff. up to 5C");
   Serial.print("Temperature 1 = "); Serial.println(maxamp.temperature(RNOMINAL_PTCO, RREF));
-  //if (paas2=='0') Serial.println("Temperature 2 = none");
-  //else {Serial.print("Temperature 2 = "); Serial.println(maxamp2.temperature(RNOMINAL_PTCO2, RREF));}
   Serial.print("Temperature 2 = "); Serial.println(maxamp2.temperature(RNOMINAL_PTCO2, RREF));
   Serial.print("Time = ");Serial.println(millis());
+  Serial.print("SetpointA = ");Serial.println(setpointA); //[debug]
+  Serial.print("SetpointB = ");Serial.println(setpointB);
+  Serial.print("SetpointC = ");Serial.println(setpointC);
   delay(10);
 }
 
