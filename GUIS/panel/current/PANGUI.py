@@ -1723,7 +1723,7 @@ class panelGUI(QMainWindow):
         background_color_invert = invert(background_color)
 
         stylesheet = (
-            "QMainWindow, QWidget#centralwidget, QWidget#stepsWidget, QWidget#toolWidget, QWidget#partWidget, QWidget#supplyWidget, QWidget#moldReleaseWidget, QWidget#scrollAreaWidgetContents { background-color: rgb"
+            "QMainWindow, QWidget#centralwidget, QDialog, QMessageBox, QWidget#stepsWidget, QWidget#toolWidget, QWidget#partWidget, QWidget#supplyWidget, QWidget#moldReleaseWidget, QWidget#scrollAreaWidgetContents { background-color: rgb"
             + f"{background_color};"
             + " }\n"
             "QLineEdit { "
@@ -4605,8 +4605,21 @@ class panelGUI(QMainWindow):
     # creates panel heater gui window
     # uses HeatControl from GUIs/current/tension_devices/panel_heater/PanelHeater.py
     def panelHeaterPopup(self):
+        
         if self.checkDevice() == True:  # if no device connected,
             return  # return from this function
+        
+        if self.panelHeaterWindow is not None:  # if a window already exists
+            buttonReply = QMessageBox.question( # prompt user, ask if they want to kill old window
+                self, 
+                'Panel Heater Window', 
+                "If a panel heater window is already open, launching a new one will close the old one.  Continue?", 
+                QMessageBox.Yes | QMessageBox.Cancel,    # button options
+                QMessageBox.Cancel)                     # default selection
+            if buttonReply == QMessageBox.Yes:
+                self.panelHeaterWindow = None   # close the window!
+            else:
+                return # don't close the window!  keep it safe by returning!
 
         if self.panelHeaterWindow == None:  # if no window yet,
             # get the current panel ID (one of the inputs will have text, the others will have none)
