@@ -523,7 +523,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -594,6 +594,9 @@
                        <property name="maxLength">
                         <number>7</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>PIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="5" column="2">
@@ -642,6 +645,9 @@
                        <property name="maxLength">
                         <number>6</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>MIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="5" column="1">
@@ -658,6 +664,9 @@
                        </property>
                        <property name="maxLength">
                         <number>7</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -704,6 +713,9 @@
                        <property name="maxLength">
                         <number>7</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>PIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="1" column="0">
@@ -735,6 +747,9 @@
                        <property name="maxLength">
                         <number>7</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>PIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="6" column="1">
@@ -751,6 +766,9 @@
                        </property>
                        <property name="maxLength">
                         <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>ALF***</string>
                        </property>
                       </widget>
                      </item>
@@ -820,6 +838,9 @@
                        <property name="maxLength">
                         <number>6</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>BIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="6" column="3">
@@ -836,6 +857,9 @@
                        </property>
                        <property name="maxLength">
                         <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>ALF***</string>
                        </property>
                       </widget>
                      </item>
@@ -899,6 +923,9 @@
                        <property name="maxLength">
                         <number>5</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>BP***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="4" column="3">
@@ -916,6 +943,9 @@
                        <property name="maxLength">
                         <number>7</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>PIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="1" column="1">
@@ -932,6 +962,9 @@
                        </property>
                        <property name="maxLength">
                         <number>5</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>MN***</string>
                        </property>
                       </widget>
                      </item>
@@ -967,6 +1000,9 @@
                        <property name="maxLength">
                         <number>7</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>PIR***</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="7" column="0">
@@ -984,10 +1020,24 @@
                       </widget>
                      </item>
                      <item row="7" column="1">
-                      <widget class="QLineEdit" name="paasAInput"/>
+                      <widget class="QLineEdit" name="paasAInput">
+                       <property name="maxLength">
+                        <number>9</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>PAAS A-**</string>
+                       </property>
+                      </widget>
                      </item>
                      <item row="7" column="3">
-                      <widget class="QLineEdit" name="paasCInput"/>
+                      <widget class="QLineEdit" name="paasCInput">
+                       <property name="maxLength">
+                        <number>9</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>PAAS C-**</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -1535,6 +1585,9 @@
                        <property name="maxLength">
                         <number>6</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="1" column="0" colspan="2">
@@ -1953,6 +2006,9 @@ Heater GUI</string>
                     <property name="maxLength">
                      <number>5</number>
                     </property>
+                    <property name="placeholderText">
+                     <string>MN***</string>
+                    </property>
                    </widget>
                   </item>
                   <item row="0" column="2" rowspan="2">
@@ -1988,6 +2044,9 @@ Heater GUI</string>
                        <property name="maxLength">
                         <number>8</number>
                        </property>
+                       <property name="placeholderText">
+                        <string>LPAL****</string>
+                       </property>
                       </widget>
                      </item>
                      <item row="0" column="1">
@@ -2010,6 +2069,9 @@ Heater GUI</string>
                        </property>
                        <property name="maxLength">
                         <number>8</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>LPAL****</string>
                        </property>
                       </widget>
                      </item>
@@ -2077,6 +2139,9 @@ Heater GUI</string>
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="placeholderText">
+                     <string>PAAS B-**</string>
+                    </property>
                    </widget>
                   </item>
                   <item row="1" column="0">
@@ -2134,6 +2199,9 @@ Heater GUI</string>
                        </property>
                        <property name="maxLength">
                         <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
@@ -2302,6 +2370,9 @@ Heater GUI</string>
                        </property>
                        <property name="maxLength">
                         <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
@@ -2777,6 +2848,9 @@ Heater GUI</string>
                       <property name="maxLength">
                        <number>5</number>
                       </property>
+                      <property name="placeholderText">
+                       <string>MN***</string>
+                      </property>
                      </widget>
                     </item>
                     <item row="1" column="0">
@@ -2802,6 +2876,9 @@ Heater GUI</string>
                       </property>
                       <property name="maxLength">
                        <number>11</number>
+                      </property>
+                      <property name="placeholderText">
+                       <string>WIRE.******</string>
                       </property>
                      </widget>
                     </item>
@@ -3128,6 +3205,9 @@ Tensioner</string>
                       <property name="maxLength">
                        <number>5</number>
                       </property>
+                      <property name="placeholderText">
+                       <string>MN***</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -3279,6 +3359,9 @@ Tensioner</string>
                          </property>
                          <property name="maxLength">
                           <number>6</number>
+                         </property>
+                         <property name="placeholderText">
+                          <string>EP****</string>
                          </property>
                         </widget>
                        </item>
@@ -3445,6 +3528,9 @@ Tensioner</string>
                          <property name="maxLength">
                           <number>6</number>
                          </property>
+                         <property name="placeholderText">
+                          <string>EP****</string>
+                         </property>
                         </widget>
                        </item>
                        <item row="1" column="1">
@@ -3600,6 +3686,9 @@ Tensioner</string>
                            <property name="maxLength">
                             <number>6</number>
                            </property>
+                           <property name="placeholderText">
+                            <string>EP****</string>
+                           </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
@@ -3752,6 +3841,9 @@ Tensioner</string>
                            </property>
                            <property name="maxLength">
                             <number>6</number>
+                           </property>
+                           <property name="placeholderText">
+                            <string>EP****</string>
                            </property>
                           </widget>
                          </item>
@@ -3919,6 +4011,9 @@ Tensioner</string>
                     </property>
                     <property name="maxLength">
                      <number>5</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>MN***</string>
                     </property>
                    </widget>
                   </item>
@@ -4222,6 +4317,9 @@ Tensioner</string>
                       <property name="maxLength">
                        <number>5</number>
                       </property>
+                      <property name="placeholderText">
+                       <string>F***</string>
+                      </property>
                      </widget>
                     </item>
                     <item row="0" column="0">
@@ -4246,6 +4344,9 @@ Tensioner</string>
                       <property name="maxLength">
                        <number>5</number>
                       </property>
+                      <property name="placeholderText">
+                       <string>MN***</string>
+                      </property>
                      </widget>
                     </item>
                     <item row="0" column="2">
@@ -4264,7 +4365,7 @@ Tensioner</string>
                        <number>5</number>
                       </property>
                       <property name="placeholderText">
-                       <string>Left Rib</string>
+                       <string>Left Rib (MR***)</string>
                       </property>
                      </widget>
                     </item>
@@ -4277,7 +4378,7 @@ Tensioner</string>
                        <number>5</number>
                       </property>
                       <property name="placeholderText">
-                       <string>Right Rib</string>
+                       <string>Right Rib (MR***)</string>
                       </property>
                      </widget>
                     </item>
@@ -4507,6 +4608,9 @@ Tensioner</string>
                      <property name="maxLength">
                       <number>6</number>
                      </property>
+                     <property name="placeholderText">
+                      <string>EP****</string>
+                     </property>
                     </widget>
                    </item>
                    <item row="0" column="0">
@@ -4601,6 +4705,9 @@ Tensioner</string>
                      <property name="maxLength">
                       <number>6</number>
                      </property>
+                     <property name="placeholderText">
+                      <string>EP****</string>
+                     </property>
                     </widget>
                    </item>
                    <item row="1" column="2">
@@ -4613,6 +4720,9 @@ Tensioner</string>
                      </property>
                      <property name="maxLength">
                       <number>6</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string>EP****</string>
                      </property>
                     </widget>
                    </item>
@@ -5024,6 +5134,9 @@ Heater GUI</string>
                       <property name="maxLength">
                        <number>5</number>
                       </property>
+                      <property name="placeholderText">
+                       <string>MN***</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -5075,6 +5188,9 @@ Heater GUI</string>
                        </property>
                        <property name="maxLength">
                         <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
@@ -5192,6 +5308,9 @@ Heater GUI</string>
                        </property>
                        <property name="maxLength">
                         <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
