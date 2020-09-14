@@ -338,14 +338,14 @@ class facileDBGUI(QMainWindow):
 
         partsQuery = sqla.select(
             [
-                self.panelsTable.columns.number,
-                panelPartUsage.columns.panel_part,
-                panelPartUsage.columns.panel,
+                self.panelsTable.columns.number,    # panel number
+                panelPartUsage.columns.panel_part,  # panel part ID
+                panelPartUsage.columns.panel,   # panel straw_location ID
                 panelPartUsage.columns.left_right,  # ALF L/R
                 panelPartActual.columns.type,  # type of part (MIR, PIR, ALF, etc.)
                 panelPartActual.columns.number,  # part number
                 panelPartActual.columns.left_right,  # PIR l/R
-                panelPartActual.columns.letter,  # PIR A/B/C
+                panelPartActual.columns.letter,  # PIR A/B/C, PAAS A/B/C
             ]
         ).where(self.panelsTable.columns.number == self.panelNumber)
 
@@ -361,7 +361,6 @@ class facileDBGUI(QMainWindow):
 
         resultProxy2 = self.connection.execute(partsQuery)
         resultSet2 = resultProxy2.fetchall()
-        # print("setup",resultSet2)
 
         for partTuple in resultSet2:
             self.sortPanelParts(partTuple)
@@ -729,7 +728,8 @@ class facileDBGUI(QMainWindow):
     #        ░    ░        ░  ░ ░
     #                         ░
 
-    # function to help sift through partsQuery results, also displays found data (helper for findPanelParts)
+    # function to help sift through partsQuery results, also displays found data
+    # this is essentially a helper for findPanelParts()
     def sortPanelParts(self, partTuple):
         # I apologise for this abhorrent block of code with 15 too many if/elif statements
         # this could potentially be avoided with a dictionary?
@@ -751,6 +751,13 @@ class facileDBGUI(QMainWindow):
                     self.ui.ringsPRBLE.setText(str(partTuple[5]))
                 elif partTuple[7] == "C":
                     self.ui.ringsPRCLE.setText(str(partTuple[5]))
+        elif partTuple[4] == "PAAS":
+            if partTuple[7] == "A":
+                self.ui.paasALE.setText(str(partTuple[5]))
+            if partTuple[7] == "B":
+                self.ui.paasBLE.setText(str(partTuple[5]))
+            if partTuple[7] == "C":
+                self.ui.paasCLE.setText(str(partTuple[5]))
         elif partTuple[4] == "ALF":
             if partTuple[3] == "L":
                 self.ui.ringsALF1LE.setText(str(partTuple[5]))
