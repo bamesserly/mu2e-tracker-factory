@@ -924,9 +924,8 @@ class panelGUI(QMainWindow):
         )
 
         for input in self.panelInput:
-            input.editingFinished.connect(self.loadpro)
-            input.editingFinished.connect(lambda: input.setEnabled(False))
-            input.returnPressed.connect(lambda: None)
+            input.editingFinished.connect(self.startRunning)    # TAB BUTTON
+            input.returnPressed.connect(lambda: None)           # ENTER BUTTON
 
     def _init_validators(self):
         # TODO: write more comments in here
@@ -1367,6 +1366,10 @@ class panelGUI(QMainWindow):
     """
 
     def startRunning(self):
+        # Ensure that all parts have been checked off!
+        if not (self.checkSupplies()):  # or DEBUG
+            return
+
         # Record start in data processor
         self.saveData()
         self.DP.saveStart()
@@ -3859,6 +3862,10 @@ class panelGUI(QMainWindow):
     ###
 
     def pro4part0(self):
+        # Ensure that all parts have been checked off
+        if not (self.checkSupplies() or DEBUG):
+            return
+
         # Ensure that all inputs are valid
         # indicies is the location of the data you want checked in the list of user input stuff
         if not self.validateInput(indices=[0]):
@@ -4023,6 +4030,10 @@ class panelGUI(QMainWindow):
     ###
     # Very little to do here.
     def pro5part0(self):
+        # Ensure that all parts have been checked off
+        if not (self.checkSupplies() or DEBUG):
+            return
+
         if not self.validateInput(indices=[0]):
             print("Validation Failed")
             return
