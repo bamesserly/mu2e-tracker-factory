@@ -1389,6 +1389,8 @@ class panelGUI(QMainWindow):
         # Change finish button text
         self.finishButton.setText("Pause")
 
+        self.displayComments()
+
     """
     closeGUI(self)
 
@@ -2704,6 +2706,8 @@ class panelGUI(QMainWindow):
                 self.startTimer(1)
             else:
                 self.ui.epoxy_applied1.setDisabled(True)
+        
+        self.displayComments()
 
     """
     parsepro2Data(self, data)
@@ -2865,6 +2869,9 @@ class panelGUI(QMainWindow):
         if data[10] is not None:
             self.ui.paasBInput.setText(data[10])
             self.ui.paasBInput.setDisabled(True)
+        
+        # comments
+        self.displayComments()
 
     """
     parsepro3Data(self, data)
@@ -2895,6 +2902,8 @@ class panelGUI(QMainWindow):
                 self.startTimer(5)
         else:
             self.startTimer(5)
+        
+        self.displayComments()
 
     def parsePro4Data(self, data):
         # PANEL INPUT
@@ -3123,6 +3132,9 @@ class panelGUI(QMainWindow):
         else:
             self.ui.epoxy_batch_6.setEnabled(True)
             self.ui.epoxyMixedROP.setEnabled(True)
+        
+        # comments
+        self.displayComments()
 
     def parsePro5Data(self, data):
         # The start button is the first thing to (indirectly?) trigger this, and panel input
@@ -3130,6 +3142,8 @@ class panelGUI(QMainWindow):
         # So really all this does is validates the panel input and prints stuff if it's invalid
         if not self.validateInput(indices=[0]):
             print("\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n")
+        
+        self.displayComments()
 
     """
     parsepro4Data(self, data)
@@ -3242,6 +3256,8 @@ class panelGUI(QMainWindow):
                 self.ui.heat_finished4.setDisabled(True)
                 self.ui.temp4_4.setDisabled(True)
                 self.ui.temp4_5.setDisabled(True)
+        
+        self.displayComments()
 
     """
     parsepro7Data(self, data)
@@ -3313,6 +3329,8 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_3.setDisabled(False)
             else:
                 self.ui.epoxy_applied5_3.setDisabled(True)
+        
+        self.displayComments()
 
     ###  ____                 ___
     ### |  _ \  __ _ _   _   / _ \ _ __   ___
