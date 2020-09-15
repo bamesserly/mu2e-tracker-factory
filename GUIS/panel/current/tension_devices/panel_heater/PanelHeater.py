@@ -1,5 +1,6 @@
 #### run_heat_control.py
-#### python interface to collect and visualize data from [PAAS_heater_0624.ino]
+#### python interface to collect and visualize data from [PAAS_heater_0722b.ino]
+#### variable temperature setpoint input
 
 import serial  ## from pyserial
 import serial.tools.list_ports
@@ -9,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import traceback
 import threading
-from pathlib import Path
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -31,7 +31,7 @@ class HeatControl(QMainWindow):
     """ Python interface to collect and visualize data from PAAS heater control system """
 
     def __init__(
-        self, port, panel, wait=60000, ndatapts=600, parent=None, saveMethod=None
+        self, port, panel, wait=120000, ndatapts=300, parent=None, saveMethod=None
     ):
         super(HeatControl, self).__init__(parent)
         if port == "GUI":  # PANGUI doesn't have a get port function
@@ -59,6 +59,9 @@ class HeatControl(QMainWindow):
         self.ui.paas2_box.currentIndexChanged.connect(self.selectpaas)
         self.ui.start_button.setDisabled(True)
         self.ui.end_data.clicked.connect(self.endtest)
+
+        ## user choice temperature setpoint
+        self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
         print("initialized")
 
     def saveMethod_placeholder(self):
@@ -73,11 +76,23 @@ class HeatControl(QMainWindow):
         else:
             self.ui.start_button.setDisabled(True)
 
+    def update_setpoint(self):
+        """ Get initial user choice temperature setpoint, or change setpoint
+            partway through heat cycle, e.g. after funnels removed """
+        self.setpt = int(self.ui.setpt_box.currentText())
+        self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
+        # if thread already running, send it the new setpoint
+        if self.hct:
+            print("sending sp", self.setpt)
+            self.hct.setpt = self.setpt
+
     def start_data(self):
         """ Start serial interface and data collection thread """
         self.ui.start_button.setDisabled(True)
         self.ui.paas2_box.setDisabled(True)
-        self.paas2input = self.ui.paas2_box.currentText()
+        self.paas2input = self.ui.paas2_box.currentText().split()[0]
+        print("2nd PAAS type:", self.paas2input)
+        self.update_setpoint()  # initial temperature setpoint
         ## map combobox entries to character to send via serial
         paas2dict = {"PAAS-B": "b", "PAAS-C": "c", "None": "0"}
         micro_params = {"port": self.port, "baudrate": 2000000, "timeout": 0.08}
@@ -96,7 +111,7 @@ class HeatControl(QMainWindow):
 
         ## run data collection from separate thread to avoid freezing GUI
         self.interval.timeout.connect(self.next)
-        self.hct = DataThread(self.micro, self.panel, self.paastype)
+        self.hct = DataThread(self.micro, self.panel, self.paastype, self.setpt)
         self.hct.start()
         self.interval.start(self.wait)  # get data at every timeout
 
@@ -165,12 +180,13 @@ class HeatControl(QMainWindow):
 class DataThread(threading.Thread):
     """ Read data from Arduino in temperature control box """
 
-    def __init__(self, micro, panel, paastype):
+    def __init__(self, micro, panel, paastype, setpoint):
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
         self.micro = micro
         self.paastype = paastype
+        self.setpt = setpoint
         self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
         self.datafile = (
             self.directory
@@ -193,6 +209,7 @@ class DataThread(threading.Thread):
         n, nmax = 0, 40
         while self.running.isSet():
             self.micro.write(self.paastype)
+            self.micro.write(str(self.setpt).encode("utf8"))  # [0727]
             self.micro.write(b"\n")
             ## extract measurements
             temp1, temp2 = "", ""
@@ -201,6 +218,7 @@ class DataThread(threading.Thread):
                 if test == "":
                     n += 1
                     self.micro.write(self.paastype)
+                    self.micro.write(str(self.setpt).encode("utf8"))  # [0727]
                     self.micro.write(b"\n")
                     continue
                 if test.strip().split()[1] == "1":
@@ -213,8 +231,8 @@ class DataThread(threading.Thread):
             if n == nmax:  # probable error with serial connection
                 print("Error with serial connection ->")
                 # clear temps to not send old value if requested by GUI
-                self.temp1 = "error"
-                self.temp2 = "error"
+                self.temp1 = 0  # 'error'
+                self.temp2 = 0  # 'error'
                 n = 0
                 return
             else:
@@ -304,6 +322,9 @@ class DataCanvas(FigureCanvas):
             self.axes.legend()
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+
+
+######################################################################################
 
 
 def getport(hardwareID):
