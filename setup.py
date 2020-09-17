@@ -1,4 +1,4 @@
-import shutil, os, sys
+import shutil, os, sys, platform
 from os import path, listdir
 from pathlib import Path
 from subprocess import Popen
@@ -59,6 +59,24 @@ except FileExistsError as e:
     print("    If things aren't working, you might need to refresh this directory.")
 # TODO add exception(s) for when we're (a) not connected to the internet, (b)
 # not connected to network_data_dir, and (c) other.
+if is_official_lab_production:
+    print("... Copying the Data/ dir from the network.")
+    print("    This can take several minutes so grab a cup of coffee.")
+    print("    Beginning copy of Data dir...")
+    try:
+        shutil.copytree(network_data_dir, local_data_dir)
+        print("... Done copying Data dir.")
+    except FileExistsError as e:
+        print("... Data dir already exists here!")
+        print("    If things aren't working, you might need to refresh this directory.")
+else:
+    print("... Checking in Data/ dir exists")
+    if os.path.isdir("Data"):
+        print("    Data/ dir was found.")
+    else:
+        print("    Data/ dir not found")
+        print("    Downlaod and add the Data/ dir to your project")
+        exit()
 
 # ===============================================================================
 # 3. Set locations of local and merge destination databases.
@@ -97,9 +115,14 @@ if not is_official_lab_production:
         shutil.copyfile(local_db, merge_destination_db)
 
     print("... Finally, setting up autoformatter.")
+    system = platform.system
     cmd = 'cd "{0}"; pre-commit install'.format(local_top_dir)
-    p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
-    p.communicate()
+    if system == 'Windows':
+        p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
+        p.communicate()
+    elif system == 'Darwin' or system == 'Linux':
+        p = Popen(cmd, stdout=sys.stdout, shell=True)
+        p.communicate()
     print("    Done setting up autoformatter.")
 
 # ===============================================================================
