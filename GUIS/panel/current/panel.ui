@@ -2997,8 +2997,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>61</width>
-                       <height>18</height>
+                       <width>81</width>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4145,7 +4145,7 @@ Tensioner</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -6716,8 +6716,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>
