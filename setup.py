@@ -57,6 +57,7 @@ try:
 except FileExistsError as e:
     print("... Data dir already exists here!")
     print("    If things aren't working, you might need to refresh this directory.")
+
 # TODO add exception(s) for when we're (a) not connected to the internet, (b)
 # not connected to network_data_dir, and (c) other.
 if is_official_lab_production:
