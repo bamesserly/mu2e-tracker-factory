@@ -930,14 +930,17 @@ class panelGUI(QMainWindow):
             input.returnPressed.connect(lambda: None)
 
     def _init_validators(self):
-        # TODO: write more comments in here
         # Lambda expressions to create and set expression validators
         validator = lambda string: QRegularExpressionValidator(
             QRegularExpression(string)
         )
+
         set_validator = lambda obj, string: obj.setValidator(validator(string))
 
-        # Set text validators to constrain allowed text input
+        # Create then set text validators to constrain allowed text input
+        # Strings passed to validator() are regular expressions
+        #   text inside the parentheses is treated as normal required text
+        #   the \d{X} requires X digits, so \d{3} requires any 3 numbers to be vaild
 
         valid_panel = validator("(MN)\d{3}")
         for input in self.panelInput:
@@ -972,11 +975,11 @@ class panelGUI(QMainWindow):
         self.ui.alfInput.setValidator(valid_alf)
         self.ui.alfInput_2.setValidator(valid_alf)
 
-        valid_paasA = validator("(PAAS)\d{2}")
+        valid_paasA = validator("(PAAS A-)\d{2}")
         self.ui.paasAInput.setValidator(valid_paasA)
-        valid_paasB = validator("(PAAS)\d{2}")
+        valid_paasB = validator("(PAAS B-)\d{2}")
         self.ui.paasBInput.setValidator(valid_paasB)
-        valid_paasC = validator("(PAAS)\d{2}")
+        valid_paasC = validator("(PAAS C-)\d{2}")
         self.ui.paasCInput.setValidator(valid_paasC)
 
         set_validator(self.ui.baseInput1, "(BP)\d{3}")
