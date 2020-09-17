@@ -44,12 +44,12 @@ class Merger:
     merge
         Runs a SQL script against the database session that finds all entries in a given
         table that don't exist in the other database or have been updated (have a more
-        recent timestamp). It then inserts or replaces these queried entries into the 
+        recent timestamp). It then inserts or replaces these queried entries into the
         destination database
 
         Input:
             table   (str)   name of table to be merged
-            execute (bool)  boolean indicating if written script should be executed     
+            execute (bool)  boolean indicating if written script should be executed
 
         Return:
             if execute  =>  (?)     result of self.executeScript()
@@ -113,15 +113,15 @@ class Merger:
         src_prefix = f"{attached_alias}." if not into_attached else str()
         # Generate script
         return f"""
-            INSERT OR REPLACE INTO 
-            {dst_prefix}{table} 
-            SELECT srct.* FROM 
+            INSERT OR REPLACE INTO
+            {dst_prefix}{table}
+            SELECT srct.* FROM
             {src_prefix}{table} srct
-            LEFT OUTER JOIN 
+            LEFT OUTER JOIN
             {dst_prefix}{table} t ON srct.id = t.id
-            WHERE 
-            srct.timestamp > t.timestamp 
-            OR 
+            WHERE
+            srct.timestamp > t.timestamp
+            OR
             t.id IS NULL;
             """
 
@@ -147,9 +147,7 @@ class AutoMerger(Merger, LoopingReusableThread):
 
     def run(self):
         # print(f'\n\nAutomerge into {self.dst_db}\n\n')
-        dateTimeObj = datetime.now()
-        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        print("Automerge complete : ", timestampStr)
+        print("Automerge has begun...")
         LoopingReusableThread.run(self)
 
 
