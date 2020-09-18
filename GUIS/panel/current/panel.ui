@@ -595,7 +595,7 @@
                         <number>7</number>
                        </property>
                        <property name="placeholderText">
-                        <string>PIR****</string>
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -666,7 +666,7 @@
                         <number>7</number>
                        </property>
                        <property name="placeholderText">
-                        <string>PIR****</string>
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -714,7 +714,7 @@
                         <number>7</number>
                        </property>
                        <property name="placeholderText">
-                        <string>PIR****</string>
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -748,7 +748,7 @@
                         <number>7</number>
                        </property>
                        <property name="placeholderText">
-                        <string>PIR****</string>
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -944,7 +944,7 @@
                         <number>7</number>
                        </property>
                        <property name="placeholderText">
-                        <string>PIR****</string>
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -1001,7 +1001,7 @@
                         <number>7</number>
                        </property>
                        <property name="placeholderText">
-                        <string>PIR****</string>
+                        <string>PIR***</string>
                        </property>
                       </widget>
                      </item>
@@ -2982,8 +2982,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>81</width>
-                       <height>28</height>
+                       <width>994</width>
+                       <height>212</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4129,8 +4129,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>28</height>
+                       <width>484</width>
+                       <height>539</height>
                       </rect>
                      </property>
                     </widget>
@@ -6703,8 +6703,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
+  <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
