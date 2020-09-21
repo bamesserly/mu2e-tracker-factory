@@ -22,15 +22,21 @@ def GetOptions():
         "--infile", "-I", help="Full or relative path of input leak rate file."
     )
     parser.add_option(
-        "--is_old_format", "-O", dest="is_new_format", action="store_false", default=True, help="Original csv data format."
+        "--is_old_format",
+        "-O",
+        dest="is_new_format",
+        action="store_false",
+        default=True,
+        help="Original csv data format.",
     )
     options, remainder = parser.parse_args()
     return options
 
 
-def ReadLeakRateFile(infile, is_new_format = "true"):
+def ReadLeakRateFile(infile, is_new_format="true"):
     def ConvertInchesH2OToPSI(pressure_inches_h2O):
         return pressure_inches_h2O / kINCHES_H2O_PER_PSI
+
     if is_new_format:
         # read input file
         df = pd.read_csv(infile, engine="python", header=1, sep="\t")
@@ -46,7 +52,7 @@ def ReadLeakRateFile(infile, is_new_format = "true"):
         df = df.rename(columns={"Elapdays": "TIME(DAYS)"})
 
         ## make a new column: pressure/temp
-        #df['PSI/degC'] = df["PRESSURE(PSI)"]/df["RoomdegC"]
+        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["RoomdegC"]
 
         return df
     else:
@@ -56,36 +62,38 @@ def ReadLeakRateFile(infile, is_new_format = "true"):
         # remove whitespace from column headers
         df.columns = df.columns.str.replace(" ", "")
         df.columns = df.columns.str.replace("\t", "")
-        df.columns = df.columns.str.replace("˚","")
+        df.columns = df.columns.str.replace("˚", "")
 
         # convert pressure from inches of water to psi
-        df['PRESSURE(INH20D)']= ConvertInchesH2OToPSI(df['PRESSURE(INH20D)'])
-        df=df.rename(columns = {'PRESSURE(INH20D)':'PRESSURE(PSI)'})
+        df["PRESSURE(INH20D)"] = ConvertInchesH2OToPSI(df["PRESSURE(INH20D)"])
+        df = df.rename(columns={"PRESSURE(INH20D)": "PRESSURE(PSI)"})
 
         # convert absolute time to elapsed days
         def get_time(time_str):
             """Converts a time string from the datafile to UNIX time."""
-            if '.' in time_str:
+            if "." in time_str:
                 # More than 1 day has passed
-                days,time_s = time_str.split('.')
+                days, time_s = time_str.split(".")
             else:
                 # Less than 1 day has passed
                 days = "0"
                 time_s = time_str
             days = int(days)
-            hours,minutes,seconds = map(int,time_s.split(":"))
+            hours, minutes, seconds = map(int, time_s.split(":"))
 
-            td = datetime.timedelta(days=days,hours=hours,minutes=minutes,seconds=seconds)
+            td = datetime.timedelta(
+                days=days, hours=hours, minutes=minutes, seconds=seconds
+            )
             total_seconds = int(round(td.total_seconds()))
 
-            return total_seconds/24/60/60
+            return total_seconds / 24 / 60 / 60
 
-        df['TIME(hh:mm:ss)']=df['TIME(hh:mm:ss)'].apply(get_time)
-        df=df.rename(columns = {'TIME(hh:mm:ss)':'TIME(DAYS)'})
+        df["TIME(hh:mm:ss)"] = df["TIME(hh:mm:ss)"].apply(get_time)
+        df = df.rename(columns={"TIME(hh:mm:ss)": "TIME(DAYS)"})
 
         ## make a new column: pressure/temp
-        #print(df.columns)
-        #df['PSI/degC'] = df["PRESSURE(PSI)"]/df["TEMPERATURE(C)"]
+        # print(df.columns)
+        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["TEMPERATURE(C)"]
 
         return df
 
@@ -110,7 +118,7 @@ def PlotDataAndFit(df):
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         x_values = np.linspace(time.iloc[0], time.iloc[-1])
-        plt.plot(time, pressure, "o", markersize=1)
+        plt.plot(np.array(time), np.array(pressure), "o", markersize=1)
 
     # Standard numpy least squares linear regression
     def FitAndPlot_1(df, first_segment_endtime):
@@ -124,8 +132,8 @@ def PlotDataAndFit(df):
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 4)
         plt.plot(
-            time,
-            y_values,
+            np.array(time),
+            np.array(y_values),
             label="Least Squares\n{0}+-{1}sccm\nr2={2}".format(
                 leak_rate_in_sccm, round(std_err, 3), round(r_value ** 2, 3)
             ),
@@ -150,8 +158,8 @@ def PlotDataAndFit(df):
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 5)
         plt.plot(
-            time,
-            y_values,
+            np.array(time),
+            np.array(y_values),
             "g",
             label="From first and last points\n{0} sccm".format(leak_rate_in_sccm),
         )
@@ -170,8 +178,8 @@ def PlotDataAndFit(df):
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope[0] * kPSI_PER_DAY_TO_SCCM, 5)
         plt.plot(
-            time,
-            y_values,
+            np.array(time),
+            np.array(y_valueas),
             "r",
             label="least squares 2\n{0} sccm\n(r2={1})".format(
                 leak_rate_in_sccm, round(r_sq, 3)
