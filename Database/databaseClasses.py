@@ -222,7 +222,7 @@ class Failure(BASE, OBJECT):
         self.comment = self._recordComment(comment).id
 
     def _recordComment(self, text):
-        comment = Comment(procedure=self.procedure, text=text)
+        comment = Comment(procedure=self.procedure, text=text, timestamp=int(datetime.now().timestamp()))
         comment.commit()
         return comment
 

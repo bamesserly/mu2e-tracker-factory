@@ -6703,8 +6703,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>
