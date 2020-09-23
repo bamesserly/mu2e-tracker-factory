@@ -924,9 +924,8 @@ class panelGUI(QMainWindow):
         )
 
         for input in self.panelInput:
-            input.editingFinished.connect(self.loadpro)
-            input.editingFinished.connect(lambda: input.setEnabled(False))
-            input.returnPressed.connect(lambda: None)
+            input.editingFinished.connect(self.startRunning)    # TAB BUTTON
+            input.returnPressed.connect(lambda: None)           # ENTER BUTTON
 
     def _init_validators(self):
         # Lambda expressions to create and set expression validators
@@ -1136,12 +1135,21 @@ class panelGUI(QMainWindow):
     def _init_finish_button(self):
         self.finishButton = self.ui.FinishButton
         self.finishButton.setDisabled(True)
+        
+        # save all the current data
+        self.finishButton.clicked.connect(self.saveData)
+
+        # clear mold release
         self.finishButton.clicked.connect(lambda: self.suppliesList.clearMoldRelease())
+
+        # stop vestigal timer that creates many bugs if we get rid of it
         self.finishButton.clicked.connect(
             lambda: self.timers[5].stop()
             if self.stepsList.allStepsChecked() and self.pro == 3
             else None
-        )  # Stop the pro 3 timer when finish button is pushed     TODO: for pro 5?
+        )  # Stop the pro 3 timer when finish button is pushed
+
+        # stop running current process
         self.finishButton.clicked.connect(
             lambda clicked: self.stopRunning(self.finishButton.text() == "Pause")
         )
@@ -1361,6 +1369,10 @@ class panelGUI(QMainWindow):
     """
 
     def startRunning(self):
+        # Ensure that all parts have been checked off!
+        if not (self.checkSupplies()):  # or DEBUG
+            return
+
         # Record start in data processor
         self.saveData()
         self.DP.saveStart()
@@ -1382,6 +1394,8 @@ class panelGUI(QMainWindow):
         )
         # Change finish button text
         self.finishButton.setText("Pause")
+
+        self.displayComments()
 
     """
     closeGUI(self)
@@ -1409,6 +1423,7 @@ class panelGUI(QMainWindow):
 
         # Pause GUI
         if pause:
+            self.saveData()
             self.dialogBox = DialogBox(self.DP.getSessionWorkers())
             self.dialogBox.connectClose(self.closeGUI)
             self.dialogBox.connectResume(self.resume)
@@ -1418,7 +1433,7 @@ class panelGUI(QMainWindow):
         else:
 
             # Timer Information
-            self.stopAllTimers()
+            self.stopAllTimers() # toki wo tomare
 
             # Supplies List
             # self.suppliesList.clearTPS()
@@ -2697,6 +2712,8 @@ class panelGUI(QMainWindow):
                 self.startTimer(1)
             else:
                 self.ui.epoxy_applied1.setDisabled(True)
+        
+        self.displayComments()
 
     """
     parsepro2Data(self, data)
@@ -2858,6 +2875,9 @@ class panelGUI(QMainWindow):
         if data[10] is not None:
             self.ui.paasBInput.setText(data[10])
             self.ui.paasBInput.setDisabled(True)
+        
+        # comments
+        self.displayComments()
 
     """
     parsepro3Data(self, data)
@@ -2888,6 +2908,8 @@ class panelGUI(QMainWindow):
                 self.startTimer(5)
         else:
             self.startTimer(5)
+        
+        self.displayComments()
 
     def parsePro4Data(self, data):
         # PANEL INPUT
@@ -3116,6 +3138,9 @@ class panelGUI(QMainWindow):
         else:
             self.ui.epoxy_batch_6.setEnabled(True)
             self.ui.epoxyMixedROP.setEnabled(True)
+        
+        # comments
+        self.displayComments()
 
     def parsePro5Data(self, data):
         # The start button is the first thing to (indirectly?) trigger this, and panel input
@@ -3123,6 +3148,8 @@ class panelGUI(QMainWindow):
         # So really all this does is validates the panel input and prints stuff if it's invalid
         if not self.validateInput(indices=[0]):
             print("\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n")
+        
+        self.displayComments()
 
     """
     parsepro4Data(self, data)
@@ -3235,6 +3262,8 @@ class panelGUI(QMainWindow):
                 self.ui.heat_finished4.setDisabled(True)
                 self.ui.temp4_4.setDisabled(True)
                 self.ui.temp4_5.setDisabled(True)
+        
+        self.displayComments()
 
     """
     parsepro7Data(self, data)
@@ -3306,6 +3335,8 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_3.setDisabled(False)
             else:
                 self.ui.epoxy_applied5_3.setDisabled(True)
+        
+        self.displayComments()
 
     ###  ____                 ___
     ### |  _ \  __ _ _   _   / _ \ _ __   ___
@@ -3834,6 +3865,10 @@ class panelGUI(QMainWindow):
     ###
 
     def pro4part0(self):
+        # Ensure that all parts have been checked off
+        if not (self.checkSupplies() or DEBUG):
+            return
+
         # Ensure that all inputs are valid
         # indicies is the location of the data you want checked in the list of user input stuff
         if not self.validateInput(indices=[0]):
@@ -3998,6 +4033,10 @@ class panelGUI(QMainWindow):
     ###
     # Very little to do here.
     def pro5part0(self):
+        # Ensure that all parts have been checked off
+        if not (self.checkSupplies() or DEBUG):
+            return
+
         if not self.validateInput(indices=[0]):
             print("Validation Failed")
             return
