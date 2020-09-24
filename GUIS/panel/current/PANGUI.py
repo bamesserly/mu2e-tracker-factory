@@ -924,8 +924,9 @@ class panelGUI(QMainWindow):
         )
 
         for input in self.panelInput:
-            input.editingFinished.connect(self.startRunning)    # TAB BUTTON
-            input.returnPressed.connect(lambda: None)           # ENTER BUTTON
+            input.editingFinished.connect(self.loadpro) # TAB BUTTON
+            input.editingFinished.connect(lambda: input.setEnabled(False))
+            input.returnPressed.connect(lambda: None)   # ENTER BUTTON
 
     def _init_validators(self):
         # Lambda expressions to create and set expression validators
@@ -1370,10 +1371,6 @@ class panelGUI(QMainWindow):
     """
 
     def startRunning(self):
-        # Ensure that all parts have been checked off!
-        if not (self.checkSupplies()):  # or DEBUG
-            return
-
         # Record start in data processor
         self.saveData()
         self.DP.saveStart()
