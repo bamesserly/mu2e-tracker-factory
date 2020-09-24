@@ -44,7 +44,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_3">
            <attribute name="title">
@@ -319,7 +319,7 @@
             <item row="0" column="0">
              <widget class="QStackedWidget" name="suppliesList">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="page_14">
                <layout class="QGridLayout" name="gridLayout_17" rowstretch="1,0">
@@ -402,6 +402,13 @@
                    </widget>
                   </item>
                  </layout>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QPushButton" name="checkEmAllButton">
+                  <property name="text">
+                   <string>Check All Tools, Parts, and Supplies</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -6703,8 +6710,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="proSelectButtons"/>
-  <buttongroup name="saveButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="saveButtons"/>
+  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>

@@ -1338,6 +1338,7 @@ class panelGUI(QMainWindow):
         self.suppliesList.setSaveTPSMethod(self.DP.saveTPS)
         self.suppliesList.loadSuppliesList(*self.DP.loadTPS())
         self.suppliesList.loadMoldReleaseList(self.DP.loadMoldRelease())
+        self.ui.checkEmAllButton.clicked.connect(self.checkEmAll)
 
         # Steps List
         self.stepsList = StepList(
@@ -1511,6 +1512,11 @@ class panelGUI(QMainWindow):
                     event.ignore()  # ignore it!
                     return True  # return True
         return False  # return false (to indicate no filtering has taken place... ?)
+
+    # The best button: check all tools, parts, supplies!
+    def checkEmAll(self):
+        self.suppliesList.checkEmAll()
+
 
     """
     checkProgress(self, pro, x)

@@ -644,10 +644,7 @@ class SuppliesList:
 
         for index, checkbox in enumerate(partsCheckboxes):
             checkbox.clicked.connect(
-                lambda box=checkbox, workerLabel=partsWorkersLabels[
-                    index
-                ], dateLabel=partsDateLabels[index], i=index: self.writeTPS(
-                    "parts", box, workerLabel, dateLabel, i
+                lambda box=checkbox, workerLabel=partsWorkersLabels[index], dateLabel=partsDateLabels[index], i=index: self.writeTPS("parts", box, workerLabel, dateLabel, i
                 )
             )
 
@@ -887,6 +884,48 @@ class SuppliesList:
             self.suppliesLayout.addItem(spacer, index + 1, 1, 1, 4)
         self.connectTPSCheckboxes()
 
+    # Check all checkboxes in TPS!
+    def checkEmAll(self):
+        toolsLabels = self.toolWidget.findChildren(QtWidgets.QLabel)
+        toolsWorkersLabels = list(
+            filter(lambda obj: "_worker" in obj.objectName(), toolsLabels)
+        )
+        toolsDateLabels = list(
+            filter(lambda obj: "_date" in obj.objectName(), toolsLabels)
+        )
+        toolsCheckboxes = self.toolWidget.findChildren(QtWidgets.QCheckBox)
+
+        partsLabels = self.partWidget.findChildren(QtWidgets.QLabel)
+        partsWorkersLabels = list(
+            filter(lambda obj: "_worker" in obj.objectName(), partsLabels)
+        )
+        partsDateLabels = list(
+            filter(lambda obj: "_date" in obj.objectName(), partsLabels)
+        )
+        partsCheckboxes = self.partWidget.findChildren(QtWidgets.QCheckBox)
+
+        suppliesLabels = self.supplyWidget.findChildren(QtWidgets.QLabel)
+        suppliesWorkersLabels = list(
+            filter(lambda obj: "_worker" in obj.objectName(), suppliesLabels)
+        )
+        suppliesDateLabels = list(
+            filter(lambda obj: "_date" in obj.objectName(), suppliesLabels)
+        )
+        suppliesCheckboxes = self.supplyWidget.findChildren(QtWidgets.QCheckBox)
+
+
+        for index, checkbox in enumerate(toolsCheckboxes):
+            checkbox.setChecked(True)
+            self.writeTPS("tools", True, toolsWorkersLabels[index], toolsDateLabels[index], index)
+
+        for index, checkbox in enumerate(partsCheckboxes):
+            checkbox.setChecked(True)
+            self.writeTPS("parts", True, partsWorkersLabels[index], partsDateLabels[index], index)
+
+        for index, checkbox in enumerate(suppliesCheckboxes):
+            checkbox.setChecked(True)
+            self.writeTPS("supplies", True, suppliesWorkersLabels[index], suppliesDateLabels[index], index)
+        
     """
     loadMoldReleaseList(self, data)
 
