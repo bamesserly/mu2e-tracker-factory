@@ -404,7 +404,7 @@
                  </layout>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QPushButton" name="pushButton">
+                 <widget class="QPushButton" name="checkEmAllButton">
                   <property name="text">
                    <string>Check All Tools, Parts, and Supplies</string>
                   </property>
@@ -6710,8 +6710,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="saveButtons"/>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
+  <buttongroup name="PortalButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
