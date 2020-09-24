@@ -27,6 +27,12 @@ REM=============================================================================
 :sub
 cd C:\Users\Mu2e\Desktop\Production
 git status
+git fetch --tags
 git fetch
-git pull
+REM This next, stupid-looking line is how we set the output of the git command
+REM to the variable latesttag.
+REM The git command, by the way, gets the latest tag.
+FOR /F "tokens=* USEBACKQ" %%g IN (`git tag --sort=v:refname`) DO (SET latesttag=%%g)
+echo Checking out latest tag %latesttag%
+git checkout %latesttag%
 git status
