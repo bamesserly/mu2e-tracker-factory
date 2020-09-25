@@ -13,7 +13,10 @@ class removeStraw(QDialog):
         super(removeStraw,self).__init__(parent) 
         self.ui = Ui_Dialogw()
         self.ui.setupUi(self)
-        self.palletDirectory = ''
+        self.palletDirectory = (
+            os.path.dirname(__file__)
+            + "/../../../Data/Pallets/"
+        )
         self.sessionWorkers = []
         self.strawLabels = [self.ui.straw_1,self.ui.straw_2,self.ui.straw_3,self.ui.straw_4,
                             self.ui.straw_5,self.ui.straw_6,self.ui.straw_7,self.ui.straw_8,

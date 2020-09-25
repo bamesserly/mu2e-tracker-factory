@@ -11,10 +11,22 @@ class StrawFailedError(Exception):
         self.message = message
 
 class Check:
-    palletDirectory = '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\Pallets\\'
-    workerDirectory = '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\workers\\straw workers\\CO2 endpiece insertion\\'
-    epoxyDirectory = '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\CO2 endpiece data\\'
-    boardPath = '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\Status Board 464\\'
+    palletDirectory = (
+            os.path.dirname(__file__)
+            + "/../../Data/Pallets/"
+    )
+    workerDirectory = (
+        os.path.dirname(__file__) 
+        + '/../../Data/workers/straw workers/CO2 endpiece insertion/'
+    )
+    epoxyDirectory = (
+        os.path.dirname(__file__) + 
+        '/../../Data/CO2 endpiece data/'
+    )
+    boardPath = (
+        os.path.dirname(__file__)
+        + '/../../Data/Status Board 464/'
+    )
 
     def strawPass(self, CPAL, straw, step):
         PASS = False
