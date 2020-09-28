@@ -15,6 +15,9 @@ kINCHES_H2O_PER_PSI = 27.6799048
 # Unit conversion factor for PSI change per day to sccm
 kPSI_PER_DAY_TO_SCCM = 0.17995993587933934
 
+# Default relative time after which the fit begins (days)
+kFIT_START_TIME = 0.2
+
 
 def GetOptions():
     parser = optparse.OptionParser(usage="usage: %prog [options]")
@@ -29,14 +32,22 @@ def GetOptions():
         default=True,
         help="Original csv data format.",
     )
+    parser.add_option(
+        "--t0",
+        "--fit_start_time",
+        dest="fit_start_time",
+        type="float",
+        help="Fit start point, in days.",
+    )
     options, remainder = parser.parse_args()
     return options
 
 
-def ReadLeakRateFile(infile, is_new_format="true"):
-    def ConvertInchesH2OToPSI(pressure_inches_h2O):
-        return pressure_inches_h2O / kINCHES_H2O_PER_PSI
+def ConvertInchesH2OToPSI(pressure_inches_h2O):
+    return pressure_inches_h2O / kINCHES_H2O_PER_PSI
 
+
+def ReadLeakRateFile(infile, is_new_format="true"):
     if is_new_format:
         # read input file
         df = pd.read_csv(infile, engine="python", header=1, sep="\t")
@@ -98,20 +109,16 @@ def ReadLeakRateFile(infile, is_new_format="true"):
         return df
 
 
-def PlotDataAndFit(df):
+def PlotDataAndFit(df, fit_start_time):
     total_duration = df["TIME(DAYS)"].iat[-1]
-    first_segment_cutoff = 0.2
-    first_segment_endtime = (
-        first_segment_cutoff
-        if total_duration * 0.1 < first_segment_cutoff
-        else total_duration * 0.1
-    )
+    if not fit_start_time:
+        fit_start_time = (
+            kFIT_START_TIME
+            if total_duration * 0.1 < kFIT_START_TIME
+            else total_duration * 0.1
+        )
     print("Total duration of leak test:", total_duration)
-    print(
-        "Performing bilinear fit -- first segment ends at",
-        first_segment_endtime,
-        "days",
-    )
+    print("Fit starts at", fit_start_time, "days")
 
     # Plot full range of data points
     def PlotDataPoints(df):
@@ -121,9 +128,8 @@ def PlotDataAndFit(df):
         plt.plot(np.array(time), np.array(pressure), "o", markersize=1)
 
     # Standard numpy least squares linear regression
-    def FitAndPlot_1(df, first_segment_endtime):
-        # constrict values of fit
-        df = df.loc[df["TIME(DAYS)"] > first_segment_endtime]
+    def FitAndPlot_1(df, fit_start_time):
+        df = df.loc[df["TIME(DAYS)"] > fit_start_time]
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         slope, intercept, r_value, p_value, std_err = stats.linregress(time, pressure)
@@ -134,15 +140,15 @@ def PlotDataAndFit(df):
         plt.plot(
             np.array(time),
             np.array(y_values),
-            label="Least Squares\n{0}+-{1}sccm\nr2={2}".format(
-                leak_rate_in_sccm, round(std_err, 3), round(r_value ** 2, 3)
+            label="Least Squares\n{0}+-{1} sccm\nrsq={2}".format(
+                leak_rate_in_sccm, round(std_err, 4), round(r_value ** 2, 3)
             ),
         )
         return slope, intercept, r_value, p_value, std_err
 
     # From first and last point
-    def FitAndPlot_2(df, first_segment_endtime):
-        df = df.loc[df["TIME(DAYS)"] > first_segment_endtime]
+    def FitAndPlot_2(df, fit_start_time):
+        df = df.loc[df["TIME(DAYS)"] > fit_start_time]
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         x_i = time.iloc[0]
@@ -156,7 +162,7 @@ def PlotDataAndFit(df):
         intercept = coefficients[1]
         print("slope: ", slope, "intercept: ", intercept)
         y_values = intercept + slope * time
-        leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 5)
+        leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 4)
         plt.plot(
             np.array(time),
             np.array(y_values),
@@ -165,8 +171,8 @@ def PlotDataAndFit(df):
         )
 
     # Uses the same as method 1 under the hood
-    def FitAndPlot_3(df, first_segment_endtime):
-        df = df.loc[df["TIME(DAYS)"] > first_segment_endtime]
+    def FitAndPlot_3(df, fit_start_time):
+        df = df.loc[df["TIME(DAYS)"] > fit_start_time]
         time = df["TIME(DAYS)"].to_numpy().reshape((-1, 1))
         pressure = df["PRESSURE(PSI)"].to_numpy()
         model = LinearRegression().fit(time, pressure)
@@ -187,9 +193,9 @@ def PlotDataAndFit(df):
         )
 
     PlotDataPoints(df)
-    FitAndPlot_1(df, first_segment_endtime)
-    FitAndPlot_2(df, first_segment_endtime)
-    # FitAndPlot_3(df, first_segment_endtime)
+    FitAndPlot_1(df, fit_start_time)
+    FitAndPlot_2(df, fit_start_time)
+    # FitAndPlot_3(df, fit_start_time)
 
 
 def main():
@@ -197,13 +203,19 @@ def main():
 
     df = ReadLeakRateFile(options.infile, options.is_new_format)
 
-    PlotDataAndFit(df)
+    PlotDataAndFit(df, options.fit_start_time)
 
     title = options.infile.split("\\")[-1]
     title = title.partition(".")[0]
     plt.title(title)
     plt.legend()
+    plt.xlabel("Days")
+    plt.ylabel("PSI")
     plt.show()
+    tag = "_t0={0}days".format(options.fit_start_time) if options.fit_start_time else ""
+    title = "{0}{1}.pdf".format(title, tag)
+    print("Saving image", title)
+    plt.savefig(title)
 
 
 if __name__ == "__main__":
