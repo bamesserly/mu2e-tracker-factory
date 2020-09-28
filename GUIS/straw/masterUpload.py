@@ -121,8 +121,14 @@ class ResistanceUpload():
     def __init__(self, mode):
         table = "straw_resistance_measurements"
         self.mode = mode
-        self.failed_path = "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
-        self.data_path = "\\\\MU2E-CART1\\Database Backup\\Resistance Testing"
+        self.failed_path = (
+            os.path.dirname(__file__)
+            + '/../../Data/Failure Data/Upload Failure'
+        )
+        self.data_path = (
+            os.path.dirname(__file__)
+            + '/../../Data/Resistance Testing'
+        )
 
         if self.mode == "dev":
             self.url = "https://dbweb6.fnal.gov:8443/hdb/mu2edev/loader" # dev url
