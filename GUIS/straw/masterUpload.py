@@ -26,7 +26,8 @@ class MakeUpload():
         self.table = "straws"
         self.mode = mode
         self.failed_path = "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
-        self.data_path = "\\\\MU2E-CART1\\Database Backup\\Make Straw Data"
+        self.failed_path = (os.path.dirname(__file__) + "..\\..\\Data\\Failure Data\\Upload Failure")
+        self.data_path = (os.path.dirname(__file__) + "..\\..\\Data\\Make Straw Data")
 
         if self.mode == "dev":
             self.url = "https://dbweb6.fnal.gov:8443/hdb/mu2edev/loader" # dev url
