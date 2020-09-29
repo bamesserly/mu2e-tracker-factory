@@ -77,7 +77,6 @@ class LeakTestStatus(QMainWindow):
         self.cutOffTime = 27000 #Makes a decision on pass/fail after this time, even if the uncertainty is not low enough
         self.number_of_chambers = 5
         self.max_chambers = 50
-        self.directory = os.path.dirname(os.path.realpath(__file__)) + '\\'
         
 
         self.cpalDirectory = (
@@ -137,7 +136,7 @@ class LeakTestStatus(QMainWindow):
         
         self.files = {}
         self.straw_list = [] ## Passed straws with saved data
-        self.result = self.directory + 'Leak Test Results.csv'
+        self.result = self.networkDirectory + 'Leak Test Results.csv'
         result = open(self.result,'a+',1)
         result.close()
 #        self.result = self.directory + datetime.now().strftime("%Y-%m-%d_%H%M%S") + '_%s.csv' % self.COM
@@ -442,7 +441,7 @@ class LeakTestStatus(QMainWindow):
                                 slope_err[chamber] = 0
                                 intercept[chamber] = 0
                                 intercept_err[chamber] = 0
-                                with open(self.directory + self.Choosenames[ROW][COL] + '_rawdata.txt',"r+",1) as readfile :
+                                with open(self.networkDirectory + self.Choosenames[ROW][COL] + '_rawdata.txt',"r+",1) as readfile :
                                     for line in readfile:
                                         numbers_float = line.split()[:3]
                                         if numbers_float[2] == '0.00':  
@@ -549,7 +548,7 @@ class LeakTestStatus(QMainWindow):
                                                 'Leak Rate = %.2f +- %.2f x $10^{-5}$ cc/min \n' % (self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)) +\
                                                 straw_status+"\t"+currenttime,
                                                 fontsize = 12, color = 'r')
-                                    plt.savefig(self.directory + self.Choosenames[ROW][COL] + '_fit.pdf')
+                                    plt.savefig(self.networkDirectory + self.Choosenames[ROW][COL] + '_fit.pdf')
                                     plt.clf()
                         
             #sys.stdout.flush()
@@ -603,9 +602,9 @@ class LeakTestStatus(QMainWindow):
             thread.start()
 
     def deleteFiles(self, ROW, COL):
-        path1 = os.path.join(self.directory, f"{self.Choosenames[ROW][COL]}_rawdata.txt")
-        path2 = os.path.join(self.directory, f"{self.Choosenames[ROW][COL]}_fit.pdf")
-        path3 = os.path.join(self.directory, f"{self.Choosenames[ROW][COL]}_fit_temp.pdf")
+        path1 = os.path.join(self.networkDirectory, f"{self.Choosenames[ROW][COL]}_rawdata.txt")
+        path2 = os.path.join(self.networkDirectory, f"{self.Choosenames[ROW][COL]}_fit.pdf")
+        path3 = os.path.join(self.networkDirectory, f"{self.Choosenames[ROW][COL]}_fit_temp.pdf")
         
         if os.path.exists(path1):
             os.remove(path1)
@@ -682,7 +681,7 @@ class LeakTestStatus(QMainWindow):
     def update_name(self,ROW,COL):
         """Change file name based on chamber contents"""
         chamber = ROW*5 + COL
-        filename = self.directory+self.Choosenames[ROW][COL]
+        filename = self.networkDirectory+self.Choosenames[ROW][COL]
         self.files[chamber] = filename + '_rawdata.txt'
         x = open(self.files[chamber],'a+',1)
         print('Saving data to file %s' %self.Choosenames[ROW][COL])
@@ -693,8 +692,8 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber/5)
         COL = chamber % 5
         #print('Plotting data for chamber', chamber)
-        filepath = self.directory + self.Choosenames[ROW][COL] + '_fit.pdf' ## Data is still being saved here. Don't open
-        filepath_temp = self.directory + self.Choosenames[ROW][COL] + '_fit_temp.pdf' ## Static snapshot. Safe to open
+        filepath = self.networkDirectory + self.Choosenames[ROW][COL] + '_fit.pdf' ## Data is still being saved here. Don't open
+        filepath_temp = self.networkDirectory + self.Choosenames[ROW][COL] + '_fit_temp.pdf' ## Static snapshot. Safe to open
         if os.path.exists(filepath_temp):
             try:
                 os.system("TASKKILL /F /IM AcroRd32.exe") ## ?Possibly find a better way to close file
