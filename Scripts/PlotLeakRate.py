@@ -37,6 +37,7 @@ def GetOptions():
         "--fit_start_time",
         dest="fit_start_time",
         type="float",
+        default=None,
         help="Fit start point, in days.",
     )
     options, remainder = parser.parse_args()
@@ -45,6 +46,19 @@ def GetOptions():
 
 def ConvertInchesH2OToPSI(pressure_inches_h2O):
     return pressure_inches_h2O / kINCHES_H2O_PER_PSI
+
+
+# If user did not provide a fit start time, determine as follows:
+# total duration < 0.3 days --> t0 = 0
+# total duration < 2 days   --> t0 = 0.2
+# total duration >= 2 days  --> t0 = 0.1*total duration
+def GetFitStartTime(total_duration):
+    if total_duration < kFIT_START_TIME + 0.1:
+        return 0.
+    elif total_duration * 0.1 < kFIT_START_TIME:
+        return kFIT_START_TIME
+    else:
+        return total_duration * 0.1
 
 
 def ReadLeakRateFile(infile, is_new_format="true"):
@@ -111,12 +125,8 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 
 def PlotDataAndFit(df, fit_start_time):
     total_duration = df["TIME(DAYS)"].iat[-1]
-    if not fit_start_time:
-        fit_start_time = (
-            kFIT_START_TIME
-            if total_duration * 0.1 < kFIT_START_TIME
-            else total_duration * 0.1
-        )
+    if fit_start_time is None:
+        fit_start_time = GetFitStartTime(total_duration)
     print("Total duration of leak test:", total_duration)
     print("Fit starts at", fit_start_time, "days")
 
