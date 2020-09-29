@@ -2,23 +2,28 @@
 
 import os, time, datetime, csv
 
+
 class StrawNotFoundError(Exception):
     # Raised when no CPAL file contains the straw name
     pass
+
 
 class StrawRemovedError(Exception):
     # Raised when a tested straw was removed in previous step
     pass
 
+
 class StrawNotTestedError(Exception):
     # Raised when the previous test was not performed on a straw
     pass
+
 
 class StrawFailedError(Exception):
     # Raised when attempting to test a straw that has failed a previous step, but was not removed
     def __init__(self, message):
         super().__init__(self, message)
         self.message = message
+
 
 def ExtractPreviousStrawData(path):
     with open(path, "r") as f:
@@ -27,7 +32,7 @@ def ExtractPreviousStrawData(path):
         last = list(reader)[-1]
         test_name = last[1]
         names = list(filter(validStraw, last))
-        pf = list(filter(lambda x : len(x) == 1, last))
+        pf = list(filter(lambda x: len(x) == 1, last))
     return test_name, names, pf
 
 
@@ -49,18 +54,16 @@ def FindCPAL(strawname):
             f = open(os.path.join(path, filename), "r")
 
             line = f.readline()
-            
+
             while line != "":
                 if strawname in line:
                     return (cpalid, filename[:-4])
-                
+
                 line = f.readline()
 
             f.close()
     raise StrawNotFoundError
 
-                
-            
 
 def UpdateStrawInfo(test, workers, strawname, result):
     # Save data to appropriate CPAL file
@@ -72,28 +75,28 @@ def UpdateStrawInfo(test, workers, strawname, result):
 
     previous_test, straw_list, pf = ExtractPreviousStrawData(path)
 
-    write_line = ''
+    write_line = ""
 
     now = datetime.datetime.now()
     date = now.strftime("%Y-%m-%d_%H:%M")
 
     if previous_test != test:
-        with open(path, 'a') as f:
-            f.write('\n')
+        with open(path, "a") as f:
+            f.write("\n")
 
-            write_line += date + ',' + test + ','
+            write_line += date + "," + test + ","
 
             for straw in straw_list:
                 if strawname != straw:
-                    write_line += straw + ',_,'
+                    write_line += straw + ",_,"
                 else:
-                    write_line += strawname + ',' + result + ','
-            
-            write_line += ','.join(workers)
-                    
+                    write_line += strawname + "," + result + ","
+
+            write_line += ",".join(workers)
+
             f.write(write_line)
     else:
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             reader = csv.reader(f)
             all_rows = list(reader)
             rows = all_rows[:-1]
@@ -105,16 +108,17 @@ def UpdateStrawInfo(test, workers, strawname, result):
             if index > 1 and index % 2 == 0 and validStraw(entry):
                 if entry == strawname:
                     last[index + 1] = result
-                    
+
         rows.append(last)
-        rows = list(filter(lambda x : x != [], rows))
-        
-        with open(path, 'w', newline="") as f:
+        rows = list(filter(lambda x: x != [], rows))
+
+        with open(path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerows(rows)
 
+
 def findPreviousStep(path, step):
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         reader = csv.reader(f)
 
         for row in reader:
@@ -124,7 +128,7 @@ def findPreviousStep(path, step):
                 return True
 
         return False
-    '''f = open(path, "r")
+    """f = open(path, "r")
 
     line = f.readline()
 
@@ -153,22 +157,23 @@ def findPreviousStep(path, step):
         test = ""
         line = f.readline()
 
-    return 0'''
+    return 0"""
+
 
 def checkPass(path, strawname, current_test):
-    f = open(path, 'r')
+    f = open(path, "r")
 
     line = f.readline()
     line = f.readline()
     length = len(line)
-    delimiter = ','
+    delimiter = ","
     index = 0
     status = []
 
-    while line != '':
+    while line != "":
         found = False
         index = 0
-        
+
         # Skip date
         while line[index] != delimiter:
             index += 1
@@ -188,10 +193,11 @@ def checkPass(path, strawname, current_test):
         index += 1
 
         while index < length:
-            if ((line[index] == 's' or line[index] == 'S') and
-               (line[index + 1] == 't' or line[index + 1] == 'T')):
-                
-                name = line[index:(index + 7)]
+            if (line[index] == "s" or line[index] == "S") and (
+                line[index + 1] == "t" or line[index + 1] == "T"
+            ):
+
+                name = line[index : (index + 7)]
                 result = line[index + 8]
 
                 if name == strawname.upper():
@@ -201,7 +207,7 @@ def checkPass(path, strawname, current_test):
             index += 10
 
         if not found:
-            status.append((test_name, 'R'))
+            status.append((test_name, "R"))
             break
 
         line = f.readline()
@@ -212,18 +218,19 @@ def checkPass(path, strawname, current_test):
     failed = []
 
     for pairs in status:
-        if pairs[1] == 'F':
+        if pairs[1] == "F":
             if pairs[0] != current_test:
                 failed.append(pairs[0])
 
-    if pairs[1] == 'R':
+    if pairs[1] == "R":
         failed = []
 
     return failed
 
+
 def checkStraw(strawname, expected_previous_test, current_test):
     database_path = "\\\\MU2E-CART1\\Database Backup\\Pallets\\"
-    
+
     (cpalid, cpal) = FindCPAL(strawname)
 
     path = os.path.join(database_path, os.path.join(cpalid, cpal + ".csv"))
@@ -238,12 +245,18 @@ def checkStraw(strawname, expected_previous_test, current_test):
         raise StrawNotTestedError
 
     if failed != []:
-        raise StrawFailedError("Straw failed test(s): " + ', '.join(failed))
+        raise StrawFailedError("Straw failed test(s): " + ", ".join(failed))
 
     for straw in straw_list:
         if straw == strawname:
             return
     raise StrawRemovedError
 
+
 def validStraw(name):
-    return (len(name) == 7 and (name[0] == 's' or name[0] == 'S') and (name[1] == 't' or name[1] == 'T') and name[2:].isdigit()) or (name == '_'*7)
+    return (
+        len(name) == 7
+        and (name[0] == "s" or name[0] == "S")
+        and (name[1] == "t" or name[1] == "T")
+        and name[2:].isdigit()
+    ) or (name == "_" * 7)

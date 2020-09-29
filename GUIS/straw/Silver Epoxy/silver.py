@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -73,10 +74,12 @@ class Ui_MainWindow(object):
         self.frame = QtWidgets.QFrame(self.tab)
         self.frame.setGeometry(QtCore.QRect(130, 110, 231, 41))
         self.frame.setAutoFillBackground(False)
-        self.frame.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -92,10 +95,12 @@ class Ui_MainWindow(object):
         self.frame_2 = QtWidgets.QFrame(self.tab)
         self.frame_2.setGeometry(QtCore.QRect(130, 360, 231, 41))
         self.frame_2.setAutoFillBackground(False)
-        self.frame_2.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_2.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
@@ -111,10 +116,12 @@ class Ui_MainWindow(object):
         self.frame_4 = QtWidgets.QFrame(self.tab)
         self.frame_4.setGeometry(QtCore.QRect(620, 110, 231, 41))
         self.frame_4.setAutoFillBackground(False)
-        self.frame_4.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_4.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
@@ -130,10 +137,12 @@ class Ui_MainWindow(object):
         self.frame_3 = QtWidgets.QFrame(self.tab)
         self.frame_3.setGeometry(QtCore.QRect(620, 360, 231, 41))
         self.frame_3.setAutoFillBackground(False)
-        self.frame_3.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_3.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
@@ -247,13 +256,18 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Current Worker:"))
         self.portal2.setText(_translate("MainWindow", "Log In"))
         self.label_4.setText(_translate("MainWindow", "Current Worker:"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Worker Portal"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Worker Portal")
+        )
         self.label_6.setText(_translate("MainWindow", "Pallet #:"))
         self.label_7.setText(_translate("MainWindow", "Silver Epoxy Batch #:"))
         self.start.setText(_translate("MainWindow", "Start Endpiece Insertion"))
-        self.finishInsertion.setText(_translate("MainWindow", "Finish Endpiece Insertion"))
+        self.finishInsertion.setText(
+            _translate("MainWindow", "Finish Endpiece Insertion")
+        )
         self.label_9.setText(_translate("MainWindow", "Comments (optional):"))
         self.finish.setText(_translate("MainWindow", "Finish"))
         self.viewButton.setText(_translate("MainWindow", "View/Edit Pallet"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Silver Epoxy"))
-
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Silver Epoxy")
+        )

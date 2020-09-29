@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialogw(object):
     def setupUi(self, Dialogw):
         Dialogw.setObjectName("Dialogw")
@@ -43,5 +44,6 @@ class Ui_Dialogw(object):
         self.label.setText(_translate("Dialogw", "Enter worker ID:"))
         self.okayButton.setText(_translate("Dialogw", "Okay"))
         self.cancelButton.setText(_translate("Dialogw", "Cancel"))
+
 
 import images_rc

@@ -8,12 +8,15 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_DialogBox(object):
     def setupUi(self, DialogBox):
         DialogBox.setObjectName("DialogBox")
         DialogBox.setWindowModality(QtCore.Qt.ApplicationModal)
         DialogBox.resize(761, 856)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(DialogBox.sizePolicy().hasHeightForWidth())
@@ -705,172 +708,222 @@ class Ui_DialogBox(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_25.setFont(font)
-        self.straw_25.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_25.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_25.setObjectName("straw_25")
         self.straw_26 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_26.setGeometry(QtCore.QRect(10, 80, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_26.setFont(font)
-        self.straw_26.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_26.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_26.setObjectName("straw_26")
         self.straw_27 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_27.setGeometry(QtCore.QRect(10, 110, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_27.setFont(font)
-        self.straw_27.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_27.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_27.setObjectName("straw_27")
         self.straw_28 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_28.setGeometry(QtCore.QRect(10, 140, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_28.setFont(font)
-        self.straw_28.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_28.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_28.setObjectName("straw_28")
         self.straw_29 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_29.setGeometry(QtCore.QRect(10, 170, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_29.setFont(font)
-        self.straw_29.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_29.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_29.setObjectName("straw_29")
         self.straw_30 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_30.setGeometry(QtCore.QRect(10, 200, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_30.setFont(font)
-        self.straw_30.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_30.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_30.setObjectName("straw_30")
         self.straw_31 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_31.setGeometry(QtCore.QRect(10, 230, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_31.setFont(font)
-        self.straw_31.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_31.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_31.setObjectName("straw_31")
         self.straw_32 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_32.setGeometry(QtCore.QRect(10, 260, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_32.setFont(font)
-        self.straw_32.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_32.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_32.setObjectName("straw_32")
         self.straw_33 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_33.setGeometry(QtCore.QRect(10, 290, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_33.setFont(font)
-        self.straw_33.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_33.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_33.setObjectName("straw_33")
         self.straw_34 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_34.setGeometry(QtCore.QRect(10, 320, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_34.setFont(font)
-        self.straw_34.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_34.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_34.setObjectName("straw_34")
         self.straw_35 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_35.setGeometry(QtCore.QRect(10, 350, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_35.setFont(font)
-        self.straw_35.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_35.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_35.setObjectName("straw_35")
         self.straw_36 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_36.setGeometry(QtCore.QRect(10, 380, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_36.setFont(font)
-        self.straw_36.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_36.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_36.setObjectName("straw_36")
         self.straw_37 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_37.setGeometry(QtCore.QRect(10, 410, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_37.setFont(font)
-        self.straw_37.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_37.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_37.setObjectName("straw_37")
         self.straw_38 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_38.setGeometry(QtCore.QRect(10, 440, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_38.setFont(font)
-        self.straw_38.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_38.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_38.setObjectName("straw_38")
         self.straw_39 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_39.setGeometry(QtCore.QRect(10, 470, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_39.setFont(font)
-        self.straw_39.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_39.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_39.setObjectName("straw_39")
         self.straw_40 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_40.setGeometry(QtCore.QRect(10, 500, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_40.setFont(font)
-        self.straw_40.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_40.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_40.setObjectName("straw_40")
         self.straw_41 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_41.setGeometry(QtCore.QRect(10, 530, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_41.setFont(font)
-        self.straw_41.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_41.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_41.setObjectName("straw_41")
         self.straw_42 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_42.setGeometry(QtCore.QRect(10, 560, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_42.setFont(font)
-        self.straw_42.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_42.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_42.setObjectName("straw_42")
         self.straw_43 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_43.setGeometry(QtCore.QRect(10, 590, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_43.setFont(font)
-        self.straw_43.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_43.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_43.setObjectName("straw_43")
         self.straw_44 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_44.setGeometry(QtCore.QRect(10, 620, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_44.setFont(font)
-        self.straw_44.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_44.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_44.setObjectName("straw_44")
         self.straw_45 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_45.setGeometry(QtCore.QRect(10, 650, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_45.setFont(font)
-        self.straw_45.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_45.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_45.setObjectName("straw_45")
         self.straw_46 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_46.setGeometry(QtCore.QRect(10, 680, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_46.setFont(font)
-        self.straw_46.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_46.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_46.setObjectName("straw_46")
         self.straw_47 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_47.setGeometry(QtCore.QRect(10, 710, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_47.setFont(font)
-        self.straw_47.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_47.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_47.setObjectName("straw_47")
         self.straw_48 = QtWidgets.QLabel(self.groupBox_6)
         self.straw_48.setGeometry(QtCore.QRect(10, 20, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.straw_48.setFont(font)
-        self.straw_48.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.straw_48.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.straw_48.setObjectName("straw_48")
         self.Menu = QtWidgets.QComboBox(DialogBox)
         self.Menu.setGeometry(QtCore.QRect(150, 17, 71, 22))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Menu.sizePolicy().hasHeightForWidth())
@@ -1213,4 +1266,3 @@ class Ui_DialogBox(object):
         self.add_22.setText(_translate("DialogBox", "Add Straw"))
         self.add_23.setText(_translate("DialogBox", "Add Straw"))
         self.add_24.setText(_translate("DialogBox", "Add Straw"))
-

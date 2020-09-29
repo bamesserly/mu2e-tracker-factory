@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -35,10 +36,12 @@ class Ui_MainWindow(object):
         self.frame_2 = QtWidgets.QFrame(self.tab)
         self.frame_2.setGeometry(QtCore.QRect(100, 420, 231, 41))
         self.frame_2.setAutoFillBackground(False)
-        self.frame_2.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_2.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
@@ -62,10 +65,12 @@ class Ui_MainWindow(object):
         self.frame = QtWidgets.QFrame(self.tab)
         self.frame.setGeometry(QtCore.QRect(100, 170, 231, 41))
         self.frame.setAutoFillBackground(False)
-        self.frame.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -81,10 +86,12 @@ class Ui_MainWindow(object):
         self.frame_4 = QtWidgets.QFrame(self.tab)
         self.frame_4.setGeometry(QtCore.QRect(590, 170, 231, 41))
         self.frame_4.setAutoFillBackground(False)
-        self.frame_4.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_4.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
@@ -125,10 +132,12 @@ class Ui_MainWindow(object):
         self.frame_3 = QtWidgets.QFrame(self.tab)
         self.frame_3.setGeometry(QtCore.QRect(590, 420, 231, 41))
         self.frame_3.setAutoFillBackground(False)
-        self.frame_3.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_3.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
@@ -176,10 +185,12 @@ class Ui_MainWindow(object):
         self.palletNumInput = QtWidgets.QFrame(self.tab_2)
         self.palletNumInput.setGeometry(QtCore.QRect(510, 60, 331, 71))
         self.palletNumInput.setAutoFillBackground(False)
-        self.palletNumInput.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.palletNumInput.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.palletNumInput.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.palletNumInput.setFrameShadow(QtWidgets.QFrame.Raised)
         self.palletNumInput.setObjectName("palletNumInput")
@@ -217,18 +228,26 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Current Worker:"))
         self.label_3.setText(_translate("MainWindow", "Current Worker:"))
         self.label_2.setText(_translate("MainWindow", "Current Worker:"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Worker Portal"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Worker Portal")
+        )
         self.label_6.setText(_translate("MainWindow", "Pallet #:"))
         self.label_9.setText(_translate("MainWindow", "Comments (optional):"))
-        self.instructions.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:18pt; font-weight:600; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Once the pallet is properly alligned on the cutting table, scan the FIRST barcode to initiate the first cut.</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Next, scan the pallet number with format CPAL####. If this information is correct, the first cut will begin immediately. </p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Do not touch the mouse or keyboard for 60 seconds after scanning FIRST.</p></body></html>"))
+        self.instructions.setHtml(
+            _translate(
+                "MainWindow",
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
+                '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
+                "p, li { white-space: pre-wrap; }\n"
+                "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:18pt; font-weight:600; font-style:normal;\">\n"
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Once the pallet is properly alligned on the cutting table, scan the FIRST barcode to initiate the first cut.</p>\n'
+                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Next, scan the pallet number with format CPAL####. If this information is correct, the first cut will begin immediately. </p>\n'
+                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Do not touch the mouse or keyboard for 60 seconds after scanning FIRST.</p></body></html>',
+            )
+        )
         self.viewButton.setText(_translate("MainWindow", "View/Edit Pallet"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Laser"))
-
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Laser")
+        )

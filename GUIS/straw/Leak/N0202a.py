@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -25,10 +26,12 @@ class Ui_MainWindow(object):
         self.frame_2 = QtWidgets.QFrame(self.tab)
         self.frame_2.setGeometry(QtCore.QRect(190, 370, 231, 41))
         self.frame_2.setAutoFillBackground(False)
-        self.frame_2.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_2.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
@@ -54,10 +57,12 @@ class Ui_MainWindow(object):
         self.frame_3 = QtWidgets.QFrame(self.tab)
         self.frame_3.setGeometry(QtCore.QRect(680, 370, 231, 41))
         self.frame_3.setAutoFillBackground(False)
-        self.frame_3.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_3.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
@@ -73,10 +78,12 @@ class Ui_MainWindow(object):
         self.frame_4 = QtWidgets.QFrame(self.tab)
         self.frame_4.setGeometry(QtCore.QRect(680, 120, 231, 41))
         self.frame_4.setAutoFillBackground(False)
-        self.frame_4.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_4.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
@@ -92,10 +99,12 @@ class Ui_MainWindow(object):
         self.frame = QtWidgets.QFrame(self.tab)
         self.frame.setGeometry(QtCore.QRect(190, 120, 231, 41))
         self.frame.setAutoFillBackground(False)
-        self.frame.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -3985,7 +3994,9 @@ class Ui_MainWindow(object):
         self.label_9.setText(_translate("MainWindow", "Current Worker:"))
         self.label_10.setText(_translate("MainWindow", "Current Worker:"))
         self.portal3.setText(_translate("MainWindow", "Log In"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Worker Portal"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Worker Portal")
+        )
         self.groupBox_14.setTitle(_translate("MainWindow", "Leak Test Chamber Status"))
         self.label_ch30.setText(_translate("MainWindow", "Empty"))
         self.label_64.setText(_translate("MainWindow", "30"))
@@ -4012,7 +4023,12 @@ class Ui_MainWindow(object):
         self.label_68.setText(_translate("MainWindow", "34"))
         self.label_st34.setText(_translate("MainWindow", "No straw"))
         self.PdfButton34.setText(_translate("MainWindow", "Plot"))
-        self.label_units_13.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_13.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.RemoveButton.setText(_translate("MainWindow", "Remove Straws"))
         self.groupBox_8.setTitle(_translate("MainWindow", "Arduino Status"))
         self.label_4.setText(_translate("MainWindow", "Row 4"))
@@ -4052,7 +4068,12 @@ class Ui_MainWindow(object):
         self.label_43.setText(_translate("MainWindow", "29"))
         self.label_st29.setText(_translate("MainWindow", "No straw"))
         self.PdfButton29.setText(_translate("MainWindow", "Plot"))
-        self.label_units_8.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_8.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_4.setTitle(_translate("MainWindow", "Leak Test Chamber Status"))
         self.label_ch5.setText(_translate("MainWindow", "Empty"))
         self.label_18.setText(_translate("MainWindow", "5"))
@@ -4079,7 +4100,12 @@ class Ui_MainWindow(object):
         self.label_23.setText(_translate("MainWindow", "9"))
         self.label_st9.setText(_translate("MainWindow", "No straw"))
         self.PdfButton9.setText(_translate("MainWindow", "Plot"))
-        self.label_units_4.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_4.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_5.setTitle(_translate("MainWindow", "Leak Test Chamber Status"))
         self.label_ch10.setText(_translate("MainWindow", "Empty"))
         self.label_24.setText(_translate("MainWindow", "10"))
@@ -4106,7 +4132,12 @@ class Ui_MainWindow(object):
         self.label_28.setText(_translate("MainWindow", "14"))
         self.label_st14.setText(_translate("MainWindow", "No straw"))
         self.PdfButton14.setText(_translate("MainWindow", "Plot"))
-        self.label_units_5.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_5.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_10.setTitle(_translate("MainWindow", "Arduino Status"))
         self.label_5.setText(_translate("MainWindow", "Row 5"))
         self.StartData_5.setText(_translate("MainWindow", "Start Data"))
@@ -4137,7 +4168,12 @@ class Ui_MainWindow(object):
         self.label_78.setText(_translate("MainWindow", "44"))
         self.label_st44.setText(_translate("MainWindow", "No straw"))
         self.PdfButton44.setText(_translate("MainWindow", "Plot"))
-        self.label_units_15.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_15.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_9.setTitle(_translate("MainWindow", "Leak Test Chamber Status"))
         self.label_ch20.setText(_translate("MainWindow", "Empty"))
         self.label_34.setText(_translate("MainWindow", "20"))
@@ -4164,7 +4200,12 @@ class Ui_MainWindow(object):
         self.label_38.setText(_translate("MainWindow", "24"))
         self.label_st24.setText(_translate("MainWindow", "No straw"))
         self.PdfButton24.setText(_translate("MainWindow", "Plot"))
-        self.label_units_7.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_7.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_17.setTitle(_translate("MainWindow", "Arduino Status"))
         self.label_13.setText(_translate("MainWindow", "Row 8"))
         self.StartData_8.setText(_translate("MainWindow", "Start Data"))
@@ -4195,7 +4236,12 @@ class Ui_MainWindow(object):
         self.label_33.setText(_translate("MainWindow", "19"))
         self.label_st19.setText(_translate("MainWindow", "No straw"))
         self.PdfButton19.setText(_translate("MainWindow", "Plot"))
-        self.label_units_6.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_6.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_20.setTitle(_translate("MainWindow", "Leak Test Chamber Status"))
         self.label_ch45.setText(_translate("MainWindow", "Empty"))
         self.label_80.setText(_translate("MainWindow", "45"))
@@ -4222,7 +4268,12 @@ class Ui_MainWindow(object):
         self.label_84.setText(_translate("MainWindow", "49"))
         self.label_st49.setText(_translate("MainWindow", "No straw"))
         self.PdfButton49.setText(_translate("MainWindow", "Plot"))
-        self.label_units_16.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_16.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_13.setTitle(_translate("MainWindow", "Arduino Status"))
         self.label_11.setText(_translate("MainWindow", "Row 10"))
         self.StartData_10.setText(_translate("MainWindow", "Start Data"))
@@ -4261,7 +4312,12 @@ class Ui_MainWindow(object):
         self.label_73.setText(_translate("MainWindow", "39"))
         self.label_st39.setText(_translate("MainWindow", "No straw"))
         self.PdfButton39.setText(_translate("MainWindow", "Plot"))
-        self.label_units_14.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
+        self.label_units_14.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
         self.groupBox_19.setTitle(_translate("MainWindow", "Arduino Status"))
         self.label_79.setText(_translate("MainWindow", "Row 9"))
         self.StartData_9.setText(_translate("MainWindow", "Start Data"))
@@ -4296,7 +4352,15 @@ class Ui_MainWindow(object):
         self.label_20.setText(_translate("MainWindow", "4"))
         self.label_st4.setText(_translate("MainWindow", "No straw"))
         self.PdfButton4.setText(_translate("MainWindow", "Plot"))
-        self.label_units_3.setText(_translate("MainWindow", "<html><head/><body><p>Leak rate units: 10<span style=\" vertical-align:super;\">-5</span> cc/min</p></body></html>"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Leak Test"))
+        self.label_units_3.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Leak rate units: 10<span style=" vertical-align:super;">-5</span> cc/min</p></body></html>',
+            )
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Leak Test")
+        )
+
 
 import images_rc

@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -43,5 +44,6 @@ class Ui_Dialog(object):
         self.label.setText(_translate("Dialog", "Enter straw barcode:"))
         self.okayButton.setText(_translate("Dialog", "Okay"))
         self.cancelButton.setText(_translate("Dialog", "Cancel"))
+
 
 import images_rc

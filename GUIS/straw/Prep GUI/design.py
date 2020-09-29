@@ -1,9 +1,9 @@
 #
 # design.py
 # implemented in: PrepGUI.py
-# 
+#
 # Straw Prep (Paper Pull) GUI v. 2.1
-# 
+#
 # Author: Joe Dill
 # email: dillx031@umn.edu
 #
@@ -11,6 +11,7 @@
 #
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -77,10 +78,12 @@ class Ui_MainWindow(object):
         self.frame = QtWidgets.QFrame(self.tab)
         self.frame.setGeometry(QtCore.QRect(520, 340, 231, 41))
         self.frame.setAutoFillBackground(False)
-        self.frame.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -96,10 +99,12 @@ class Ui_MainWindow(object):
         self.frame_4 = QtWidgets.QFrame(self.tab)
         self.frame_4.setGeometry(QtCore.QRect(50, 90, 231, 41))
         self.frame_4.setAutoFillBackground(False)
-        self.frame_4.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_4.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
@@ -115,10 +120,12 @@ class Ui_MainWindow(object):
         self.frame_3 = QtWidgets.QFrame(self.tab)
         self.frame_3.setGeometry(QtCore.QRect(520, 90, 231, 41))
         self.frame_3.setAutoFillBackground(False)
-        self.frame_3.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_3.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
@@ -134,10 +141,12 @@ class Ui_MainWindow(object):
         self.frame_2 = QtWidgets.QFrame(self.tab)
         self.frame_2.setGeometry(QtCore.QRect(50, 340, 231, 41))
         self.frame_2.setAutoFillBackground(False)
-        self.frame_2.setStyleSheet("background : rgb(255, 255, 255);\n"
-"border-style : solid;\n"
-"border-color: rgb(170, 255, 255);\n"
-"border-width : 2px;")
+        self.frame_2.setStyleSheet(
+            "background : rgb(255, 255, 255);\n"
+            "border-style : solid;\n"
+            "border-color: rgb(170, 255, 255);\n"
+            "border-width : 2px;"
+        )
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
@@ -151,16 +160,16 @@ class Ui_MainWindow(object):
         self.Current_worker3.setText("")
         self.Current_worker3.setObjectName("Current_worker3")
         self.tab_widget.addTab(self.tab, "")
-        
+
         self.tab_2 = QtWidgets.QWidget()
-        
+
         self.label_strawBatch = QtWidgets.QLabel(self.tab_2)
         self.label_strawBatch.setGeometry(QtCore.QRect(30, 30, 121, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_strawBatch.setFont(font)
         self.label_strawBatch.setAlignment(QtCore.Qt.AlignCenter)
-        
+
         self.start = QtWidgets.QPushButton(self.tab_2)
         self.start.setGeometry(QtCore.QRect(410, 100, 330, 90))
         font = QtGui.QFont()
@@ -168,16 +177,16 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.start.setFont(font)
-        
+
         self.hour_disp = QtWidgets.QLCDNumber(self.tab_2)
         self.hour_disp.setGeometry(QtCore.QRect(410, 190, 110, 110))
-        
+
         self.min_disp = QtWidgets.QLCDNumber(self.tab_2)
         self.min_disp.setGeometry(QtCore.QRect(520, 190, 110, 110))
-        
+
         self.sec_disp = QtWidgets.QLCDNumber(self.tab_2)
         self.sec_disp.setGeometry(QtCore.QRect(630, 190, 110, 110))
-        
+
         self.finishPull = QtWidgets.QPushButton(self.tab_2)
         self.finishPull.setEnabled(False)
         self.finishPull.setGeometry(QtCore.QRect(410, 300, 330, 90))
@@ -186,12 +195,12 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.finishPull.setFont(font)
-        
+
         self.commentBox = QtWidgets.QPlainTextEdit(self.tab_2)
         self.commentBox.setEnabled(True)
         self.commentBox.setGeometry(QtCore.QRect(410, 430, 330, 160))
         self.commentBox.setPlainText("")
-        
+
         self.label_comments = QtWidgets.QLabel(self.tab_2)
         self.label_comments.setGeometry(QtCore.QRect(410, 400, 330, 20))
         font = QtGui.QFont()
@@ -199,7 +208,7 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.label_comments.setFont(font)
-        
+
         self.finish = QtWidgets.QPushButton(self.tab_2)
         self.finish.setEnabled(False)
         self.finish.setGeometry(QtCore.QRect(410, 600, 330, 90))
@@ -216,41 +225,41 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.reset.setFont(font)
-        
+
         self.label_strawID = QtWidgets.QLabel(self.tab_2)
         self.label_strawID.setGeometry(QtCore.QRect(155, 30, 101, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_strawID.setFont(font)
         self.label_strawID.setAlignment(QtCore.Qt.AlignCenter)
-        
-        self.label_ppg = QtWidgets.QLabel(self.tab_2) #ppg = paper pull grade
+
+        self.label_ppg = QtWidgets.QLabel(self.tab_2)  # ppg = paper pull grade
         self.label_ppg.setGeometry(QtCore.QRect(280, 30, 101, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_ppg.setFont(font)
         self.label_ppg.setAlignment(QtCore.Qt.AlignCenter)
-        
+
         self.label_palletID = QtWidgets.QLabel(self.tab_2)
         self.label_palletID.setGeometry(QtCore.QRect(410, 30, 160, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_palletID.setFont(font)
         self.label_palletID.setAlignment(QtCore.Qt.AlignCenter)
-        
+
         self.input_palletID = QtWidgets.QLineEdit(self.tab_2)
         self.input_palletID.setGeometry(QtCore.QRect(410, 60, 160, 25))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.input_palletID.setFont(font)
-        
+
         self.label_palletNumber = QtWidgets.QLabel(self.tab_2)
         self.label_palletNumber.setGeometry(QtCore.QRect(580, 30, 160, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_palletNumber.setFont(font)
         self.label_palletNumber.setAlignment(QtCore.Qt.AlignCenter)
-        
+
         self.input_palletNumber = QtWidgets.QLineEdit(self.tab_2)
         self.input_palletNumber.setGeometry(QtCore.QRect(580, 60, 160, 25))
         font = QtGui.QFont()
@@ -264,22 +273,24 @@ class Ui_MainWindow(object):
         for i in range(24):
             font_input = QtGui.QFont()
             font_input.setPointSize(12)
-            
+
             new_input_ID = QtWidgets.QLineEdit(self.tab_2)
-            new_input_ID.setGeometry(QtCore.QRect(155, 60 + (30*i), 120, 25))
+            new_input_ID.setGeometry(QtCore.QRect(155, 60 + (30 * i), 120, 25))
             new_input_ID.setFont(font_input)
             self.input_list_strawID.append(new_input_ID)
 
             new_input_strawBatch = QtWidgets.QLineEdit(self.tab_2)
-            new_input_strawBatch.setGeometry(QtCore.QRect(30, 60 + (30*i), 120, 25))
+            new_input_strawBatch.setGeometry(QtCore.QRect(30, 60 + (30 * i), 120, 25))
             new_input_strawBatch.setFont(font_input)
             self.input_list_strawBatch.append(new_input_strawBatch)
 
             new_input_paperPullGrade = QtWidgets.QLineEdit(self.tab_2)
-            new_input_paperPullGrade.setGeometry(QtCore.QRect(280, 60 + (30*i), 120, 25))
+            new_input_paperPullGrade.setGeometry(
+                QtCore.QRect(280, 60 + (30 * i), 120, 25)
+            )
             new_input_paperPullGrade.setFont(font_input)
             self.input_list_paperPullGrade.append(new_input_paperPullGrade)
-        
+
         self.tab_widget.addTab(self.tab_2, "")
         MainWindow.setCentralWidget(self.centralWidget)
 
@@ -298,13 +309,15 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Current Worker:"))
         self.label_3.setText(_translate("MainWindow", "Current Worker:"))
         self.label_4.setText(_translate("MainWindow", "Current Worker:"))
-        self.tab_widget.setTabText(self.tab_widget.indexOf(self.tab), _translate("MainWindow", "Worker Portal"))
-        
+        self.tab_widget.setTabText(
+            self.tab_widget.indexOf(self.tab), _translate("MainWindow", "Worker Portal")
+        )
+
         self.label_strawBatch.setText(_translate("MainWindow", "Straw Batch"))
         self.start.setText(_translate("MainWindow", "Start Paper Pull"))
         self.finishPull.setText(_translate("MainWindow", "Finish Paper Pull"))
         self.label_comments.setText(_translate("MainWindow", "Comments (optional):"))
-        self.finish.setText(_translate("MainWindow", "Finish"))        
+        self.finish.setText(_translate("MainWindow", "Finish"))
         self.reset.setText(_translate("MainWindow", "Reset"))
         self.label_strawID.setText(_translate("MainWindow", "Straw ID"))
         self.label_ppg.setText(_translate("MainWindow", "Grade"))
@@ -314,12 +327,19 @@ class Ui_MainWindow(object):
         self.input_palletNumber.setPlaceholderText(_translate("MainWindow", "CPAL####"))
 
         for i in range(24):
-            self.input_list_strawID[i].setPlaceholderText(_translate("MainWindow", "ST#####"))
+            self.input_list_strawID[i].setPlaceholderText(
+                _translate("MainWindow", "ST#####")
+            )
             self.input_list_strawID[i].setEnabled(False)
-            self.input_list_paperPullGrade[i].setPlaceholderText(_translate("MainWindow", "PP._"))
+            self.input_list_paperPullGrade[i].setPlaceholderText(
+                _translate("MainWindow", "PP._")
+            )
             self.input_list_paperPullGrade[i].setEnabled(False)
-            self.input_list_strawBatch[i].setPlaceholderText(_translate("MainWindow", "MMDDYY.B#"))
+            self.input_list_strawBatch[i].setPlaceholderText(
+                _translate("MainWindow", "MMDDYY.B#")
+            )
             self.input_list_strawBatch[i].setEnabled(False)
-            
-        self.tab_widget.setTabText(self.tab_widget.indexOf(self.tab_2), _translate("MainWindow", "Straw Prep"))
 
+        self.tab_widget.setTabText(
+            self.tab_widget.indexOf(self.tab_2), _translate("MainWindow", "Straw Prep")
+        )
