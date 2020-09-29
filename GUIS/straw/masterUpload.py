@@ -25,7 +25,6 @@ class MakeUpload():
     def __init__(self, mode):
         self.table = "straws"
         self.mode = mode
-        self.failed_path = "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
         self.failed_path = (os.path.dirname(__file__) + "..\\..\\Data\\Failure Data\\Upload Failure")
         self.data_path = (os.path.dirname(__file__) + "..\\..\\Data\\Make Straw Data")
 
