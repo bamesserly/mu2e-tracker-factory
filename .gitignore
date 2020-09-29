@@ -1,3 +1,6 @@
+# ignore venv
+venv/
+
 *.db
 *.pyc
 *.swp
