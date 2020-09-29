@@ -79,11 +79,6 @@ class LeakTestStatus(QMainWindow):
         self.max_chambers = 50
         self.directory = os.path.dirname(os.path.realpath(__file__)) + '\\'
         
-        if os.path.exists(self.directory + 'Leak Test Results\\'):
-            self.directory = self.directory + 'Leak Test Results\\'
-        else:
-            os.mkdir(self.directory+'Leak Test Results\\')
-            self.directory = self.directory + 'Leak Test Results\\'
 
         self.cpalDirectory = (
             os.path.dirname(__file__)
