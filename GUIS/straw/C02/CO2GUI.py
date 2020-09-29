@@ -18,9 +18,7 @@ from pathlib import Path
 from co2 import Ui_MainWindow  ## edit via Qt Designer
 
 # move up one directory
-os.chdir(os.path.dirname(__file__))
-os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(__file__) + "/../")
+sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
 # import modules
 from removeStraw import *
@@ -44,13 +42,13 @@ class CO2(QMainWindow):
         self.ui.setupUi(self)
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/workers/straw workers/CO2 endpiece insertion/"
+            + "..\\..\\..\\Data\\workers\\straw workers\\CO2 endpiece insertion\\"
         )
-        self.palletDirectory = os.path.dirname(__file__) + "/../../../Data/Pallets/"
+        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
         self.epoxyDirectory = (
-            os.path.dirname(__file__) + "/../../../Data/CO2 endpiece data/"
+            os.path.dirname(__file__) + "..\\..\\..\\Data\\CO2 endpiece data\\"
         )
-        self.boardPath = os.path.dirname(__file__) + "/../../../Data/Status Board 464/"
+        self.boardPath = os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.stationID = 'C-O2'
         self.credentialChecker = Credentials(self.stationID)

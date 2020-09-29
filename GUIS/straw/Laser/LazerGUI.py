@@ -45,9 +45,9 @@ pyautogui.FAILSAFE = True #Move mouse to top left corner to abort script
 # NEW CODE. Updated 9/21/2020
 # Get modules from current directories
 sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data/workers/credentials"))
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
-from credentials import Credentials
+from workers.credentials.credentials import Credentials
 
 dummyPath = '\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw lab GUIs\\'
 removeP = dummyPath + 'Remove'
@@ -56,9 +56,7 @@ checkP = dummyPath + 'Check Straw'
 sys.path.insert(0, removeP)
 sys.path.insert(0, checkP)
 # move up one directory
-os.chdir(os.path.dirname(__file__))
-os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(__file__) + "/../")
+sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 from removeStraw import *
 from checkstraw import *
 from masterUpload import *
@@ -78,7 +76,8 @@ CSV_FILE_26 = 'LaserInfo2,6.csv'
 LASERCUT_FILE_26 = 'Cut 2 for 2,6 - version 3.ecp'"""
 
    
-MAIN_DIR = 'C:\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw Lab GUIs\\Laser GUI\\' #CSV in CSV_Files, LASERCUT in Original_Lazer_Files
+# MAIN_DIR = 'C:\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw Lab GUIs\\Laser GUI\\' #CSV in CSV_Files, LASERCUT in Original_Lazer_Files
+MAIN_DIR = (os.path.dirname(__file__) + "..\\")
    
 X_SIZE = 3 #set pixel amount to adjust to right and down
 Y_SIZE = 7
@@ -97,19 +96,19 @@ class cutMenu(QMainWindow):
         self.ui.viewButton.clicked.connect(self.editPallet)
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/workers/straw workers/laser cutting/"
+            + "..\\..\\..\\Data\\workers\\straw workers\\laser cutting\\"
         )
         self.palletDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/Pallets/"
+            + "..\\..\\..\\Data/Pallets\\"
         )
         self.laserDirectory = boardPath = (
             os.path.dirname(__file__)
-            + '/../../../Data/Laser cut data/'
+            + '..\\..\\..\\Data\\Laser cut data\\'
         )
         self.boardPath = boardPath = (
             os.path.dirname(__file__)
-            + '/../../../Data/Status Board 464/'
+            + '..\\..\\..\\Data\\Status Board 464\\'
         )
         self.palletID = ''
         self.palletNum = ''
@@ -285,7 +284,7 @@ class cutMenu(QMainWindow):
     def getTempHumid(self):
         directory = (
             os.path.dirname(__file__)
-            + "/../../../Data/temp_humid_data/464_main/"
+            + "..\\..\\..\\Data\\temp_humid_data\\464_main\\"
         )
         D = os.listdir(directory)
         found = False

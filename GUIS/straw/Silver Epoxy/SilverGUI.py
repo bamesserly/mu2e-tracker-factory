@@ -23,9 +23,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 os.chdir(dir_path)
 
 # move up one directory
-os.chdir(os.path.dirname(__file__))
-os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(__file__) + "/../")
+sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
 from remove import Ui_Dialogw
 from removeStraw import *
@@ -46,19 +44,19 @@ class Silver(QMainWindow):
         self.ui.setupUi(self)
         self.palletDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/Pallets/"
+            + "..\\..\\..\\Data/Pallets\\"
         )
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/workers/straw workers/silver epoxy/"
+            + "..\\..\\..\\Data\\workers\\straw workers\\silver epoxy\\"
         )
         self.silverDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/Silver epoxy data/"
+            + "..\\..\\..\\Data\\Silver epoxy data\\"
         )
         self.boardPath = (
             os.path.dirname(__file__)
-            + "/../../../Data/tatus Board 464/"
+            + "..\\..\\..\\Data\\Status Board 464\\"
         )
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.Current_workers = [self.ui.Current_worker1, self.ui.Current_worker2, self.ui.Current_worker3, self.ui.Current_worker4]

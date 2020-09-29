@@ -10,7 +10,7 @@ import sys
 com = "COM9"
 ser = serial.Serial(com, 9600)  # port on computer
 
-filepath = os.path.dirname(__file__) + "/../../Data/temp_humid_data/464B/"
+filepath = os.path.dirname(__file__) + "..\\..\\Data\\temp_humid_data\\464B\\"
 filename = "464B_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv"
 date0 = date.today()
 

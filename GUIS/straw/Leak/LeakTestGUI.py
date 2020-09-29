@@ -31,20 +31,15 @@ os.chdir(dir_path)
 
 sys.path.insert(0, '..\\Upload')
 
-# Old access
-#sys.path.insert(0, '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\workers\\credentials')
-# new access
 sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data/workers/credentials"))
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
+from workers.credentials.credentials import Credentials
 
 from remove import Ui_DialogBox
 
 # move up one directory
-os.chdir(os.path.dirname(__file__))
-os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(__file__) + "/../")
-from credentials import Credentials
+sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 from masterUpload import *
 
 
@@ -92,15 +87,15 @@ class LeakTestStatus(QMainWindow):
 
         self.cpalDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/Leak test data/CPALS in Testing/CPALS.txt"
+            + "..\\..\\..\\Data\\Leak test data\\CPALS in Testing\\CPALS.txt"
         )
         self.networkDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/Leak test data/Leak Test Results/"
+            + "..\\..\\..\\Data\\Leak test data\\Leak Test Results\\"
         )
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/workers/straw workers/leak testing/"
+            + "..\\..\\..\\Data\\workers\\straw workers\\leak testing\\"
         )
             
         self.starttime = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]

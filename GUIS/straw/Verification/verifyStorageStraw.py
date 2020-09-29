@@ -15,7 +15,7 @@ class verifyStorageStraw:
         # Data Storage
         self.storage_directory = (
             os.path.dirname(__file__)
-            + "/../../../Data/Straw storage/"
+            + "..\\..\\..\\Data\\Straw storage\\"
         )
         self.verification_files = {
             'verified' :  'StorageVerified.csv',

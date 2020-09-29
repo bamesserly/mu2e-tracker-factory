@@ -49,9 +49,7 @@ from resistanceMeter import Resistance
 from measureByHand import MeasureByHandPopup
 
 # move up one directory
-os.chdir(os.path.dirname(__file__))
-os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(__file__) + "/../")
+sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
 # import modules
 from masterUpload import *
@@ -79,13 +77,13 @@ class CompletionTrack(QtWidgets.QDialog):
         #Directories
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "/../../../Data/workers/straw workers/resistance/"
+            + "..\\..\\..\\Data\\workers\\straw workers\\resistance\\"
         )
-        self.palletDirectory = os.path.dirname(__file__) + "/../../../Data/Pallets/"
+        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
         self.prepDirectory = (
-            os.path.dirname(__file__) + "/../../../Data/Straw Prep Data/"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Straw Prep Data\\"
         )
-        self.boardPath = os.path.dirname(__file__) + "/../../../Data/Status Board 464/"
+        self.boardPath = os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
 
         #Connect buttons to respective functions
         self.ui.collect_button.clicked.connect(self.collectData)
@@ -647,7 +645,7 @@ class CompletionTrack(QtWidgets.QDialog):
 
     ### SAVE / RESET ###
     def getTempHumid(self):
-        directory = os.path.dirname(__file__) + "/../../../Data/temp_humid_data/464B/"
+        directory = os.path.dirname(__file__) + "..\\..\\..\\Data\\temp_humid_data\\464B\\"
         D = os.listdir(directory)
         filename = ''
         for entry in D:
@@ -736,7 +734,7 @@ class CompletionTrack(QtWidgets.QDialog):
         last_strawID = self.strawIDs[j]
         fileName = (
             os.path.dirname(__file__)
-            + "/../../../Data/Resistance Testing/Straw_Resistance" + day + '_' + first_strawID + '-' + last_strawID + '.csv'
+            + "..\\..\\..\\Data/Resistance Testing\\Straw_Resistance" + day + '_' + first_strawID + '-' + last_strawID + '.csv'
         )
         #Create new file on computer
         saveF = open(fileName,'a+')

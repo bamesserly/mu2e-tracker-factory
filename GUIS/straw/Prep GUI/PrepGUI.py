@@ -34,10 +34,10 @@ class Prep(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.stationID = 'prep'
-        self.workerDirectory = os.path.dirname(__file__) + '/../../../Data/workers/straw workers/straw prep/'
-        self.palletDirectory = os.path.dirname(__file__) + '/../../../Data/Pallets/' 
-        self.prepDirectory = os.path.dirname(__file__) + '/../../../Data/Straw Prep Data/'
-        self.boardPath = os.path.dirname(__file__) + '/../../../Data/Status Board 464/'
+        self.workerDirectory = os.path.dirname(__file__) + '..\\..\\..\\Data\\workers\\straw workers\\straw prep\\'
+        self.palletDirectory = os.path.dirname(__file__) + '..\\..\\..\\Data/Pallets\\' 
+        self.prepDirectory = os.path.dirname(__file__) + '..\\..\\..\\Data\\Straw Prep Data\\'
+        self.boardPath = os.path.dirname(__file__) + '..\\..\\..\\Data/Status Board 464\\'
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.ui.tab_widget.setCurrentIndex(0)
         self.Current_workers = [self.ui.Current_worker1, self.ui.Current_worker2, self.ui.Current_worker3, self.ui.Current_worker4]
