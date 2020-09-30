@@ -8,6 +8,7 @@
 # email: dillx031@umn.edu
 #
 
+import pyautogui
 import time
 import os
 import csv
@@ -25,6 +26,15 @@ sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
 from workers.credentials.credentials import Credentials
+
+# using straw_label_script instead of make_CPAL_labels
+# sys.path.insert(
+#    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
+# )
+# import BarcodePrinter.CpalLabels.make_CPAL_labels as make_CPAL_labels
+import straw_label_script
+
+pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
@@ -223,6 +233,41 @@ class Prep(QMainWindow):
         keyboard.press(Key.tab)
 
     def getUncollectedPalletInfo(self):
+
+        QMessageBox.question(
+            self, "Pallet cleaned?", "Clean the pallet with alcohol.", QMessageBox.Ok
+        )
+
+        reply = QMessageBox.question(
+            self,
+            "Print Barcodes",
+            "Do you need to print barcodes?",
+            QMessageBox.Yes,
+            QMessageBox.No,
+        )
+
+        if reply == QMessageBox.Yes:
+            QMessageBox.question(
+                self,
+                "Prepare for barcodes",
+                "Barcodes are about to print--hit ok then do not touch the mouse until finished printing!",
+                QMessageBox.Ok,
+            )
+
+            straw_label_script.print_barcodes()
+
+            QMessageBox.question(
+                self, "Barcodes", "Barcodes are printing...", QMessageBox.Ok
+            )
+
+        QMessageBox.question(
+            self,
+            "Attach barcodes",
+            "Attach sheet of four pallet barcodes to pallet\nand tape row of 24 straw barcodes to pallet",
+            QMessageBox.Ok,
+        )
+
+        self.calledGetUncollectedPalletInfo = True
 
         self.calledGetUncollectedPalletInfo = True
 
@@ -640,7 +685,32 @@ class Prep(QMainWindow):
         elif not potential_num[4:].isnumeric():
             verify = False
 
-        return verify
+        exist = False
+        for id in range(1, 24):
+            path = (
+                self.palletDirectory
+                + "CPALID"
+                + str(id).zfill(2)
+                + "/"
+                + self.palletNumber
+                + ".csv"
+            )
+            exist_tmp = os.path.exists(path)
+            if exist_tmp == True:
+                exist = True
+
+        if exist == True:
+            print(f"{self.palletNumber} has been preped.")
+            verify = False
+            QMessageBox.question(
+                self,
+                "Duplicate CPAL Number",
+                "This pallet has been prepped!",
+                QMessageBox.Ok,
+            )
+            return verify
+        else:
+            return verify
 
     def verifyBatchBarcode(self, potential_batchID):
         potential_batchID = potential_batchID.strip().upper()

@@ -7,3 +7,6 @@ venv/
 Data/
 Database/localDatabasePath.txt
 Database/networkDatabasePath.txt
+
+GUIS/straw/Prep GUI/dailytotal.txt
+GUIS/straw/Prep GUI/date.txt
