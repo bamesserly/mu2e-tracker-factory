@@ -27,10 +27,12 @@ sys.path.insert(
 )
 from workers.credentials.credentials import Credentials
 
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
-)
-import BarcodePrinter.CpalLabels.make_CPAL_labels as make_CPAL_labels
+# using straw_label_script instead of make_CPAL_labels
+# sys.path.insert(
+#    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
+# )
+# import BarcodePrinter.CpalLabels.make_CPAL_labels as make_CPAL_labels
+import straw_label_script
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -252,7 +254,7 @@ class Prep(QMainWindow):
                 QMessageBox.Ok,
             )
 
-            make_CPAL_labels.print_barcodes()
+            straw_label_script.print_barcodes()
 
             QMessageBox.question(
                 self, "Barcodes", "Barcodes are printing...", QMessageBox.Ok
@@ -859,10 +861,7 @@ class Prep(QMainWindow):
         return string
 
     def updateLineEdit(
-        self,
-        lineEdit,
-        boolean=None,
-        string=None,
+        self, lineEdit, boolean=None, string=None,
     ):
         # Displays text and changes background of given Q LineEdit
         styleSheets = {
