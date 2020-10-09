@@ -17,18 +17,16 @@ Using [Ctrl] + K + 0 collapses all functions and sections, making it much easier
 
 Original Authors: Jacob Christy, Kate Ciampa, Ben Hiltbrand
 Updated/Expanded by: Adam Arnett, Himanshu Joshi
-Date of Last Update: 8/9/2020
+Date of Last Update: 10/9/2020
 
 """
 
-###  _____                           _
-### |_   _|                         | |
-###   | | _ __ ___  _ __   ___  _ __| |_ ___
-###   | || '_ ` _ \| '_ \ / _ \| '__| __/ __|
-###  _| || | | | | | |_) | (_) | |  | |_\__ \
-###  \___/_| |_| |_| .__/ \___/|_|   \__|___/
-###                | |
-###                |_|
+#██╗███╗   ███╗██████╗  ██████╗ ██████╗ ████████╗███████╗
+#██║████╗ ████║██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝
+#██║██╔████╔██║██████╔╝██║   ██║██████╔╝   ██║   ███████╗
+#██║██║╚██╔╝██║██╔═══╝ ██║   ██║██╔══██╗   ██║   ╚════██║
+#██║██║ ╚═╝ ██║██║     ╚██████╔╝██║  ██║   ██║   ███████║
+#╚═╝╚═╝     ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 import inspect
 import pyautogui
 from PIL import Image
@@ -99,13 +97,12 @@ from timer import QLCDTimer
 import cycler, kiwisolver, matplotlib, pyparsing, pyrect, pyscreeze, pytweening, scipy, setuptools, six, sqlalchemy
 
 
-###  _____ _       _           _   _____ _          __  __
-### |  __ \ |     | |         | | /  ___| |        / _|/ _|
-### | |  \/ | ___ | |__   __ _| | \ `--.| |_ _   _| |_| |_
-### | | __| |/ _ \| '_ \ / _` | |  `--. \ __| | | |  _|  _|
-### | |_\ \ | (_) | |_) | (_| | | /\__/ / |_| |_| | | | |
-###  \____/_|\___/|_.__/ \__,_|_| \____/ \__|\__,_|_| |_|
-###
+# ██████╗ ██████╗ ███╗   ██╗███████╗████████╗ █████╗ ███╗   ██╗████████╗███████╗
+#██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗████╗  ██║╚══██╔══╝██╔════╝
+#██║     ██║   ██║██╔██╗ ██║███████╗   ██║   ███████║██╔██╗ ██║   ██║   ███████╗
+#██║     ██║   ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██║╚██╗██║   ██║   ╚════██║
+#╚██████╗╚██████╔╝██║ ╚████║███████║   ██║   ██║  ██║██║ ╚████║   ██║   ███████║
+# ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
 
 # Global Debug flag, set to True when debugging
 # Disables enforcing worker-id input and supplies list check-off
@@ -136,11 +133,19 @@ class panelGUI(QMainWindow):
                  The class inherhits from QMainWindow in order to function as a proper GUI.
     """
 
-    ###  ___       _ _   _       _ _
-    ### |_ _|_ __ (_) |_(_) __ _| (_)_______ _ __ ___
-    ###  | || '_ \| | __| |/ _` | | |_  / _ \ '__/ __|
-    ###  | || | | | | |_| | (_| | | |/ /  __/ |  \__ \
-    ### |___|_| |_|_|\__|_|\__,_|_|_/___\___|_|  |___/
+# fmt: off
+#██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗██████╗ ███████╗
+#██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝██╔══██╗██╔════╝
+#██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗  ██████╔╝███████╗
+#██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝  ██╔══██╗╚════██║
+#██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗██║  ██║███████║
+#╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝
+#
+# Signal definitions, and the init function for the panelGUI class.
+# Note: the panelGUI init funciton calls a lot of other init funcitons, all
+#   of which are in this section.  If they weren't seperated from the init
+#   function, then it would be over 1000 lines long.
+# fmt: on
 
     # Definition of signals, which are used for UI updates from threads other than the Main thread
     LockGUI = pyqtSignal(bool)
@@ -1179,13 +1184,17 @@ class panelGUI(QMainWindow):
             lambda: self.ui.positionSelect.setStyleSheet("")
         )
 
-    ###  _   _       _ _     _       _
-    ### | | | |     | (_)   | |     | |
-    ### | | | | __ _| |_  __| | __ _| |_ ___  _ __ ___
-    ### | | | |/ _` | | |/ _` |/ _` | __/ _ \| '__/ __|
-    ### \ \_/ / (_| | | | (_| | (_| | || (_) | |  \__ \
-    ###  \___/ \__,_|_|_|\__,_|\__,_|\__\___/|_|  |___/
-    ###
+# fmt: off
+#██╗   ██╗ █████╗ ██╗     ██╗██████╗  █████╗ ████████╗ ██████╗ ██████╗ ███████╗
+#██║   ██║██╔══██╗██║     ██║██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝
+#██║   ██║███████║██║     ██║██║  ██║███████║   ██║   ██║   ██║██████╔╝███████╗
+#╚██╗ ██╔╝██╔══██║██║     ██║██║  ██║██╔══██║   ██║   ██║   ██║██╔══██╗╚════██║
+# ╚████╔╝ ██║  ██║███████╗██║██████╔╝██║  ██║   ██║   ╚██████╔╝██║  ██║███████║
+#  ╚═══╝  ╚═╝  ╚═╝╚══════╝╚═╝╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
+#
+# Functions that check user input.  Validator regular expressions are found
+# in _init_validators in the Initializers section.
+# fmt: on
 
     def checkSupplies(self):
         # Check that all supplies have been checked off
@@ -1296,14 +1305,17 @@ class panelGUI(QMainWindow):
             )
         return error
 
-    ###  _____                      _______ _                    _______                _______ _
-    ### |  _  |                    / /  __ \ |                  / / ___ \              / /  ___| |
-    ### | | | |_ __   ___ _ __    / /| /  \/ | ___  ___  ___   / /| |_/ /   _ _ __    / /\ `--.| |_ ___  _ __
-    ### | | | | '_ \ / _ \ '_ \  / / | |   | |/ _ \/ __|/ _ \ / / |    / | | | '_ \  / /  `--. \ __/ _ \| '_ \
-    ### \ \_/ / |_) |  __/ | | |/ /  | \__/\ | (_) \__ \  __// /  | |\ \ |_| | | | |/ /  /\__/ / || (_) | |_) |
-    ###  \___/| .__/ \___|_| |_/_/    \____/_|\___/|___/\___/_/   \_| \_\__,_|_| |_/_/   \____/ \__\___/| .__/
-    ###       | |                                                                                       | |
-    ###       |_|                                                                                       |_|
+# fmt: off
+#███╗   ██╗ █████╗ ██╗   ██╗██╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
+#████╗  ██║██╔══██╗██║   ██║██║██╔════╝ ██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
+#██╔██╗ ██║███████║██║   ██║██║██║  ███╗███████║   ██║   ██║██║   ██║██╔██╗ ██║
+#██║╚██╗██║██╔══██║╚██╗ ██╔╝██║██║   ██║██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
+#██║ ╚████║██║  ██║ ╚████╔╝ ██║╚██████╔╝██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
+#╚═╝  ╚═══╝╚═╝  ╚═╝  ╚═══╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+#
+# Functions connected to various buttons that change pages/tabs, open/close
+# the GUI, and start/pause/resume the GUI.
+# fmt: on
 
     """
     openGUI(self, btn)
@@ -1364,6 +1376,48 @@ class panelGUI(QMainWindow):
             Thread(target=self.main, args=(), name="AutoSave", daemon=True).start()
 
     """
+    closeGUI(self)
+
+        Description:    Function called when the 'Close GUI' button is pressed on the drop down box.
+                        Gives the DP a chance to handle the close, then closes the GUI.
+    """
+
+    def closeGUI(self):
+        if self.DP is not None:
+            self.DP.handleClose()
+        self.close()
+
+    """
+    closeEvent(self, event)
+
+        Description: Handles the clicking of the red 'X' to close the GUI window. If the GUI is running, the GUI
+        cannot be closed this way. Otherwise, gives a prompt to confirm exit.
+
+        Parameter: event - Event that specifies the clicking of the red 'X'.
+    """
+
+    def closeEvent(self, event):
+        if self.running():
+            # QMessageBox.critical(self, 'Exit Warning', 'GUI cannot be exited while running.')
+            self.generateBox(
+                "critical", "Exit Warning", "GUI cannot be exited while running."
+            )
+            event.ignore()
+        else:
+            # reply = QMessageBox.warning(self, 'Exit Warning', 'Are you sure you want to exit?', QMessageBox.Yes, QMessageBox.No)
+            reply = self.generateBox(
+                "warning", "Exit Warning", "Are you sure you want to exit?", True
+            )
+
+            if reply == QMessageBox.Yes:
+                self.closeGUI()
+
+                event.accept()
+                sys.exit(0)
+            else:
+                event.ignore()
+
+    """
     startRunning(self)
 
         Description: This function is called when any of the start buttons are clicked. Sets the start time, writes the
@@ -1394,18 +1448,6 @@ class panelGUI(QMainWindow):
         self.finishButton.setText("Pause")
 
         self.displayComments()
-
-    """
-    closeGUI(self)
-
-        Description:    Function called when the 'Close GUI' button is pressed on the drop down box.
-                        Gives the DP a chance to handle the close, then closes the GUI.
-    """
-
-    def closeGUI(self):
-        if self.DP is not None:
-            self.DP.handleClose()
-        self.close()
 
     """
     stopRunning(self)
@@ -1450,40 +1492,109 @@ class panelGUI(QMainWindow):
             # Go back to the pro select page
             self.backToproSelect()
 
-    def closeEvent(self, event):
-        """
-        closeEvent(self, event)
+    """
+    pause(self)
 
-        Description: Handles the clicking of the red 'X' to close the GUI window. If the GUI is running, the GUI
-                     cannot be closed this way. Otherwise, gives a prompt to confirm exit.
+        Description: Handles pausing the GUI. Writes items to comment file and a step to the data file. Saves the values
+                 of all running timers so they can be restored. Stops all timers, including the main timer. This function
+                 is connected to the pause button in the popup dialog box for pausing.
+    """
 
-        Parameter: event - Event that specifies the clicking of the red 'X'.
-        """
-        if self.running():
-            # QMessageBox.critical(self, 'Exit Warning', 'GUI cannot be exited while running.')
-            self.generateBox(
-                "critical", "Exit Warning", "GUI cannot be exited while running."
-            )
-            event.ignore()
-        else:
-            # reply = QMessageBox.warning(self, 'Exit Warning', 'Are you sure you want to exit?', QMessageBox.Yes, QMessageBox.No)
-            reply = self.generateBox(
-                "warning", "Exit Warning", "Are you sure you want to exit?", True
-            )
+    def pause(self):
+        ## Data Processor Operations
+        # Before doing anything, make sure that the current state of the GUI is saved
+        self.saveData()
+        # Save pause with data processor
+        self.DP.savePause()
+        # Include a comment
+        self.DP.saveComment(
+            f"pro {self.pro} Paused by {self.dialogBox.pauseWorker}\nReason: {self.dialogBox.getComment()}",
+            self.getCurrentPanel(),
+            self.pro,
+        )
+        ## Stop all timers
+        self.timersRunning = [t for t in self.timers if t.isRunning()]
+        self.stopAllTimers()
 
-            if reply == QMessageBox.Yes:
-                self.closeGUI()
+    """
+    resume(self)
 
-                event.accept()
-                sys.exit(0)
-            else:
-                event.ignore()
+        Description: Handles resuming the GUI. This function is connected to the resume button in the popup dialog box for
+                 pausing. Writes a new step saying "pro _ Resumed", and restarts and stopped timers. This function is
+                 only called if resumed from the dialog box. If the GUI is paused and then closed, the normal load
+                 function will handle resuming the pro.
+    """
 
-    ###  __  __ _             ___   _                      _           _
-    ### |  \/  (_)___  ___   / / | | |_ __  ___  ___  _ __| |_ ___  __| |
-    ### | |\/| | / __|/ __| / /| | | | '_ \/ __|/ _ \| '__| __/ _ \/ _` |
-    ### | |  | | \__ \ (__ / / | |_| | | | \__ \ (_) | |  | ||  __/ (_| |
-    ### |_|  |_|_|___/\___/_/   \___/|_| |_|___/\___/|_|   \__\___|\__,_|
+    def resume(self):
+        # Save resume with data processor
+        self.DP.saveResume()
+
+        # Restart paused timers
+        for timer in self.timersRunning:
+            timer.start()
+
+        self.dialogBox.hide()
+
+    """
+    backToproSelect(self)
+
+        Description: The function connected to the pro return button. Resets all data and UI elements, then
+                 returns to the pro selection screen.
+    """
+
+    def backToproSelect(self):
+        # Call reset function for current pro
+        [
+            self.resetpro1,
+            self.resetpro2,
+            self.resetpro3,
+            self.resetPro4,
+            self.resetPro5,
+            self.resetpro6,
+            self.resetpro7,
+        ][self.pro_index]()
+
+        # Reset data and dataTime lists to lists of None
+        self._init_data_lists()
+
+        self.ui.previousComments.document().setPlainText("")
+
+        for i in range(len(self.Current_workers)):
+            if self.Current_workers[i].text() != "":
+                self.Change_worker_ID(self.portals[i])
+
+        # Reset timer information and time display
+        self.resetAllTimers()
+
+        # Reset the data processor
+        self.DP.handleClose()
+        self.DP = None
+
+        # Reset steps list
+        self.stepsList.deleteList()
+
+        # Reset supplies list
+        self.suppliesList.deleteLists()
+        self.suppliesList = SuppliesList(
+            self.ui.Tools, self.ui.Parts, self.ui.Supplies, self.ui.MoldRelease
+        )
+        self.suppliesList.setDiagramPopup(self.diagram_popup)
+        self.ui.suppliesList.setCurrentIndex(0)
+
+        # Reset tab indexes
+        self.ui.proSelection.setCurrentIndex(1)
+        self.ui.tabWidget.setCurrentIndex(0)
+
+# fmt: off
+#███╗   ███╗██╗███████╗ ██████╗
+#████╗ ████║██║██╔════╝██╔════╝
+#██╔████╔██║██║███████╗██║     
+#██║╚██╔╝██║██║╚════██║██║     
+#██║ ╚═╝ ██║██║███████║╚██████╗
+#╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
+#
+# Functions that I wasn't sure where to put.
+# fmt: on
 
     @classmethod
     def setWidgetsDisabled(cls, widgets):
@@ -1543,55 +1654,6 @@ class panelGUI(QMainWindow):
         if self.stepsList.allStepsChecked():
             self.finishButton.setText("Finish")
 
-    """
-    backToproSelect(self)
-
-        Description: The function connected to the pro return button. Resets all data and UI elements, then
-                 returns to the pro selection screen.
-    """
-
-    def backToproSelect(self):
-        # Call reset function for current pro
-        [
-            self.resetpro1,
-            self.resetpro2,
-            self.resetpro3,
-            self.resetPro4,
-            self.resetPro5,
-            self.resetpro6,
-            self.resetpro7,
-        ][self.pro_index]()
-
-        # Reset data and dataTime lists to lists of None
-        self._init_data_lists()
-
-        self.ui.previousComments.document().setPlainText("")
-
-        for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != "":
-                self.Change_worker_ID(self.portals[i])
-
-        # Reset timer information and time display
-        self.resetAllTimers()
-
-        # Reset the data processor
-        self.DP.handleClose()
-        self.DP = None
-
-        # Reset steps list
-        self.stepsList.deleteList()
-
-        # Reset supplies list
-        self.suppliesList.deleteLists()
-        self.suppliesList = SuppliesList(
-            self.ui.Tools, self.ui.Parts, self.ui.Supplies, self.ui.MoldRelease
-        )
-        self.suppliesList.setDiagramPopup(self.diagram_popup)
-        self.ui.suppliesList.setCurrentIndex(0)
-
-        # Reset tab indexes
-        self.ui.proSelection.setCurrentIndex(1)
-        self.ui.tabWidget.setCurrentIndex(0)
 
     """
     partsError(self)
@@ -1628,49 +1690,6 @@ class panelGUI(QMainWindow):
         )
         self.ui.tabWidget.setCurrentIndex(1)
         self.ui.suppliesList.setCurrentIndex(1)
-
-    """
-    pause(self)
-
-        Description: Handles pausing the GUI. Writes items to comment file and a step to the data file. Saves the values
-                 of all running timers so they can be restored. Stops all timers, including the main timer. This function
-                 is connected to the pause button in the popup dialog box for pausing.
-    """
-
-    def pause(self):
-        ## Data Processor Operations
-        # Before doing anything, make sure that the current state of the GUI is saved
-        self.saveData()
-        # Save pause with data processor
-        self.DP.savePause()
-        # Include a comment
-        self.DP.saveComment(
-            f"pro {self.pro} Paused by {self.dialogBox.pauseWorker}\nReason: {self.dialogBox.getComment()}",
-            self.getCurrentPanel(),
-            self.pro,
-        )
-        ## Stop all timers
-        self.timersRunning = [t for t in self.timers if t.isRunning()]
-        self.stopAllTimers()
-
-    """
-    resume(self)
-
-        Description: Handles resuming the GUI. This function is connected to the resume button in the popup dialog box for
-                 pausing. Writes a new step saying "pro _ Resumed", and restarts and stopped timers. This function is
-                 only called if resumed from the dialog box. If the GUI is paused and then closed, the normal load
-                 function will handle resuming the pro.
-    """
-
-    def resume(self):
-        # Save resume with data processor
-        self.DP.saveResume()
-
-        # Restart paused timers
-        for timer in self.timersRunning:
-            timer.start()
-
-        self.dialogBox.hide()
 
     """
     resizeGUI(self)
@@ -1755,19 +1774,6 @@ class panelGUI(QMainWindow):
         )
 
         self.application.setStyleSheet(stylesheet)
-
-    """
-    keyPressEvent(self, qKeyEvent)
-
-        Description:    Intercepts all keyboard inputs, and if the key pressed was 'enter' or 'return', a 'tab' is pressed to cycle between
-                        QLineEdits (text input boxes).  DOESN'T WORK
-        
-        Parameter: qKeyEvent - QKeyEvent specifying a keyboard key press event.
-    
-    def keyPressEvent(self, qKeyEvent):
-        if qKeyEvent.key() == Qt.Key_Return or qKeyEvent.key() == Qt.Key_Enter:
-            pyautogui.press('tab')
-    """
 
     """
     setFailIndex(self, name)
@@ -2089,6 +2095,7 @@ class panelGUI(QMainWindow):
             self.ui.tabWidget.setTabText(2, pro + " *Locked*")
             self.ui.tabWidget.setTabEnabled(2, False)
 
+    # something to do with threading...
     def main(self):
         elapsedTime = lambda: self.mainTimer.getElapsedTime().total_seconds()
         last_write_time = elapsedTime()
@@ -2103,11 +2110,16 @@ class panelGUI(QMainWindow):
 
             time.sleep(0.01)
 
-    ###  ____                    ____        _          __  __      _   _               _
-    ### / ___|  __ ___   _____  |  _ \  __ _| |_ __ _  |  \/  | ___| |_| |__   ___   __| |___
-    ### \___ \ / _` \ \ / / _ \ | | | |/ _` | __/ _` | | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
-    ###  ___) | (_| |\ V /  __/ | |_| | (_| | || (_| | | |  | |  __/ |_| | | | (_) | (_| \__ \
-    ### |____/ \__,_| \_/ \___| |____/ \__,_|\__\__,_| |_|  |_|\___|\__|_| |_|\___/ \__,_|___/
+# fmt: off
+#███████╗ █████╗ ██╗   ██╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
+#██╔════╝██╔══██╗██║   ██║██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+#███████╗███████║██║   ██║█████╗      ██║  ██║███████║   ██║   ███████║
+#╚════██║██╔══██║╚██╗ ██╔╝██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+#███████║██║  ██║ ╚████╔╝ ███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+#╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ 
+#
+# Definitely not functions that save data...  Definitely...
+# fmt: on
 
     def saveData(self):
         # Extract data from gui widgets
@@ -2221,6 +2233,7 @@ class panelGUI(QMainWindow):
 
         self.displayComments()  # display updated comments
 
+    # helper funciton to make tuples of the form (<elapsed time>, <isRunning>) to make saving time data easier
     @staticmethod
     def timerTuple(timer):
         if timer.wasStarted():
@@ -2228,12 +2241,16 @@ class panelGUI(QMainWindow):
         else:
             return None
 
-    ###  _   _           _       _         ____        _          __  __      _   _               _
-    ### | | | |_ __   __| | __ _| |_ ___  |  _ \  __ _| |_ __ _  |  \/  | ___| |_| |__   ___   __| |___
-    ### | | | | '_ \ / _` |/ _` | __/ _ \ | | | |/ _` | __/ _` | | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
-    ### | |_| | |_) | (_| | (_| | ||  __/ | |_| | (_| | || (_| | | |  | |  __/ |_| | | | (_) | (_| \__ \
-    ###  \___/| .__/ \__,_|\__,_|\__\___| |____/ \__,_|\__\__,_| |_|  |_|\___|\__|_| |_|\___/ \__,_|___/
-    ###       |_|
+# fmt: off
+#██╗   ██╗██████╗ ██████╗  █████╗ ████████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
+#██║   ██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+#██║   ██║██████╔╝██║  ██║███████║   ██║   █████╗      ██║  ██║███████║   ██║   ███████║
+#██║   ██║██╔═══╝ ██║  ██║██╔══██║   ██║   ██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+#╚██████╔╝██║     ██████╔╝██║  ██║   ██║   ███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚═════╝ ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Functions that get data from input widgets
+# fmt: on
 
     """
     updateData(self)
@@ -2260,12 +2277,10 @@ class panelGUI(QMainWindow):
         ]
 
     """
-    processXUpdateData(self)
+    updateDataProcessX(self)
 
         Description: Save function used to save the data for panel pro X. Gets the data currently in all input fields,
                     then writes it to the file.
-
-        Parameter: file - The python file object that is used to write the data to the appropriate file
     """
 
     def updateDataProcess1(self):
@@ -2415,11 +2430,16 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
-    ###  _                    _   ____        _          __  __      _   _               _
-    ### | |    ___   __ _  __| | |  _ \  __ _| |_ __ _  |  \/  | ___| |_| |__   ___   __| |___
-    ### | |   / _ \ / _` |/ _` | | | | |/ _` | __/ _` | | |\/| |/ _ \ __| '_ \ / _ \ / _` / __|
-    ### | |__| (_) | (_| | (_| | | |_| | (_| | || (_| | | |  | |  __/ |_| | | | (_) | (_| \__ \
-    ### |_____\___/ \__,_|\__,_| |____/ \__,_|\__\__,_| |_|  |_|\___|\__|_| |_|\___/ \__,_|___/
+# fmt: off
+#██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗ 
+#██║     ██╔═══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+#██║     ██║   ██║███████║██║  ██║    ██║  ██║███████║   ██║   ███████║
+#██║     ██║   ██║██╔══██║██║  ██║    ██║  ██║██╔══██║   ██║   ██╔══██║
+#███████╗╚██████╔╝██║  ██║██████╔╝    ██████╔╝██║  ██║   ██║   ██║  ██║
+#╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Functions that get data from data processor
+# fmt: on
 
     """
     loadpro(self)
@@ -2427,6 +2447,7 @@ class panelGUI(QMainWindow):
         Description:    Called when after a complete panel ID is entered in any of the panel input fields. 
                         Trys to load previous data and steps completed with the data processor, returned in a long list. 
                         If found, also tries calls the appropriate parsing functions to return the GUI to its previous state.
+                        Note: This is the only place where parseproXData funcitons are called.
     """
 
     def loadpro(self):
@@ -2529,13 +2550,18 @@ class panelGUI(QMainWindow):
     def loadHVMeasurements(self, position=None):
         return self.DP.loadHVMeasurements()
 
-    ###  ____                          _              _   ____  _           _
-    ### |  _ \ __ _ _ __ ___  ___     / \   _ __   __| | |  _ \(_)___ _ __ | | __ _ _   _
-    ### | |_) / _` | '__/ __|/ _ \   / _ \ | '_ \ / _` | | | | | / __| '_ \| |/ _` | | | |
-    ### |  __/ (_| | |  \__ \  __/  / ___ \| | | | (_| | | |_| | \__ \ |_) | | (_| | |_| |
-    ### |_|   \__,_|_|  |___/\___| /_/   \_\_| |_|\__,_| |____/|_|___/ .__/|_|\__,_|\__, |
-    ###                                                              |_|            |___/
+# fmt: off
+#██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
+#██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+#██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
+#██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+#██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+#╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Functions that put data into the UI widgets.
+# fmt: on
 
+    # Puts comments into the comment display box
     def displayComments(self):
         # Get string from Data Processor
         s = self.DP.getCommentText()
@@ -2578,17 +2604,7 @@ class panelGUI(QMainWindow):
         if self.stepsList.allStepsChecked():
             self.finishButton.setText("Finish")
 
-    """
-    parsepro3WireData(self)
-
-        Description:    This function handles additional data that is saved in pro 3 (continuity, wire position, and wire resistance).
-                        It sets the appropriate values in the drop down menus.
-
-        Input: Lists of wire data ordered by panel position
-            - cont_data     -   Continuity measurements
-            - wire_pos_data -   Wire position
-            - res_data      -   Resistance measurements
-    """
+    # Each of the next four functions displays measurements that go in scroll areas
 
     def parseContinuityMeasurements(self, data):
         # Display the given data
@@ -3341,12 +3357,14 @@ class panelGUI(QMainWindow):
         
         self.displayComments()
 
-    ###  ____                 ___
-    ### |  _ \  __ _ _   _   / _ \ _ __   ___
-    ### | | | |/ _` | | | | | | | | '_ \ / _ \
-    ### | |_| | (_| | |_| | | |_| | | | |  __/
-    ### |____/ \__,_|\__, |  \___/|_| |_|\___|
-    ###              |___/
+# fmt: off
+# ██████╗ ██████╗  ██████╗      ██╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ███║
+# ██████╔╝██████╔╝██║   ██║    ╚██║
+# ██╔═══╝ ██╔══██╗██║   ██║     ██║
+# ██║     ██║  ██║╚██████╔╝     ██║
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═╝
+# fmt: on
 
     """
     pro1Part1(self)
@@ -3506,12 +3524,14 @@ class panelGUI(QMainWindow):
         # Reset time display
         self.timers[1].reset()
 
-    ###  ____                _____
-    ### |  _ \  __ _ _   _  |_   _|_      _____
-    ### | | | |/ _` | | | |   | | \ \ /\ / / _ \
-    ### | |_| | (_| | |_| |   | |  \ V  V / (_) |
-    ### |____/ \__,_|\__, |   |_|   \_/\_/ \___/
-    ###              |___/
+# fmt: off
+#██████╗ ██████╗  ██████╗     ██████╗ 
+#██╔══██╗██╔══██╗██╔═══██╗    ╚════██╗
+#██████╔╝██████╔╝██║   ██║     █████╔╝
+#██╔═══╝ ██╔══██╗██║   ██║    ██╔═══╝ 
+#██║     ██║  ██║╚██████╔╝    ███████╗
+#╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚══════╝
+# fmt: on
 
     """
     pro2part1(self)
@@ -3767,12 +3787,14 @@ class panelGUI(QMainWindow):
         for timer in self.timers[2:5]:
             timer.reset()
 
-    ###  ____                _____ _
-    ### |  _ \  __ _ _   _  |_   _| |__  _ __ ___  ___
-    ### | | | |/ _` | | | |   | | | '_ \| '__/ _ \/ _ \
-    ### | |_| | (_| | |_| |   | | | | | | | |  __/  __/
-    ### |____/ \__,_|\__, |   |_| |_| |_|_|  \___|\___|
-    ###              |___/
+# fmt: off
+#██████╗ ██████╗  ██████╗     ██████╗ 
+#██╔══██╗██╔══██╗██╔═══██╗    ╚════██╗
+#██████╔╝██████╔╝██║   ██║     █████╔╝
+#██╔═══╝ ██╔══██╗██║   ██║     ╚═══██╗
+#██║     ██║  ██║╚██████╔╝    ██████╔╝
+#╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚═════╝ 
+# fmt: on
 
     """
     pro3part1(self)
@@ -3860,12 +3882,14 @@ class panelGUI(QMainWindow):
         list(map(lambda obj: obj.setDisabled(True), self.continuity))
         list(map(lambda obj: obj.setDisabled(True), self.wire_pos))
 
-    ###   ____              _____
-    ###  |  _ \ _ __ ___   |  ___|__  _   _ _ __
-    ###  | |_) | '__/ _ \  | |_ / _ \| | | | '__|
-    ###  |  __/| | | (_) | |  _| (_) | |_| | |
-    ###  |_|   |_|  \___/  |_|  \___/ \__,_|_|
-    ###
+# fmt: off
+#██████╗ ██████╗  ██████╗     ██╗  ██╗
+#██╔══██╗██╔══██╗██╔═══██╗    ██║  ██║
+#██████╔╝██████╔╝██║   ██║    ███████║
+#██╔═══╝ ██╔══██╗██║   ██║    ╚════██║
+#██║     ██║  ██║╚██████╔╝         ██║
+#╚═╝     ╚═╝  ╚═╝ ╚═════╝          ╚═╝
+# fmt: on
 
     def pro4part0(self):
         # Ensure that all parts have been checked off
@@ -4028,12 +4052,16 @@ class panelGUI(QMainWindow):
         self.timers[17].reset()
         self.timers[18].reset()
 
-    ###   ____              _____ _
-    ###  |  _ \ _ __ ___   |  ___(_)_   _____
-    ###  | |_) | '__/ _ \  | |_  | \ \ / / _ \
-    ###  |  __/| | | (_) | |  _| | |\ V /  __/
-    ###  |_|   |_|  \___/  |_|   |_| \_/ \___|
-    ###
+
+# fmt: off
+#██████╗ ██████╗  ██████╗     ███████╗
+#██╔══██╗██╔══██╗██╔═══██╗    ██╔════╝
+#██████╔╝██████╔╝██║   ██║    ███████╗
+#██╔═══╝ ██╔══██╗██║   ██║    ╚════██║
+#██║     ██║  ██║╚██████╔╝    ███████║
+#╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚══════╝
+# fmt: on
+
     # Very little to do here.
     def pro5part0(self):
         # Ensure that all parts have been checked off
@@ -4049,12 +4077,16 @@ class panelGUI(QMainWindow):
     def resetPro5(self):
         self.ui.panelInput5.setText("")
 
-    ###   ____                ____  _
-    ###  |  _ \  __ _ _   _  / ___|(_)_  __
-    ###  | | | |/ _` | | | | \___ \| \ \/ /
-    ###  | |_| | (_| | |_| |  ___) | |>  <
-    ###  |____/ \__,_|\__, | |____/|_/_/\_\
-    ###               |___/
+
+# fmt: off
+#██████╗ ██████╗  ██████╗      ██████╗ 
+#██╔══██╗██╔══██╗██╔═══██╗    ██╔════╝ 
+#██████╔╝██████╔╝██║   ██║    ███████╗ 
+#██╔═══╝ ██╔══██╗██║   ██║    ██╔═══██╗
+#██║     ██║  ██║╚██████╔╝    ╚██████╔╝
+#╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝ 
+# fmt: on
+
     """
     pro6part1(self)
 
@@ -4312,12 +4344,15 @@ class panelGUI(QMainWindow):
         self.ui.mrInput1.setDisabled(False)
         self.ui.mrInput2.setDisabled(False)
 
-    ###   ____                ____
-    ###  |  _ \  __ _ _   _  / ___|  _____   _____ _ __
-    ###  | | | |/ _` | | | | \___ \ / _ \ \ / / _ \ '_ \
-    ###  | |_| | (_| | |_| |  ___) |  __/\ V /  __/ | | |
-    ###  |____/ \__,_|\__, | |____/ \___| \_/ \___|_| |_|
-    ###               |___/
+
+# fmt: off
+#██████╗ ██████╗  ██████╗     ███████╗
+#██╔══██╗██╔══██╗██╔═══██╗    ╚════██║
+#██████╔╝██████╔╝██║   ██║        ██╔╝
+#██╔═══╝ ██╔══██╗██║   ██║       ██╔╝ 
+#██║     ██║  ██║╚██████╔╝       ██║  
+#╚═╝     ╚═╝  ╚═╝ ╚═════╝        ╚═╝  
+# fmt: on
 
     """
     pro7part1(self)
@@ -4473,12 +4508,17 @@ class panelGUI(QMainWindow):
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
 
-    ###   _                           _        ___  _   _                  ____ _   _ ___
-    ###  | |    __ _ _   _ _ __   ___| |__    / _ \| |_| |__   ___ _ __   / ___| | | |_ _|___
-    ###  | |   / _` | | | | '_ \ / __| '_ \  | | | | __| '_ \ / _ \ '__| | |  _| | | || |/ __|
-    ###  | |__| (_| | |_| | | | | (__| | | | | |_| | |_| | | |  __/ |    | |_| | |_| || |\__ \
-    ###  |_____\__,_|\__,_|_| |_|\___|_| |_|  \___/ \__|_| |_|\___|_|     \____|\___/|___|___/
-    ###
+
+# fmt: off
+#███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
+#██╔════╝██║   ██║██╔══██╗    ██╔════╝ ██║   ██║██║██╔════╝
+#███████╗██║   ██║██████╔╝    ██║  ███╗██║   ██║██║███████╗
+#╚════██║██║   ██║██╔══██╗    ██║   ██║██║   ██║██║╚════██║
+#███████║╚██████╔╝██████╔╝    ╚██████╔╝╚██████╔╝██║███████║
+#╚══════╝ ╚═════╝ ╚═════╝      ╚═════╝  ╚═════╝ ╚═╝╚══════╝
+#
+# Functions that launch smaller windows like device guis, warning messages, etc.
+# fmt: on
 
     """
     generateBox(self, type, title, text, question = False)
@@ -4637,6 +4677,16 @@ class panelGUI(QMainWindow):
             self.panelHeaterWindow.show()
 
 
+
+# ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
+#██╔═══██╗██╔════╝    ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║
+#██║   ██║███████╗    ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝███████║██║        ██║   ██║██║   ██║██╔██╗ ██║
+#██║   ██║╚════██║    ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██╔══██║██║        ██║   ██║██║   ██║██║╚██╗██║
+#╚██████╔╝███████║    ██║██║ ╚████║   ██║   ███████╗██║  ██║██║  ██║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
+# ╚═════╝ ╚══════╝    ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+# Functions that interact with the system somehow.
+
+
 def except_hook(exctype, exception, tb):
     """
     except_hook(exctype, exception, traceback)
@@ -4700,6 +4750,13 @@ def checkPackages():
         pythonErrorRoot.withdraw()
         tkinter.messagebox.showerror(title="Version Error", message=message)
 
+
+#███╗   ███╗ █████╗ ██╗███╗   ██╗
+#████╗ ████║██╔══██╗██║████╗  ██║
+#██╔████╔██║███████║██║██╔██╗ ██║
+#██║╚██╔╝██║██╔══██║██║██║╚██╗██║
+#██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
+#╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
 if __name__ == "__main__":
     sys.excepthook = (
