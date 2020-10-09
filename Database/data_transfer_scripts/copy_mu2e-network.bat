@@ -51,6 +51,6 @@ REM=============================================================================
 REM Define the sub command:
 REM=============================================================================
 :sub
-robocopy \\spa-mu2e-network\Files\Production_Environment\Data C:\Users\%USERNAME%\Desktop\Production\Data /e /xo /xf *.db ~*
-robocopy \\spa-mu2e-network\Files\Production_Environment\Data C:\Users\%USERNAME%\Desktop\Production\Data *.db /e
-robocopy C:\Users\%USERNAME%\Desktop\Production\Data \\spa-mu2e-network\Files\Production_Environment\Data /e /xf *.db ~*
+robocopy \\rds01.storage.umn.edu\cse_spa_mu2e\Data C:\Users\%USERNAME%\Desktop\Production\Data /e /xo /xf *.db ~*
+robocopy \\rds01.storage.umn.edu\cse_spa_mu2e\Data C:\Users\%USERNAME%\Desktop\Production\Data *.db /e
+robocopy C:\Users\%USERNAME%\Desktop\Production\Data \\rds01.storage.umn.edu\cse_spa_mu2e\Data /e /xf *.db ~*
