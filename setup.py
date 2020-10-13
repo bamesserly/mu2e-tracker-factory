@@ -14,7 +14,7 @@ print("===============================================")
 # TODO get this from a environmental variable
 username = os.getenv("username")
 official_lab_production_top_dir = "C:\\Users\\{0}\\Desktop\\Production".format(username)
-network_top_dir = "\\\\spa-mu2e-network\Files\Production_Environment"
+network_top_dir = "\\\\rds01.storage.umn.edu\\cse_spa_mu2e"
 network_data_dir = path.abspath(path.abspath(path.join(network_top_dir, "Data/")))
 network_db = path.abspath(path.abspath(path.join(network_data_dir, "database.db")))
 
@@ -22,6 +22,8 @@ local_top_dir = Path(path.dirname(__file__)).resolve()
 local_data_dir = path.abspath(path.abspath(path.join(local_top_dir, "Data/")))
 local_db = path.abspath(path.abspath(path.join(local_data_dir, "database.db")))
 
+# PANGUI looks in these files (which we will actually create later on) to find
+# the location of the local and merge destination databases.
 # TODO "network" isn't accurate. "merge destination" is better.
 merge_destination_db_location_file = path.abspath(
     path.join(local_top_dir, "Database", "networkDatabasePath.txt")
@@ -30,6 +32,14 @@ local_db_location_file = path.abspath(
     path.join(local_top_dir, "Database", "localDatabasePath.txt")
 )
 
+# Being in "official lab production mode" means that we will automerge to THE
+# network database.
+#
+# The alternative to being in "official lab production mode" is to be in
+# developer mode, which means that we'll automerge to a dummy database.
+#
+# To determine official vs dev mode: if this code is in the Desktop/Production
+# folder then it's official. Anywhere else and it's dev mode.
 is_official_lab_production = official_lab_production_top_dir in str(local_top_dir)
 if not is_official_lab_production:
     print("... Software development mode detected.")
@@ -47,6 +57,8 @@ try:
 except FileExistsError as e:
     print("... Data dir already exists here!")
     print("    If things aren't working, you might need to refresh this directory.")
+# TODO add exception(s) for when we're (a) not connected to the internet, (b)
+# not connected to network_data_dir, and (c) other.
 
 # ===============================================================================
 # 3. Set locations of local and merge destination databases.
