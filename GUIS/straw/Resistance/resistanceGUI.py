@@ -34,6 +34,10 @@
 #       resistance, temperature, humidity, test_type, pass/fail
 #
 #   File saved at: Mu2e-factory/Straw lab GUIs/Resistance GUI
+#
+#
+#   Updated 10/12/2020 by Adrian Leal
+#   Using dataProcessorStraw.py to save data to the database
 
 import sys
 from pathlib import Path
@@ -47,6 +51,7 @@ from PyQt5.QtGui import *
 from design import Ui_MainWindow
 from resistanceMeter import Resistance
 from measureByHand import MeasureByHandPopup
+from dataProcessor import MultiDataProcessor as DataProcessor
 
 # move up one directory
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
@@ -59,6 +64,16 @@ sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
 from workers.credentials.credentials import Credentials
+
+######## Global variables ##########
+# Set each true/false to save the data collected when this gui is run to that platform.
+# Note: Both can be true.
+SAVE_TO_TXT = True
+SAVE_TO_SQL = True
+
+# Indicate which data processor you want to use for data-checking (ex: checkCredentials)
+# PRIMARY_DP =   'TXT'
+PRIMARY_DP = "SQL"
 
 
 class CompletionTrack(QtWidgets.QDialog):
@@ -180,6 +195,14 @@ class CompletionTrack(QtWidgets.QDialog):
         self.justLogOut = ""
         self.saveWorkers()
 
+        # Data Processor
+        self.DP = DataProcessor(
+            gui=self,
+            save2txt=SAVE_TO_TXT,
+            save2SQL=SAVE_TO_SQL,
+            sql_primary=bool(PRIMARY_DP == "SQL"),
+        )
+
         # Keep program running
         self.run_program = True
 
@@ -236,19 +259,43 @@ class CompletionTrack(QtWidgets.QDialog):
             )
             if not ok:
                 return
+            Current_worker = Current_worker.upper()
             self.sessionWorkers.append(Current_worker)
+            if PRIMARY_DP == "SQL":
+                if self.DP.validateWorkerID(Current_worker) == False:
+                    QMessageBox.question(
+                        self,
+                        "WRONG WORKER ID",
+                        "Did you type in the correct worker ID?",
+                        QMessageBox.Retry,
+                    )
+                    return
+            elif PRIMARY_DP == "TXT":
+                if self.DP.checkCredentials() == False:
+                    QMessageBox.question(
+                        self,
+                        "WRONG WORKER ID",
+                        "Did you type in the correct worker ID?",
+                        QMessageBox.Retry,
+                    )
+                    return
+
+            self.DP.saveLogin(Current_worker)
             self.Current_workers[portalNum].setText(Current_worker)
             print("Welcome " + self.Current_workers[portalNum].text() + " :)")
             btn.setText("Log Out")
-            # self.ui.tab_widget.setCurrentIndex(1)
+            self.ui.tab_widget.setCurrentIndex(1)
         elif label == "Log Out":
+            portalNum = int(btn.objectName().strip("portal")) - 1
             self.justLogOut = self.Current_workers[portalNum].text()
             self.sessionWorkers.remove(self.Current_workers[portalNum].text())
+            self.DP.saveLogout(Current_worker)
             print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
         self.saveWorkers()
+        self.DP.saveWorkers()
         self.justLogOut = ""
 
     def saveWorkers(self):
@@ -869,6 +916,9 @@ class CompletionTrack(QtWidgets.QDialog):
                             i += 1
                     file.close()
 
+        self.DP.saveData()
+        self.DP.saveFinish()
+        self.handleClose()
         QMessageBox.about(self, "Save", "Data saved successfully!")
 
     def uploadData(self):
@@ -940,6 +990,7 @@ class CompletionTrack(QtWidgets.QDialog):
                 self.run_program = False"""
 
     def closeEvent(self, event):
+        self.DP.handleClose()
         event.accept()
         sys.exit(0)
 
