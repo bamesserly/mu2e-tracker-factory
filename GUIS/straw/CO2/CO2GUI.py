@@ -4,6 +4,9 @@
 #   Update: 10/24/18 by Ben Hiltbrand
 #   Added upload to Mu2e Hardware database
 
+#   Update: 10/12/2020 by Adrian Leal
+#   Added upload to sql database
+
 import pyautogui
 import time
 import datetime
@@ -16,6 +19,7 @@ from PyQt5.QtWidgets import *
 from pynput.keyboard import Key, Controller
 from pathlib import Path
 from co2 import Ui_MainWindow  ## edit via Qt Designer
+from dataProcessorc02 import MultipleDataProcessor as DataProcessor
 
 # move up one directory
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
@@ -34,6 +38,16 @@ pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
+
+######## Global variables ##########
+# Set each true/false to save the data collected when this gui is run to that platform.
+# Note: Both can be true.
+SAVE_TO_TXT = True
+SAVE_TO_SQL = True
+
+# Indicate which data processor you want to use for data-checking (ex: checkCredentials)
+# PRIMARY_DP =   'TXT'
+PRIMARY_DP = "SQL"
 
 
 class CO2(QMainWindow):
@@ -99,6 +113,14 @@ class CO2(QMainWindow):
         self.justLogOut = ""
         self.saveWorkers()
 
+        # Data Processor
+        self.DP = DataProcessor(
+            gui=self,
+            save2txt=SAVE_TO_TXT,
+            save2SQL=SAVE_TO_SQL,
+            sql_primary=bool(PRIMARY_DP == "SQL"),
+        )
+
     def Change_worker_ID(self, btn):
         label = btn.text()
         portalNum = 0
@@ -109,20 +131,43 @@ class CO2(QMainWindow):
             )
             if not ok:
                 return
+            Current_worker = Current_worker.upper()
             self.sessionWorkers.append(Current_worker)
+            if PRIMARY_DP == "SQL":
+                if self.DP.validateWorkerID(Current_worker) == False:
+                    QMessageBox.question(
+                        self,
+                        "WRONG WORKER ID",
+                        "Did you type in the correct worker ID?",
+                        QMessageBox.Retry,
+                    )
+                    return
+            elif PRIMARY_DP == "TXT":
+                if self.DP.checkCredentials() == False:
+                    QMessageBox.question(
+                        self,
+                        "WRONG WORKER ID",
+                        "Did you type in the correct worker ID?",
+                        QMessageBox.Retry,
+                    )
+                    return
+
+            self.DP.saveLogin(Current_worker)
             self.Current_workers[portalNum].setText(Current_worker)
             print("Welcome " + self.Current_workers[portalNum].text() + " :)")
             btn.setText("Log Out")
-            # self.ui.tab_widget.setCurrentIndex(1)
+            self.ui.tab_widget.setCurrentIndex(1)
         elif label == "Log Out":
             portalNum = int(btn.objectName().strip("portal")) - 1
             self.justLogOut = self.Current_workers[portalNum].text()
             self.sessionWorkers.remove(self.Current_workers[portalNum].text())
+            self.DP.saveLogout(Current_worker)
             print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
         self.saveWorkers()
+        self.DP.saveWorkers()
         self.justLogOut = ""
 
     def saveWorkers(self):
@@ -353,6 +398,7 @@ class CO2(QMainWindow):
         self.ui.finish.setEnabled(True)
 
     def saveData(self):
+        print("Saving data...")
         if os.path.exists(
             self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv"
         ):
@@ -415,7 +461,10 @@ class CO2(QMainWindow):
                 file.write("\n" + self.ui.commentBox.document().toPlainText())
         file.close()
 
+        self.DP.saveData()
+        print("Saving data: done!")
         QMessageBox.about(self, "Save", "Data saved successfully!")
+        self.DP.handleClose()
 
     def uploadData(self):
         QMessageBox.about(self, "Upload", "Now attempting data upload.")
@@ -479,21 +528,29 @@ class CO2(QMainWindow):
 
     def finish(self):
         self.saveData()
-        self.uploadData()
+        self.DP.saveData()
+        self.DP.saveComment(self.ui.commentBox.document().toPlainText())
+
+        # I think this is the Fermilab savedata method. Commenting for now
+        # self.uploadData()
         self.resetGUI()
 
     def closeEvent(self, event):
+        self.DP.handleClose()
         event.accept()
         sys.exit(0)
+
+    def getElapsedTime(self):
+        return self.running
 
     def main(self):
         while True:
 
             if self.timing:
-                running = time.time() - self.startTime
-                self.ui.hour_disp.display(int(running / 3600))
-                self.ui.min_disp.display(int(running / 60) % 60)
-                self.ui.sec_disp.display(int(running) % 60)
+                self.running = time.time() - self.startTime
+                self.ui.hour_disp.display(int(self.running / 3600))
+                self.ui.min_disp.display(int(self.running / 60) % 60)
+                self.ui.sec_disp.display(int(self.running) % 60)
 
             self.lockGUI()
             time.sleep(0.01)
