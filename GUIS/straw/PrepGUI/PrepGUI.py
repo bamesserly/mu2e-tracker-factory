@@ -24,7 +24,7 @@ from pynput.keyboard import Key, Controller
 from pathlib import Path
 from design import Ui_MainWindow  ## edit via Qt Designer
 import sqlalchemy
-from dataProcessorStraw import MultipleDataProcessor as DataProcessor
+from dataProcessor import MultipleDataProcessor as DataProcessor
 
 os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(
