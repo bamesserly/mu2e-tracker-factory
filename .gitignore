@@ -5,8 +5,8 @@ venv/
 Data/
 Database/localDatabasePath.txt
 Database/networkDatabasePath.txt
-GUIS/straw/Prep GUI/dailytotal.txt
-GUIS/straw/Prep GUI/date.txt
+GUIS/straw/PrepGUI/dailytotal.txt
+GUIS/straw/PrepGUI/date.txt
 GUIS/straw/Resistance/calib.csv
 Scripts/*.csv
 Scripts/*.txt
