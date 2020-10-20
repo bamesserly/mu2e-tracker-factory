@@ -40,7 +40,7 @@ def update_daily_num():
 
 def reset_daily_num():
     if os.path.exists("dailytotal.txt"):
-        f = open("dailytotal.txt", "r")
+        f = open("dailytotal.txt", "w")
     else:
         f = open("dailytotal.txt", "w+")
         f.write("0")
@@ -51,12 +51,14 @@ def reset_daily_num():
 
 def update_cpal_num():
     f = open(
-        os.path.dirname(__file__) + "/../../../Data/Straw Prep Data/cpalnum.txt", "r",
+        os.path.dirname(__file__) + "/../../../Data/Straw Prep Data/cpalnum.txt",
+        "r",
     )
     data = f.read()
     f.close()
     f = open(
-        os.path.dirname(__file__) + "/../../../Data/Straw Prep Data/cpalnum.txt", "w",
+        os.path.dirname(__file__) + "/../../../Data/Straw Prep Data/cpalnum.txt",
+        "w",
     )
     num = int(data) + 1
     if num > 9999:
