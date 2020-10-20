@@ -2694,10 +2694,10 @@ class panelGUI(QMainWindow):
             self.ui.alfInput_2.setText(data[11])
             self.ui.alfInput_2.setDisabled(True)
         if data[18] is not None:
-            self.ui.paasAInput.setText(data[18])
+            self.ui.paasAInput.setText(f'PAAS A-{data[18][4:]}')
             self.ui.paasAInput.setDisabled(True)
         if data[19] is not None:
-            self.ui.paasCInput.setText(data[19])
+            self.ui.paasCInput.setText(f'PAAS C-{data[19][4:]}')
             self.ui.paasCInput.setDisabled(True)
             self.ui.leftgap.setEnabled(True)
             self.ui.rightgap.setEnabled(True)
@@ -2891,7 +2891,7 @@ class panelGUI(QMainWindow):
 
         # PAAS B Entry ---------------------------------------------------------------------------
         if data[10] is not None:
-            self.ui.paasBInput.setText(data[10])
+            self.ui.paasBInput.setText(f'PAAS B-{data[10][4:]}')
             self.ui.paasBInput.setDisabled(True)
         
         # comments
