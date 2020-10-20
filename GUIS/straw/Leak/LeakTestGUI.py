@@ -81,16 +81,16 @@ class LeakTestStatus(QMainWindow):
         self.show()
         ## Add a timeout (0.08 sec) to avoid freezing GUI while waiting for serial data from arduinos
         self.COM = [
-            "COM11",
-            "COM7",
+            "COM8",
             "COM9",
-            "COM12",
-            "COM6",
             "COM10",
-            "COM17",
-            "COM14",
-            "COM15",
-            "COM16",
+            "COM11",
+            "COM12",
+            "COM3",
+            "COM4",
+            "COM5",
+            "COM6",
+            "COM7",
         ]
         self.COM_con = [None, None, None, None, None, None, None, None, None, None]
         self.arduino = [
@@ -1469,7 +1469,9 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
-            rem = removeStraw(self.cpals, "\\\\MU2E-CART1\\Database Backup\\Pallets\\")
+            rem = removeStraw(
+                self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+            )
             rem.exec_()
         else:
             self.openLogInDialog()
