@@ -383,8 +383,7 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_inject2,
             self.ui.epoxy_mixed,
             self.ui.epoxy_mixed_2,
-            self.ui.heat_finished,
-            self.ui.paasBInput,
+            self.ui.heat_finished
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -4756,7 +4755,7 @@ def checkPackages():
 #██╔████╔██║███████║██║██╔██╗ ██║
 #██║╚██╔╝██║██╔══██║██║██║╚██╗██║
 #██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
-#╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
+#╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚══���╝
 
 if __name__ == "__main__":
     sys.excepthook = (
