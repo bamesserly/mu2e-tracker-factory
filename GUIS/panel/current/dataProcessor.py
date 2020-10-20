@@ -1786,6 +1786,7 @@ class SQLDataProcessor(DataProcessor):
     def saveFinish(self):
         if self.ensureProcedure():
             self.session.terminate()
+            self.procedure.stop()
             self.saveProcedureDuration()
 
     def handleClose(self):
