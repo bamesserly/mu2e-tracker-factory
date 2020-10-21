@@ -2317,15 +2317,19 @@ class Panel(StrawLocation):
     def recordFrame(self, number):
         self._recordPart("FRAME", number)
 
+    # gets LEFT rib
     def getMiddleRib1(self):
         return self._queryPartOnPanel("MIDDLERIB_1").one_or_none()
 
+    # records LEFT rib
     def recordMiddleRib1(self, number):
         self._recordPart("MIDDLERIB_1", number)
 
+    # gets RIGHT rib
     def getMiddleRib2(self):
         return self._queryPartOnPanel("MIDDLERIB_2").one_or_none()
 
+    # records RIGHT rib
     def recordMiddleRib2(self, number):
         self._recordPart("MIDDLERIB_2", number)
 

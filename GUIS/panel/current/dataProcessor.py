@@ -2395,7 +2395,7 @@ class SQLDataProcessor(DataProcessor):
             self.getBarcode(panel),  # Panel
             self.getBarcode(panel.getFrame()),  # Frame
             self.getBarcode(panel.getMiddleRib1()),  # Left Middle Rib
-            self.getBarcode(panel.getMiddleRib1()),  # Right Middle Rib
+            self.getBarcode(panel.getMiddleRib2()),  # Right Middle Rib
             self.procedure.getBaseplateRibsMIRGapLeft(),  # Baseplate Ribs\MIR Gap (left)
             self.procedure.getBaseplateRibsMIRGapRight(),  # Baseplate Ribs\MIR Gap (right)
             self.epoxyBarcode(
