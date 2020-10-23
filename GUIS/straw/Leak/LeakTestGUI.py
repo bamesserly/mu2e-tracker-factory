@@ -748,7 +748,6 @@ class LeakTestStatus(QMainWindow):
             time.time(),
         ]
         while any(self._running):
-
             i = 0
             for tf in self._running:
                 # cycles through rows
@@ -766,6 +765,7 @@ class LeakTestStatus(QMainWindow):
                         self.Connect_Arduino(self.COM[ROW])
                         if self.COM_con[ROW] != None:
                             empty_lines[ROW] = 0
+
                     if self.COM_con[ROW] == None:
                         # self.Arduinos[ROW].setStyleSheet("background-color: rgb(170, 0, 0);")
                         self.ArduinoStart.emit(ROW, False)
@@ -1503,6 +1503,7 @@ class LeakTestStatus(QMainWindow):
     def setArduinoStart(self, ROW, state):
         if state:
             self.Arduinos[ROW].setStyleSheet("background-color: rgb(0, 170, 0);")
+
         else:
             self.Arduinos[ROW].setStyleSheet("background-color: rgb(170, 0, 0);")
 
@@ -1600,7 +1601,7 @@ class StrawSelect(QDialog):
             and all(ch.isdigit() for ch in self.straw_load[2:])
         ):
             try:
-                checkStraw(self.straw_load, "infl", "leak")
+                checkStraw(self.straw_load, "C-O2", "leak")
                 print("Straw", self.straw_load, "loaded")
                 self.deleteLater()
             except StrawRemovedError:

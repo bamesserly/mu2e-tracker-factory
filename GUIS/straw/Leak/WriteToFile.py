@@ -38,10 +38,8 @@ def ExtractPreviousStrawData(path):
 
 def FindCPAL(strawname):
     # Returns (CPALID, CPAL) of straw number
-
-    database_path = os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
-
-    for i in range(1, 24):
+    database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
+    for i in range(1, 25):
         files = []
         cpalid = "CPALID" + str(i).zfill(2)
         path = os.path.join(database_path, cpalid)
@@ -67,7 +65,7 @@ def FindCPAL(strawname):
 
 def UpdateStrawInfo(test, workers, strawname, result):
     # Save data to appropriate CPAL file
-    database_path = os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+    database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
 
     (cpalid, cpal) = FindCPAL(strawname)
 
@@ -229,7 +227,7 @@ def checkPass(path, strawname, current_test):
 
 
 def checkStraw(strawname, expected_previous_test, current_test):
-    database_path = os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+    database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
 
     (cpalid, cpal) = FindCPAL(strawname)
 
