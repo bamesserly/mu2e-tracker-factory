@@ -81,16 +81,16 @@ class LeakTestStatus(QMainWindow):
         self.show()
         ## Add a timeout (0.08 sec) to avoid freezing GUI while waiting for serial data from arduinos
         self.COM = [
-            "COM11",
-            "COM7",
+            "COM8",
             "COM9",
-            "COM12",
-            "COM6",
             "COM10",
-            "COM17",
-            "COM14",
-            "COM15",
-            "COM16",
+            "COM11",
+            "COM12",
+            "COM3",
+            "COM4",
+            "COM5",
+            "COM6",
+            "COM7",
         ]
         self.COM_con = [None, None, None, None, None, None, None, None, None, None]
         self.arduino = [
@@ -748,7 +748,6 @@ class LeakTestStatus(QMainWindow):
             time.time(),
         ]
         while any(self._running):
-
             i = 0
             for tf in self._running:
                 # cycles through rows
@@ -766,6 +765,7 @@ class LeakTestStatus(QMainWindow):
                         self.Connect_Arduino(self.COM[ROW])
                         if self.COM_con[ROW] != None:
                             empty_lines[ROW] = 0
+
                     if self.COM_con[ROW] == None:
                         # self.Arduinos[ROW].setStyleSheet("background-color: rgb(170, 0, 0);")
                         self.ArduinoStart.emit(ROW, False)
@@ -1469,7 +1469,9 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
-            rem = removeStraw(self.cpals, "\\\\MU2E-CART1\\Database Backup\\Pallets\\")
+            rem = removeStraw(
+                self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+            )
             rem.exec_()
         else:
             self.openLogInDialog()
@@ -1501,6 +1503,7 @@ class LeakTestStatus(QMainWindow):
     def setArduinoStart(self, ROW, state):
         if state:
             self.Arduinos[ROW].setStyleSheet("background-color: rgb(0, 170, 0);")
+
         else:
             self.Arduinos[ROW].setStyleSheet("background-color: rgb(170, 0, 0);")
 
@@ -1598,7 +1601,7 @@ class StrawSelect(QDialog):
             and all(ch.isdigit() for ch in self.straw_load[2:])
         ):
             try:
-                checkStraw(self.straw_load, "infl", "leak")
+                checkStraw(self.straw_load, "C-O2", "leak")
                 print("Straw", self.straw_load, "loaded")
                 self.deleteLater()
             except StrawRemovedError:
