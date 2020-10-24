@@ -1,3 +1,9 @@
+#  - -    --   - - /|_/|          .-----------------------.
+#  _______________| @.@|         /  Written by Adam Arnett )
+# (______         >\_W/<  ------/  Created 5/28/2020      /
+#  -   / ______  _/____)       /  Last Update 10/24/2020 /
+# -   / /\ \   \ \            (  PS: Meow! :3           /
+#  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, tkinter, tkinter.messagebox  # for creating app, time formatting, saving to csv, popup dialogs
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
@@ -27,42 +33,34 @@ from PyQt5.QtCore import Qt, QRect, QObject  # for gui window management
 from datetime import datetime  # for time formatting
 from facileDB import Ui_MainWindow  # import raw UI
 
-# - -    --   - - /|_/|          .-------------------.
-# _______________| @.@|         /                     )
-# (______         >\_W/<     ---/    I'm a cat :3     /
-#  -   / ______  _/____)      (                     /
-# -   / /\ \   \ \             `-------------------'
-#  - (_/  \_) - \_)
 
-# Main class for a gui to make interacting with the DB easier.
-# Adam Arnett
-# Created 5-28-2020
-# Last update 6-19-2020
-# improvements to be made:
-# differentiate between 5 day panels and 7 day panels
-# improve on the measurement display
-# some procedures get logged twice (two pan3s, for example) and one might not have wire tension data while the other does.
-#     This is an issue with the database, not this gui.  But, this gui doesn't have a way to figure out which procedure to read.
-# add modification stuff???
-# next steps:
-# add procedures to important tables
-# check procedures to find best data, completion, etc
-# add full report, what other data is needed?
-# everything...
+# fmt: off
+# ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗    ██╗   ██╗██╗███████╗██╗    ██╗███████╗██████╗ 
+# ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██║   ██║██║██╔════╝██║    ██║██╔════╝██╔══██╗
+# ██║  ██║███████║   ██║   ███████║██████╔╝███████║███████╗█████╗      ██║   ██║██║█████╗  ██║ █╗ ██║█████╗  ██████╔╝
+# ██║  ██║██╔══██║   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══╝      ╚██╗ ██╔╝██║██╔══╝  ██║███╗██║██╔══╝  ██╔══██╗
+# ██████╔╝██║  ██║   ██║   ██║  ██║██████╔╝██║  ██║███████║███████╗     ╚████╔╝ ██║███████╗╚███╔███╔╝███████╗██║  ██║
+# ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝      ╚═══╝  ╚═╝╚══════╝ ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝
+
+# Main class for a gui to make interacting with the database easy, and worry free (no fear of accidentally deleting anything)
+# Gets the QMainWindow class from facileDB.py
+# the "fmt" comments prevent the black autoformatter from messing with comments and section headers
+# fmt: on
+
+
 
 
 class facileDBGUI(QMainWindow):
 
-    #  ██▓ ███▄    █  ██▓▄▄▄█████▓ ██▓ ▄▄▄       ██▓     ██▓▒███████▒▓█████
-    # ▓██▒ ██ ▀█   █ ▓██▒▓  ██▒ ▓▒▓██▒▒████▄    ▓██▒    ▓██▒▒ ▒ ▒ ▄▀░▓█   ▀
-    # ▒██▒▓██  ▀█ ██▒▒██▒▒ ▓██░ ▒░▒██▒▒██  ▀█▄  ▒██░    ▒██▒░ ▒ ▄▀▒░ ▒███
-    # ░██░▓██▒  ▐▌██▒░██░░ ▓██▓ ░ ░██░░██▄▄▄▄██ ▒██░    ░██░  ▄▀▒   ░▒▓█  ▄
-    # ░██░▒██░   ▓██░░██░  ▒██▒ ░ ░██░ ▓█   ▓██▒░██████▒░██░▒███████▒░▒████▒
-    # ░▓  ░ ▒░   ▒ ▒ ░▓    ▒ ░░   ░▓   ▒▒   ▓▒█░░ ▒░▓  ░░▓  ░▒▒ ▓░▒░▒░░ ▒░ ░
-    #  ▒ ░░ ░░   ░ ▒░ ▒ ░    ░     ▒ ░  ▒   ▒▒ ░░ ░ ▒  ░ ▒ ░░░▒ ▒ ░ ▒ ░ ░  ░
-    #  ▒ ░   ░   ░ ░  ▒ ░  ░       ▒ ░  ░   ▒     ░ ░    ▒ ░░ ░ ░ ░ ░   ░
-    #  ░           ░  ░            ░        ░  ░    ░  ░ ░    ░ ░       ░  ░
-    #                                                       ░
+# fmt: off
+# ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗
+# ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝
+# ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗  
+# ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝  
+# ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗
+# ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝
+# Functions called by main, or by other functions under this section for the purpose of starting up the GUI.
+# fmt: on
 
     # initializer, takes ui parameter from the .ui file
     def __init__(self, ui_layout):
@@ -105,18 +103,21 @@ class facileDBGUI(QMainWindow):
         self.strawTensionData = []
         self.wireTensionData = []
 
-        self.ringsSetupWidgetList = [  # list of line edits for rings
-            self.ui.ringsBasePlateLE,
-            self.ui.ringsMIRLE,
-            self.ui.ringsBIRLE,
-            self.ui.ringsPLALE,
-            self.ui.ringsPLBLE,
-            self.ui.ringsPLCLE,
-            self.ui.ringsPRALE,
-            self.ui.ringsPRBLE,
-            self.ui.ringsPRCLE,
-            self.ui.ringsALF1LE,
-            self.ui.ringsALF2LE,
+        self.partSetupWidgetList = [  # list of line edits for part
+            self.ui.partBasePlateLE,
+            self.ui.partMIRLE,
+            self.ui.partBIRLE,
+            self.ui.partPLALE,
+            self.ui.partPLBLE,
+            self.ui.partPLCLE,
+            self.ui.partPRALE,
+            self.ui.partPRBLE,
+            self.ui.partPRCLE,
+            self.ui.partALF1LE,
+            self.ui.partALF2LE,
+            self.ui.partPaasALE,
+            self.ui.partPaasBLE,
+            self.ui.partPaasCLE
         ]
 
         # link widgets and things
@@ -145,33 +146,30 @@ class facileDBGUI(QMainWindow):
     # make engine, connection, and metadata objects to interact with database
     def connectToDB(self):
 
-        # override connect to return a read-only DB connection, MUST use path starting at C drive
+        # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
         # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
-        tkinter.messagebox.showinfo(
-            title="Connecting", message=f"Connecting to network database..."
-        )
-
+        # this function returns a read only connection to the .db file at the secified location
         def connectSpecial():
             return sqlite3.connect(
                 "file:X:\Data\database.db?mode=ro", uri=True
             )
 
+        # this create_engine call uses connectSpecial to open the sqlite database in read only
         self.engine = sqla.create_engine(
             "sqlite:///../../Data/database.db/", creator=connectSpecial
         )  # create engine
 
         # try to use read only mode
-        # If the path above is wrong, read-only will fail.  I could see a mergedown or misplaced file easily screwing up the path.
-        # If read-only fails, it'll use the regular SQLAlchemy connection.  The regular connection shouldn't write to the DB, but
-        # having read-only mode is a good safety net.
+        # give error message to allow for quick debugging if it fails
         try:
             self.connection = self.engine.connect()  # connect engine with DB
         except:
             tkinter.messagebox.showerror(
                 title="Error",
-                message=f"Read-only mode failed.  The network is not mapped as the X drive.  Contact a member of the software team for help.",
+                message=f"Read-only mode failed.  Contact a member of the software team for help.",
             )  # show error message
-            self.connection = self.engine.connect()  # connect engine with DB
+            sys.exit()
+
 
         self.metadata = sqla.MetaData()  # create metadata
         self.initSQLTables()  # create important tables
@@ -185,24 +183,34 @@ class facileDBGUI(QMainWindow):
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
         )  # procedure
 
-    #  ██▀███  ▓█████ ▄▄▄      ▓█████▄  ██▓ ███▄    █   ▄████      █████▒██▀███   ▒█████   ███▄ ▄███▓   ▓█████▄  ▄▄▄▄
-    # ▓██ ▒ ██▒▓█   ▀▒████▄    ▒██▀ ██▌▓██▒ ██ ▀█   █  ██▒ ▀█▒   ▓██   ▒▓██ ▒ ██▒▒██▒  ██▒▓██▒▀█▀ ██▒   ▒██▀ ██▌▓█████▄
-    # ▓██ ░▄█ ▒▒███  ▒██  ▀█▄  ░██   █▌▒██▒▓██  ▀█ ██▒▒██░▄▄▄░   ▒████ ░▓██ ░▄█ ▒▒██░  ██▒▓██    ▓██░   ░██   █▌▒██▒ ▄██
-    # ▒██▀▀█▄  ▒▓█  ▄░██▄▄▄▄██ ░▓█▄   ▌░██░▓██▒  ▐▌██▒░▓█  ██▓   ░▓█▒  ░▒██▀▀█▄  ▒██   ██░▒██    ▒██    ░▓█▄   ▌▒██░█▀
-    # ░██▓ ▒██▒░▒████▒▓█   ▓██▒░▒████▓ ░██░▒██░   ▓██░░▒▓███▀▒   ░▒█░   ░██▓ ▒██▒░ ████▓▒░▒██▒   ░██▒   ░▒████▓ ░▓█  ▀█▓
-    # ░ ▒▓ ░▒▓░░░ ▒░ ░▒▒   ▓▒█░ ▒▒▓  ▒ ░▓  ░ ▒░   ▒ ▒  ░▒   ▒     ▒ ░   ░ ▒▓ ░▒▓░░ ▒░▒░▒░ ░ ▒░   ░  ░    ▒▒▓  ▒ ░▒▓███▀▒
-    #   ░▒ ░ ▒░ ░ ░  ░ ▒   ▒▒ ░ ░ ▒  ▒  ▒ ░░ ░░   ░ ▒░  ░   ░     ░       ░▒ ░ ▒░  ░ ▒ ▒░ ░  ░      ░    ░ ▒  ▒ ▒░▒   ░
-    #   ░░   ░    ░    ░   ▒    ░ ░  ░  ▒ ░   ░   ░ ░ ░ ░   ░     ░ ░     ░░   ░ ░ ░ ░ ▒  ░      ░       ░ ░  ░  ░    ░
-    #    ░        ░  ░     ░  ░   ░     ░           ░       ░              ░         ░ ░         ░         ░     ░
-    #                           ░                                                                        ░            ░
+# fmt: off
+# ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗ 
+# ██╔══██╗██╔════╝██╔══██╗██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ██╔══██╗██╔══██╗
+# ██████╔╝█████╗  ███████║██║  ██║    █████╗  ██████╔╝██║   ██║██╔████╔██║    ██║  ██║██████╔╝
+# ██╔══██╗██╔══╝  ██╔══██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╔╝██║    ██║  ██║██╔══██╗
+# ██║  ██║███████╗██║  ██║██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║    ██████╔╝██████╔╝
+# ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝    ╚═════╝ ╚═════╝ 
+# Functions that read from the SQL database
+# Find panel is a pretty important function, it's tied to the submit button and clears data
+#   from the GUI, checks for the existence of the submitted panel, and changes the top text
+#   label all before calling all the other "find" functions
+# fmt: on
 
     # called upon hitting submit (does a lot of stuff)
     def findPanel(self):
+        # What it does:
+        # gets rid of data on the gui
+        # changes the panel ID on the top of the gui
+        # checks if the requested panel exists, if not gives error popup
+        # finally calls all the functions that read data from the database
+        #   which in turn call all the display functions (should a seperate
+        #   thing call those maybe?)
+
         # first get rid of any existing data
         self.panelDatabaseID = -1  # reset panel database ID
         for widget in self.comListWidgetList:  # clear comments from list widgets
             widget.clear()
-        for widget in self.ringsSetupWidgetList:  # erase all part IDs
+        for widget in self.partSetupWidgetList:  # erase all part IDs
             widget.setText("")
         for (
             key
@@ -362,7 +370,7 @@ class facileDBGUI(QMainWindow):
         resultSet2 = resultProxy2.fetchall()
 
         for partTuple in resultSet2:
-            self.sortPanelParts(partTuple)
+            self.displayPanelParts(partTuple)
 
     # get HV, straw tension, and wire tension data
     def findMeasurements(self):
@@ -495,16 +503,15 @@ class facileDBGUI(QMainWindow):
     def findHeat(self):
         pass
 
-    # ▓█████ ▒██   ██▒ ██▓███   ▒█████   ██▀███  ▄▄▄█████▓ ██▓ ███▄    █   ▄████
-    # ▓█   ▀ ▒▒ █ █ ▒░▓██░  ██▒▒██▒  ██▒▓██ ▒ ██▒▓  ██▒ ▓▒▓██▒ ██ ▀█   █  ██▒ ▀█▒
-    # ▒███   ░░  █   ░▓██░ ██▓▒▒██░  ██▒▓██ ░▄█ ▒▒ ▓██░ ▒░▒██▒▓██  ▀█ ██▒▒██░▄▄▄░
-    # ▒▓█  ▄  ░ █ █ ▒ ▒██▄█▓▒ ▒▒██   ██░▒██▀▀█▄  ░ ▓██▓ ░ ░██░▓██▒  ▐▌██▒░▓█  ██▓  (exporting)
-    # ░▒████▒▒██▒ ▒██▒▒██▒ ░  ░░ ████▓▒░░██▓ ▒██▒  ▒██▒ ░ ░██░▒██░   ▓██░░▒▓███▀▒
-    # ░░ ▒░ ░▒▒ ░ ░▓ ░▒▓▒░ ░  ░░ ▒░▒░▒░ ░ ▒▓ ░▒▓░  ▒ ░░   ░▓  ░ ▒░   ▒ ▒  ░▒   ▒
-    #  ░ ░  ░░░   ░▒ ░░▒ ░       ░ ▒ ▒░   ░▒ ░ ▒░    ░     ▒ ░░ ░░   ░ ▒░  ░   ░
-    #    ░    ░    ░  ░░       ░ ░ ░ ▒    ░░   ░   ░       ▒ ░   ░   ░ ░ ░ ░   ░
-    #    ░  ░ ░    ░               ░ ░     ░               ░           ░       ░
-    #
+# fmt: off
+# ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ 
+# ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ 
+# █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗
+# ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║
+# ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝
+# ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+# Functions responsible for writing data to CSV files
+# fmt: on
 
     # export wire data to CSV file
     def exportWireMeasurements(self):
@@ -574,16 +581,15 @@ class facileDBGUI(QMainWindow):
                 message=f"Data exported to MN{self.panelNumber}_HV_data.csv",
             )
 
-    #   ▄████  ██▀███   ▄▄▄       ██▓███   ██░ ██  ██▓ ███▄    █   ▄████
-    #  ██▒ ▀█▒▓██ ▒ ██▒▒████▄    ▓██░  ██▒▓██░ ██▒▓██▒ ██ ▀█   █  ██▒ ▀█▒
-    # ▒██░▄▄▄░▓██ ░▄█ ▒▒██  ▀█▄  ▓██░ ██▓▒▒██▀▀██░▒██▒▓██  ▀█ ██▒▒██░▄▄▄░
-    # ░▓█  ██▓▒██▀▀█▄  ░██▄▄▄▄██ ▒██▄█▓▒ ▒░▓█ ░██ ░██░▓██▒  ▐▌██▒░▓█  ██▓
-    # ░▒▓███▀▒░██▓ ▒██▒ ▓█   ▓██▒▒██▒ ░  ░░▓█▒░██▓░██░▒██░   ▓██░░▒▓███▀▒
-    #  ░▒   ▒ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░▒▓▒░ ░  ░ ▒ ░░▒░▒░▓  ░ ▒░   ▒ ▒  ░▒   ▒
-    #   ░   ░   ░▒ ░ ▒░  ▒   ▒▒ ░░▒ ░      ▒ ░▒░ ░ ▒ ░░ ░░   ░ ▒░  ░   ░
-    # ░ ░   ░   ░░   ░   ░   ▒   ░░        ░  ░░ ░ ▒ ░   ░   ░ ░ ░ ░   ░
-    #       ░    ░           ░  ░          ░  ░  ░ ░           ░       ░
-    #
+# fmt: off
+#  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
+# ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║██║████╗  ██║██╔════╝ 
+# ██║  ███╗██████╔╝███████║██████╔╝███████║██║██╔██╗ ██║██║  ███╗
+# ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║██║██║╚██╗██║██║   ██║
+# ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║██║██║ ╚████║╚██████╔╝
+#  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+# Functions that use matplotlib to make graphs from the data in scroll areas
+# fmt: on
 
     # function to open new window with wire tension data graphed
     def plotWireData(self):
@@ -716,58 +722,58 @@ class facileDBGUI(QMainWindow):
         # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
         plt.show()
 
-    #  ███▄ ▄███▓ ██▓  ██████  ▄████▄
-    # ▓██▒▀█▀ ██▒▓██▒▒██    ▒ ▒██▀ ▀█
-    # ▓██    ▓██░▒██▒░ ▓██▄   ▒▓█    ▄
-    # ▒██    ▒██ ░██░  ▒   ██▒▒▓▓▄ ▄██▒
-    # ▒██▒   ░██▒░██░▒██████▒▒▒ ▓███▀ ░
-    # ░ ▒░   ░  ░░▓  ▒ ▒▓▒ ▒ ░░ ░▒ ▒  ░
-    # ░  ░      ░ ▒ ░░ ░▒  ░ ░  ░  ▒
-    # ░      ░    ▒ ░░  ░  ░  ░
-    #        ░    ░        ░  ░ ░
-    #                         ░
+# fmt: off
+# ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
+# ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+# ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
+# ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+# ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+# Functions that put data onto the GUI
+# findComments() should be split into findComments() and displayComments()
+# fmt: on
 
     # function to help sift through partsQuery results, also displays found data
     # this is essentially a helper for findPanelParts()
-    def sortPanelParts(self, partTuple):
+    def displayPanelParts(self, partTuple):
         # I apologise for this abhorrent block of code with 15 too many if/elif statements
         # this could potentially be avoided with a dictionary?
         # having PIR and ALF before others in the if statements it a tiny bit more efficient
         if partTuple[4] == "PIR":
             if partTuple[6] == "L":
                 if partTuple[7] == "A":
-                    self.ui.ringsPLALE.setText(str(partTuple[5]))
+                    self.ui.partPLALE.setText(str(partTuple[5]))
                 elif partTuple[7] == "B":
-                    self.ui.ringsPLBLE.setText(str(partTuple[5]))
+                    self.ui.partPLBLE.setText(str(partTuple[5]))
                 elif (
                     partTuple[7] == "C"
                 ):  # this could be just else, but checking prevents garbage data from being displayed
-                    self.ui.ringsPLCLE.setText(str(partTuple[5]))
+                    self.ui.partPLCLE.setText(str(partTuple[5]))
             if partTuple[6] == "R":
                 if partTuple[7] == "A":
-                    self.ui.ringsPRALE.setText(str(partTuple[5]))
+                    self.ui.partPRALE.setText(str(partTuple[5]))
                 elif partTuple[7] == "B":
-                    self.ui.ringsPRBLE.setText(str(partTuple[5]))
+                    self.ui.partPRBLE.setText(str(partTuple[5]))
                 elif partTuple[7] == "C":
-                    self.ui.ringsPRCLE.setText(str(partTuple[5]))
+                    self.ui.partPRCLE.setText(str(partTuple[5]))
         elif partTuple[4] == "PAAS":
             if partTuple[7] == "A":
-                self.ui.paasALE.setText(str(partTuple[5]))
+                self.ui.partPaasALE.setText(str(partTuple[5]))
             if partTuple[7] == "B":
-                self.ui.paasBLE.setText(str(partTuple[5]))
+                self.ui.partPaasBLE.setText(str(partTuple[5]))
             if partTuple[7] == "C":
-                self.ui.paasCLE.setText(str(partTuple[5]))
+                self.ui.partPaasCLE.setText(str(partTuple[5]))
         elif partTuple[4] == "ALF":
             if partTuple[3] == "L":
-                self.ui.ringsALF1LE.setText(str(partTuple[5]))
+                self.ui.partALF1LE.setText(str(partTuple[5]))
             elif partTuple[3] == "R":
-                self.ui.ringsALF2LE.setText(str(partTuple[5]))
+                self.ui.partALF2LE.setText(str(partTuple[5]))
         elif partTuple[4] == "BASEPLATE":
-            self.ui.ringsBasePlateLE.setText(str(partTuple[5]))
+            self.ui.partBasePlateLE.setText(str(partTuple[5]))
         elif partTuple[4] == "MIR":
-            self.ui.ringsMIRLE.setText(str(partTuple[5]))
+            self.ui.partMIRLE.setText(str(partTuple[5]))
         elif partTuple[4] == "BIR":
-            self.ui.ringsBIRLE.setText(str(partTuple[5]))
+            self.ui.partBIRLE.setText(str(partTuple[5]))
 
     # put measurement data on the gui
     def displayMeasurement(self):
@@ -826,19 +832,40 @@ class facileDBGUI(QMainWindow):
         else:
             self.ui.hvListWidget.addItem("No Data Found :(")
 
-    # override close button event
+# fmt: off
+# ███╗   ███╗██╗███████╗ ██████╗
+# ████╗ ████║██║██╔════╝██╔════╝
+# ██╔████╔██║██║███████╗██║     
+# ██║╚██╔╝██║██║╚════██║██║     
+# ██║ ╚═╝ ██║██║███████║╚██████╗
+# ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
+# The isle of misfit functions
+# fmt: on
+
+    # override close button event (see comments in function)
     def closeEvent(self, event):
         sys.exit()  # kill program
         # this is necessary since using the pyplot.show() makes python think there's another app running, so closing the gui
         # won't close the program if you used the plot button (so you'd have a python process still running in the background
         # doing nothing).  Overriding the closeEvent to exit the program makes sure the whole process is dead when the user
-        # clicks the X in the upper right corner
+        # clicks the X in the upper right corner.
+        # It's not called anywhere because having it here overwrites a QMainWindow method.
+        # Killing it with sys.exit() will not hurt the database.
 
+
+# fmt: off
+# ███╗   ███╗ █████╗ ██╗███╗   ██╗
+# ████╗ ████║██╔══██╗██║████╗  ██║
+# ██╔████╔██║███████║██║██╔██╗ ██║
+# ██║╚██╔╝██║██╔══██║██║██║╚██╗██║
+# ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
+# ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
+# DEFINITELY NOT the thing that starts up the program
+# fmt: on
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)  # make an app
     # app.setStyleSheet(qdarkstyle.load_stylesheet())    # darkmodebestmode
-    print("Starting...")
     window = facileDBGUI(Ui_MainWindow())  # make a window
     window.connectToDB()  # link to database
     window.setWindowTitle("Database Viewer")
