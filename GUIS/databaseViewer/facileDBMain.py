@@ -1239,7 +1239,6 @@ class facileDBGUI(QMainWindow):
         # Killing it with sys.exit() will not hurt the database.
 
 
-
 # fmt: off
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
 # ████╗ ████║██╔══██╗██║████╗  ██║
