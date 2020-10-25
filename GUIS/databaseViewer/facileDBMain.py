@@ -1,10 +1,10 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 5/28/2020      /
-#  -   / ______  _/____)       /  Last Update 10/24/2020 /
+#  -   / ______  _/____)       /  Last Update 10/25/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
-import sys, time, csv, getpass, tkinter, tkinter.messagebox 
+import sys, time, csv, getpass, os, tkinter, tkinter.messagebox 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QTableWidgetItem,
 )
-from PyQt5.QtGui import QBrush
+from PyQt5.QtGui import QBrush, QIcon
 
 # for GUI widget management^
 from PyQt5.QtCore import Qt, QRect, QObject  # for gui window management
@@ -74,6 +74,9 @@ class facileDBGUI(QMainWindow):
         ui_layout.setupUi(self)  # apply ui to window
         self.tkRoot = tkinter.Tk()  # make tkinter root for popup messages
         self.tkRoot.withdraw()  # hide root, it's necessary for popups to work, but it's just a blank window otherwise
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))  # put icon in upper left
+        self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
 
         # panel variables
         self.panelNumber = (
@@ -901,7 +904,6 @@ class facileDBGUI(QMainWindow):
 # fmt: on
 
 if __name__ == "__main__":
-    print(getpass.getuser())
     app = QApplication(sys.argv)  # make an app
     # app.setStyleSheet(qdarkstyle.load_stylesheet())    # darkmodebestmode
     window = facileDBGUI(Ui_MainWindow())  # make a window
