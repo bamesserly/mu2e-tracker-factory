@@ -4,7 +4,8 @@
 #  -   / ______  _/____)       /  Last Update 10/24/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
-import sys, time, csv, tkinter, tkinter.messagebox  # for creating app, time formatting, saving to csv, popup dialogs
+import sys, time, csv, getpass, tkinter, tkinter.messagebox 
+# for creating app, time formatting, saving to csv, finding local db, popup dialogs
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
 import sqlalchemy as sqla  # for interacting with db
@@ -44,6 +45,9 @@ from facileDB import Ui_MainWindow  # import raw UI
 
 # Main class for a gui to make interacting with the database easy, and worry free (no fear of accidentally deleting anything)
 # Gets the QMainWindow class from facileDB.py
+# Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
+# Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
+ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
 # fmt: on
 
@@ -143,9 +147,8 @@ class facileDBGUI(QMainWindow):
             self.plotHVData
         )  # bind function for plot HV data
 
-    # make engine, connection, and metadata objects to interact with database
-    def connectToDB(self):
-
+    # make engine, connection, and metadata objects to interact with NETWORK database
+    def connectToNetwork(self):
         # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
         # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
         # this function returns a read only connection to the .db file at the secified location
@@ -166,7 +169,41 @@ class facileDBGUI(QMainWindow):
         except:
             tkinter.messagebox.showerror(
                 title="Error",
-                message=f"Read-only mode failed.  Contact a member of the software team for help.",
+                message=f"Network read-only mode failed.  Contact a member of the software team for help.",
+            )  # show error message
+            sys.exit()
+
+
+        self.metadata = sqla.MetaData()  # create metadata
+        self.initSQLTables()  # create important tables
+
+    # make engine, connection, and metadata objects to interact with LOCAL database
+    def connectToLocal(self):
+        
+        # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
+        # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
+        # this function returns a read only connection to the .db file at the secified location
+        # getpass.getuser() fetches the current username
+        # double backslashes are necessary because \U is a unicode escape, but \\U is not
+        def connectSpecial(dbPath):
+            return sqlite3.connect(
+                f'file:C:\\Users\\{getpass.getuser()}\\Desktop\\production\\Data\\database.db?mode=ro',
+                uri=True
+                )
+
+        # this create_engine call uses connectSpecial to open the sqlite database in read only
+        self.engine = sqla.create_engine(
+            "sqlite:///../../Data/database.db/", creator=connectSpecial
+        )  # create engine
+
+        # try to use read only mode
+        # give error message to allow for quick debugging if it fails
+        try:
+            self.connection = self.engine.connect()  # connect engine with DB
+        except:
+            tkinter.messagebox.showerror(
+                title="Local Error",
+                message=f"Local read-only mode failed.  Contact a member of the software team for help.",
             )  # show error message
             sys.exit()
 
@@ -864,11 +901,17 @@ class facileDBGUI(QMainWindow):
 # fmt: on
 
 if __name__ == "__main__":
+    print(getpass.getuser())
     app = QApplication(sys.argv)  # make an app
     # app.setStyleSheet(qdarkstyle.load_stylesheet())    # darkmodebestmode
     window = facileDBGUI(Ui_MainWindow())  # make a window
-    window.connectToDB()  # link to database
-    window.setWindowTitle("Database Viewer")
+    if ISLAB:
+        window.connectToNetwork()  # link to database
+        window.setWindowTitle("Database Viewer") # change from default window title
+    else:
+        window.connectToLocal() #link to database
+        window.setWindowTitle("~~~~~~~LOCAL CONNECTION FOR DEVELOPMENT~~~~~~~")
+        # make sure you can tell the difference between local and network connections
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
     app.exec_()  # run the app!
