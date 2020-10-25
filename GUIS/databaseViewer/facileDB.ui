@@ -310,7 +310,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>6</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="ringsTab">
            <attribute name="title">
@@ -465,7 +465,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>8</pointsize>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">

@@ -286,7 +286,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.submitPB.sizePolicy().hasHeightForWidth())
         self.submitPB.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setPointSize(8)
+        font.setPointSize(10)
         self.submitPB.setFont(font)
         self.submitPB.setObjectName("submitPB")
         self.label_2 = QtWidgets.QLabel(self.splitter)
@@ -571,7 +571,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.comboBox.setCurrentIndex(0)
-        self.tabWidget.setCurrentIndex(6)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
