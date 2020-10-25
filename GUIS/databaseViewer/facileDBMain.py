@@ -1250,7 +1250,6 @@ class facileDBGUI(QMainWindow):
 # fmt: on
 
 if __name__ == "__main__":
-    print(getpass.getuser())
     app = QApplication(sys.argv)  # make an app
     # app.setStyleSheet(qdarkstyle.load_stylesheet())    # darkmodebestmode
     window = facileDBGUI(Ui_MainWindow())  # make a window
