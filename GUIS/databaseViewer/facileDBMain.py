@@ -223,6 +223,25 @@ class facileDBGUI(QMainWindow):
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
         )  # procedure
 
+    def initInputWidgets(self):
+        # link widgets and things
+        # bind function for submit button
+        self.ui.submitPB.clicked.connect(self.findPanel)
+        # bind function for export wire tension stuff
+        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements) 
+        # bind function for wire plot button
+        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)  
+        # bind function for export straw tension data
+        self.ui.strawExportButton.clicked.connect(self.exportStrawMeasurements)
+        # bind function for plot straw tension data
+        self.ui.plotStrawDataButton.clicked.connect(self.plotStrawData)
+        # bind funciton for export HV data
+        self.ui.hvExportButton.clicked.connect(self.exportHVMeasurements)
+        # bind function for plot HV data
+        self.ui.plotHVDataButton.clicked.connect(self.plotHVData)
+        
+        
+
 # fmt: off
 # ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗ 
 # ██╔══██╗██╔════╝██╔══██╗██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ██╔══██╗██╔══██╗
@@ -252,9 +271,7 @@ class facileDBGUI(QMainWindow):
             widget.clear()
         for widget in self.partSetupWidgetList:  # erase all part IDs
             widget.setText("")
-        for (
-            key
-        ) in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
+        for key in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
             self.panelProcedureIDs[key] = -1
         # clear lists
         self.ui.hvListWidget.clear()  # clear text in widget
@@ -322,9 +339,8 @@ class facileDBGUI(QMainWindow):
         )  # fetch from proxy, gives list of tuples: (<PRO ID>, <STATION>)
 
         for toop in self.panelProcedures:  # go through results from procedures query
-            self.panelProcedureIDs[toop[1]] = toop[
-                0
-            ]  # assign procedure ID to the corresponding station
+            self.panelProcedureIDs[toop[1]] = toop[0] 
+            # assign procedure ID to the corresponding station (above line)
             # self.panelProcedureIDs is a dictionary with the name of each station as keys
         # print(self.panelProcedureIDs)
 
@@ -541,7 +557,41 @@ class facileDBGUI(QMainWindow):
 
     # find and display PAAS heating data
     def findHeat(self):
-        pass
+        
+        # get heat table
+        panelHeats = sqla.Table(
+            "panel_heat",
+            self.metadata,
+            autoload=True,
+            autoload_with=self.engine
+        )
+
+        # if a pro 2 exists, get the data!
+        if self.panelProcedureIDs["pan2"] != -1:
+            pro2HeatQuery = sqla.select(
+                [
+                    panelHeats.columns.timestamp,   # time temp taken
+                    panelHeats.columns.temp_paas_a, # PAAS A temp
+                    panelHeats.columns.temp_paas_bc # PAAS BC temp
+                ]
+            ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan2"])
+            # where the procedure for the entry is the procedure for this panel
+            resultProxy = self.connection.execute(pro2HeatQuery) # make proxy
+            rawPro2HeatData = resultProxy.fetchall()    # get data from db
+
+        # if a pro 6 exists, get the data!
+        if self.panelProcedureIDs["pan6"] != -1:
+            pro6HeatQuery = sqla.select(
+                [
+                    panelHeats.columns.timestamp,   # time temp taken
+                    panelHeats.columns.temp_paas_a, # PAAS A temp
+                    panelHeats.columns.temp_paas_bc # PAAS BC temp
+                ]
+            ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan6"])
+            # where the procedure for the entry is the procedure for this panel
+            resultProxy = self.connection.execute(pro6HeatQuery) # make proxy
+            rawPro6HeatData = resultProxy.fetchall()    # get data from db
+
 
 # fmt: off
 # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ 
