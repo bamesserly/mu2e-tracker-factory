@@ -4,8 +4,8 @@
 #  -   / ______  _/____)       /  Last Update 10/25/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
-import sys, time, csv, getpass, os, tkinter, tkinter.messagebox 
-# for creating app, time formatting, saving to csv, finding local db, popup dialogs
+import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools
+# for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
 import sqlalchemy as sqla  # for interacting with db
@@ -239,7 +239,8 @@ class facileDBGUI(QMainWindow):
         self.ui.hvExportButton.clicked.connect(self.exportHVMeasurements)
         # bind function for plot HV data
         self.ui.plotHVDataButton.clicked.connect(self.plotHVData)
-        
+        # bind function for export heat data
+        self.ui.plotHeatDataButton.clicked.connect()
         
 
 # fmt: off
@@ -297,6 +298,7 @@ class facileDBGUI(QMainWindow):
         self.findComments()  # get comments, put them into list widgets
         self.findPanelParts()  # get part IDs, put them into disabled line edit widgets
         self.findMeasurements()  # get measurements, put them into class member lists and display them
+        self.findHeat() # get heat measurements
 
     # query to assign id to GUI class member (self.panelDatabaseID)
     def findPanelDatabaseID(self):
@@ -429,6 +431,7 @@ class facileDBGUI(QMainWindow):
             self.displayPanelParts(partTuple)
 
     # get HV, straw tension, and wire tension data
+    # THIS SHOULD BE SPLIT INTO THREE SEPERATE FUNCTIONS
     def findMeasurements(self):
         # get tables: straw_location, procedure, measurement_wire_tension, measurement_straw_tension, measurement_pan5
         wireTensions = sqla.Table(
@@ -557,7 +560,6 @@ class facileDBGUI(QMainWindow):
 
     # find and display PAAS heating data
     def findHeat(self):
-        
         # get heat table
         panelHeats = sqla.Table(
             "panel_heat",
@@ -565,6 +567,29 @@ class facileDBGUI(QMainWindow):
             autoload=True,
             autoload_with=self.engine
         )
+
+        # make bools to keep track of what data we have
+        # originally lists were initialized here, but sqlalchemys fetchall() returns
+        #   dumb lists that aren't real lists because you can't concatenate them onto normal lists
+        self.pro1HeatData = False
+        self.pro2HeatData = False
+        self.pro6HeatData = False
+
+        # if a pro 1 exists, get the data!
+        if self.panelProcedureIDs["pan1"] != -1:
+            pro1HeatQuery = sqla.select(
+                [
+                    panelHeats.columns.timestamp,   # time temp taken
+                    panelHeats.columns.temp_paas_a, # PAAS A temp
+                    panelHeats.columns.temp_paas_bc,# PAAS BC temp
+                    panelHeats.columns.procedure
+                ]
+            ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan1"])
+            # where the procedure for the entry is the procedure for this panel
+            resultProxy = self.connection.execute(pro1HeatQuery) # make proxy
+            rawPro1HeatData = resultProxy.fetchall()    # get data from db
+            if rawPro1HeatData is not []:   # check if we actually have data
+                self.pro1HeatData = True # we do! huzzah!
 
         # if a pro 2 exists, get the data!
         if self.panelProcedureIDs["pan2"] != -1:
@@ -578,6 +603,8 @@ class facileDBGUI(QMainWindow):
             # where the procedure for the entry is the procedure for this panel
             resultProxy = self.connection.execute(pro2HeatQuery) # make proxy
             rawPro2HeatData = resultProxy.fetchall()    # get data from db
+            if rawPro2HeatData is not []:   # check if we actually have data
+                self.pro2HeatData = True # we do! noice!
 
         # if a pro 6 exists, get the data!
         if self.panelProcedureIDs["pan6"] != -1:
@@ -591,6 +618,20 @@ class facileDBGUI(QMainWindow):
             # where the procedure for the entry is the procedure for this panel
             resultProxy = self.connection.execute(pro6HeatQuery) # make proxy
             rawPro6HeatData = resultProxy.fetchall()    # get data from db
+            if rawPro6HeatData is not []:   # check if we actually have data
+                self.pro6HeatData = True # we do! excellent!
+        
+        # The tuples in the raw data lists exist in the form: (timestamp, PAAS A temp, PAAS B temp)
+
+        if self.pro1HeatData:
+            self.pro1HeatData = []
+
+        
+
+        for (pro1, pro2, pro3) in itertools.zip_longest(rawPro1HeatData, rawPro2HeatData, rawPro6HeatData):
+            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(1347517370))
+            pro1[0] = pro1[0]
+
 
 
 # fmt: off
@@ -670,6 +711,10 @@ class facileDBGUI(QMainWindow):
                 title="Data Exported",
                 message=f"Data exported to MN{self.panelNumber}_HV_data.csv",
             )
+    
+    # export heat data to CSV
+    def exportHeatMeasurements(self):
+        pass
 
 # fmt: off
 #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
@@ -812,6 +857,10 @@ class facileDBGUI(QMainWindow):
         # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
         plt.show()
 
+    # plot heat data in new window
+    def plotHeatData(self):
+        pass
+
 # fmt: off
 # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
 # ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -868,11 +917,12 @@ class facileDBGUI(QMainWindow):
     # put measurement data on the gui
     def displayMeasurement(self):
         # ensure data exists
-        extantWireData = (
-            False  # booleans to represent if data exists for each measurement type
-        )
+        # bools to represent if data exists for each measurement type
+        extantWireData = False
         extantStrawData = False
         extantHVData = False
+        extantHeatData = False
+
         for toop in self.wireTensionData:  # for each tuple in self.wireTensionData
             if toop[1] != "No Data":  # if it isn't "No Data"
                 extantWireData = True  # then data exists!
@@ -921,6 +971,13 @@ class facileDBGUI(QMainWindow):
                     )  # display just the data
         else:
             self.ui.hvListWidget.addItem("No Data Found :(")
+        
+        if extantHeatData:
+            self.ui.heatListWidget.addItem(
+                "Data Exists, but only the export and plot buttons work right now.  Check back in 173,000 seconds or so."
+                )
+        else:
+            self.ui.heatListWidget.addItem("No Data Found :(")
 
 # fmt: off
 # ███╗   ███╗██╗███████╗ ██████╗
