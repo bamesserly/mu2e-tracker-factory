@@ -1443,7 +1443,9 @@ class TxtDataProcessor(DataProcessor):
         return wire in qcdwires
 
     # gets all comments for all pros and returns a big string
-    def getCommentText(self,):
+    def getCommentText(
+        self,
+    ):
         # read 7 files and return one big string, only called once in pangui
         allComments = ""  # string to put comments into
 
@@ -1585,6 +1587,14 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             panel.recordPAAS, self.stripNumber(data[19]), None, "C"
         )  # PAAS C
+        if data[20] is not None:
+            self.callMethod(
+                self.procedure.loadFromLPAL, self.stripNumber(data[20]), "top"
+            )  # Upper LPAL
+        if data[21] is not None:
+            self.callMethod(
+                self.procedure.loadFromLPAL, self.stripNumber(data[21]), "bot"
+            )  # Lower LPAL
 
     # Straws
     def saveDataProcess2(self):
@@ -1595,31 +1605,25 @@ class SQLDataProcessor(DataProcessor):
 
         # Call all getters to store data in sql database
         self.callMethod(
-            self.procedure.loadFromLPAL, self.stripNumber(data[1]), "top"
-        )  # Upper LPAL
-        self.callMethod(
-            self.procedure.loadFromLPAL, self.stripNumber(data[2]), "bot"
-        )  # Lower LPAL
-        self.callMethod(
-            self.procedure.recordEpoxyBatchLower, self.stripNumber(data[3])
+            self.procedure.recordEpoxyBatchLower, self.stripNumber(data[1])
         )  # Lower Epoxy
         self.callMethod(
-            self.procedure.recordEpoxyTimeLower, *self.parseTimeTuple(data[4])
+            self.procedure.recordEpoxyTimeLower, *self.parseTimeTuple(data[2])
         )  # Lower Epoxy Time
         self.callMethod(
-            self.procedure.recordEpoxyBatchUpper, self.stripNumber(data[5])
+            self.procedure.recordEpoxyBatchUpper, self.stripNumber(data[3])
         )  # Upper Epoxy
         self.callMethod(
-            self.procedure.recordEpoxyTimeUpper, *self.parseTimeTuple(data[6])
+            self.procedure.recordEpoxyTimeUpper, *self.parseTimeTuple(data[4])
         )  # Upper Epoxy Time
-        self.callMethod(self.procedure.recordPaasAMaxTemp, data[7])  # PAAS-A Max Temp
-        self.callMethod(self.procedure.recordPaasBMaxTemp, data[8])  # PAAS-B Max Temp
+        self.callMethod(self.procedure.recordPaasAMaxTemp, data[5])  # PAAS-A Max Temp
+        self.callMethod(self.procedure.recordPaasBMaxTemp, data[6])  # PAAS-B Max Temp
         self.callMethod(
-            self.procedure.recordHeatTime, *self.parseTimeTuple(data[9])
+            self.procedure.recordHeatTime, *self.parseTimeTuple(data[7])
         )  # Heat Time
         self.callMethod(
-            panel.recordPAAS, self.stripNumber(data[10]), None, "B"
-        )  # PIR Right B
+            panel.recordPAAS, self.stripNumber(data[8]), None, "B"
+        )  # PAAS B
 
     # Wire Tensions
     def saveDataProcess3(self):
@@ -2295,6 +2299,8 @@ class SQLDataProcessor(DataProcessor):
             ),  # Working Time of Epoxy
             self.getBarcode(panel.getPAAS(L_R=None, letter="A")),  # PAAS A barcode
             self.getBarcode(panel.getPAAS(L_R=None, letter="C")),  # PAAS C barcode
+            self.getBarcode(self.procedure.getLPAL(top_bot="top")),  # Upper LPAL
+            self.getBarcode(self.procedure.getLPAL(top_bot="bot")),  # Lower LPAL
         ]
 
     # Straws
@@ -2302,8 +2308,6 @@ class SQLDataProcessor(DataProcessor):
         panel = self.panel()
         return [
             self.getBarcode(self.panel()),  # Panel
-            self.getBarcode(self.procedure.getLPAL(top_bot="top")),  # Upper LPAL
-            self.getBarcode(self.procedure.getLPAL(top_bot="bot")),  # Lower LPAL
             self.epoxyBarcode(self.procedure.getEpoxyBatchLower()),  # Lower Epoxy
             self.timeDelta(
                 self.procedure.getEpoxyTimeLower(),

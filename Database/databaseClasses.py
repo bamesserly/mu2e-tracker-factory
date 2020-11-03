@@ -222,7 +222,11 @@ class Failure(BASE, OBJECT):
         self.comment = self._recordComment(comment).id
 
     def _recordComment(self, text):
-        comment = Comment(procedure=self.procedure, text=text, timestamp=int(datetime.now().timestamp()))
+        comment = Comment(
+            procedure=self.procedure,
+            text=text,
+            timestamp=int(datetime.now().timestamp()),
+        )
         comment.commit()
         return comment
 
@@ -808,8 +812,47 @@ class Pan1Procedure(PanelProcedure):
             epoxy_time = Column(Integer)
             epoxy_time_running = Column(BOOLEAN)
             epoxy_time_timestamp = Column(Integer)
+            lpal_top = Column(Integer, ForeignKey("straw_location.id"))
+            lpal_bot = Column(Integer, ForeignKey("straw_location.id"))
 
         return Details
+
+    # Getters/Setters
+
+    def _setLPAL(self, lpal, top_bot):
+        if top_bot in ["top", "bot"]:
+            if top_bot == "top":
+                self.details.lpal_top = lpal.id
+            if top_bot == "bot":
+                self.details.lpal_bot = lpal.id
+            self.commit()
+
+    def loadFromLPAL(self, lpal_num, top_bot):
+        # Query Objects
+        lpal = StrawLocation.LPAL(lpal_num)
+        straws = lpal.getStraws()
+        panel = self.getPanel()
+        # Equation mapping lpal straw list index to panel position
+        position = lambda pos: 2 * pos + {"top": 1, "bot": 0}[top_bot]
+        # Execute all removes from lpal and moves to panel.
+        entries = []
+        for i in range(len(straws)):
+            s = straws[i]
+            if s is None:
+                continue
+            entries.append(lpal.removeStraw(s, commit=False))
+            entries.append(panel.addStraw(straw=s, position=position(i), commit=False))
+        DM.commitEntries(entries)
+        # Record LPAL in details table aswell
+        self._setLPAL(lpal, top_bot)
+
+    def getLPAL(self, top_bot):
+        # Get id from details class
+        lpal_id = {"top": self.details.lpal_top, "bot": self.details.lpal_bot}[top_bot]
+        # Return result of Query for Loading Pallet
+        # Note, this will return None if no lpal
+        # has been recorded yet.
+        return LoadingPallet.queryWithId(lpal_id)
 
     def getLeftGap(self):
         return self.details.left_gap
@@ -898,40 +941,6 @@ class Pan2Procedure(PanelProcedure):
         return Details
 
     # Getters/Setters
-    def _setLPAL(self, lpal, top_bot):
-        if top_bot in ["top", "bot"]:
-            if top_bot == "top":
-                self.details.lpal_top = lpal.id
-            if top_bot == "bot":
-                self.details.lpal_bot = lpal.id
-            self.commit()
-
-    def loadFromLPAL(self, lpal_num, top_bot):
-        # Query Objects
-        lpal = StrawLocation.LPAL(lpal_num)
-        straws = lpal.getStraws()
-        panel = self.getPanel()
-        # Equation mapping lpal straw list index to panel position
-        position = lambda pos: 2 * pos + {"top": 1, "bot": 0}[top_bot]
-        # Execute all removes from lpal and moves to panel.
-        entries = []
-        for i in range(len(straws)):
-            s = straws[i]
-            if s is None:
-                continue
-            entries.append(lpal.removeStraw(s, commit=False))
-            entries.append(panel.addStraw(straw=s, position=position(i), commit=False))
-        DM.commitEntries(entries)
-        # Record LPAL in details table aswell
-        self._setLPAL(lpal, top_bot)
-
-    def getLPAL(self, top_bot):
-        # Get id from details class
-        lpal_id = {"top": self.details.lpal_top, "bot": self.details.lpal_bot}[top_bot]
-        # Return result of Query for Loading Pallet
-        # Note, this will return None if no lpal
-        # has been recorded yet.
-        return LoadingPallet.queryWithId(lpal_id)
 
     def getEpoxyBatchLower(self):
         return self.details.epoxy_batch_lower
@@ -1077,16 +1086,13 @@ class Pan3Procedure(PanelProcedure):
             self.wire_position = wire_position
 
         def __repr__(self):
-            return (
-                "<MeasurementPan3(id='%s', procedure='%s', position='%s', left_continuity='%s', right_continuity='%s', wire_position='%s')>"
-                % (
-                    self.id,
-                    self.procedure,
-                    self.position,
-                    self.left_continuity,
-                    self.right_continuity,
-                    self.wire_position,
-                )
+            return "<MeasurementPan3(id='%s', procedure='%s', position='%s', left_continuity='%s', right_continuity='%s', wire_position='%s')>" % (
+                self.id,
+                self.procedure,
+                self.position,
+                self.left_continuity,
+                self.right_continuity,
+                self.wire_position,
             )
 
         def isCompletelyDefined(self):
@@ -1396,16 +1402,13 @@ class Pan5Procedure(PanelProcedure):
             self.is_tripped = is_tripped
 
         def __repr__(self):
-            return (
-                "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', is_tripped='%s')>"
-                % (
-                    self.id,
-                    self.procedure,
-                    self.position,
-                    self.current_left,
-                    self.current_right,
-                    self.is_tripped,
-                )
+            return "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', is_tripped='%s')>" % (
+                self.id,
+                self.procedure,
+                self.position,
+                self.current_left,
+                self.current_right,
+                self.is_tripped,
             )
 
         def isCompletelyDefined(self):
@@ -2045,7 +2048,11 @@ class StrawLocation(BASE, OBJECT):
 
         # If None was found, make a new one.
         if sl is None:
-            sl = cls(number=number, pallet_id=pallet_id, create_key=cls.__create_key,)
+            sl = cls(
+                number=number,
+                pallet_id=pallet_id,
+                create_key=cls.__create_key,
+            )
 
         return sl
 
