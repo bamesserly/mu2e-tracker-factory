@@ -1,7 +1,7 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
-# (______         >\_W/<  ------/  Created 5/28/2020      /
-#  -   / ______  _/____)       /  Last Update 10/25/2020 /
+# (______         >\_W/<  ------/  Created 05/28/2020     /
+#  -   / ______  _/____)       /  Last Update 11/03/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
@@ -564,15 +564,15 @@ class facileDBGUI(QMainWindow):
         self.pro2HeatData = False
         self.pro6HeatData = False
 
-        self.pro1AStats = False
-        self.pro1BCStats = False
-        self.pro1HeatTime = False
-        self.pro2AStats = False
-        self.pro2BCStats = False
-        self.pro2HeatTime = False
-        self.pro2AStats = False
-        self.pro2BCStats = False
-        self.pro2HeatTime = False
+        self.pro1AStats = []
+        self.pro1BCStats = []
+        self.pro1HeatTime = []
+        self.pro2AStats = []
+        self.pro2BCStats = []
+        self.pro2HeatTime = []
+        self.pro2AStats = []
+        self.pro2BCStats = []
+        self.pro2HeatTime = []
 
         # if a pro 1 exists, get the data!
         if self.panelProcedureIDs["pan1"] != -1:
@@ -729,10 +729,13 @@ class facileDBGUI(QMainWindow):
                 rawHeatTime = max(heatTimes) - min(heatTimes)
                 self.pro6HeatTime = timedelta(seconds = rawHeatTime)
 
+        # stats lists are of the form: [mean, min, max, std dev, upper std dev, lower std dev]
         #print(self.pro6HeatData)
         #print(self.pro6AStats)
         #print(self.pro6BCStats)
         #print(self.pro6HeatTime)
+
+        self.displayHeat()
 
 
 
@@ -743,7 +746,7 @@ class facileDBGUI(QMainWindow):
 # ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║
 # ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝
 # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-# Functions responsible for writing data to CSV files
+# Functions responsible for writing data to CSV files, these all need more comments
 # fmt: on
 
     # export wire data to CSV file
@@ -816,7 +819,31 @@ class facileDBGUI(QMainWindow):
     
     # export heat data to CSV
     def exportHeatMeasurements(self):
-        pass
+        # get the current pro
+        curPro = self.ui.heatProBox.currentText()[8]
+
+        if len(self.getHeat(curPro, "HeatData")) == 0:
+            tkinter.messagebox.showerror(
+                title="Error", message=f"No heat data found for MN{self.panelNumber}"
+            )
+            return
+
+        with open(f"MN{self.panelNumber}_pro_{curPro}_heat_data.csv", "w", newline="") as csvFile:
+            csvWriter = csv.writer(csvFile)
+            csvWriter.writerow([f"MN{self.panelNumber} heat Data"])
+            csvWriter.writerow(
+                [
+                    "Time (Human)",
+                    "Time (Epoch)",
+                    "PAAS A Temp",
+                    "PAAS B/C Temp"
+                ]
+            )
+            csvWriter.writerows(self.getHeat(curPro, "HeatData"))
+            tkinter.messagebox.showinfo(
+                title="Data Exported",
+                message=f"Data exported to MN{self.panelNumber}_pro_{curPro}_heat_data.csv",
+            )
 
 # fmt: off
 #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
@@ -961,7 +988,15 @@ class facileDBGUI(QMainWindow):
 
     # plot heat data in new window
     def plotHeatData(self):
-        pass
+        # get the current pro
+        curPro = self.ui.heatProBox.currentText()[8]
+
+        xData = [toop[1] for toop in self.getHeat(curPro, "HeatData")]
+
+        if len(xData) == 0:
+            return
+        
+        
         
 
 # fmt: off
@@ -1088,18 +1123,30 @@ class facileDBGUI(QMainWindow):
         # clear out the current data
         self.ui.heatListWidget.clear()
 
-        def get(pro, data):
-            return getattr(self, f"pro{pro}{data}")
-
+        # get the current pro
+        #curPro = self.ui.heatProBox.currentText()[8]
+        '''
         itemsToAdd = [
-            f'PAAS A Maximum Temperature: {get(6,"BCStats")[2]}' if 
+            f'Total Heat Time: {get(curPro,"HeatTime")}' if (get(curPro,"HeatTime") is not []) else "No Heat Time Data Found",
+            f'PAAS A Stats' if len(get(curPro,"AStats")) > 0 else "No PAAS A Data Found",
+            f'PAAS A Mean Temperature: {get(curPro,"AStats")[0]}' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Maximum Temperature: {get(curPro,"AStats")[2]}' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Minimum Temperature: {get(curPro,"AStats")[1]}' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Standard Deviation: {get(curPro,"AStats")[3]} ({get(curPro,"AStats")[5]} - {get(curPro,"AStats")[4]})' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS B/C Stats' if len(get(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found",
+            f'PAAS B/C Mean Temperature: {get(curPro,"BCStats")[0]}' if len(get(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Maximum Temperature: {get(curPro,"BCStats")[2]}' if len(get(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Minimum Temperature: {get(curPro,"BCStats")[1]}' if len(get(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Standard Deviation: {get(curPro,"BCStats")[3]} ({get(curPro,"BCStats")[5]} - {get(curPro,"BCStats")[4]})' if len(get(curPro,"BCStats")) > 0 else "None",
         ]
+        '''
 
-        self.ui.heatListWidget.addItems(itemsToAdd)
+        #self.ui.heatListWidget.addItems(itemsToAdd)
+        self.ui.heatListWidget.addItem("Coming soon to a lab computer near you: Heat statistics")
+        self.ui.heatListWidget.addItem("Export and Plot work though!")
 
         
         
-
 # fmt: off
 # ███╗   ███╗██╗███████╗ ██████╗
 # ████╗ ████║██║██╔════╝██╔════╝
@@ -1109,6 +1156,13 @@ class facileDBGUI(QMainWindow):
 # ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
 # The isle of misfit functions
 # fmt: on
+
+    # make a function to get heat related member variables from facileDBGUI by name
+    # takes a pro and type of data you want (should be one of AStats, BCStats, HeatData, HeatTime)
+    # and returns a pointer to the member you indicated (ex, get(2,AStats) returns self.pro2AStats)
+    # I should make one of these that can get any data from anywhere in the GUI...  maybe later!
+    def getHeat(self, pro, data):
+        return getattr(self, f"pro{pro}{data}")
 
     # override close button event (see comments in function)
     def closeEvent(self, event):
