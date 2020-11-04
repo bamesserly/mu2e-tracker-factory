@@ -3478,8 +3478,8 @@ class panelGUI(QMainWindow):
         if not self.validateInput(indices=[19, 20]):
             return
         self.ui.lpalLabel.setText("Straws Validated.")
-        print(self.data)
-        print(len(self.data[0]))
+        #print(self.data)
+        #print(len(self.data[0]))
         self.data[0][22] = True
 
         if self.stepsList.allStepsChecked():
