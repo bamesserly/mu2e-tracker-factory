@@ -4,8 +4,10 @@
 #  -   / ______  _/____)       /  Last Update 10/25/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
-import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools
-# for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function
+import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
+# for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
+from datetime import timedelta
+# time formatting
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
 import sqlalchemy as sqla  # for interacting with db
@@ -78,6 +80,8 @@ class facileDBGUI(QMainWindow):
         dir_path = os.path.dirname(os.path.realpath(__file__))  # put icon in upper left
         self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
 
+        self.initInputWidgets()
+
         # panel variables
         self.panelNumber = (
             -1
@@ -109,6 +113,7 @@ class facileDBGUI(QMainWindow):
         self.hvData = []
         self.strawTensionData = []
         self.wireTensionData = []
+        # heat lists are initialized as bools in findHeat() then changed to lists in findHeat()
 
         self.partSetupWidgetList = [  # list of line edits for part
             self.ui.partBasePlateLE,
@@ -127,28 +132,6 @@ class facileDBGUI(QMainWindow):
             self.ui.partPaasCLE
         ]
 
-        # link widgets and things
-        self.ui.submitPB.clicked.connect(
-            self.findPanel
-        )  # bind function for submit button
-        self.ui.wireExportButton.clicked.connect(
-            self.exportWireMeasurements
-        )  # bind function for export wire tension stuff
-        self.ui.plotWireDataButton.clicked.connect(
-            self.plotWireData
-        )  # bind function for wire plot button
-        self.ui.strawExportButton.clicked.connect(
-            self.exportStrawMeasurements
-        )  # bind function for export straw tension data
-        self.ui.plotStrawDataButton.clicked.connect(
-            self.plotStrawData
-        )  # bind function for plot straw tension data
-        self.ui.hvExportButton.clicked.connect(
-            self.exportHVMeasurements
-        )  # bind funciton for export HV data
-        self.ui.plotHVDataButton.clicked.connect(
-            self.plotHVData
-        )  # bind function for plot HV data
 
     # make engine, connection, and metadata objects to interact with NETWORK database
     def connectToNetwork(self):
@@ -240,7 +223,13 @@ class facileDBGUI(QMainWindow):
         # bind function for plot HV data
         self.ui.plotHVDataButton.clicked.connect(self.plotHVData)
         # bind function for export heat data
-        self.ui.plotHeatDataButton.clicked.connect()
+        self.ui.heatExportButton.clicked.connect(self.exportHeatMeasurements)
+        # bind function for plot heat data
+        self.ui.plotHeatDataButton.clicked.connect(self.plotHeatData)
+
+        # bind function for heat combo box change
+        self.ui.heatProBox.currentIndexChanged.connect(self.displayHeat)
+        
         
 
 # fmt: off
@@ -575,6 +564,16 @@ class facileDBGUI(QMainWindow):
         self.pro2HeatData = False
         self.pro6HeatData = False
 
+        self.pro1AStats = False
+        self.pro1BCStats = False
+        self.pro1HeatTime = False
+        self.pro2AStats = False
+        self.pro2BCStats = False
+        self.pro2HeatTime = False
+        self.pro2AStats = False
+        self.pro2BCStats = False
+        self.pro2HeatTime = False
+
         # if a pro 1 exists, get the data!
         if self.panelProcedureIDs["pan1"] != -1:
             pro1HeatQuery = sqla.select(
@@ -623,14 +622,117 @@ class facileDBGUI(QMainWindow):
         
         # The tuples in the raw data lists exist in the form: (timestamp, PAAS A temp, PAAS B temp)
 
+        # the next 3 if blocks take the raw data and refine it
+        # first it changes the bool into a list, and then puts the raw data in the list, with a human
+        # readable timestamp at index 0.
+        # second it gets statistics from the refined data temp: min, max, mean, std dev time: total time
         if self.pro1HeatData:
-            self.pro1HeatData = []
+            self.pro1HeatData = [] # switch bool to list
 
-        
+            for toop in rawPro1HeatData:    # for each tuple in list,
+                # add that data to the heat data with a human readable timestamp in front
+                self.pro1HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+            
+            # make lists fo temps for paas A and B/C
+            paasATemps = [toop[2] for toop in self.pro1HeatData]
+            paasBCTemps = [toop[3] for toop in self.pro1HeatData]
 
-        for (pro1, pro2, pro3) in itertools.zip_longest(rawPro1HeatData, rawPro2HeatData, rawPro6HeatData):
-            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(1347517370))
-            pro1[0] = pro1[0]
+            if len(paasATemps) > 0: # if paas A data exits
+                # make a list of stats
+                self.pro1AStats = [
+                    statistics.mean(paasATemps),    # mean of paas A
+                    min(paasATemps),    # min of paas A
+                    max(paasATemps),    # max of paas A
+                    statistics.stdev(paasATemps),# standard dev of paas A
+                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
+                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                ]
+            if len(paasBCTemps) > 0: # if paas B/C exists
+                # make a list of stats
+                self.pro1BCStats = [
+                    statistics.mean(paasBCTemps),    # mean of paas BC
+                    min(paasBCTemps),    # min of paas BC
+                    max(paasBCTemps),    # max of paas BC
+                    statistics.stdev(paasBCTemps),# standard dev of paas BC
+                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
+                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                ]
+            
+            # make a list of heat timestamps
+            heatTimes = [toop[1] for toop in self.pro1HeatData]
+            # if we have that data
+            if len(heatTimes) > 0:
+                # find the total time it took
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                self.pro1HeatTime = timedelta(rawHeatTime)
+
+        # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
+        if self.pro2HeatData:
+            self.pro2HeatData = []
+            for toop in rawPro2HeatData:
+                self.pro2HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+            paasATemps = [toop[2] for toop in self.pro2HeatData]
+            paasBCTemps = [toop[3] for toop in self.pro2HeatData]
+            if len(paasATemps) > 0:
+                self.pro2AStats = [
+                    statistics.mean(paasATemps),    # mean of paas A
+                    min(paasATemps),    # min of paas A
+                    max(paasATemps),    # max of paas A
+                    statistics.stdev(paasATemps),# standard dev of paas A
+                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
+                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                ]
+            if len(paasBCTemps) > 0:
+                self.pro2BCStats = [
+                    statistics.mean(paasBCTemps),    # mean of paas BC
+                    min(paasBCTemps),    # min of paas BC
+                    max(paasBCTemps),    # max of paas BC
+                    statistics.stdev(paasBCTemps),# standard dev of paas BC
+                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
+                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                ]
+
+            heatTimes = [toop[1] for toop in self.pro2HeatData]
+            if len(heatTimes) > 0:
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                self.pro2HeatTime = timedelta(rawHeatTime)
+
+        # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
+        if self.pro6HeatData:
+            self.pro6HeatData = []
+            for toop in rawPro6HeatData:
+                self.pro6HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+            
+            paasATemps = [toop[2] for toop in self.pro6HeatData]
+            paasBCTemps = [toop[3] for toop in self.pro6HeatData]
+            if len(paasATemps) > 0:
+                self.pro6AStats = [
+                    statistics.mean(paasATemps),    # mean of paas A
+                    min(paasATemps),    # min of paas A
+                    max(paasATemps),    # max of paas A
+                    statistics.stdev(paasATemps),# standard dev of paas A
+                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
+                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                ]
+            if len(paasBCTemps) > 0:
+                self.pro6BCStats = [
+                    statistics.mean(paasBCTemps),    # mean of paas BC
+                    min(paasBCTemps),    # min of paas BC
+                    max(paasBCTemps),    # max of paas BC
+                    statistics.stdev(paasBCTemps),# standard dev of paas BC
+                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
+                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                ]
+            
+            heatTimes = [toop[1] for toop in self.pro6HeatData]
+            if len(heatTimes) > 0:
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                self.pro6HeatTime = timedelta(seconds = rawHeatTime)
+
+        #print(self.pro6HeatData)
+        #print(self.pro6AStats)
+        #print(self.pro6BCStats)
+        #print(self.pro6HeatTime)
 
 
 
@@ -860,6 +962,7 @@ class facileDBGUI(QMainWindow):
     # plot heat data in new window
     def plotHeatData(self):
         pass
+        
 
 # fmt: off
 # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
@@ -978,6 +1081,24 @@ class facileDBGUI(QMainWindow):
                 )
         else:
             self.ui.heatListWidget.addItem("No Data Found :(")
+    
+    # put heat statistics on the gui
+    def displayHeat(self):
+
+        # clear out the current data
+        self.ui.heatListWidget.clear()
+
+        def get(pro, data):
+            return getattr(self, f"pro{pro}{data}")
+
+        itemsToAdd = [
+            f'PAAS A Maximum Temperature: {get(6,"BCStats")[2]}' if 
+        ]
+
+        self.ui.heatListWidget.addItems(itemsToAdd)
+
+        
+        
 
 # fmt: off
 # ███╗   ███╗██╗███████╗ ██████╗
