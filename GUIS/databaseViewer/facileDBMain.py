@@ -1178,6 +1178,7 @@ class facileDBGUI(QMainWindow):
             f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
             f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None"
         ]
+        '''
 
         paasBItemsToAdd = [
             f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
