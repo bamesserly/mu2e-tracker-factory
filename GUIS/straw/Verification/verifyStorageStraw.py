@@ -87,7 +87,7 @@ class verifyStorageStraw:
 
     # Function based on positioncheck.py
     def checkLaserCutData(self, straw, pos):
-        path = r"\\\\MU2E-CART1\\Database Backup\\Laser cut data"
+        path = os.path.dirname(__file__) + "..\\..\\..\\Data\\Laser cut data"
         for pal in os.listdir(path):
             with open(path + "\\" + pal) as csvf:
                 reader = csv.reader(csvf)
@@ -114,7 +114,9 @@ class verifyStorageStraw:
     # Given strawID, returns ((float) ii, (float) oo, (bool) pass_fail)
     def checkResistanceData(self, strawID):
         strawID = strawID.upper()
-        resistance_dir = "\\\\MU2E-CART1\\Database Backup\\Resistance Testing"
+        resistance_dir = (
+            os.path.dirname(__file__) + "..\\..\\..\\Data\\Resistance Testing"
+        )
         res_data = {
             "inside-inside": float(),
             "inside-outside": float(),
@@ -179,7 +181,8 @@ class verifyStorageStraw:
         if not data_found:
 
             leak_dir = (
-                "\\\\MU2E-CART1\\Database Backup\\Leak test data\\Leak Test Results"
+                os.path.dirname(__file__)
+                + "..\\..\\..\\Data\\Leak test data\\Leak Test Results"
             )
 
             for file_name in os.listdir(leak_dir):
@@ -226,7 +229,8 @@ class verifyStorageStraw:
 
                         # Record findings in leak_ratefile.csv
                         with open(
-                            "\\\\MU2E-CART1\\Database Backup\\Leak test data\\Leak Test Results\\Leak Test Results.csv",
+                            os.path.dirname(__file__)
+                            + "..\\..\\..\\Data\\Leak test data\\Leak Test Results\\Leak Test Results.csv",
                             "a",
                         ) as leak_rate_file:
                             leak_rate_file.write("\n")  # Newline
@@ -252,7 +256,8 @@ class verifyStorageStraw:
 
                     else:  # There's something funky with the plot
                         with open(
-                            "\\\\MU2E-CART1\\Database Backup\\Straw storage\\BenRecalculateLeakTest.txt",
+                            os.path.dirname(__file__)
+                            + "..\\..\\..\\Data\\Straw storage\\BenRecalculateLeakTest.txt",
                             "a",
                         ) as f:
                             f.write("\n" + self.strawID)

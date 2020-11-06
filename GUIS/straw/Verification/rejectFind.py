@@ -5,12 +5,12 @@ def main():
 
             usable = open(
                 os.path.dirname(__file__)
-                + "..\\..\\Data\\Straw storage\\StorageRejected_Usable.csv",
+                + "..\\..\\..\\Data\\Straw storage\\StorageRejected_Usable.csv",
                 "r",
             )
             recut = open(
                 os.path.dirname(__file__)
-                + "..\\..\\Data\\Straw storage\\StorageRejected_Recut.csv",
+                + "..\\..\\..\\Data\\Straw storage\\StorageRejected_Recut.csv",
                 "r",
             )
             practice = open(
