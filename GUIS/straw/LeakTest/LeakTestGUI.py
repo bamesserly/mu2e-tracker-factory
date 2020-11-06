@@ -63,7 +63,7 @@ import threading
 ######## Global variables ##########
 # Set each true/false to save the data collected when this gui is run to that platform.
 # Note: Both can be true.
-SAVE_TO_TXT = True
+#  SAVE_TO_TXT = True
 SAVE_TO_SQL = True
 
 # Indicate which data processor you want to use for data-checking (ex: checkCredentials)
@@ -977,6 +977,7 @@ class LeakTestStatus(QMainWindow):
                                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
                                         self.StrawStatus.emit(chamber, True)
                                         self.passed[chamber] = "P"
+                                        self.saveDB(chamber)
                                     elif (
                                         len(PPM[chamber]) > 20
                                         and self.leak_rate[chamber] < self.max_leakrate
@@ -987,6 +988,7 @@ class LeakTestStatus(QMainWindow):
                                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
                                         self.StrawStatus.emit(chamber, True)
                                         self.passed[chamber] = "P"
+                                        self.saveDB(chamber)
                                     ## Failed straw
                                     elif (
                                         len(PPM[chamber]) > 20
@@ -999,6 +1001,7 @@ class LeakTestStatus(QMainWindow):
                                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                                         self.StrawStatus.emit(chamber, False)
                                         self.passed[chamber] = "F"
+                                        self.saveDB(chamber)
                                     elif (
                                         len(PPM[chamber]) > 20
                                         and self.leak_rate[chamber] > self.max_leakrate
@@ -1009,6 +1012,7 @@ class LeakTestStatus(QMainWindow):
                                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                                         self.StrawStatus.emit(chamber, False)
                                         self.passed[chamber] = "F"
+                                        self.saveDB(chamber)
                                     elif (
                                         len(PPM[chamber]) > 20
                                         and (
@@ -1022,6 +1026,7 @@ class LeakTestStatus(QMainWindow):
                                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                                         self.StrawStatus.emit(chamber, False)
                                         self.passed[chamber] = "F"
+                                        self.saveDB(chamber)
 
                                     ## Graph and save graph of fit
                                     x = np.linspace(0, max(timestamp[chamber]))
@@ -1295,6 +1300,15 @@ class LeakTestStatus(QMainWindow):
         else:
             self.ui.tabWidget.setTabText(1, "Leak Test *Locked*")
             self.ui.tabWidget.setTabEnabled(1, False)
+
+    def saveDB(self, chamber):
+        ROW = int(chamber / 5)
+        COL = chamber % 5
+        straw = self.Choosenames[ROW][COL][:7]
+        leak_rate = self.leak_rate[chamber]
+        uncertainty = self.leak_rate_err[chamber]
+        result = self.passed[chamber]
+        self.DP.saveData(straw, leak_rate, uncertainty, result)
 
     def SaveCSV(self, chamber):
         """Save data to CSV file after straw passes or fails"""

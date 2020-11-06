@@ -590,11 +590,11 @@ class SQLDataProcessor(DataProcessor):
                      Creates a Straw Location(Pallet).
     """
 
-    def saveData(self):
+    def saveData(self, straw, leak_rate, uncertainty, result):
         # Ensure procedure - starts a procedure if doesn't exist
         if not self.ensureProcedure():
             return
-        self.saveStraw()
+        self.saveLeakTestResult(straw, leak_rate, uncertainty, result)
 
     """
     saveStraw(self)
@@ -603,45 +603,14 @@ class SQLDataProcessor(DataProcessor):
                     and StrawPresent and logs data into Prep Table.
     """
 
-    def saveStraw(self):
-        i = 0
-        while i < len(self.gui.strawIDs):
-            # Get strawID
-
-            strawID = self.gui.strawIDs[i]
-            strawID = self.stripNumber(strawID)
-
-            # Check if the top straw exists
-            if strawID is not None:
-                # Get batch
-                batch = self.gui.batchBarcodes[i]
-
-                # get procedure
-                procedure = self.procedure
-
-                # get pallet
-                pallet = procedure.getStrawLocation()
-
-                ## Get position number
-                # 24 straws: 0-23
-                # 23 straws: 1-23
-                positionNum = i
-
-                # Construct and save the straw/straw_position/straw_present object
-                currS = Straw.Straw(
-                    strawID, batch, pallet.id, parent=None, position=positionNum
-                )
-
-                ## Save prep measurement
-                # get paper_pull_grade and evaluation
-                ppg = self.gui.paperPullGrades[i]
-                ppg = ppg[3:]
-                if ppg == "A" or ppg == "B":
-                    pass_fail = True
-                else:
-                    pass_fail = False
-                StrawPrep(procedure.id, currS.id, ppg, pass_fail)
-            i += 1
+    def saveLeakTestResult(self, straw, leak_rate, uncertainty, result):
+        LeakTest(
+            procedure=self.procedure.id,
+            straw=straw,
+            leak_rate=leak_rate,
+            uncertainty=uncertainty,
+            evaluation=result,
+        )
 
     def saveWorkers(self):
         pass
