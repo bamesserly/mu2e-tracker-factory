@@ -3424,7 +3424,7 @@ class panelGUI(QMainWindow):
         )
 
         # LPAL not yet validated
-        self.data[0][22] = False
+        self.data[0][21] = False
 
         # Start Running
         self.startRunning()

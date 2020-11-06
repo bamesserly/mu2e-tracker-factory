@@ -1327,14 +1327,14 @@ class TxtDataProcessor(DataProcessor):
     # in the data list in gui main.  The number at the beginning should be the same in data_count in gui main.
     def _pro1header(self):
         return [
-            18,
+            20,
             "Panel ID",
             "Base Plate ID",
             "BIR ID",
             "PIR Left A ID",
             "PIR Left B ID",
             "PIR Left C ID",
-            "PIR RIght A ID",
+            "PIR Right A ID",
             "PIR Right B ID",
             "PIR Right C ID",
             "MIR ID",
@@ -1346,14 +1346,14 @@ class TxtDataProcessor(DataProcessor):
             "Max BP/BIR Gap [mils]",
             "Epoxy Batch ID",
             "Working Time of Epoxy(H:M:S)",
+            "Pallet Upper",
+            "Pallet Lower",
         ]
 
     def _pro2header(self):
         return [
-            10,
+            8,
             "Panel ID",
-            "Pallet Upper",
-            "Pallet Lower",
             "Epoxy Sample Lower",
             "Epoxy Time Lower",
             "Epoxy Sample Upper",
