@@ -48,13 +48,7 @@ sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
 from workers.credentials.credentials import Credentials
-
 from remove import Ui_DialogBox
-
-# move up one directory
-sys.path.insert(0, os.path.dirname(__file__) + "..\\")
-from masterUpload import *
-
 
 import threading
 
@@ -1436,35 +1430,6 @@ class LeakTestStatus(QMainWindow):
                     continue
 
         return
-
-    def strawUpload(self, chamber):
-        ROW = int(chamber / 5)
-        COL = chamber % 5
-
-        strawname = self.Choosenames[ROW][COL][:7]
-        # strawname = strawname.upper()
-
-        uploadWorker = self.getWorker()
-
-        leakrate = self.leak_rate[chamber]
-        uncertainty = self.leak_rate_err[chamber]
-        currenttime = datetime.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
-        (_, cpal) = FindCPAL(strawname)
-
-        uploader = getUploader(self.stationID)("prod")
-
-        try:
-            uploader.beginUpload(
-                strawname,
-                uploadWorker,
-                leakrate,
-                uncertainty,
-                currenttime,
-                chamber,
-                cpal,
-            )
-        except UploadFailedError as error:
-            self.FailedUpload.emit(strawname, error.message)
 
     def editPallet(self):
         if self.checkCredentials():
