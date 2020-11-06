@@ -14,6 +14,7 @@ import sqlalchemy as sqla  # for interacting with db
 import sqlite3  # for connecting with db
 import matplotlib.pyplot as plt  # for plotting
 import matplotlib as mpl  # also for plotting
+import pandas as pd # even more plotting
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -633,7 +634,7 @@ class facileDBGUI(QMainWindow):
                 # add that data to the heat data with a human readable timestamp in front
                 self.pro1HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
             
-            # make lists fo temps for paas A and B/C
+            # make lists of temps for paas A and B/C
             paasATemps = [toop[2] for toop in self.pro1HeatData]
             paasBCTemps = [toop[3] for toop in self.pro1HeatData]
 
@@ -991,11 +992,54 @@ class facileDBGUI(QMainWindow):
         # get the current pro
         curPro = self.ui.heatProBox.currentText()[8]
 
-        xData = [toop[1] for toop in self.getHeat(curPro, "HeatData")]
+        # make x data list by converting raw timesamps to matplotlib dates
+        xData = [
+            mpl.dates.epoch2num(toop[1]) for toop in self.getHeat(curPro, "HeatData")
+        ]
 
-        if len(xData) == 0:
+        if len(xData) <3 : # <3
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Too little or no heat data was found for MN{self.panelNumber}, process {curPro}.",
+            )
             return
+
+        # make y data sets
+        yDataA = [
+            toop[2] for toop in self.getHeat(curPro, "HeatData")
+        ]
+        yDataBC = [
+            toop[3] for toop in self.getHeat(curPro, "HeatData")
+        ]
+        #yColorBC = [(heat - 5) for heat in yDataBC]
         
+
+        # make subplot for PAAS A
+        plt.subplot(211)
+        plt.plot_date(xData, yDataA) # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel("Temperature of PAAS A (°C)", fontsize=20)  # set y axis label
+
+        # make subplot for PAAS A
+        plt.subplot(212)
+        plt.plot_date(xData, yDataBC) # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
+        
+        '''
+        This adds color(sick as frick), but the x ticks are in days since 0001...
+        # make subplot for PAAS B/C
+        plt.subplot(212)
+        plt.scatter(xData, yDataBC, c=yColorBC, s=10, cmap=plt.cm.jet) # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
+        '''
+
+        plt.tight_layout()
+        plt.show()
         
         
 
@@ -1124,7 +1168,7 @@ class facileDBGUI(QMainWindow):
         self.ui.heatListWidget.clear()
 
         # get the current pro
-        #curPro = self.ui.heatProBox.currentText()[8]
+        curPro = self.ui.heatProBox.currentText()[8]
         '''
         itemsToAdd = [
             f'Total Heat Time: {get(curPro,"HeatTime")}' if (get(curPro,"HeatTime") is not []) else "No Heat Time Data Found",
@@ -1142,10 +1186,14 @@ class facileDBGUI(QMainWindow):
         '''
 
         #self.ui.heatListWidget.addItems(itemsToAdd)
-        self.ui.heatListWidget.addItem("Coming soon to a lab computer near you: Heat statistics")
-        self.ui.heatListWidget.addItem("Export and Plot work though!")
+        if len(self.getHeat(curPro, "HeatData")) > 0:
+            self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
+        else:
+            self.ui.heatListWidget.addItem("No data found :(")
+        self.ui.heatListWidget.addItem("Statistics will be placed here eventually.")
+        self.ui.heatListWidget.addItem("Currently, graph and export work.")
+        self.ui.heatListWidget.addItem("The graphs are still being improved for readability.")
 
-        
         
 # fmt: off
 # ███╗   ███╗██╗███████╗ ██████╗
@@ -1157,7 +1205,7 @@ class facileDBGUI(QMainWindow):
 # The isle of misfit functions
 # fmt: on
 
-    # make a function to get heat related member variables from facileDBGUI by name
+    # a function to get heat related member variables from facileDBGUI by name
     # takes a pro and type of data you want (should be one of AStats, BCStats, HeatData, HeatTime)
     # and returns a pointer to the member you indicated (ex, get(2,AStats) returns self.pro2AStats)
     # I should make one of these that can get any data from anywhere in the GUI...  maybe later!
