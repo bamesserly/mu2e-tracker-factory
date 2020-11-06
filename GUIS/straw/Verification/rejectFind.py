@@ -4,15 +4,18 @@ def main():
             strawID = input("\nscan straw id: ")
 
             usable = open(
-                "\\\\MU2E-CART1\\Database Backup\\Straw storage\\StorageRejected_Usable.csv",
+                os.path.dirname(__file__)
+                + "..\\..\\Data\\Straw storage\\StorageRejected_Usable.csv",
                 "r",
             )
             recut = open(
-                "\\\\MU2E-CART1\\Database Backup\\Straw storage\\StorageRejected_Recut.csv",
+                os.path.dirname(__file__)
+                + "..\\..\\Data\\Straw storage\\StorageRejected_Recut.csv",
                 "r",
             )
             practice = open(
-                "\\\\MU2E-CART1\\Database Backup\\Straw storage\\StorageRejected_Practice.csv",
+                os.path.dirname(__file__)
+                + "..\\..\\Data\\Straw storage\\StorageRejected_Practice.csv",
                 "r",
             )
 
