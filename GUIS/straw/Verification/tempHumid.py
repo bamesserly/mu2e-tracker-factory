@@ -18,7 +18,9 @@ def tempConversion(temp, current_scale, desired_scale):
 
 
 def getTempHumid(temp_scale="C"):
-    directory = os.path.dirname(__file__) + "..\\..\\Data\\temp_humid_data\\464_main\\"
+    directory = (
+        os.path.dirname(__file__) + "..\\..\\..\\Data\\temp_humid_data\\464_main\\"
+    )
     D = os.listdir(directory)
     filename = ""
     for entry in D:
