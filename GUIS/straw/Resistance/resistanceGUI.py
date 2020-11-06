@@ -52,7 +52,6 @@ from measureByHand import MeasureByHandPopup
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
 # import modules
-from masterUpload import *
 from removeStraw import *
 
 sys.path.insert(
@@ -870,46 +869,6 @@ class CompletionTrack(QtWidgets.QDialog):
                     file.close()
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
-
-    def uploadData(self):
-        QMessageBox.about(self, "Upload", "Now attempting data upload.")
-
-        temp, humid = self.getTempHumid()
-        # temp, humid = 0, 0
-        uploadWorker = self.sessionWorkers[0]
-        uploader = getUploader(self.stationID)("prod")
-        passed = True
-
-        for straw_index, straw in enumerate(self.strawIDs):
-            if straw == None:
-                continue  # Don't execute the code below
-            for measure_index in range(4):
-                try:
-                    uploader.beginUpload(
-                        straw,
-                        uploadWorker,
-                        temp,
-                        humid,
-                        self.measurements[straw_index][measure_index],
-                        self.meas_type_labels_apprev[measure_index],
-                        straw_index + 1,
-                        self.palletNumber,
-                    )
-
-                except UploadFailedError as error:
-                    passed = False
-                    last_message = error.message
-
-        if passed:
-            QMessageBox.about(self, "Upload", "All data uploaded successfully!")
-        else:
-            QMessageBox.warning(
-                self,
-                "Upload Error",
-                "Some Uploads Failed\n\n"
-                + last_message
-                + "\n\nCheck 'errors.txt' for a complete list",
-            )
 
     def saveReset(self):
         if self.measureByHand_counter < 2:
