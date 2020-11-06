@@ -1,10 +1,20 @@
-import sys, time, csv, tkinter, tkinter.messagebox  # for creating app, time formatting, saving to csv, popup dialogs
+#  - -    --   - - /|_/|          .-----------------------.
+#  _______________| @.@|         /  Written by Adam Arnett )
+# (______         >\_W/<  ------/  Created 05/28/2020     /
+#  -   / ______  _/____)       /  Last Update 11/03/2020 /
+# -   / /\ \   \ \            (  PS: Meow! :3           /
+#  - (_/  \_) - \_)            `-----------------------'
+import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
+# for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
+from datetime import timedelta
+# time formatting
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
 import sqlalchemy as sqla  # for interacting with db
 import sqlite3  # for connecting with db
 import matplotlib.pyplot as plt  # for plotting
 import matplotlib as mpl  # also for plotting
+import pandas as pd # even more plotting
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -20,49 +30,44 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QTableWidgetItem,
 )
-from PyQt5.QtGui import QBrush
+from PyQt5.QtGui import QBrush, QIcon
 
 # for GUI widget management^
 from PyQt5.QtCore import Qt, QRect, QObject  # for gui window management
 from datetime import datetime  # for time formatting
 from facileDB import Ui_MainWindow  # import raw UI
 
-# - -    --   - - /|_/|          .-------------------.
-# _______________| @.@|         /                     )
-# (______         >\_W/<     ---/    I'm a cat :3     /
-#  -   / ______  _/____)      (                     /
-# -   / /\ \   \ \             `-------------------'
-#  - (_/  \_) - \_)
 
-# Main class for a gui to make interacting with the DB easier.
-# Adam Arnett
-# Created 5-28-2020
-# Last update 6-19-2020
-# improvements to be made:
-# differentiate between 5 day panels and 7 day panels
-# improve on the measurement display
-# some procedures get logged twice (two pan3s, for example) and one might not have wire tension data while the other does.
-#     This is an issue with the database, not this gui.  But, this gui doesn't have a way to figure out which procedure to read.
-# add modification stuff???
-# next steps:
-# add procedures to important tables
-# check procedures to find best data, completion, etc
-# add full report, what other data is needed?
-# everything...
+# fmt: off
+# ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗    ██╗   ██╗██╗███████╗██╗    ██╗███████╗██████╗ 
+# ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██║   ██║██║██╔════╝██║    ██║██╔════╝██╔══██╗
+# ██║  ██║███████║   ██║   ███████║██████╔╝███████║███████╗█████╗      ██║   ██║██║█████╗  ██║ █╗ ██║█████╗  ██████╔╝
+# ██║  ██║██╔══██║   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══╝      ╚██╗ ██╔╝██║██╔══╝  ██║███╗██║██╔══╝  ██╔══██╗
+# ██████╔╝██║  ██║   ██║   ██║  ██║██████╔╝██║  ██║███████║███████╗     ╚████╔╝ ██║███████╗╚███╔███╔╝███████╗██║  ██║
+# ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝      ╚═══╝  ╚═╝╚══════╝ ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝
+
+# Main class for a gui to make interacting with the database easy, and worry free (no fear of accidentally deleting anything)
+# Gets the QMainWindow class from facileDB.py
+# Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
+# Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
+ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
+# the "fmt" comments prevent the black autoformatter from messing with comments and section headers
+# fmt: on
+
+
 
 
 class facileDBGUI(QMainWindow):
 
-    #  ██▓ ███▄    █  ██▓▄▄▄█████▓ ██▓ ▄▄▄       ██▓     ██▓▒███████▒▓█████
-    # ▓██▒ ██ ▀█   █ ▓██▒▓  ██▒ ▓▒▓██▒▒████▄    ▓██▒    ▓██▒▒ ▒ ▒ ▄▀░▓█   ▀
-    # ▒██▒▓██  ▀█ ██▒▒██▒▒ ▓██░ ▒░▒██▒▒██  ▀█▄  ▒██░    ▒██▒░ ▒ ▄▀▒░ ▒███
-    # ░██░▓██▒  ▐▌██▒░██░░ ▓██▓ ░ ░██░░██▄▄▄▄██ ▒██░    ░██░  ▄▀▒   ░▒▓█  ▄
-    # ░██░▒██░   ▓██░░██░  ▒██▒ ░ ░██░ ▓█   ▓██▒░██████▒░██░▒███████▒░▒████▒
-    # ░▓  ░ ▒░   ▒ ▒ ░▓    ▒ ░░   ░▓   ▒▒   ▓▒█░░ ▒░▓  ░░▓  ░▒▒ ▓░▒░▒░░ ▒░ ░
-    #  ▒ ░░ ░░   ░ ▒░ ▒ ░    ░     ▒ ░  ▒   ▒▒ ░░ ░ ▒  ░ ▒ ░░░▒ ▒ ░ ▒ ░ ░  ░
-    #  ▒ ░   ░   ░ ░  ▒ ░  ░       ▒ ░  ░   ▒     ░ ░    ▒ ░░ ░ ░ ░ ░   ░
-    #  ░           ░  ░            ░        ░  ░    ░  ░ ░    ░ ░       ░  ░
-    #                                                       ░
+# fmt: off
+# ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗
+# ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝
+# ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗  
+# ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝  
+# ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗
+# ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝
+# Functions called by main, or by other functions under this section for the purpose of starting up the GUI.
+# fmt: on
 
     # initializer, takes ui parameter from the .ui file
     def __init__(self, ui_layout):
@@ -72,6 +77,11 @@ class facileDBGUI(QMainWindow):
         ui_layout.setupUi(self)  # apply ui to window
         self.tkRoot = tkinter.Tk()  # make tkinter root for popup messages
         self.tkRoot.withdraw()  # hide root, it's necessary for popups to work, but it's just a blank window otherwise
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))  # put icon in upper left
+        self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
+
+        self.initInputWidgets()
 
         # panel variables
         self.panelNumber = (
@@ -104,74 +114,86 @@ class facileDBGUI(QMainWindow):
         self.hvData = []
         self.strawTensionData = []
         self.wireTensionData = []
+        # heat lists are initialized as bools in findHeat() then changed to lists in findHeat()
 
-        self.ringsSetupWidgetList = [  # list of line edits for rings
-            self.ui.ringsBasePlateLE,
-            self.ui.ringsMIRLE,
-            self.ui.ringsBIRLE,
-            self.ui.ringsPLALE,
-            self.ui.ringsPLBLE,
-            self.ui.ringsPLCLE,
-            self.ui.ringsPRALE,
-            self.ui.ringsPRBLE,
-            self.ui.ringsPRCLE,
-            self.ui.ringsALF1LE,
-            self.ui.ringsALF2LE,
+        self.partSetupWidgetList = [  # list of line edits for part
+            self.ui.partBasePlateLE,
+            self.ui.partMIRLE,
+            self.ui.partBIRLE,
+            self.ui.partPLALE,
+            self.ui.partPLBLE,
+            self.ui.partPLCLE,
+            self.ui.partPRALE,
+            self.ui.partPRBLE,
+            self.ui.partPRCLE,
+            self.ui.partALF1LE,
+            self.ui.partALF2LE,
+            self.ui.partPaasALE,
+            self.ui.partPaasBLE,
+            self.ui.partPaasCLE
         ]
 
-        # link widgets and things
-        self.ui.submitPB.clicked.connect(
-            self.findPanel
-        )  # bind function for submit button
-        self.ui.wireExportButton.clicked.connect(
-            self.exportWireMeasurements
-        )  # bind function for export wire tension stuff
-        self.ui.plotWireDataButton.clicked.connect(
-            self.plotWireData
-        )  # bind function for wire plot button
-        self.ui.strawExportButton.clicked.connect(
-            self.exportStrawMeasurements
-        )  # bind function for export straw tension data
-        self.ui.plotStrawDataButton.clicked.connect(
-            self.plotStrawData
-        )  # bind function for plot straw tension data
-        self.ui.hvExportButton.clicked.connect(
-            self.exportHVMeasurements
-        )  # bind funciton for export HV data
-        self.ui.plotHVDataButton.clicked.connect(
-            self.plotHVData
-        )  # bind function for plot HV data
 
-    # make engine, connection, and metadata objects to interact with database
-    def connectToDB(self):
-
-        # override connect to return a read-only DB connection, MUST use path starting at C drive
+    # make engine, connection, and metadata objects to interact with NETWORK database
+    def connectToNetwork(self):
+        # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
         # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
-        tkinter.messagebox.showinfo(
-            title="Connecting", message=f"Connecting to network database..."
-        )
-
+        # this function returns a read only connection to the .db file at the secified location
         def connectSpecial():
             return sqlite3.connect(
                 "file:X:\Data\database.db?mode=ro", uri=True
             )
 
+        # this create_engine call uses connectSpecial to open the sqlite database in read only
         self.engine = sqla.create_engine(
             "sqlite:///../../Data/database.db/", creator=connectSpecial
         )  # create engine
 
         # try to use read only mode
-        # If the path above is wrong, read-only will fail.  I could see a mergedown or misplaced file easily screwing up the path.
-        # If read-only fails, it'll use the regular SQLAlchemy connection.  The regular connection shouldn't write to the DB, but
-        # having read-only mode is a good safety net.
+        # give error message to allow for quick debugging if it fails
         try:
             self.connection = self.engine.connect()  # connect engine with DB
         except:
             tkinter.messagebox.showerror(
                 title="Error",
-                message=f"Read-only mode failed.  The network is not mapped as the X drive.  Contact a member of the software team for help.",
+                message=f"Network read-only mode failed.  Contact a member of the software team for help.",
             )  # show error message
+            sys.exit()
+
+
+        self.metadata = sqla.MetaData()  # create metadata
+        self.initSQLTables()  # create important tables
+
+    # make engine, connection, and metadata objects to interact with LOCAL database
+    def connectToLocal(self):
+        
+        # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
+        # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
+        # this function returns a read only connection to the .db file at the secified location
+        # getpass.getuser() fetches the current username
+        # double backslashes are necessary because \U is a unicode escape, but \\U is not
+        def connectSpecial(dbPath):
+            return sqlite3.connect(
+                f'file:C:\\Users\\{getpass.getuser()}\\Desktop\\production\\Data\\database.db?mode=ro',
+                uri=True
+                )
+
+        # this create_engine call uses connectSpecial to open the sqlite database in read only
+        self.engine = sqla.create_engine(
+            "sqlite:///../../Data/database.db/", creator=connectSpecial
+        )  # create engine
+
+        # try to use read only mode
+        # give error message to allow for quick debugging if it fails
+        try:
             self.connection = self.engine.connect()  # connect engine with DB
+        except:
+            tkinter.messagebox.showerror(
+                title="Local Error",
+                message=f"Local read-only mode failed.  Contact a member of the software team for help.",
+            )  # show error message
+            sys.exit()
+
 
         self.metadata = sqla.MetaData()  # create metadata
         self.initSQLTables()  # create important tables
@@ -185,28 +207,62 @@ class facileDBGUI(QMainWindow):
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
         )  # procedure
 
-    #  ██▀███  ▓█████ ▄▄▄      ▓█████▄  ██▓ ███▄    █   ▄████      █████▒██▀███   ▒█████   ███▄ ▄███▓   ▓█████▄  ▄▄▄▄
-    # ▓██ ▒ ██▒▓█   ▀▒████▄    ▒██▀ ██▌▓██▒ ██ ▀█   █  ██▒ ▀█▒   ▓██   ▒▓██ ▒ ██▒▒██▒  ██▒▓██▒▀█▀ ██▒   ▒██▀ ██▌▓█████▄
-    # ▓██ ░▄█ ▒▒███  ▒██  ▀█▄  ░██   █▌▒██▒▓██  ▀█ ██▒▒██░▄▄▄░   ▒████ ░▓██ ░▄█ ▒▒██░  ██▒▓██    ▓██░   ░██   █▌▒██▒ ▄██
-    # ▒██▀▀█▄  ▒▓█  ▄░██▄▄▄▄██ ░▓█▄   ▌░██░▓██▒  ▐▌██▒░▓█  ██▓   ░▓█▒  ░▒██▀▀█▄  ▒██   ██░▒██    ▒██    ░▓█▄   ▌▒██░█▀
-    # ░██▓ ▒██▒░▒████▒▓█   ▓██▒░▒████▓ ░██░▒██░   ▓██░░▒▓███▀▒   ░▒█░   ░██▓ ▒██▒░ ████▓▒░▒██▒   ░██▒   ░▒████▓ ░▓█  ▀█▓
-    # ░ ▒▓ ░▒▓░░░ ▒░ ░▒▒   ▓▒█░ ▒▒▓  ▒ ░▓  ░ ▒░   ▒ ▒  ░▒   ▒     ▒ ░   ░ ▒▓ ░▒▓░░ ▒░▒░▒░ ░ ▒░   ░  ░    ▒▒▓  ▒ ░▒▓███▀▒
-    #   ░▒ ░ ▒░ ░ ░  ░ ▒   ▒▒ ░ ░ ▒  ▒  ▒ ░░ ░░   ░ ▒░  ░   ░     ░       ░▒ ░ ▒░  ░ ▒ ▒░ ░  ░      ░    ░ ▒  ▒ ▒░▒   ░
-    #   ░░   ░    ░    ░   ▒    ░ ░  ░  ▒ ░   ░   ░ ░ ░ ░   ░     ░ ░     ░░   ░ ░ ░ ░ ▒  ░      ░       ░ ░  ░  ░    ░
-    #    ░        ░  ░     ░  ░   ░     ░           ░       ░              ░         ░ ░         ░         ░     ░
-    #                           ░                                                                        ░            ░
+    def initInputWidgets(self):
+        # link widgets and things
+        # bind function for submit button
+        self.ui.submitPB.clicked.connect(self.findPanel)
+        # bind function for export wire tension stuff
+        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements) 
+        # bind function for wire plot button
+        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)  
+        # bind function for export straw tension data
+        self.ui.strawExportButton.clicked.connect(self.exportStrawMeasurements)
+        # bind function for plot straw tension data
+        self.ui.plotStrawDataButton.clicked.connect(self.plotStrawData)
+        # bind funciton for export HV data
+        self.ui.hvExportButton.clicked.connect(self.exportHVMeasurements)
+        # bind function for plot HV data
+        self.ui.plotHVDataButton.clicked.connect(self.plotHVData)
+        # bind function for export heat data
+        self.ui.heatExportButton.clicked.connect(self.exportHeatMeasurements)
+        # bind function for plot heat data
+        self.ui.plotHeatDataButton.clicked.connect(self.plotHeatData)
+
+        # bind function for heat combo box change
+        self.ui.heatProBox.currentIndexChanged.connect(self.displayHeat)
+        
+        
+
+# fmt: off
+# ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗ 
+# ██╔══██╗██╔════╝██╔══██╗██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ██╔══██╗██╔══██╗
+# ██████╔╝█████╗  ███████║██║  ██║    █████╗  ██████╔╝██║   ██║██╔████╔██║    ██║  ██║██████╔╝
+# ██╔══██╗██╔══╝  ██╔══██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╔╝██║    ██║  ██║██╔══██╗
+# ██║  ██║███████╗██║  ██║██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║    ██████╔╝██████╔╝
+# ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝    ╚═════╝ ╚═════╝ 
+# Functions that read from the SQL database
+# Find panel is a pretty important function, it's tied to the submit button and clears data
+#   from the GUI, checks for the existence of the submitted panel, and changes the top text
+#   label all before calling all the other "find" functions
+# fmt: on
 
     # called upon hitting submit (does a lot of stuff)
     def findPanel(self):
+        # What it does:
+        # gets rid of data on the gui
+        # changes the panel ID on the top of the gui
+        # checks if the requested panel exists, if not gives error popup
+        # finally calls all the functions that read data from the database
+        #   which in turn call all the display functions (should a seperate
+        #   thing call those maybe?)
+
         # first get rid of any existing data
         self.panelDatabaseID = -1  # reset panel database ID
         for widget in self.comListWidgetList:  # clear comments from list widgets
             widget.clear()
-        for widget in self.ringsSetupWidgetList:  # erase all part IDs
+        for widget in self.partSetupWidgetList:  # erase all part IDs
             widget.setText("")
-        for (
-            key
-        ) in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
+        for key in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
             self.panelProcedureIDs[key] = -1
         # clear lists
         self.ui.hvListWidget.clear()  # clear text in widget
@@ -232,6 +288,7 @@ class facileDBGUI(QMainWindow):
         self.findComments()  # get comments, put them into list widgets
         self.findPanelParts()  # get part IDs, put them into disabled line edit widgets
         self.findMeasurements()  # get measurements, put them into class member lists and display them
+        self.findHeat() # get heat measurements
 
     # query to assign id to GUI class member (self.panelDatabaseID)
     def findPanelDatabaseID(self):
@@ -274,9 +331,8 @@ class facileDBGUI(QMainWindow):
         )  # fetch from proxy, gives list of tuples: (<PRO ID>, <STATION>)
 
         for toop in self.panelProcedures:  # go through results from procedures query
-            self.panelProcedureIDs[toop[1]] = toop[
-                0
-            ]  # assign procedure ID to the corresponding station
+            self.panelProcedureIDs[toop[1]] = toop[0] 
+            # assign procedure ID to the corresponding station (above line)
             # self.panelProcedureIDs is a dictionary with the name of each station as keys
         # print(self.panelProcedureIDs)
 
@@ -362,9 +418,10 @@ class facileDBGUI(QMainWindow):
         resultSet2 = resultProxy2.fetchall()
 
         for partTuple in resultSet2:
-            self.sortPanelParts(partTuple)
+            self.displayPanelParts(partTuple)
 
     # get HV, straw tension, and wire tension data
+    # THIS SHOULD BE SPLIT INTO THREE SEPERATE FUNCTIONS
     def findMeasurements(self):
         # get tables: straw_location, procedure, measurement_wire_tension, measurement_straw_tension, measurement_pan5
         wireTensions = sqla.Table(
@@ -493,18 +550,205 @@ class facileDBGUI(QMainWindow):
 
     # find and display PAAS heating data
     def findHeat(self):
-        pass
+        # get heat table
+        panelHeats = sqla.Table(
+            "panel_heat",
+            self.metadata,
+            autoload=True,
+            autoload_with=self.engine
+        )
 
-    # ▓█████ ▒██   ██▒ ██▓███   ▒█████   ██▀███  ▄▄▄█████▓ ██▓ ███▄    █   ▄████
-    # ▓█   ▀ ▒▒ █ █ ▒░▓██░  ██▒▒██▒  ██▒▓██ ▒ ██▒▓  ██▒ ▓▒▓██▒ ██ ▀█   █  ██▒ ▀█▒
-    # ▒███   ░░  █   ░▓██░ ██▓▒▒██░  ██▒▓██ ░▄█ ▒▒ ▓██░ ▒░▒██▒▓██  ▀█ ██▒▒██░▄▄▄░
-    # ▒▓█  ▄  ░ █ █ ▒ ▒██▄█▓▒ ▒▒██   ██░▒██▀▀█▄  ░ ▓██▓ ░ ░██░▓██▒  ▐▌██▒░▓█  ██▓  (exporting)
-    # ░▒████▒▒██▒ ▒██▒▒██▒ ░  ░░ ████▓▒░░██▓ ▒██▒  ▒██▒ ░ ░██░▒██░   ▓██░░▒▓███▀▒
-    # ░░ ▒░ ░▒▒ ░ ░▓ ░▒▓▒░ ░  ░░ ▒░▒░▒░ ░ ▒▓ ░▒▓░  ▒ ░░   ░▓  ░ ▒░   ▒ ▒  ░▒   ▒
-    #  ░ ░  ░░░   ░▒ ░░▒ ░       ░ ▒ ▒░   ░▒ ░ ▒░    ░     ▒ ░░ ░░   ░ ▒░  ░   ░
-    #    ░    ░    ░  ░░       ░ ░ ░ ▒    ░░   ░   ░       ▒ ░   ░   ░ ░ ░ ░   ░
-    #    ░  ░ ░    ░               ░ ░     ░               ░           ░       ░
-    #
+        # make bools to keep track of what data we have
+        # originally lists were initialized here, but sqlalchemys fetchall() returns
+        #   dumb lists that aren't real lists because you can't concatenate them onto normal lists
+        self.pro1HeatData = False
+        self.pro2HeatData = False
+        self.pro6HeatData = False
+
+        self.pro1AStats = []
+        self.pro1BCStats = []
+        self.pro1HeatTime = []
+        self.pro2AStats = []
+        self.pro2BCStats = []
+        self.pro2HeatTime = []
+        self.pro2AStats = []
+        self.pro2BCStats = []
+        self.pro2HeatTime = []
+
+        # if a pro 1 exists, get the data!
+        if self.panelProcedureIDs["pan1"] != -1:
+            pro1HeatQuery = sqla.select(
+                [
+                    panelHeats.columns.timestamp,   # time temp taken
+                    panelHeats.columns.temp_paas_a, # PAAS A temp
+                    panelHeats.columns.temp_paas_bc,# PAAS BC temp
+                    panelHeats.columns.procedure
+                ]
+            ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan1"])
+            # where the procedure for the entry is the procedure for this panel
+            resultProxy = self.connection.execute(pro1HeatQuery) # make proxy
+            rawPro1HeatData = resultProxy.fetchall()    # get data from db
+            if rawPro1HeatData is not []:   # check if we actually have data
+                self.pro1HeatData = True # we do! huzzah!
+
+        # if a pro 2 exists, get the data!
+        if self.panelProcedureIDs["pan2"] != -1:
+            pro2HeatQuery = sqla.select(
+                [
+                    panelHeats.columns.timestamp,   # time temp taken
+                    panelHeats.columns.temp_paas_a, # PAAS A temp
+                    panelHeats.columns.temp_paas_bc # PAAS BC temp
+                ]
+            ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan2"])
+            # where the procedure for the entry is the procedure for this panel
+            resultProxy = self.connection.execute(pro2HeatQuery) # make proxy
+            rawPro2HeatData = resultProxy.fetchall()    # get data from db
+            if rawPro2HeatData is not []:   # check if we actually have data
+                self.pro2HeatData = True # we do! noice!
+
+        # if a pro 6 exists, get the data!
+        if self.panelProcedureIDs["pan6"] != -1:
+            pro6HeatQuery = sqla.select(
+                [
+                    panelHeats.columns.timestamp,   # time temp taken
+                    panelHeats.columns.temp_paas_a, # PAAS A temp
+                    panelHeats.columns.temp_paas_bc # PAAS BC temp
+                ]
+            ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan6"])
+            # where the procedure for the entry is the procedure for this panel
+            resultProxy = self.connection.execute(pro6HeatQuery) # make proxy
+            rawPro6HeatData = resultProxy.fetchall()    # get data from db
+            if rawPro6HeatData is not []:   # check if we actually have data
+                self.pro6HeatData = True # we do! excellent!
+        
+        # The tuples in the raw data lists exist in the form: (timestamp, PAAS A temp, PAAS B temp)
+
+        # the next 3 if blocks take the raw data and refine it
+        # first it changes the bool into a list, and then puts the raw data in the list, with a human
+        # readable timestamp at index 0.
+        # second it gets statistics from the refined data temp: min, max, mean, std dev time: total time
+        if self.pro1HeatData:
+            self.pro1HeatData = [] # switch bool to list
+
+            for toop in rawPro1HeatData:    # for each tuple in list,
+                # add that data to the heat data with a human readable timestamp in front
+                self.pro1HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+            
+            # make lists of temps for paas A and B/C
+            paasATemps = [toop[2] for toop in self.pro1HeatData]
+            paasBCTemps = [toop[3] for toop in self.pro1HeatData]
+
+            if len(paasATemps) > 0: # if paas A data exits
+                # make a list of stats
+                self.pro1AStats = [
+                    statistics.mean(paasATemps),    # mean of paas A
+                    min(paasATemps),    # min of paas A
+                    max(paasATemps),    # max of paas A
+                    statistics.stdev(paasATemps),# standard dev of paas A
+                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
+                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                ]
+            if len(paasBCTemps) > 0: # if paas B/C exists
+                # make a list of stats
+                self.pro1BCStats = [
+                    statistics.mean(paasBCTemps),    # mean of paas BC
+                    min(paasBCTemps),    # min of paas BC
+                    max(paasBCTemps),    # max of paas BC
+                    statistics.stdev(paasBCTemps),# standard dev of paas BC
+                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
+                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                ]
+            
+            # make a list of heat timestamps
+            heatTimes = [toop[1] for toop in self.pro1HeatData]
+            # if we have that data
+            if len(heatTimes) > 0:
+                # find the total time it took
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                self.pro1HeatTime = timedelta(rawHeatTime)
+
+        # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
+        if self.pro2HeatData:
+            self.pro2HeatData = []
+            for toop in rawPro2HeatData:
+                self.pro2HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+            paasATemps = [toop[2] for toop in self.pro2HeatData]
+            paasBCTemps = [toop[3] for toop in self.pro2HeatData]
+            if len(paasATemps) > 0:
+                self.pro2AStats = [
+                    statistics.mean(paasATemps),    # mean of paas A
+                    min(paasATemps),    # min of paas A
+                    max(paasATemps),    # max of paas A
+                    statistics.stdev(paasATemps),# standard dev of paas A
+                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
+                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                ]
+            if len(paasBCTemps) > 0:
+                self.pro2BCStats = [
+                    statistics.mean(paasBCTemps),    # mean of paas BC
+                    min(paasBCTemps),    # min of paas BC
+                    max(paasBCTemps),    # max of paas BC
+                    statistics.stdev(paasBCTemps),# standard dev of paas BC
+                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
+                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                ]
+
+            heatTimes = [toop[1] for toop in self.pro2HeatData]
+            if len(heatTimes) > 0:
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                self.pro2HeatTime = timedelta(rawHeatTime)
+
+        # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
+        if self.pro6HeatData:
+            self.pro6HeatData = []
+            for toop in rawPro6HeatData:
+                self.pro6HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+            
+            paasATemps = [toop[2] for toop in self.pro6HeatData]
+            paasBCTemps = [toop[3] for toop in self.pro6HeatData]
+            if len(paasATemps) > 0:
+                self.pro6AStats = [
+                    statistics.mean(paasATemps),    # mean of paas A
+                    min(paasATemps),    # min of paas A
+                    max(paasATemps),    # max of paas A
+                    statistics.stdev(paasATemps),# standard dev of paas A
+                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
+                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                ]
+            if len(paasBCTemps) > 0:
+                self.pro6BCStats = [
+                    statistics.mean(paasBCTemps),    # mean of paas BC
+                    min(paasBCTemps),    # min of paas BC
+                    max(paasBCTemps),    # max of paas BC
+                    statistics.stdev(paasBCTemps),# standard dev of paas BC
+                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
+                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                ]
+            
+            heatTimes = [toop[1] for toop in self.pro6HeatData]
+            if len(heatTimes) > 0:
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                self.pro6HeatTime = timedelta(seconds = rawHeatTime)
+
+        # stats lists are of the form: [mean, min, max, std dev, upper std dev, lower std dev]
+        #print(self.pro6HeatData)
+        #print(self.pro6AStats)
+        #print(self.pro6BCStats)
+        #print(self.pro6HeatTime)
+
+        self.displayHeat()
+
+
+
+# fmt: off
+# ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ 
+# ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ 
+# █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗
+# ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║
+# ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝
+# ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+# Functions responsible for writing data to CSV files, these all need more comments
+# fmt: on
 
     # export wire data to CSV file
     def exportWireMeasurements(self):
@@ -573,17 +817,44 @@ class facileDBGUI(QMainWindow):
                 title="Data Exported",
                 message=f"Data exported to MN{self.panelNumber}_HV_data.csv",
             )
+    
+    # export heat data to CSV
+    def exportHeatMeasurements(self):
+        # get the current pro
+        curPro = self.ui.heatProBox.currentText()[8]
 
-    #   ▄████  ██▀███   ▄▄▄       ██▓███   ██░ ██  ██▓ ███▄    █   ▄████
-    #  ██▒ ▀█▒▓██ ▒ ██▒▒████▄    ▓██░  ██▒▓██░ ██▒▓██▒ ██ ▀█   █  ██▒ ▀█▒
-    # ▒██░▄▄▄░▓██ ░▄█ ▒▒██  ▀█▄  ▓██░ ██▓▒▒██▀▀██░▒██▒▓██  ▀█ ██▒▒██░▄▄▄░
-    # ░▓█  ██▓▒██▀▀█▄  ░██▄▄▄▄██ ▒██▄█▓▒ ▒░▓█ ░██ ░██░▓██▒  ▐▌██▒░▓█  ██▓
-    # ░▒▓███▀▒░██▓ ▒██▒ ▓█   ▓██▒▒██▒ ░  ░░▓█▒░██▓░██░▒██░   ▓██░░▒▓███▀▒
-    #  ░▒   ▒ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░▒▓▒░ ░  ░ ▒ ░░▒░▒░▓  ░ ▒░   ▒ ▒  ░▒   ▒
-    #   ░   ░   ░▒ ░ ▒░  ▒   ▒▒ ░░▒ ░      ▒ ░▒░ ░ ▒ ░░ ░░   ░ ▒░  ░   ░
-    # ░ ░   ░   ░░   ░   ░   ▒   ░░        ░  ░░ ░ ▒ ░   ░   ░ ░ ░ ░   ░
-    #       ░    ░           ░  ░          ░  ░  ░ ░           ░       ░
-    #
+        if len(self.getHeat(curPro, "HeatData")) == 0:
+            tkinter.messagebox.showerror(
+                title="Error", message=f"No heat data found for MN{self.panelNumber}"
+            )
+            return
+
+        with open(f"MN{self.panelNumber}_pro_{curPro}_heat_data.csv", "w", newline="") as csvFile:
+            csvWriter = csv.writer(csvFile)
+            csvWriter.writerow([f"MN{self.panelNumber} heat Data"])
+            csvWriter.writerow(
+                [
+                    "Time (Human)",
+                    "Time (Epoch)",
+                    "PAAS A Temp",
+                    "PAAS B/C Temp"
+                ]
+            )
+            csvWriter.writerows(self.getHeat(curPro, "HeatData"))
+            tkinter.messagebox.showinfo(
+                title="Data Exported",
+                message=f"Data exported to MN{self.panelNumber}_pro_{curPro}_heat_data.csv",
+            )
+
+# fmt: off
+#  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
+# ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║██║████╗  ██║██╔════╝ 
+# ██║  ███╗██████╔╝███████║██████╔╝███████║██║██╔██╗ ██║██║  ███╗
+# ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║██║██║╚██╗██║██║   ██║
+# ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║██║██║ ╚████║╚██████╔╝
+#  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+# Functions that use matplotlib to make graphs from the data in scroll areas
+# fmt: on
 
     # function to open new window with wire tension data graphed
     def plotWireData(self):
@@ -643,7 +914,7 @@ class facileDBGUI(QMainWindow):
         )  # make a scatterplot out of the x and y data
         plt.axis([0, 100, 0, 1000])  # set the bounds of the graph
         plt.xlabel("Wire Position", fontsize=20)  # set x axis label
-        plt.ylabel("Wire Tension", fontsize=20)  # set y axis label
+        plt.ylabel("Straw Tension", fontsize=20)  # set y axis label
         for x, y in enumerate(sctrYDataPoints):  # go through y data, enumerate for x
             if y is not None:  # if y exists and is too low...
                 plt.annotate(f"{x}", (x, y), fontsize=8)  # annotate that point
@@ -716,67 +987,124 @@ class facileDBGUI(QMainWindow):
         # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
         plt.show()
 
-    #  ███▄ ▄███▓ ██▓  ██████  ▄████▄
-    # ▓██▒▀█▀ ██▒▓██▒▒██    ▒ ▒██▀ ▀█
-    # ▓██    ▓██░▒██▒░ ▓██▄   ▒▓█    ▄
-    # ▒██    ▒██ ░██░  ▒   ██▒▒▓▓▄ ▄██▒
-    # ▒██▒   ░██▒░██░▒██████▒▒▒ ▓███▀ ░
-    # ░ ▒░   ░  ░░▓  ▒ ▒▓▒ ▒ ░░ ░▒ ▒  ░
-    # ░  ░      ░ ▒ ░░ ░▒  ░ ░  ░  ▒
-    # ░      ░    ▒ ░░  ░  ░  ░
-    #        ░    ░        ░  ░ ░
-    #                         ░
+    # plot heat data in new window
+    def plotHeatData(self):
+        # get the current pro
+        curPro = self.ui.heatProBox.currentText()[8]
+
+        # make x data list by converting raw timesamps to matplotlib dates
+        xData = [
+            mpl.dates.epoch2num(toop[1]) for toop in self.getHeat(curPro, "HeatData")
+        ]
+
+        if len(xData) <3 : # <3
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Too little or no heat data was found for MN{self.panelNumber}, process {curPro}.",
+            )
+            return
+
+        # make y data sets
+        yDataA = [
+            toop[2] for toop in self.getHeat(curPro, "HeatData")
+        ]
+        yDataBC = [
+            toop[3] for toop in self.getHeat(curPro, "HeatData")
+        ]
+        #yColorBC = [(heat - 5) for heat in yDataBC]
+        
+
+        # make subplot for PAAS A
+        plt.subplot(211)
+        plt.plot_date(xData, yDataA) # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel("Temperature of PAAS A (°C)", fontsize=20)  # set y axis label
+
+        # make subplot for PAAS A
+        plt.subplot(212)
+        plt.plot_date(xData, yDataBC) # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
+        
+        '''
+        This adds color(sick as frick), but the x ticks are in days since 0001...
+        # make subplot for PAAS B/C
+        plt.subplot(212)
+        plt.scatter(xData, yDataBC, c=yColorBC, s=10, cmap=plt.cm.jet) # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
+        '''
+
+        plt.tight_layout()
+        plt.show()
+        
+        
+
+# fmt: off
+# ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
+# ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+# ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
+# ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+# ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+# Functions that put data onto the GUI
+# findComments() should be split into findComments() and displayComments()
+# fmt: on
 
     # function to help sift through partsQuery results, also displays found data
     # this is essentially a helper for findPanelParts()
-    def sortPanelParts(self, partTuple):
+    def displayPanelParts(self, partTuple):
         # I apologise for this abhorrent block of code with 15 too many if/elif statements
         # this could potentially be avoided with a dictionary?
         # having PIR and ALF before others in the if statements it a tiny bit more efficient
         if partTuple[4] == "PIR":
             if partTuple[6] == "L":
                 if partTuple[7] == "A":
-                    self.ui.ringsPLALE.setText(str(partTuple[5]))
+                    self.ui.partPLALE.setText(str(partTuple[5]))
                 elif partTuple[7] == "B":
-                    self.ui.ringsPLBLE.setText(str(partTuple[5]))
+                    self.ui.partPLBLE.setText(str(partTuple[5]))
                 elif (
                     partTuple[7] == "C"
                 ):  # this could be just else, but checking prevents garbage data from being displayed
-                    self.ui.ringsPLCLE.setText(str(partTuple[5]))
+                    self.ui.partPLCLE.setText(str(partTuple[5]))
             if partTuple[6] == "R":
                 if partTuple[7] == "A":
-                    self.ui.ringsPRALE.setText(str(partTuple[5]))
+                    self.ui.partPRALE.setText(str(partTuple[5]))
                 elif partTuple[7] == "B":
-                    self.ui.ringsPRBLE.setText(str(partTuple[5]))
+                    self.ui.partPRBLE.setText(str(partTuple[5]))
                 elif partTuple[7] == "C":
-                    self.ui.ringsPRCLE.setText(str(partTuple[5]))
+                    self.ui.partPRCLE.setText(str(partTuple[5]))
         elif partTuple[4] == "PAAS":
             if partTuple[7] == "A":
-                self.ui.paasALE.setText(str(partTuple[5]))
+                self.ui.partPaasALE.setText(str(partTuple[5]))
             if partTuple[7] == "B":
-                self.ui.paasBLE.setText(str(partTuple[5]))
+                self.ui.partPaasBLE.setText(str(partTuple[5]))
             if partTuple[7] == "C":
-                self.ui.paasCLE.setText(str(partTuple[5]))
+                self.ui.partPaasCLE.setText(str(partTuple[5]))
         elif partTuple[4] == "ALF":
             if partTuple[3] == "L":
-                self.ui.ringsALF1LE.setText(str(partTuple[5]))
+                self.ui.partALF1LE.setText(str(partTuple[5]))
             elif partTuple[3] == "R":
-                self.ui.ringsALF2LE.setText(str(partTuple[5]))
+                self.ui.partALF2LE.setText(str(partTuple[5]))
         elif partTuple[4] == "BASEPLATE":
-            self.ui.ringsBasePlateLE.setText(str(partTuple[5]))
+            self.ui.partBasePlateLE.setText(str(partTuple[5]))
         elif partTuple[4] == "MIR":
-            self.ui.ringsMIRLE.setText(str(partTuple[5]))
+            self.ui.partMIRLE.setText(str(partTuple[5]))
         elif partTuple[4] == "BIR":
-            self.ui.ringsBIRLE.setText(str(partTuple[5]))
+            self.ui.partBIRLE.setText(str(partTuple[5]))
 
     # put measurement data on the gui
     def displayMeasurement(self):
         # ensure data exists
-        extantWireData = (
-            False  # booleans to represent if data exists for each measurement type
-        )
+        # bools to represent if data exists for each measurement type
+        extantWireData = False
         extantStrawData = False
         extantHVData = False
+        extantHeatData = False
+
         for toop in self.wireTensionData:  # for each tuple in self.wireTensionData
             if toop[1] != "No Data":  # if it isn't "No Data"
                 extantWireData = True  # then data exists!
@@ -825,23 +1153,97 @@ class facileDBGUI(QMainWindow):
                     )  # display just the data
         else:
             self.ui.hvListWidget.addItem("No Data Found :(")
+        
+        if extantHeatData:
+            self.ui.heatListWidget.addItem(
+                "Data Exists, but only the export and plot buttons work right now.  Check back in 173,000 seconds or so."
+                )
+        else:
+            self.ui.heatListWidget.addItem("No Data Found :(")
+    
+    # put heat statistics on the gui
+    def displayHeat(self):
 
-    # override close button event
+        # clear out the current data
+        self.ui.heatListWidget.clear()
+
+        # get the current pro
+        curPro = self.ui.heatProBox.currentText()[8]
+        '''
+        itemsToAdd = [
+            f'Total Heat Time: {get(curPro,"HeatTime")}' if (get(curPro,"HeatTime") is not []) else "No Heat Time Data Found",
+            f'PAAS A Stats' if len(get(curPro,"AStats")) > 0 else "No PAAS A Data Found",
+            f'PAAS A Mean Temperature: {get(curPro,"AStats")[0]}' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Maximum Temperature: {get(curPro,"AStats")[2]}' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Minimum Temperature: {get(curPro,"AStats")[1]}' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Standard Deviation: {get(curPro,"AStats")[3]} ({get(curPro,"AStats")[5]} - {get(curPro,"AStats")[4]})' if len(get(curPro,"AStats")) > 0 else "None",
+            f'PAAS B/C Stats' if len(get(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found",
+            f'PAAS B/C Mean Temperature: {get(curPro,"BCStats")[0]}' if len(get(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Maximum Temperature: {get(curPro,"BCStats")[2]}' if len(get(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Minimum Temperature: {get(curPro,"BCStats")[1]}' if len(get(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Standard Deviation: {get(curPro,"BCStats")[3]} ({get(curPro,"BCStats")[5]} - {get(curPro,"BCStats")[4]})' if len(get(curPro,"BCStats")) > 0 else "None",
+        ]
+        '''
+
+        #self.ui.heatListWidget.addItems(itemsToAdd)
+        if len(self.getHeat(curPro, "HeatData")) > 0:
+            self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
+        else:
+            self.ui.heatListWidget.addItem("No data found :(")
+        self.ui.heatListWidget.addItem("Statistics will be placed here eventually.")
+        self.ui.heatListWidget.addItem("Currently, graph and export work.")
+        self.ui.heatListWidget.addItem("The graphs are still being improved for readability.")
+
+        
+# fmt: off
+# ███╗   ███╗██╗███████╗ ██████╗
+# ████╗ ████║██║██╔════╝██╔════╝
+# ██╔████╔██║██║███████╗██║     
+# ██║╚██╔╝██║██║╚════██║██║     
+# ██║ ╚═╝ ██║██║███████║╚██████╗
+# ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
+# The isle of misfit functions
+# fmt: on
+
+    # a function to get heat related member variables from facileDBGUI by name
+    # takes a pro and type of data you want (should be one of AStats, BCStats, HeatData, HeatTime)
+    # and returns a pointer to the member you indicated (ex, get(2,AStats) returns self.pro2AStats)
+    # I should make one of these that can get any data from anywhere in the GUI...  maybe later!
+    def getHeat(self, pro, data):
+        return getattr(self, f"pro{pro}{data}")
+
+    # override close button event (see comments in function)
     def closeEvent(self, event):
         sys.exit()  # kill program
         # this is necessary since using the pyplot.show() makes python think there's another app running, so closing the gui
         # won't close the program if you used the plot button (so you'd have a python process still running in the background
         # doing nothing).  Overriding the closeEvent to exit the program makes sure the whole process is dead when the user
-        # clicks the X in the upper right corner
+        # clicks the X in the upper right corner.
+        # It's not called anywhere because having it here overwrites a QMainWindow method.
+        # Killing it with sys.exit() will not hurt the database.
 
+
+# fmt: off
+# ███╗   ███╗ █████╗ ██╗███╗   ██╗
+# ████╗ ████║██╔══██╗██║████╗  ██║
+# ██╔████╔██║███████║██║██╔██╗ ██║
+# ██║╚██╔╝██║██╔══██║██║██║╚██╗██║
+# ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
+# ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
+# DEFINITELY NOT the thing that starts up the program
+# fmt: on
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)  # make an app
     # app.setStyleSheet(qdarkstyle.load_stylesheet())    # darkmodebestmode
-    print("Starting...")
     window = facileDBGUI(Ui_MainWindow())  # make a window
-    window.connectToDB()  # link to database
-    window.setWindowTitle("Database Viewer")
+    if ISLAB:
+        window.connectToNetwork()  # link to database
+        window.setWindowTitle("Database Viewer") # change from default window title
+    else:
+        window.connectToLocal() #link to database
+        window.setWindowTitle("~~~~~~~LOCAL CONNECTION FOR DEVELOPMENT~~~~~~~")
+        # make sure you can tell the difference between local and network connections
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
     app.exec_()  # run the app!
