@@ -9,8 +9,8 @@ import time
 import os
 import csv
 import sys
-import datetime
 import threading
+from datetime import datetime
 from pathlib import Path
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -26,7 +26,6 @@ sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
 from remove import Ui_Dialogw
 from removeStraw import *
-from masterUpload import *
 from checkstraw import *
 
 sys.path.insert(
@@ -129,13 +128,11 @@ class Silver(QMainWindow):
         previousWorkers = []
         activeWorkers = []
         exists = os.path.exists(
-            self.workerDirectory + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
         )
         if exists:
             with open(
-                self.workerDirectory
-                + datetime.datetime.now().strftime("%Y-%m-%d")
-                + ".csv",
+                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
                 "r",
             ) as previous:
                 today = csv.reader(previous)
@@ -155,9 +152,7 @@ class Silver(QMainWindow):
                 if prev != self.justLogOut:
                     activeWorkers.append(prev)
         with open(
-            self.workerDirectory
-            + datetime.datetime.now().strftime("%Y-%m-%d")
-            + ".csv",
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
             "a+",
         ) as workers:
             if exists:
@@ -233,7 +228,7 @@ class Silver(QMainWindow):
             or not int(self.epoxyBatch[3:5]) in range(1, 13)
             or not int(self.epoxyBatch[5:7]) in range(1, 32)
             or not int(self.epoxyBatch[7:9])
-            in range(17, (datetime.datetime.now().year - 2000) + 1)
+            in range(17, (datetime.now().year - 2000) + 1)
             or not self.epoxyBatch[-2:].isnumeric()
         ):
             valid[2] = False
@@ -330,9 +325,7 @@ class Silver(QMainWindow):
                 "a",
             ) as palletWrite:
                 palletWrite.write("\n")
-                palletWrite.write(
-                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ",silv,"
-                )
+                palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",silv,")
                 for straw in self.straws:
                     palletWrite.write(straw)
 
@@ -345,7 +338,7 @@ class Silver(QMainWindow):
         with open(self.silverDirectory + self.palletNum + ".csv", "w+") as file:
             header = "Timestamp, Pallet ID, Epoxy Batch #, Endpiece Insertion time (H:M:S), Workers ***NEWLINE***: Comments (optional)\n"
             file.write(header)
-            file.write(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.palletID + "," + self.epoxyBatch + ",")
             file.write(
                 str(self.ui.hour_disp.intValue())
@@ -405,33 +398,6 @@ class Silver(QMainWindow):
                         if entry > 1 and entry < 50:
                             if entry % 2 == 0:
                                 self.straws.append(pallet[row][entry])
-
-    def uploadData(self):
-        lastMessage = ""
-
-        self.getStraws()
-
-        uploadWorker = self.sessionWorkers[0]
-
-        uploader = getUploader(self.stationID)("prod")
-
-        for straw in self.straws:
-            if straw != "_______":
-                try:
-                    uploader.beginUpload(
-                        straw, uploadWorker, self.epoxyBatch, self.palletNum
-                    )
-                except UploadFailedError as error:
-                    lastMessage = error.message
-
-        if lastMessage != "":
-            QMessageBox.warning(
-                self,
-                "Upload Error",
-                "Some Uploads Failed\nOne example error message:\n\n"
-                + lastMessage
-                + "\n\nCheck 'errors.txt' for a complete list",
-            )
 
     def resetGUI(self):
         self.palletID = ""
