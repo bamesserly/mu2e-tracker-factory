@@ -286,7 +286,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 23, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -2763,15 +2763,14 @@ class panelGUI(QMainWindow):
 
         Parameter: data - A list of the parsed input data
         0 - panel num (int)
-        1 - upper pallet code (int)
-        2 - lower pallet code
-        3 - lower epoxy batch num (int)
-        4 - lower epoxy timer (timer tuple)
-        5 - upper epoxy batch num
-        6 - upper epoxy timer
-        7 - PAAS A max temp (float)
-        8 - PAAS B max temp (float)
-        9 - heat timer (timer tuple)
+        1 - lower epoxy batch num (int)
+        2 - lower epoxy timer (timer tuple)
+        3 - upper epoxy batch num
+        4 - upper epoxy timer
+        5 - PAAS A max temp (float)
+        6 - PAAS B max temp (float)
+        7 - heat timer (timer tuple)
+        8 - PAAS B ID
     """
 
     def parsepro2Data(self, data):
@@ -2846,9 +2845,9 @@ class panelGUI(QMainWindow):
                 )  # enable heat start button (epoxy stuff has been finished)
 
         # heat stuff -----------------------------------------------------------------------------
-        if data[4] is not None:  # if paas A max temp num data exists
+        if data[5] is not None:  # if paas A max temp num data exists
             self.ui.temp4.setText(
-                str(data[4])
+                str(data[5])
             )  # set text of paas A max temp line edit widget to num
         if data[6] is not None:  # if paas B max temp num data exists
             self.ui.temp4_2.setText(
@@ -2887,8 +2886,8 @@ class panelGUI(QMainWindow):
                 )  # disable paas B max temp line edit widget
 
         # PAAS B Entry ---------------------------------------------------------------------------
-        if data[10] is not None:
-            self.ui.paasBInput.setText(f"PAAS B-{data[10][4:]}")
+        if data[8] is not None:
+            self.ui.paasBInput.setText(f"PAAS B-{data[8][4:]}")
             self.ui.paasBInput.setDisabled(True)
 
         # comments
@@ -3478,8 +3477,8 @@ class panelGUI(QMainWindow):
         if not self.validateInput(indices=[19, 20]):
             return
         self.ui.lpalLabel.setText("Straws Validated.")
-        #print(self.data)
-        #print(len(self.data[0]))
+        # print(self.data)
+        # print(len(self.data[0]))
         self.data[0][22] = True
 
         if self.stepsList.allStepsChecked():
