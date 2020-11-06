@@ -914,7 +914,7 @@ class facileDBGUI(QMainWindow):
         )  # make a scatterplot out of the x and y data
         plt.axis([0, 100, 0, 1000])  # set the bounds of the graph
         plt.xlabel("Wire Position", fontsize=20)  # set x axis label
-        plt.ylabel("Wire Tension", fontsize=20)  # set y axis label
+        plt.ylabel("Straw Tension", fontsize=20)  # set y axis label
         for x, y in enumerate(sctrYDataPoints):  # go through y data, enumerate for x
             if y is not None:  # if y exists and is too low...
                 plt.annotate(f"{x}", (x, y), fontsize=8)  # annotate that point
