@@ -520,12 +520,6 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.setEpoxyTime, self.gui.getElapsedTime()
         )  # Min BP/BIR Gap [mils]
         self.callMethod(self.procedure.setDp190, self.gui.DP190Batch)
-        # for i in range(len(self.gui.straws)):
-        #     # print("starting now")
-        #     if self.gui.straws[i] != "":
-        #         straw = self.stripNumber(self.gui.straw[i])
-        #         print(straw)
-        #         CO2(self.procedure.id, straw, True)
 
     def saveWorkers(self):
         pass
