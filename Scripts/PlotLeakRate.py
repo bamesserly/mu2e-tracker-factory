@@ -9,8 +9,11 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 import datetime
 import os
-from datetime import datetime
+import re
 
+################################################################################
+# Constants
+################################################################################
 # Unit conversion factor for inches of water to psi.
 kINCHES_H2O_PER_PSI = 27.6799048
 
@@ -22,12 +25,16 @@ kFIT_START_TIME = 0.2
 
 # color scheme
 cmap = plt.get_cmap("tab10")
-temperature_color = cmap(0)
-pressure_color = cmap(1)
+color_box_temp = cmap(4)
+color_room_temp = cmap(0)
+color_pressure = cmap(1)
 fit1_color = cmap(2)
 fit2_color = cmap(3)
 
 
+################################################################################
+# Parse input args - input filename, fit start/end times
+################################################################################
 def GetOptions():
     parser = optparse.OptionParser(usage="usage: %prog [options]")
     parser.add_option(
@@ -79,13 +86,16 @@ def GetOptions():
     return options
 
 
+################################################################################
+# Helper functions
+################################################################################
 def ConvertInchesH2OToPSI(pressure_inches_h2O):
     return pressure_inches_h2O / kINCHES_H2O_PER_PSI
 
 
 # Raw data file name: "201109_1257_MN061test6.txt"
 def GetPanelIDFromFilename(filename):
-    return filename[12:17]
+    return re.search(r"MN\d\d\d", filename).group(0)
 
 
 # If user did not provide a fit start time, determine as follows:
@@ -101,6 +111,9 @@ def GetFitStartTime(total_duration):
         return total_duration * 0.1
 
 
+################################################################################
+# Read the raw data (old or new format) into a dataframe
+################################################################################
 def ReadLeakRateFile(infile, is_new_format="true"):
     if is_new_format:
         # read input file
@@ -116,8 +129,9 @@ def ReadLeakRateFile(infile, is_new_format="true"):
         # rename time
         df = df.rename(columns={"Elapdays": "TIME(DAYS)"})
 
-        # rename temp
-        df = df.rename(columns={"RoomdegC": "TEMPERATURE(C)"})
+        # rename temps
+        df = df.rename(columns={"RoomdegC": "ROOM TEMPERATURE(C)"})
+        df = df.rename(columns={"EncldegC": "BOX TEMPERATURE(C)"})
 
         ## make a new column: pressure/temp
         # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["RoomdegC"]
@@ -135,6 +149,9 @@ def ReadLeakRateFile(infile, is_new_format="true"):
         # convert pressure from inches of water to psi
         df["PRESSURE(INH20D)"] = ConvertInchesH2OToPSI(df["PRESSURE(INH20D)"])
         df = df.rename(columns={"PRESSURE(INH20D)": "PRESSURE(PSI)"})
+
+        # rename temp
+        df = df.rename(columns={"TEMPERATURE(C)": "BOX TEMPERATURE(C)"})
 
         # convert absolute time to elapsed days
         def get_time(time_str):
@@ -161,31 +178,41 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 
         ## make a new column: pressure/temp
         # print(df.columns)
-        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["TEMPERATURE(C)"]
+        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["ROOM TEMPERATURE(C)"]
 
         return df
 
 
+################################################################################
+# From the dataframe, plot data points, straight-line fit using first and last
+# points, and straight-line fit using least squares
+################################################################################
 def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
     # Plot full range of data points
-    def PlotDataPoints(df, axP, axT):
+    def PlotDataPoints(df, column_name, axis, color):
         time = df["TIME(DAYS)"]
-        pressure = df["PRESSURE(PSI)"]
-        temperature = df["TEMPERATURE(C)"]
+        yvals = df[column_name]
         # x_values = np.linspace(time.iloc[0], time.iloc[-1])
 
-        # downsample temperature
-        temperature = np.array(temperature)
-        temp_size = temperature.size
-        temperature = signal.resample(temperature, 250)
-        temperature = signal.resample(temperature, temp_size)
+        label = None
+        markersize = 1
+        # downsample temperatures
+        if "TEMPERATURE" in column_name:
+            yvals = np.array(yvals)
+            temp_size = yvals.size
+            yvals = signal.resample(yvals, 250)
+            yvals = signal.resample(yvals, temp_size)
+            label = column_name
+            markersize = 2
 
         # plot
-        axP.plot(
-            np.array(time), np.array(pressure), "o", color=pressure_color, markersize=1
-        )
-        axT.plot(
-            np.array(time), temperature, "o", color=temperature_color, markersize=1
+        axis.plot(
+            np.array(time),
+            np.array(yvals),
+            "o",
+            color=color,
+            markersize=markersize,
+            label=label,
         )
 
     # Standard numpy least squares linear regression
@@ -238,37 +265,40 @@ def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
             label="From first and last points\n{0} sccm".format(leak_rate_in_sccm),
         )
 
-    # Uses the same as method 1 under the hood
-    def FitAndPlot_3(df, axP):
-        time = df["TIME(DAYS)"].to_numpy().reshape((-1, 1))
-        pressure = df["PRESSURE(PSI)"].to_numpy()
-        model = LinearRegression().fit(time, pressure)
-        print(model)
-        r_sq = model.score(time, pressure)
-        slope = model.coef_
-        intercept = model.intercept_
-        print("slope: ", slope, "intercept: ", intercept)
-        y_values = intercept + slope * time
-        leak_rate_in_sccm = round(slope[0] * kPSI_PER_DAY_TO_SCCM, 5)
-        axP.plot(
-            np.array(time),
-            np.array(y_values),
-            color=cmap(6),
-            linewidth=3.,
-            label="least squares 2\n{0} sccm\n($r^2$={1})".format(
-                leak_rate_in_sccm, round(r_sq, 3)
-            ),
-        )
-
     # Plot data points
-    PlotDataPoints(df, axP, axT)
+    PlotDataPoints(df, "PRESSURE(PSI)", axP, color_pressure)
+    try:
+        PlotDataPoints(df, "ROOM TEMPERATURE(C)", axT, color_room_temp)
+    except KeyError:
+        pass
+    try:
+        PlotDataPoints(df, "BOX TEMPERATURE(C)", axT, color_box_temp)
+    except KeyError:
+        pass
 
-    # Constrain the DF to between fit start and end times
+    # Restrict fit range by start and end time, then do fit and plot it
+    df = df.loc[(df["TIME(DAYS)"] > fit_start_time) & (df["TIME(DAYS)"] < fit_end_time)]
+    FitAndPlot_1(df, axP)
+    FitAndPlot_2(df, axP)
+
+
+################################################################################
+# main
+################################################################################
+def main():
+    options = GetOptions()
+
+    # read raw data files into a dataframe
+    df = ReadLeakRateFile(options.infile, options.is_new_format)
+
+    # constrain the DF to between fit start and end times
     total_duration = df["TIME(DAYS)"].iat[-1]
-    if fit_start_time is None:
-        fit_start_time = GetFitStartTime(total_duration)
-    if fit_end_time is None:
-        fit_end_time = total_duration
+    fit_start_time = (
+        GetFitStartTime(total_duration)
+        if not options.fit_start_time
+        else options.fit_start_time
+    )
+    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
     print("Total duration of leak test:", round(total_duration, 3))
     print(
         "Fit will be performed between",
@@ -277,40 +307,39 @@ def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
         round(fit_end_time, 3),
         "days",
     )
-    df = df.loc[(df["TIME(DAYS)"] > fit_start_time) & (df["TIME(DAYS)"] < fit_end_time)]
-    FitAndPlot_1(df, axP)
-    FitAndPlot_2(df, axP)
-    # FitAndPlot_3(df, axP) #identical to 2
-
-
-def main():
-    options = GetOptions()
-
-    df = ReadLeakRateFile(options.infile, options.is_new_format)
 
     # prep plots
     params = {"mathtext.default": "regular"}
     fig, axP = plt.subplots(figsize=(13, 11))
     axT = axP.twinx()
 
-    PlotDataAndFit(df, options.fit_start_time, options.fit_end_time, axP, axT)
+    # plot
+    PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT)
 
     # legend
     lines, labels = axP.get_legend_handles_labels()
     lines2, labels2 = axT.get_legend_handles_labels()
-    axT.legend(lines + lines2, labels + labels2, loc=0)
+    legend = axT.legend(lines + lines2, labels + labels2, loc=0)
+    try:
+        legend.legendHandles[2]._legmarker.set_markersize(8)
+    except IndexError:
+        pass
+    try:
+        legend.legendHandles[3]._legmarker.set_markersize(8)
+    except IndexError:
+        pass
 
     # axis labels
     title = options.infile.split("\\")[-1]
     title = title.partition(".")[0]
     plt.title(title)
     axP.set_xlabel("DAYS", fontweight="bold")
-    axP.set_ylabel("PRESSURE (PSI)", fontweight="bold")
-    axT.set_ylabel("ROOM TEMPERATURE (C)", fontweight="bold")
-    axP.yaxis.label.set_color(pressure_color)
-    axT.yaxis.label.set_color(temperature_color)
+    axP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
+    axT.set_ylabel("TEMPERATURE (C)", fontweight="bold")
+    axP.yaxis.label.set_color(color_pressure)
+    axT.yaxis.label.set_color("k")
 
-    # axis limits
+    # Pressure axis - limits
     # Pymin,Pymax = axP.get_ylim()
     axP.relim()
     axP.autoscale_view()
@@ -318,8 +347,9 @@ def main():
         axP.set_ylim(bottom=options.min_pressure)
     if options.max_pressure:
         axP.set_ylim(top=options.max_pressure)
-    # ymin, ymax = axT.get_ylim()
 
+    # Temperature axis - limits
+    ymin, ymax = axT.get_ylim()
     axT.relim()
     axT.set_ylim(0, ymax * 1.1)
     axT.autoscale_view()
@@ -330,11 +360,6 @@ def main():
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
 
-    # datetime tag
-    now = datetime.now()
-    dt_string = now.strftime("%Y%m%d_%H%M")
-    dt_tag = "_" + dt_string
-
     # fit start/endtime tag
     fit_start_tag = (
         "_ti={0}days".format(options.fit_start_time) if options.fit_start_time else ""
@@ -344,7 +369,7 @@ def main():
     )
 
     # create plot filename
-    title = "{0}{1}{2}{3}.pdf".format(title, fit_start_tag, fit_end_tag, dt_tag)
+    title = "{0}{1}{2}.pdf".format(title, fit_start_tag, fit_end_tag)
     full_path = plots_dir + "/" + title
 
     # save plot
