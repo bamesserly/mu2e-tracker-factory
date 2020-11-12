@@ -4,11 +4,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import optparse
-from scipy import interpolate, stats
+from scipy import interpolate, stats, signal
 import numpy as np
 from sklearn.linear_model import LinearRegression
 import datetime
+import os
+import re
 
+################################################################################
+# Constants
+################################################################################
 # Unit conversion factor for inches of water to psi.
 kINCHES_H2O_PER_PSI = 27.6799048
 
@@ -18,7 +23,18 @@ kPSI_PER_DAY_TO_SCCM = 0.17995993587933934
 # Default relative time after which the fit begins (days)
 kFIT_START_TIME = 0.2
 
+# color scheme
+cmap = plt.get_cmap("tab10")
+color_box_temp = cmap(4)
+color_room_temp = cmap(0)
+color_pressure = cmap(1)
+fit1_color = cmap(2)
+fit2_color = cmap(3)
 
+
+################################################################################
+# Parse input args - input filename, fit start/end times
+################################################################################
 def GetOptions():
     parser = optparse.OptionParser(usage="usage: %prog [options]")
     parser.add_option(
@@ -34,18 +50,52 @@ def GetOptions():
     )
     parser.add_option(
         "--t0",
+        "--ti",
         "--fit_start_time",
         dest="fit_start_time",
         type="float",
         default=None,
         help="Fit start point, in days.",
     )
+    parser.add_option(
+        "--t1",
+        "--tf",
+        "--fit_end_time",
+        dest="fit_end_time",
+        type="float",
+        default=None,
+        help="Fit end point, in days.",
+    )
+
+    parser.add_option(
+        "--min_pressure",
+        dest="min_pressure",
+        type="float",
+        default=None,
+        help="Set minimum pressure on vertical axis.",
+    )
+
+    parser.add_option(
+        "--max_pressure",
+        dest="max_pressure",
+        type="float",
+        default=None,
+        help="Set maximum pressure on vertical axis.",
+    )
     options, remainder = parser.parse_args()
     return options
 
 
+################################################################################
+# Helper functions
+################################################################################
 def ConvertInchesH2OToPSI(pressure_inches_h2O):
     return pressure_inches_h2O / kINCHES_H2O_PER_PSI
+
+
+# Raw data file name: "201109_1257_MN061test6.txt"
+def GetPanelIDFromFilename(filename):
+    return re.search(r"MN\d\d\d", filename).group(0)
 
 
 # If user did not provide a fit start time, determine as follows:
@@ -61,6 +111,9 @@ def GetFitStartTime(total_duration):
         return total_duration * 0.1
 
 
+################################################################################
+# Read the raw data (old or new format) into a dataframe
+################################################################################
 def ReadLeakRateFile(infile, is_new_format="true"):
     if is_new_format:
         # read input file
@@ -76,22 +129,29 @@ def ReadLeakRateFile(infile, is_new_format="true"):
         # rename time
         df = df.rename(columns={"Elapdays": "TIME(DAYS)"})
 
+        # rename temps
+        df = df.rename(columns={"RoomdegC": "ROOM TEMPERATURE(C)"})
+        df = df.rename(columns={"EncldegC": "BOX TEMPERATURE(C)"})
+
         ## make a new column: pressure/temp
         # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["RoomdegC"]
 
         return df
     else:
         # read input file
-        df = pd.read_csv(infile, engine="python", header=4, sep=",")
+        df = pd.read_csv(infile, engine="python", header=4, sep=",", encoding="cp1252")
 
         # remove whitespace from column headers
         df.columns = df.columns.str.replace(" ", "")
         df.columns = df.columns.str.replace("\t", "")
-        df.columns = df.columns.str.replace("˚", "")
+        df.columns = df.columns.str.replace(u"°", "")
 
         # convert pressure from inches of water to psi
         df["PRESSURE(INH20D)"] = ConvertInchesH2OToPSI(df["PRESSURE(INH20D)"])
         df = df.rename(columns={"PRESSURE(INH20D)": "PRESSURE(PSI)"})
+
+        # rename temp
+        df = df.rename(columns={"TEMPERATURE(C)": "BOX TEMPERATURE(C)"})
 
         # convert absolute time to elapsed days
         def get_time(time_str):
@@ -118,47 +178,71 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 
         ## make a new column: pressure/temp
         # print(df.columns)
-        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["TEMPERATURE(C)"]
+        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["ROOM TEMPERATURE(C)"]
 
         return df
 
 
-def PlotDataAndFit(df, fit_start_time):
-    total_duration = df["TIME(DAYS)"].iat[-1]
-    if fit_start_time is None:
-        fit_start_time = GetFitStartTime(total_duration)
-    print("Total duration of leak test:", total_duration)
-    print("Fit starts at", fit_start_time, "days")
-
+################################################################################
+# From the dataframe, plot data points, straight-line fit using first and last
+# points, and straight-line fit using least squares
+################################################################################
+def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
     # Plot full range of data points
-    def PlotDataPoints(df):
+    def PlotDataPoints(df, column_name, axis, color):
         time = df["TIME(DAYS)"]
-        pressure = df["PRESSURE(PSI)"]
-        x_values = np.linspace(time.iloc[0], time.iloc[-1])
-        plt.plot(np.array(time), np.array(pressure), "o", markersize=1)
+        yvals = df[column_name]
+        # x_values = np.linspace(time.iloc[0], time.iloc[-1])
+
+        label = None
+        markersize = 1
+        # downsample temperatures
+        if "TEMPERATURE" in column_name:
+            yvals = np.array(yvals)
+            temp_size = yvals.size
+            yvals = signal.resample(yvals, 250)
+            yvals = signal.resample(yvals, temp_size)
+            label = column_name
+            markersize = 2
+
+        # plot
+        axis.plot(
+            np.array(time),
+            np.array(yvals),
+            "o",
+            color=color,
+            markersize=markersize,
+            label=label,
+        )
 
     # Standard numpy least squares linear regression
-    def FitAndPlot_1(df, fit_start_time):
-        df = df.loc[df["TIME(DAYS)"] > fit_start_time]
+    def FitAndPlot_1(df, axP):
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         slope, intercept, r_value, p_value, std_err = stats.linregress(time, pressure)
         print("slope intercept r_value p_value std_err")
-        print(slope, intercept, r_value, p_value, std_err)
+        print(
+            round(slope, 4),
+            round(intercept, 4),
+            round(r_value, 4),
+            round(p_value, 7),
+            round(std_err, 7),
+        )
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 4)
-        plt.plot(
+        axP.plot(
             np.array(time),
             np.array(y_values),
-            label="Least Squares\n{0}+-{1} sccm\nrsq={2}".format(
+            color=fit1_color,
+            linewidth=3.,
+            label="Least Squares\n{0}+-{1} sccm\n$r^2$={2}".format(
                 leak_rate_in_sccm, round(std_err, 4), round(r_value ** 2, 3)
             ),
         )
         return slope, intercept, r_value, p_value, std_err
 
     # From first and last point
-    def FitAndPlot_2(df, fit_start_time):
-        df = df.loc[df["TIME(DAYS)"] > fit_start_time]
+    def FitAndPlot_2(df, axP):
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         x_i = time.iloc[0]
@@ -170,62 +254,130 @@ def PlotDataAndFit(df, fit_start_time):
         coefficients = np.polyfit(x, y, 1)
         slope = coefficients[0]
         intercept = coefficients[1]
-        print("slope: ", slope, "intercept: ", intercept)
+        print("slope:", round(slope, 4), "intercept:", round(intercept, 4))
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 4)
-        plt.plot(
+        axP.plot(
             np.array(time),
             np.array(y_values),
-            "g",
+            color=fit2_color,
+            linewidth=3.,
             label="From first and last points\n{0} sccm".format(leak_rate_in_sccm),
         )
 
-    # Uses the same as method 1 under the hood
-    def FitAndPlot_3(df, fit_start_time):
-        df = df.loc[df["TIME(DAYS)"] > fit_start_time]
-        time = df["TIME(DAYS)"].to_numpy().reshape((-1, 1))
-        pressure = df["PRESSURE(PSI)"].to_numpy()
-        model = LinearRegression().fit(time, pressure)
-        print(model)
-        r_sq = model.score(time, pressure)
-        slope = model.coef_
-        intercept = model.intercept_
-        print("slope: ", slope, "intercept: ", intercept)
-        y_values = intercept + slope * time
-        leak_rate_in_sccm = round(slope[0] * kPSI_PER_DAY_TO_SCCM, 5)
-        plt.plot(
-            np.array(time),
-            np.array(y_valueas),
-            "r",
-            label="least squares 2\n{0} sccm\n(r2={1})".format(
-                leak_rate_in_sccm, round(r_sq, 3)
-            ),
-        )
+    # Plot data points
+    PlotDataPoints(df, "PRESSURE(PSI)", axP, color_pressure)
+    try:
+        PlotDataPoints(df, "ROOM TEMPERATURE(C)", axT, color_room_temp)
+    except KeyError:
+        pass
+    try:
+        PlotDataPoints(df, "BOX TEMPERATURE(C)", axT, color_box_temp)
+    except KeyError:
+        pass
 
-    PlotDataPoints(df)
-    FitAndPlot_1(df, fit_start_time)
-    FitAndPlot_2(df, fit_start_time)
-    # FitAndPlot_3(df, fit_start_time)
+    # Restrict fit range by start and end time, then do fit and plot it
+    df = df.loc[(df["TIME(DAYS)"] > fit_start_time) & (df["TIME(DAYS)"] < fit_end_time)]
+    FitAndPlot_1(df, axP)
+    FitAndPlot_2(df, axP)
 
 
+################################################################################
+# main
+################################################################################
 def main():
     options = GetOptions()
 
+    # read raw data files into a dataframe
     df = ReadLeakRateFile(options.infile, options.is_new_format)
 
-    PlotDataAndFit(df, options.fit_start_time)
+    # constrain the DF to between fit start and end times
+    total_duration = df["TIME(DAYS)"].iat[-1]
+    fit_start_time = (
+        GetFitStartTime(total_duration)
+        if not options.fit_start_time
+        else options.fit_start_time
+    )
+    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
+    print("Total duration of leak test:", round(total_duration, 3))
+    print(
+        "Fit will be performed between",
+        round(fit_start_time, 3),
+        "and",
+        round(fit_end_time, 3),
+        "days",
+    )
 
+    # prep plots
+    params = {"mathtext.default": "regular"}
+    fig, axP = plt.subplots(figsize=(13, 11))
+    axT = axP.twinx()
+
+    # plot
+    PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT)
+
+    # legend
+    lines, labels = axP.get_legend_handles_labels()
+    lines2, labels2 = axT.get_legend_handles_labels()
+    legend = axT.legend(lines + lines2, labels + labels2, loc=0)
+    try:
+        legend.legendHandles[2]._legmarker.set_markersize(8)
+    except IndexError:
+        pass
+    try:
+        legend.legendHandles[3]._legmarker.set_markersize(8)
+    except IndexError:
+        pass
+
+    # axis labels
     title = options.infile.split("\\")[-1]
     title = title.partition(".")[0]
     plt.title(title)
-    plt.legend()
-    plt.xlabel("Days")
-    plt.ylabel("PSI")
+    axP.set_xlabel("DAYS", fontweight="bold")
+    axP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
+    axT.set_ylabel("TEMPERATURE (C)", fontweight="bold")
+    axP.yaxis.label.set_color(color_pressure)
+    axT.yaxis.label.set_color("k")
+
+    # Pressure axis - limits
+    # Pymin,Pymax = axP.get_ylim()
+    axP.relim()
+    axP.autoscale_view()
+    if options.min_pressure:
+        axP.set_ylim(bottom=options.min_pressure)
+    if options.max_pressure:
+        axP.set_ylim(top=options.max_pressure)
+
+    # Temperature axis - limits
+    ymin, ymax = axT.get_ylim()
+    axT.relim()
+    axT.set_ylim(0, ymax * 1.1)
+    axT.autoscale_view()
+
+    # Create outdir for panel pdfs
+    panel_id = GetPanelIDFromFilename(options.infile)
+    plots_dir = "../Data/Panel data/FinalQC/Leak/Plots/" + panel_id
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
+
+    # fit start/endtime tag
+    fit_start_tag = (
+        "_ti={0}days".format(options.fit_start_time) if options.fit_start_time else ""
+    )
+    fit_end_tag = (
+        "_tf={0}days".format(options.fit_end_time) if options.fit_end_time else ""
+    )
+
+    # create plot filename
+    title = "{0}{1}{2}.pdf".format(title, fit_start_tag, fit_end_tag)
+    full_path = plots_dir + "/" + title
+
+    # save plot
+    print("Saving image", full_path)
+    plt.savefig(full_path)
+
+    # display plot
     plt.show()
-    tag = "_t0={0}days".format(options.fit_start_time) if options.fit_start_time else ""
-    title = "{0}{1}.pdf".format(title, tag)
-    print("Saving image", title)
-    plt.savefig(title)
 
 
 if __name__ == "__main__":
