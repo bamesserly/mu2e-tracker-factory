@@ -8,6 +8,8 @@ from scipy import interpolate, stats, signal
 import numpy as np
 from sklearn.linear_model import LinearRegression
 import datetime
+import os
+from datetime import datetime
 
 # Unit conversion factor for inches of water to psi.
 kINCHES_H2O_PER_PSI = 27.6799048
@@ -57,12 +59,33 @@ def GetOptions():
         default=None,
         help="Fit end point, in days.",
     )
+
+    parser.add_option(
+        "--min_pressure",
+        dest="min_pressure",
+        type="float",
+        default=None,
+        help="Set minimum pressure on vertical axis.",
+    )
+
+    parser.add_option(
+        "--max_pressure",
+        dest="max_pressure",
+        type="float",
+        default=None,
+        help="Set maximum pressure on vertical axis.",
+    )
     options, remainder = parser.parse_args()
     return options
 
 
 def ConvertInchesH2OToPSI(pressure_inches_h2O):
     return pressure_inches_h2O / kINCHES_H2O_PER_PSI
+
+
+# Raw data file name: "201109_1257_MN061test6.txt"
+def GetPanelIDFromFilename(filename):
+    return filename[12:17]
 
 
 # If user did not provide a fit start time, determine as follows:
@@ -288,20 +311,47 @@ def main():
     axT.yaxis.label.set_color(temperature_color)
 
     # axis limits
+    # Pymin,Pymax = axP.get_ylim()
     axP.relim()
     axP.autoscale_view()
+    if options.min_pressure:
+        axP.set_ylim(bottom=options.min_pressure)
+    if options.max_pressure:
+        axP.set_ylim(top=options.max_pressure)
+    # ymin, ymax = axT.get_ylim()
+
     axT.relim()
-    ymin, ymax = axT.get_ylim()
     axT.set_ylim(0, ymax * 1.1)
     axT.autoscale_view()
 
-    # save image
-    tag = "_t0={0}days".format(options.fit_start_time) if options.fit_start_time else ""
-    title = "{0}{1}.pdf".format(title, tag)
-    print("Saving image", title)
-    plt.savefig(title)
+    # Create outdir for panel pdfs
+    panel_id = GetPanelIDFromFilename(options.infile)
+    plots_dir = "../Data/Panel data/FinalQC/Leak/Plots/" + panel_id
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
 
-    # plot
+    # datetime tag
+    now = datetime.now()
+    dt_string = now.strftime("%Y%m%d_%H%M")
+    dt_tag = "_" + dt_string
+
+    # fit start/endtime tag
+    fit_start_tag = (
+        "_ti={0}days".format(options.fit_start_time) if options.fit_start_time else ""
+    )
+    fit_end_tag = (
+        "_tf={0}days".format(options.fit_end_time) if options.fit_end_time else ""
+    )
+
+    # create plot filename
+    title = "{0}{1}{2}{3}.pdf".format(title, fit_start_tag, fit_end_tag, dt_tag)
+    full_path = plots_dir + "/" + title
+
+    # save plot
+    print("Saving image", full_path)
+    plt.savefig(full_path)
+
+    # display plot
     plt.show()
 
 
