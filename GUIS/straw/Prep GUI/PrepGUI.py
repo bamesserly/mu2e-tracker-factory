@@ -1,4 +1,3 @@
-#
 # PrepGUI.py
 #
 # Straw Prep (Paper Pull) GUI
@@ -6,7 +5,6 @@
 #
 # Author: Joe Dill
 # email: dillx031@umn.edu
-#
 
 import pyautogui
 import time
@@ -20,6 +18,7 @@ from PyQt5.QtWidgets import *
 from pynput.keyboard import Key, Controller
 from pathlib import Path
 from design import Ui_MainWindow  ## edit via Qt Designer
+from dataProcessor import MultipleDataProcessor as DataProcessor
 
 os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(
@@ -27,7 +26,8 @@ sys.path.insert(
 )
 from workers.credentials.credentials import Credentials
 
-# using straw_label_script instead of make_CPAL_labels
+# Using straw_label_script instead of make_CPAL_labels
+# This scrip prints labels automatically
 # sys.path.insert(
 #    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
 # )
@@ -38,6 +38,16 @@ pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
+
+######## Global variables ##########
+# Set each true/false to save the data collected when this gui is run to that platform.
+# Note: Both can be true.
+SAVE_TO_TXT = True
+SAVE_TO_SQL = True
+
+# Indicate which data processor you want to use for data-checking (ex: checkCredentials)
+# PRIMARY_DP =   'TXT'
+PRIMARY_DP = "SQL"
 
 
 class Prep(QMainWindow):
@@ -127,6 +137,14 @@ class Prep(QMainWindow):
         self.justLogOut = ""
         self.saveWorkers()
 
+        # Data Processor
+        self.DP = DataProcessor(
+            gui=self,
+            save2txt=SAVE_TO_TXT,
+            save2SQL=SAVE_TO_SQL,
+            sql_primary=bool(PRIMARY_DP == "SQL"),
+        )
+
         # Progression Information
         self.calledGetUncollectedPalletInfo = False
         self.PalletInfoCollected = False
@@ -146,7 +164,28 @@ class Prep(QMainWindow):
             )
             if not ok:
                 return
+            Current_worker = Current_worker.upper()
             self.sessionWorkers.append(Current_worker)
+            if PRIMARY_DP == "SQL":
+                if self.DP.validateWorkerID(Current_worker) == False:
+                    QMessageBox.question(
+                        self,
+                        "WRONG WORKER ID",
+                        "Did you type in the correct worker ID?",
+                        QMessageBox.Retry,
+                    )
+                    return
+            elif PRIMARY_DP == "TXT":
+                if self.DP.checkCredentials() == False:
+                    QMessageBox.question(
+                        self,
+                        "WRONG WORKER ID",
+                        "Did you type in the correct worker ID?",
+                        QMessageBox.Retry,
+                    )
+                    return
+
+            self.DP.saveLogin(Current_worker)
             self.Current_workers[portalNum].setText(Current_worker)
             print("Welcome " + self.Current_workers[portalNum].text() + " :)")
             btn.setText("Log Out")
@@ -155,11 +194,13 @@ class Prep(QMainWindow):
             portalNum = int(btn.objectName().strip("portal")) - 1
             self.justLogOut = self.Current_workers[portalNum].text()
             self.sessionWorkers.remove(self.Current_workers[portalNum].text())
+            self.DP.saveLogout(Current_worker)
             print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
         self.saveWorkers()
+        self.DP.saveWorkers()
         self.justLogOut = ""
 
     def saveWorkers(self):
@@ -901,6 +942,7 @@ class Prep(QMainWindow):
             self.ui.finishPull.setEnabled(True)
             ##Begin timing
             self.startTime = time.time()
+            self.DP.saveStart()
             self.timing = True
             # Set focus to first Paper Pull Input
             self.input_paperPullGrade[24 - self.strawCount].setFocus()
@@ -932,6 +974,7 @@ class Prep(QMainWindow):
             for i in range(24):
                 self.paperPullGrades[i] = self.input_paperPullGrade[i].text().upper()
             self.timing = False  # Stop timing
+            self.DP.saveFinish()
             # (Dis/En)able "Finish" Buttons
             self.ui.finishPull.setEnabled(False)
             self.ui.finish.setEnabled(True)
@@ -939,6 +982,8 @@ class Prep(QMainWindow):
     def saveData(self):
 
         print("Saving data...")
+
+        self.DP.saveData()
 
         # SAVE DATA FILE #
         # This is the csv file with all collected data (Straw IDs, Batch Barcodes, PPGs, etc...)
@@ -1037,13 +1082,13 @@ class Prep(QMainWindow):
         # Done creating Pallet File
 
         self.dataSaved = True
-
+        self.DP.saveComment(self.ui.commentBox.document().toPlainText())
         print("dataSaved: " + str(self.dataSaved))
 
         self.ui.finish.setEnabled(False)
 
         QMessageBox.about(self, "Save", "Data saved successfully!!")
-
+        self.DP.handleClose()
         self.resetGUI()
 
     def resetGUI(self):
@@ -1137,10 +1182,15 @@ class Prep(QMainWindow):
             self.sessionWorkers = []
             self.justLogOut = ""
             self.saveWorkers()
+            self.DP.saveWorkers()
 
     def closeEvent(self, event):
+        self.DP.handleClose()
         event.accept()
         sys.exit()
+
+    def getElapsedTime(self):
+        return self.running
 
     def main(self):
 
@@ -1156,10 +1206,10 @@ class Prep(QMainWindow):
                     self.startTime = time.time()
 
                 # Update time display
-                running = time.time() - self.startTime
-                self.ui.hour_disp.display(int(running / 3600))
-                self.ui.min_disp.display(int(running / 60) % 60)
-                self.ui.sec_disp.display(int(running) % 60)
+                self.running = time.time() - self.startTime
+                self.ui.hour_disp.display(int(self.running / 3600))
+                self.ui.min_disp.display(int(self.running / 60) % 60)
+                self.ui.sec_disp.display(int(self.running) % 60)
 
             self.lockGUI()
             app.processEvents()
