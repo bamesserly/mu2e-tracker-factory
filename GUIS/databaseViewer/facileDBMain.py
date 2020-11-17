@@ -1,7 +1,7 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 11/03/2020 /
+#  -   / ______  _/____)       /  Last Update 11/15/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
@@ -82,6 +82,7 @@ class facileDBGUI(QMainWindow):
         self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
 
         self.initInputWidgets()
+        self.initMenusActions()
 
         # panel variables
         self.panelNumber = (
@@ -207,31 +208,75 @@ class facileDBGUI(QMainWindow):
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
         )  # procedure
 
+    # link buttons with respective funcitons
     def initInputWidgets(self):
         # link widgets and things
         # bind function for submit button
         self.ui.submitPB.clicked.connect(self.findPanel)
         # bind function for export wire tension stuff
-        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements) 
+        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements)
+        
         # bind function for wire plot button
-        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)  
+        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)
+        
         # bind function for export straw tension data
         self.ui.strawExportButton.clicked.connect(self.exportStrawMeasurements)
+        
         # bind function for plot straw tension data
         self.ui.plotStrawDataButton.clicked.connect(self.plotStrawData)
+
         # bind funciton for export HV data
         self.ui.hvExportButton.clicked.connect(self.exportHVMeasurements)
+
         # bind function for plot HV data
         self.ui.plotHVDataButton.clicked.connect(self.plotHVData)
+
         # bind function for export heat data
         self.ui.heatExportButton.clicked.connect(self.exportHeatMeasurements)
+        
         # bind function for plot heat data
         self.ui.plotHeatDataButton.clicked.connect(self.plotHeatData)
-
+        
         # bind function for heat combo box change
         self.ui.heatProBox.currentIndexChanged.connect(self.displayHeat)
-        
-        
+
+        # buttons get re-enabled if data is present for the corresponding data type
+        self.disableButtons()
+
+    # disable plot/export buttons
+    def disableButtons(self):
+        # disables all the buttons
+        self.ui.wireExportButton.setDisabled(True)
+        self.ui.plotWireDataButton.setDisabled(True)
+        self.ui.strawExportButton.setDisabled(True)
+        self.ui.plotStrawDataButton.setDisabled(True)
+        self.ui.hvExportButton.setDisabled(True)
+        self.ui.plotHVDataButton.setDisabled(True)
+        self.ui.heatExportButton.setDisabled(True)
+        self.ui.plotHeatDataButton.setDisabled(True)
+        self.ui.heatProBox.setDisabled(True)
+
+    # link menus/actions to functions
+    # some get disabled since they dont have any finished function yet
+    def initMenusActions(self):
+        # file
+        self.ui.menuExport_Graph.setDisabled(True)
+        self.ui.menuExport.setDisabled(True)
+        self.ui.actionExport_Panel_Report.setDisabled(True)
+
+        # edit
+        self.ui.actionGraph_Settings.setDisabled(True)
+        self.ui.actionExport_Location.setDisabled(True)
+        self.ui.actionDatabase_Location.setDisabled(True)
+
+        # view
+        self.ui.menuColor_Scheme.setDisabled(True)
+
+        # help
+        self.ui.actionSend_Feedback_Issue.setDisabled(True)
+        self.ui.actionLatest_Changes.triggered.connect(self.latestChanges)
+
+
 
 # fmt: off
 # ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗ 
@@ -258,6 +303,7 @@ class facileDBGUI(QMainWindow):
 
         # first get rid of any existing data
         self.panelDatabaseID = -1  # reset panel database ID
+        self.disableButtons() # disable buttons
         for widget in self.comListWidgetList:  # clear comments from list widgets
             widget.clear()
         for widget in self.partSetupWidgetList:  # erase all part IDs
@@ -739,7 +785,6 @@ class facileDBGUI(QMainWindow):
         self.displayHeat()
 
 
-
 # fmt: off
 # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ 
 # ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ 
@@ -845,6 +890,7 @@ class facileDBGUI(QMainWindow):
                 title="Data Exported",
                 message=f"Data exported to MN{self.panelNumber}_pro_{curPro}_heat_data.csv",
             )
+
 
 # fmt: off
 #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
@@ -1041,7 +1087,6 @@ class facileDBGUI(QMainWindow):
         plt.tight_layout()
         plt.show()
         
-        
 
 # fmt: off
 # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
@@ -1116,6 +1161,8 @@ class facileDBGUI(QMainWindow):
                 extantHVData = True
 
         if extantWireData:  # if wire data exists
+            self.ui.wireExportButton.setEnabled(True)
+            self.ui.plotWireDataButton.setEnabled(True)
             self.ui.wireListWidget.addItem(
                 "Position      Tension"
             )  # add wire tension header
@@ -1127,6 +1174,8 @@ class facileDBGUI(QMainWindow):
             self.ui.wireListWidget.addItem("No Data Found :(")  # display no data
 
         if extantStrawData:
+            self.ui.strawExportButton.setEnabled(True)
+            self.ui.plotStrawDataButton.setEnabled(True)
             self.ui.strawListWidget.addItem("Position     Tension     Uncertainty")
             for toop in self.strawTensionData:  # for each tuple in strawTensionData
                 self.ui.strawListWidget.addItem(
@@ -1136,6 +1185,8 @@ class facileDBGUI(QMainWindow):
             self.ui.strawListWidget.addItem("No Data Found :(")
 
         if extantHVData:
+            self.ui.hvExportButton.setEnabled(True)
+            self.ui.plotHVDataButton.setEnabled(True)
             trippedBrush = QBrush(Qt.red)
             self.ui.hvListWidget.addItem(
                 f'{str("Position").ljust(14)}{str("L μA").ljust(18)}{str("R μA").ljust(18)}'
@@ -1155,6 +1206,8 @@ class facileDBGUI(QMainWindow):
             self.ui.hvListWidget.addItem("No Data Found :(")
         
         if extantHeatData:
+            self.ui.heatExportButton.setEnabled(True)
+            self.ui.plotHeatDataButton.setEnabled(True)
             self.ui.heatListWidget.addItem(
                 "Data Exists, but only the export and plot buttons work right now.  Check back in 173,000 seconds or so."
                 )
@@ -1169,6 +1222,7 @@ class facileDBGUI(QMainWindow):
 
         # get the current pro
         curPro = self.ui.heatProBox.currentText()[8]
+
         '''
         itemsToAdd = [
             f'Total Heat Time: {get(curPro,"HeatTime")}' if (get(curPro,"HeatTime") is not []) else "No Heat Time Data Found",
@@ -1183,16 +1237,31 @@ class facileDBGUI(QMainWindow):
             f'PAAS B/C Minimum Temperature: {get(curPro,"BCStats")[1]}' if len(get(curPro,"BCStats")) > 0 else "None",
             f'PAAS B/C Standard Deviation: {get(curPro,"BCStats")[3]} ({get(curPro,"BCStats")[5]} - {get(curPro,"BCStats")[4]})' if len(get(curPro,"BCStats")) > 0 else "None",
         ]
+        #self.ui.heatListWidget.addItems(itemsToAdd)
         '''
 
-        #self.ui.heatListWidget.addItems(itemsToAdd)
-        if len(self.getHeat(curPro, "HeatData")) > 0:
+
+        if int(self.panelNumber) < 48:  # if the panel is too old for heat data
+            labelBrush = QBrush(Qt.red)  # make a red brush
+            labelItem = QListWidgetItem(
+                "This panel was created before heat data was recorded in the database"
+            )
+            # make a list item with text ^
+            labelItem.setBackground(labelBrush)  # paint the list item background red
+            self.ui.hvListWidget.addItem(labelItem)  # add the item to the list
+
+        if not (isinstance((self.getHeat(curPro, "HeatData")), bool)) and len(self.getHeat(curPro, "HeatData")) > 0:
+            self.ui.heatExportButton.setEnabled(True)
+            self.ui.plotHeatDataButton.setEnabled(True)
             self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
         else:
             self.ui.heatListWidget.addItem("No data found :(")
         self.ui.heatListWidget.addItem("Statistics will be placed here eventually.")
         self.ui.heatListWidget.addItem("Currently, graph and export work.")
         self.ui.heatListWidget.addItem("The graphs are still being improved for readability.")
+
+        # enabled no matter what to allow switching between pros
+        self.ui.heatProBox.setEnabled(True)
 
         
 # fmt: off
@@ -1222,6 +1291,16 @@ class facileDBGUI(QMainWindow):
         # It's not called anywhere because having it here overwrites a QMainWindow method.
         # Killing it with sys.exit() will not hurt the database.
 
+    def latestChanges(self):
+        tkinter.messagebox.showinfo(
+                title="Latest Changes",
+                message= """
+- Addition of menu bar on top of GUI
+- Most items in the menu bar are still being worked on
+- Addition of GUI session times next to comment box
+- Minor bugfixes
+                """
+            )
 
 # fmt: off
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
@@ -1239,10 +1318,10 @@ if __name__ == "__main__":
     window = facileDBGUI(Ui_MainWindow())  # make a window
     if ISLAB:
         window.connectToNetwork()  # link to database
-        window.setWindowTitle("Database Viewer") # change from default window title
+        window.setWindowTitle("Database Viewer - Network Database") # change from default window title
     else:
         window.connectToLocal() #link to database
-        window.setWindowTitle("~~~~~~~LOCAL CONNECTION FOR DEVELOPMENT~~~~~~~")
+        window.setWindowTitle("Database Viewer - Local Database")
         # make sure you can tell the difference between local and network connections
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
