@@ -1086,7 +1086,7 @@ class facileDBGUI(QMainWindow):
 
         plt.tight_layout()
         plt.show()
-        
+
 
 # fmt: off
 # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
@@ -1096,7 +1096,7 @@ class facileDBGUI(QMainWindow):
 # ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
 # ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 # Functions that put data onto the GUI
-# findComments() should be split into findComments() and displayComments()
+# findComments() should be split into findComments() and displayComments(), same w/ findMeasurements()
 # fmt: on
 
     # function to help sift through partsQuery results, also displays found data
@@ -1204,15 +1204,7 @@ class facileDBGUI(QMainWindow):
                     )  # display just the data
         else:
             self.ui.hvListWidget.addItem("No Data Found :(")
-        
-        if extantHeatData:
-            self.ui.heatExportButton.setEnabled(True)
-            self.ui.plotHeatDataButton.setEnabled(True)
-            self.ui.heatListWidget.addItem(
-                "Data Exists, but only the export and plot buttons work right now.  Check back in 173,000 seconds or so."
-                )
-        else:
-            self.ui.heatListWidget.addItem("No Data Found :(")
+
     
     # put heat statistics on the gui
     def displayHeat(self):
