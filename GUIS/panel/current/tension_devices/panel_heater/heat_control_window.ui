@@ -125,7 +125,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>110</y>
+      <y>100</y>
       <width>141</width>
       <height>51</height>
      </rect>
@@ -145,7 +145,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>50</y>
+      <y>40</y>
       <width>151</width>
       <height>71</height>
      </rect>
@@ -194,7 +194,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>250</y>
+      <y>220</y>
       <width>141</width>
       <height>51</height>
      </rect>
@@ -214,7 +214,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>190</y>
+      <y>160</y>
       <width>151</width>
       <height>71</height>
      </rect>
@@ -270,13 +270,13 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>290</y>
-      <width>171</width>
-      <height>141</height>
+      <y>280</y>
+      <width>161</width>
+      <height>161</height>
      </rect>
     </property>
     <property name="text">
-     <string>Calibration: PAAS-B/C RTDs in corners where temperature can be 5-8C lower than bulk surface. Expect apparent 5-8C difference with PAAS-A reading, due to calibration such that bulk surface will track PAAS-A to within 5C.</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calibration: PAAS RTDs are in peripheral locations where temperature can be 5-8C lower than bulk surface. Heat control program corrects for this such that bulk surfaces reach selected setpoint and track each other within 5C. Thus expect RTD readings in plot to be lower than 55C setpoint. Bulk surface temperature can be verified with thermocouples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -305,7 +305,7 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>130</x>
       <y>190</y>
       <width>51</width>
       <height>51</height>
@@ -348,7 +348,7 @@
      <rect>
       <x>20</x>
       <y>200</y>
-      <width>61</width>
+      <width>101</width>
       <height>31</height>
      </rect>
     </property>
@@ -357,6 +357,11 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <item>
+     <property name="text">
+      <string>Select...</string>
+     </property>
+    </item>
     <item>
      <property name="text">
       <string>55</string>

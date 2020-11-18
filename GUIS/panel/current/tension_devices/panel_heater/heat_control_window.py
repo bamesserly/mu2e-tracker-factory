@@ -52,7 +52,7 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
         self.tempPA = QtWidgets.QLineEdit(self.centralwidget)
         self.tempPA.setEnabled(True)
-        self.tempPA.setGeometry(QtCore.QRect(740, 110, 141, 51))
+        self.tempPA.setGeometry(QtCore.QRect(740, 100, 141, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -61,7 +61,7 @@ class Ui_MainWindow(object):
         self.tempPA.setReadOnly(True)
         self.tempPA.setObjectName("tempPA")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(740, 50, 151, 71))
+        self.label_3.setGeometry(QtCore.QRect(740, 40, 151, 71))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -80,7 +80,7 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.tempP2 = QtWidgets.QLineEdit(self.centralwidget)
         self.tempP2.setEnabled(True)
-        self.tempP2.setGeometry(QtCore.QRect(740, 250, 141, 51))
+        self.tempP2.setGeometry(QtCore.QRect(740, 220, 141, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -89,7 +89,7 @@ class Ui_MainWindow(object):
         self.tempP2.setReadOnly(True)
         self.tempP2.setObjectName("tempP2")
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
-        self.label_6.setGeometry(QtCore.QRect(740, 190, 151, 71))
+        self.label_6.setGeometry(QtCore.QRect(740, 160, 151, 71))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -110,7 +110,7 @@ class Ui_MainWindow(object):
         self.end_data.setFont(font)
         self.end_data.setObjectName("end_data")
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
-        self.label_5.setGeometry(QtCore.QRect(740, 290, 171, 141))
+        self.label_5.setGeometry(QtCore.QRect(740, 280, 161, 161))
         self.label_5.setWordWrap(True)
         self.label_5.setObjectName("label_5")
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
@@ -122,7 +122,7 @@ class Ui_MainWindow(object):
         self.label_7.setFont(font)
         self.label_7.setObjectName("label_7")
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
-        self.label_8.setGeometry(QtCore.QRect(90, 190, 51, 51))
+        self.label_8.setGeometry(QtCore.QRect(130, 190, 51, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -137,11 +137,12 @@ class Ui_MainWindow(object):
         self.labelsp.setWordWrap(True)
         self.labelsp.setObjectName("labelsp")
         self.setpt_box = QtWidgets.QComboBox(self.centralwidget)
-        self.setpt_box.setGeometry(QtCore.QRect(20, 200, 61, 31))
+        self.setpt_box.setGeometry(QtCore.QRect(20, 200, 101, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.setpt_box.setFont(font)
         self.setpt_box.setObjectName("setpt_box")
+        self.setpt_box.addItem("")
         self.setpt_box.addItem("")
         self.setpt_box.addItem("")
         self.label_9 = QtWidgets.QLabel(self.centralwidget)
@@ -182,7 +183,7 @@ class Ui_MainWindow(object):
         self.label_5.setText(
             _translate(
                 "MainWindow",
-                "Calibration: PAAS-B/C RTDs in corners where temperature can be 5-8C lower than bulk surface. Expect apparent 5-8C difference with PAAS-A reading, due to calibration such that bulk surface will track PAAS-A to within 5C.",
+                "<html><head/><body><p>Calibration: PAAS RTDs are in peripheral locations where temperature can be 5-8C lower than bulk surface. Heat control program corrects for this such that bulk surfaces reach selected setpoint and track each other within 5C. Thus expect RTD readings in plot to be lower than 55C setpoint. Bulk surface temperature can be verified with thermocouples.</p></body></html>",
             )
         )
         self.label_7.setText(_translate("MainWindow", "Temperature Setpoint"))
@@ -193,8 +194,9 @@ class Ui_MainWindow(object):
             )
         )
         self.labelsp.setText(_translate("MainWindow", "Current setpoint:"))
-        self.setpt_box.setItemText(0, _translate("MainWindow", "55"))
-        self.setpt_box.setItemText(1, _translate("MainWindow", "34"))
+        self.setpt_box.setItemText(0, _translate("MainWindow", "Select..."))
+        self.setpt_box.setItemText(1, _translate("MainWindow", "55"))
+        self.setpt_box.setItemText(2, _translate("MainWindow", "34"))
         self.label_9.setText(
             _translate(
                 "MainWindow",

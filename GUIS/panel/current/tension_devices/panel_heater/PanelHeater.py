@@ -1,5 +1,5 @@
 #### run_heat_control.py
-#### python interface to collect and visualize data from [PAAS_heater_0722b.ino]
+#### python interface to collect and visualize data from [PAAS_heater_1009.ino]
 #### variable temperature setpoint input
 
 import serial  ## from pyserial
@@ -57,6 +57,7 @@ class HeatControl(QMainWindow):
 
         ## 2nd PAAS type selection required before start of data collection
         self.ui.paas2_box.currentIndexChanged.connect(self.selectpaas)
+        self.ui.setpt_box.currentIndexChanged.connect(self.selectpass)
         self.ui.start_button.setDisabled(True)
         self.ui.end_data.clicked.connect(self.endtest)
 
@@ -70,26 +71,35 @@ class HeatControl(QMainWindow):
         print("last temperature measurements:", self.tempArec[-1], self.temp2rec[-1])
 
     def selectpaas(self):
-        """ Enable start data collection if 2nd PAAS selected """
-        if self.ui.paas2_box.currentText() != "Select...":
+        """ Enable start data collection if both 2nd PAAS and setpoint selected """
+        if (
+            self.ui.paas2_box.currentText() != "Select..."
+            and self.ui.setpt_box.currentText() != "Select..."
+            and self.ui.paas2_box.isEnabled()
+        ):
             self.ui.start_button.setEnabled(True)
         else:
             self.ui.start_button.setDisabled(True)
 
     def update_setpoint(self):
-        """ Get initial user choice temperature setpoint, or change setpoint
-            partway through heat cycle, e.g. after funnels removed """
-        self.setpt = int(self.ui.setpt_box.currentText())
-        self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
-        # if thread already running, send it the new setpoint
-        if self.hct:
-            print("sending sp", self.setpt)
-            self.hct.setpt = self.setpt
+        """Get initial user choice temperature setpoint, or change setpoint
+        partway through heat cycle, e.g. after funnels removed"""
+        if self.ui.setpt_box.currentText() != "Select...":
+            self.setpt = int(self.ui.setpt_box.currentText())
+            self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
+            # if thread already running, send it the new setpoint
+            if self.hct:
+                print("sending sp", self.setpt)
+                self.hct.setpt = self.setpt
+        else:  # for case with 'Select...' option (start will be disabled)
+            self.setpt = 0
+            self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
 
     def start_data(self):
         """ Start serial interface and data collection thread """
         self.ui.start_button.setDisabled(True)
         self.ui.paas2_box.setDisabled(True)
+        self.ui.setpt_box.removeItem(0)  # cannot revert to 'Select...'
         self.paas2input = self.ui.paas2_box.currentText().split()[0]
         print("2nd PAAS type:", self.paas2input)
         self.update_setpoint()  # initial temperature setpoint
@@ -209,7 +219,7 @@ class DataThread(threading.Thread):
         n, nmax = 0, 40
         while self.running.isSet():
             self.micro.write(self.paastype)
-            self.micro.write(str(self.setpt).encode("utf8"))  # [0727]
+            self.micro.write(str(self.setpt).encode("utf8"))
             self.micro.write(b"\n")
             ## extract measurements
             temp1, temp2 = "", ""
@@ -218,14 +228,26 @@ class DataThread(threading.Thread):
                 if test == "":
                     n += 1
                     self.micro.write(self.paastype)
-                    self.micro.write(str(self.setpt).encode("utf8"))  # [0727]
+                    self.micro.write(str(self.setpt).encode("utf8"))
                     self.micro.write(b"\n")
                     continue
-                if test.strip().split()[1] == "1":
-                    temp1 = test.strip().split()[-1]  # PAAS-A temperature [C]
-                elif test.strip().split()[1] == "2":
-                    temp2 = test.strip().split()[-1]  # 2nd PAAS temperature [C]
-                # other values from serial not used in this test (time, duty cycles)
+                # print(repr(test))
+                if len(test.strip().split()) < 2:  # skip split line error
+                    print("skipping fragment of split line")
+                    continue
+                if "val" in test:  # duty cycle 0-255 for voltage control
+                    print(test.strip())
+                elif "Temp" in test:  # temperature reading
+                    test = test.strip().split()
+                    try:
+                        float(test[-1])
+                    except ValueError:
+                        print("skipping fragment of split line")
+                        continue
+                    if test[1] == "1:":
+                        temp1 = test[-1]  # PAAS-A temperature [C]
+                    elif test[1] == "2:":
+                        temp2 = test[-1]  # 2nd PAAS temperature [C]
                 n += 1
                 time.sleep(1)
             if n == nmax:  # probable error with serial connection
@@ -247,6 +269,7 @@ class DataThread(threading.Thread):
             self.micro.close()
 
     def savedata(self):
+        # print('setpoint in thread',self.setpt)
         if self.temp1 and self.temp2:
             with open(self.datafile, "a+", newline="") as file:
                 cw = csv.writer(file)
@@ -328,8 +351,8 @@ class DataCanvas(FigureCanvas):
 
 
 def getport(hardwareID):
-    """ Get COM port number. Distinguish Arduino types when multiple devices are connected
-        (also works on General Nanosystems where Arduinos recognized as "USB Serial")."""
+    """Get COM port number. Distinguish Arduino types when multiple devices are connected
+    (also works on General Nanosystems where Arduinos recognized as "USB Serial")."""
     ports = [
         p.device for p in serial.tools.list_ports.comports() if hardwareID in p.hwid
     ]

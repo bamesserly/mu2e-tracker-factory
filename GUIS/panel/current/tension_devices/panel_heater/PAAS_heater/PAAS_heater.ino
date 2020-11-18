@@ -7,23 +7,24 @@
 #define RNOMINAL_PTCO2 100.0 // nominal PT100 RTD resistance at 0C
 #define RNOMINAL_PTCO 100.0  
 // MAX31865 amplifier pins CS,SD1,SD0,CLK
-Adafruit_MAX31865 maxamp = Adafruit_MAX31865(4, 3, 2, 5);  // PTCO
+Adafruit_MAX31865 maxamp = Adafruit_MAX31865(4, 3, 2, 5);   // PTCO
 Adafruit_MAX31865 maxamp2 = Adafruit_MAX31865(9, 8, 7, 6);  // PTCO2
 
 // temperature settings PAAS-A / PAAS-B / PAAS-C
-float setpointA = 55.0; // [degrees C]
-float setpointB = 43.6;
-float setpointC = 50.0; 
+// no default temperature setpoint: user must select in python interface
+float setpointA = 0.0; // [degrees C]
+float setpointB = 0.0;
+float setpointC = 0.0; 
 int valA=255;
 int valB=255;
 float Pa=5.0;  
 float Pb=5.0;  
 float tempA;
 float temp2;
-float usrsp;  // [0724] user choice setpoint temperature 
+float usrsp;  // user choice setpoint temperature 
 
 float setpoint2;  
-char paas2='x'; // placeholder for user input
+char paas2='x'; // placeholder for user choice of 2nd PAAS type
 const int32_t wait = 8; // time between data points [seconds]
 const int32_t holdtime = 300; // [minutes] time to hold temperature at setpoint
 int32_t holdstart;
@@ -38,34 +39,37 @@ void setup() {
   FastPwmSetup();
   maxamp.begin(MAX31865_2WIRE);
   maxamp2.begin(MAX31865_2WIRE);
-  //display_status();
   //wdt_enable(WDTO_2S); 
 }
 
 void loop() {
-  while (Serial.available() && (paas2!='b' && paas2!='c' && paas2!='0')){ // only collects paas2 once
+  // get updates from python interface if connected
+  if (Serial.available()){  
     Serial.println("Enter second PAAS type (B or C) or enter 0 if heating PAAS-A only");
-    char usrkey[5];  // character array to get paas2 and user choice setpoint 
-    byte len = Serial.readBytesUntil('\n',usrkey,sizeof(usrkey));  // read bytes into usrkey until hit enter
+    char usrkey[5];  // user choice of 2nd PAAS type and temperature setpoint
+    byte len = Serial.readBytesUntil('\n',usrkey,sizeof(usrkey));  // read bytes into usrkey until newline
+//    paas2=usrkey[0];   
+//    usrsp=usrkey[1:];  ...
     usrkey[len]=0; 
     char *pKbd = usrkey; 
     paas2 = *pKbd;  
     pKbd++; 
     usrsp = atof(pKbd); 
-    if (usrsp<=55 && usrsp>0){  // limit to 55C; sp>0 checks if value collected from user input
-      if (usrsp!=setpointA){  //new setpoint
+    if (abs(usrsp-setpointA)>5){  // new setpoint from python interface either 34C or 55C / software timer fixed
         state=0;            // resets holdstart to get full holdtime at new setpoint
-        setpointA = usrsp; 
-        setpointB = min(setpointA,44);   // testing to get better match at low temp
-        setpointC = min(setpointA,50);   // testing to get better match at low temp
-        //setpointB = setpointA*0.87-0.73;  // approx, based on PAAS-B correction for RTD location
-        //setpointC = setpointA*0.91+0.37; // approx, based on PAAS-C correction for RTD location
-      }
+        setpointA = min(usrsp,52); 
+        // setpointB based on PAAS-B correction for temperature difference at RTD location vs. bulk surface 
+        setpointB = min(setpointA,50); // with cube foam. experimental
+        //setpointB = min(setpointA,45); // no cube foam.
+        // setpointC based on PAAS-C correction for temperature difference at RTD location vs. under baseplate
+        setpointC = min(setpointA,50); 
     }
   }
-  if (paas2=='b' | paas2=='c' | paas2=='0'){  // type of paas selected, do heat stuff
+  // control heat cycle
+  // with 2nd PAAS type set, heater control will run with or without connection to python interface
+  if (paas2=='b' | paas2=='c' | paas2=='0'){
     if (paas2=='b') setpoint2=setpointB;
-    else setpoint2=setpointC; // PA only does not use sp2
+    else setpoint2=setpointC; // heat cycle for PAAAS-A alone does not use setpoint2
     //wdt_enable(WDTO_2S); // measurements and PWM values take about 332ms
     static uint32_t start;  
     uint32_t now = millis();  
@@ -99,10 +103,7 @@ void loop() {
     }
     delay(10);
     //wdt_reset();
-  Serial.println("reseting paas2");
-  paas2='x'; // python interface resends choice on next pass
-  while (!Serial.available()) delay(100);
-    
+    delay(100); // does not wait indefinitely for serial availability
   }
 }
 
@@ -112,15 +113,13 @@ void temp_control(){
     float dT;
     temp2 = maxamp2.temperature(RNOMINAL_PTCO2, RREF);
     if (paas2=='c') {
-      Serial.println("testing experimental code: set to PA PC");
-      // expt. calib. for PAAS-C
-      dT = tempA - temp2 - 5.0*(tempA/setpointA);
-      //Serial.print("dT ");Serial.println(dT);  
+      // PAAS-C correction: RTD placed in corner measures lower temperature than under baseplate at 55C
+      dT = tempA - temp2 - 5.0*(tempA/setpointA);  // experimental
     }
     if (paas2=='b') {
-      Serial.println("testing experimental code: set to PA PB");
-      // PAAS-B: correction for RTD placed in corner meas. lower temp. than bulk
-      dT = tempA - temp2 - 8.0*(tempA/setpointA);  
+      // PAAS-B correction: RTD placed in corner measures lower temperature than bulk surface at 55C
+      //dT = tempA - temp2 - 8.0*(max(0,temp2-34)/10);  // experimental: no cube foam
+      dT = tempA - temp2 - 4.5*(max(0,temp2-34)/16);  // experimental: with cube foam
     }
     if (dT<0 && valA==255) valB+=int(round(Pb * dT));
     else if (dT>0 && valB==255) valA-=int(round(Pa *dT));
@@ -129,7 +128,7 @@ void temp_control(){
       valB += int(round(Pb * (setpoint2-temp2)));
     }
   }
-  else {  // PAAS-A only -> no temp. diff. to consider
+  else {  // PAAS-A only -> no temperature difference to consider
     valA += int(round(Pa * (setpointA-tempA)));
     valB =0;
   }
@@ -143,12 +142,10 @@ void temp_control(){
 void display_status(){
   //Serial.println("PAAS-B: RTD in corner -> expect lower temperature than surface");
   //Serial.println("PAAS-C: testing calibration -> expect apparent temp. diff. up to 5C");
-  Serial.print("Temperature 1 = "); Serial.println(maxamp.temperature(RNOMINAL_PTCO, RREF));
-  Serial.print("Temperature 2 = "); Serial.println(maxamp2.temperature(RNOMINAL_PTCO2, RREF));
+  Serial.print("Temperature 1: "); Serial.println(maxamp.temperature(RNOMINAL_PTCO, RREF));
+  Serial.print("Temperature 2: "); Serial.println(maxamp2.temperature(RNOMINAL_PTCO2, RREF));
   Serial.print("Time = ");Serial.println(millis());
-  Serial.print("SetpointA = ");Serial.println(setpointA); //[debug]
-  Serial.print("SetpointB = ");Serial.println(setpointB);
-  Serial.print("SetpointC = ");Serial.println(setpointC);
+  //Serial.print("state = ");Serial.println(state); // test for software timer fix
   delay(10);
 }
 
