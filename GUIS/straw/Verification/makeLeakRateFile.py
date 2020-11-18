@@ -4,15 +4,15 @@ import os
 dataList = []
 leaktest_result_path = (
     os.path.dirname(__file__)
-    + "/../../../Data/Leak test data/Leak Test Results/Leak Test Results.csv"
+    + "../../../Data/Leak test data/Leak Test Results/Leak Test Results.csv"
 )
 leaktest_result_old_path = (
     os.path.dirname(__file__)
-    + "/../../../Data/Leak test data/Leak test results old/Leak Test Results.csv"
+    + "../../../Data/Leak test data/Leak test results old/Leak Test Results.csv"
 )
 leaktest_old_result_old_path = (
     os.path.dirname(__file__)
-    + "/../../../Data/Leak test data/Leak test results old/Old Leak Test Results.csv"
+    + "../../../Data/Leak test data/Leak test results old/Old Leak Test Results.csv"
 )
 
 pathlist = [

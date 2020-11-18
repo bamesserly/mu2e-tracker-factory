@@ -6,10 +6,10 @@
 
 import pyautogui
 import time
-import datetime
 import os
 import csv
 import sys
+from datetime import datetime
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -22,7 +22,6 @@ sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
 # import modules
 from removeStraw import *
-from masterUpload import *
 from checkstraw import *
 
 sys.path.insert(
@@ -129,13 +128,11 @@ class CO2(QMainWindow):
         previousWorkers = []
         activeWorkers = []
         exists = os.path.exists(
-            self.workerDirectory + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
         )
         if exists:
             with open(
-                self.workerDirectory
-                + datetime.datetime.now().strftime("%Y-%m-%d")
-                + ".csv",
+                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
                 "r",
             ) as previous:
                 today = csv.reader(previous)
@@ -155,9 +152,7 @@ class CO2(QMainWindow):
                 if prev != self.justLogOut:
                     activeWorkers.append(prev)
         with open(
-            self.workerDirectory
-            + datetime.datetime.now().strftime("%Y-%m-%d")
-            + ".csv",
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
             "a+",
         ) as workers:
             if exists:
@@ -416,34 +411,6 @@ class CO2(QMainWindow):
         file.close()
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
-
-    def uploadData(self):
-        QMessageBox.about(self, "Upload", "Now attempting data upload.")
-
-        uploadWorker = self.sessionWorkers[0]
-        uploader = getUploader(self.stationID)("prod")
-        passed = True
-
-        for straw in self.straws:
-            if straw != "_______":
-                try:
-                    uploader.beginUpload(
-                        straw, uploadWorker, self.epoxyBatch, self.palletNum
-                    )
-                except UploadFailedError as error:
-                    passed = False
-                    lastMessage = error.message
-
-        if passed:
-            QMessageBox.about(self, "Upload", "All data uploaded successfully!")
-        else:
-            QMessageBox.warning(
-                self,
-                "Upload Error",
-                "Some Uploads Failed\n\n"
-                + lastMessage
-                + "\n\nCheck 'errors.txt' for a complete list",
-            )
 
     def resetGUI(self):
         self.palletID = ""

@@ -27,11 +27,11 @@ import os
 import csv
 import sys
 import threading
-import datetime
 import win32gui
 import win32con
 
 # import pyperclip
+from datetime import datetime
 from pathlib import Path
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -60,7 +60,6 @@ sys.path.insert(0, checkP)
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 from removeStraw import *
 from checkstraw import *
-from masterUpload import *
 
 
 ##**GLOBAL VARIABLES**##
@@ -304,7 +303,7 @@ class cutMenu(QMainWindow):
         found = False
         filename = ""
         for entry in D:
-            if entry.startswith("464_" + datetime.datetime.now().strftime("%Y-%m-%d")):
+            if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
                 filename = entry
                 found = True
 
@@ -363,9 +362,7 @@ class cutMenu(QMainWindow):
         time.sleep(1)
         # print(MAIN_DIR)
         pyautogui.typewrite(
-            MAIN_DIR
-            + "Dummy Files\\"
-            + datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+            MAIN_DIR + "Dummy Files\\" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
         )
         time.sleep(0.5)
         pyautogui.press("enter")
@@ -666,13 +663,11 @@ class cutMenu(QMainWindow):
         previousWorkers = []
         activeWorkers = []
         exists = os.path.exists(
-            self.workerDirectory + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
         )
         if exists:
             with open(
-                self.workerDirectory
-                + datetime.datetime.now().strftime("%Y-%m-%d")
-                + ".csv",
+                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
                 "r",
             ) as previous:
                 today = csv.reader(previous)
@@ -692,9 +687,7 @@ class cutMenu(QMainWindow):
                 if prev != self.justLogOut:
                     activeWorkers.append(prev)
         with open(
-            self.workerDirectory
-            + datetime.datetime.now().strftime("%Y-%m-%d")
-            + ".csv",
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
             "a+",
         ) as workers:
             if exists:
@@ -764,9 +757,7 @@ class cutMenu(QMainWindow):
                 "a",
             ) as palletWrite:
                 palletWrite.write("\n")
-                palletWrite.write(
-                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
-                )
+                palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                 palletWrite.write("lasr,")
                 for straw in self.straws:
                     palletWrite.write(straw)
@@ -781,9 +772,7 @@ class cutMenu(QMainWindow):
                 "a",
             ) as palletWrite:
                 palletWrite.write("\n")
-                palletWrite.write(
-                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
-                )
+                palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                 palletWrite.write("leng,")
                 for straw in self.straws:
                     palletWrite.write(straw)
@@ -797,7 +786,7 @@ class cutMenu(QMainWindow):
         with open(self.laserDirectory + self.palletNum + ".csv", "w+") as file:
             header = "Timestamp, Pallet ID, Cut Type (0-4) or (2-6), Cut Temperature [C], Cut Humidity, workers ***NEWLINE***: Straw Names (24) ***NEWLINE***: Cut Lengths mm (24) ***NEWLINE***: Comments (optional)***\n"
             file.write(header)
-            file.write(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.palletID + ",")
             file.write(self.cutType + ",")
             file.write(self.cutTemperature + ",")
@@ -827,42 +816,6 @@ class cutMenu(QMainWindow):
         # self.updateBoard()
         # self.uploadData()
         self.resetGUI()
-
-    def uploadData(self):
-        uploadWorker = self.sessionWorkers[0]
-
-        t = datetime.datetime.now()
-        t.strftime("%Y-%m-%d %H:%M")
-
-        lastMessage = ""
-
-        uploader = getUploader("leng")("prod")
-
-        for index, straw in enumerate(self.straws):
-            print("trying to upload" + straw)
-            try:
-                if straw != "_______":
-                    uploader.beginUpload(
-                        straw,
-                        uploadWorker,
-                        t,
-                        self.cutTemperature,
-                        self.cutHumidity,
-                        self.cutLengths[index],
-                        0,
-                        self.palletNum,
-                    )
-            except UploadFailedError as error:
-                lastMessage = error.message
-
-        if lastMessage != "":
-            QMessageBox.warning(
-                self,
-                "Upload Error",
-                "Some Uploads Failed\nOne example error message:\n\n"
-                + lastMessage
-                + "\n\nCheck 'errors.txt' for a complete list",
-            )
 
     def editPallet(self):
         rem = removeStraw(self.sessionWorkers)
