@@ -57,7 +57,7 @@ class HeatControl(QMainWindow):
 
         ## 2nd PAAS type selection required before start of data collection
         self.ui.paas2_box.currentIndexChanged.connect(self.selectpaas)
-        self.ui.setpt_box.currentIndexChanged.connect(self.selectpass)
+        self.ui.setpt_box.currentIndexChanged.connect(self.selectpaas)
         self.ui.start_button.setDisabled(True)
         self.ui.end_data.clicked.connect(self.endtest)
 
