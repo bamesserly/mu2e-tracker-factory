@@ -59,7 +59,9 @@ void loop() {
         state=0;            // resets holdstart to get full holdtime at new setpoint
         setpointA = min(usrsp,52); 
         // setpointB based on PAAS-B correction for temperature difference at RTD location vs. bulk surface 
-        setpointB = min(setpointA,50); // with cube foam. experimental
+        //setpointB = min(setpointA,50); // with cube foam. experimental
+        if (setpointA>34){ setpointB=50; }
+        else { setpointB=29; }
         //setpointB = min(setpointA,45); // no cube foam.
         // setpointC based on PAAS-C correction for temperature difference at RTD location vs. under baseplate
         setpointC = min(setpointA,50); 
@@ -120,6 +122,7 @@ void temp_control(){
       // PAAS-B correction: RTD placed in corner measures lower temperature than bulk surface at 55C
       //dT = tempA - temp2 - 8.0*(max(0,temp2-34)/10);  // experimental: no cube foam
       dT = tempA - temp2 - 4.5*(max(0,temp2-34)/16);  // experimental: with cube foam
+      if (setpointB<34){ dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);  } // experimental calibration for PAAS-B
     }
     if (dT<0 && valA==255) valB+=int(round(Pb * dT));
     else if (dT>0 && valB==255) valA-=int(round(Pa *dT));
