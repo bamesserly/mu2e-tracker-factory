@@ -3571,7 +3571,7 @@ class panelGUI(QMainWindow):
             return
 
         # Ensure valid input
-        if not self.validateInput(indices=range(1)):
+        if not self.validateInput(indices=[0]):
             return
 
         # Set focus on epoxy input
@@ -3608,12 +3608,13 @@ class panelGUI(QMainWindow):
 
     def pro2part2(self):
         # Ensure valid input
-        if not self.validateInput(indices=[3]):
+        if not self.validateInput(indices=[1]):
             return
 
         # (Dis/En)able widgets
         self.ui.epoxy_mixed.setDisabled(True)
         self.ui.epoxy_inject1.setEnabled(True)
+        self.ui.epoxy_batch.setDisabled(True)
 
         # Reset stylesheet
         self.ui.epoxy_batch.setStyleSheet("")
@@ -3652,7 +3653,7 @@ class panelGUI(QMainWindow):
 
     def pro2part2_2(self):
         # Ensure valid input
-        if not self.validateInput(indices=[5]):
+        if not self.validateInput(indices=[3]):
             return False
 
         # Reset style sheet
@@ -3762,7 +3763,7 @@ class panelGUI(QMainWindow):
         self.startTimer(4)
 
     def pro2CheckTemp(self):
-        if self.validateInput(indices=[7, 8]):
+        if self.validateInput(indices=[5, 6]):
             self.stopTimer(4)
             self.pro2part2_4()
 
