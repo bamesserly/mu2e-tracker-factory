@@ -23,8 +23,8 @@
 #
 
 # import PyUSB
-import visa
-import pyvisa
+# import visa
+# import pyvisa
 import time
 from datetime import datetime
 

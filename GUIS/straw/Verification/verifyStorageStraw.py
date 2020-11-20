@@ -15,7 +15,7 @@ class verifyStorageStraw:
         self.printMu2e()
         # Data Storage
         self.storage_directory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Straw storage\\"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Straw storage\\"
         )
         self.verification_files = {
             "verified": "StorageVerified.csv",
@@ -87,7 +87,7 @@ class verifyStorageStraw:
 
     # Function based on positioncheck.py
     def checkLaserCutData(self, straw, pos):
-        path = os.path.dirname(__file__) + "..\\..\\..\\Data\\Laser cut data"
+        path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Laser cut data"
         for pal in os.listdir(path):
             with open(path + "\\" + pal) as csvf:
                 reader = csv.reader(csvf)
@@ -115,25 +115,25 @@ class verifyStorageStraw:
     def checkResistanceData(self, strawID):
         strawID = strawID.upper()
         resistance_dir = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Resistance Testing"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Resistance Testing"
         )
         res_data = {
-            "inside-inside": float(),
-            "inside-outside": float(),
-            "outside-inside": float(),
-            "outside-outside": float(),
+            "ii": float(),
+            "io": float(),
+            "oi": float(),
+            "oo": float(),
         }
         res_evaluation = {
-            "inside-inside": lambda data: (50.0 <= data <= 250.0),
-            "outside-outside": lambda data: (50.0 <= data <= 250.0),
-            "inside-outside": lambda data: (data > 1000),
-            "outside-inside": lambda data: (data > 1000),
+            "ii": lambda data: (50.0 <= data <= 250.0),
+            "oo": lambda data: (50.0 <= data <= 250.0),
+            "io": lambda data: (data > 1000),
+            "oi": lambda data: (data > 1000),
         }
         pass_fail = {
-            "inside-inside": False,
-            "inside-outside": False,
-            "outside-inside": False,
-            "outside-outside": False,
+            "ii": False,
+            "io": False,
+            "oi": False,
+            "oo": False,
         }
         for filename in os.listdir(resistance_dir):
             if filename.endswith(".csv") and strawID[:5] in filename.upper():
@@ -152,7 +152,7 @@ class verifyStorageStraw:
         for key in res_data.keys():
             pass_fail[key] = res_evaluation[key](res_data[key])
 
-        return (res_data["inside-inside"], res_data["outside-outside"], pass_fail)
+        return (res_data["ii"], res_data["oo"], pass_fail)
 
     def measureResistanceByHand(self, measurement_type):
         print("\n---MEASURE RESISTANCE BY HAND---")
@@ -165,7 +165,11 @@ class verifyStorageStraw:
 
         data_found = False
 
-        with open("leakratefile.csv", "r") as leak_rate_data:
+        leaktest_dir = (
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Leak test data\\"
+        )
+
+        with open(leaktest_dir + "leakratefile.csv", "r") as leak_rate_data:
             for line in leak_rate_data:
                 if strawID.upper() in str(line).upper():
                     print("\nLeak rate data found!")
@@ -182,7 +186,7 @@ class verifyStorageStraw:
 
             leak_dir = (
                 os.path.dirname(__file__)
-                + "..\\..\\..\\Data\\Leak test data\\Leak Test Results"
+                + "\\..\\..\\..\\Data\\Leak test data\\Leak Test Results"
             )
 
             for file_name in os.listdir(leak_dir):
@@ -230,7 +234,7 @@ class verifyStorageStraw:
                         # Record findings in leak_ratefile.csv
                         with open(
                             os.path.dirname(__file__)
-                            + "..\\..\\..\\Data\\Leak test data\\Leak Test Results\\Leak Test Results.csv",
+                            + "\\..\\..\\..\\Data\\Leak test data\\Leak Test Results\\Leak Test Results.csv",
                             "a",
                         ) as leak_rate_file:
                             leak_rate_file.write("\n")  # Newline
@@ -257,7 +261,7 @@ class verifyStorageStraw:
                     else:  # There's something funky with the plot
                         with open(
                             os.path.dirname(__file__)
-                            + "..\\..\\..\\Data\\Straw storage\\BenRecalculateLeakTest.txt",
+                            + "\\..\\..\\..\\Data\\Straw storage\\BenRecalculateLeakTest.txt",
                             "a",
                         ) as f:
                             f.write("\n" + self.strawID)
