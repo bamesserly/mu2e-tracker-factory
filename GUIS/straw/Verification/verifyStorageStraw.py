@@ -165,7 +165,11 @@ class verifyStorageStraw:
 
         data_found = False
 
-        with open("leakratefile.csv", "r") as leak_rate_data:
+        leaktest_dir = (
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Leak test data\\"
+        )
+
+        with open(leaktest_dir + "leakratefile.csv", "r") as leak_rate_data:
             for line in leak_rate_data:
                 if strawID.upper() in str(line).upper():
                     print("\nLeak rate data found!")

@@ -1,6 +1,9 @@
 import csv
 import os
 
+
+leaktest_dir = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Leak test data\\"
+
 dataList = []
 leaktest_result_path = (
     os.path.dirname(__file__)
@@ -29,9 +32,9 @@ for el in pathlist:
             except:
                 break
 csvf.close()
-file = open("leakratefile.csv", "w")
+file = open(leaktest_dir + "leakratefile.csv", "w")
 file.close()
-file = open("leakratefile.csv", "a")
+file = open(leaktest_dir + "leakratefile.csv", "a")
 file.write("straw, date/time, co2, worker, chamber, leakRate, error")
 for el in dataList:
     string = ""
