@@ -16,4 +16,4 @@ set CUR_MS=%time:~9,2
 set SUBFILENAME=%CUR_YYYY%%CUR_MM%%CUR_DD%-%CUR_HH%%CUR_NN%%CUR_SS% 
 
 CD C:\Users\%USERNAME%\Desktop\Production\GUIS\panel\current
-python PANGUI.py > C:\Users\%USERNAME%\Desktop\MergeDownLogs\log_file_%SUBFILENAME%.txt 2>&1
+python PANGUI.py > C:\Users\%USERNAME%\Desktop\MergeDownLogs\PANGUI_log_%SUBFILENAME%.txt 2>&1
