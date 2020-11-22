@@ -10,7 +10,7 @@ import sys
 com = "COM10"
 ser = serial.Serial(com, 9600)  # port on computer
 
-filepath = os.path.dirname(__file__) + "..\\..\\Data\\temp_humid_data\\464_main\\"
+filepath = "X:\\Data\\temp_humid_data\\464_main\\"
 filename = "464_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv"
 date0 = date.today()
 
@@ -25,14 +25,14 @@ f.write("date, temp (C), RH (%), epoch time (s)\n")
 # try:
 while True:
     try:
-        ser.write(b"5")  # send arduino the number '5' in ascii
-        time.sleep(10)  # wait 2 seconds
-        data = str(ser.readline())  # get data from arduino serial
-        data = data[2:]
-        x = data.split(",")
-        temp = x[0]
-        humid = x[1]
-        humid = humid[:5]
+        # ser.write(b"5")  # send arduino the number '5' in ascii
+        # time.sleep(10)  # wait 2 seconds
+        # data = str(ser.readline())  # get data from arduino serial
+        # data = data[2:]
+        # x = data.split(",")
+        # temp = x[0]
+        # humid = x[1]
+        # humid = humid[:5]
 
         print("464 main -- Temp = " + temp + " C  Humid = " + humid + "%")
 
