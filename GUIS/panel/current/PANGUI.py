@@ -133,19 +133,19 @@ class panelGUI(QMainWindow):
                  The class inherhits from QMainWindow in order to function as a proper GUI.
     """
 
-    # fmt: off
-    # ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗██████╗ ███████╗
-    # ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝██╔══██╗██╔════╝
-    # ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗  ██████╔╝███████╗
-    # ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝  ██╔══██╗╚════██║
-    # ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗██║  ██║███████║
-    # ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝
-    #
-    # Signal definitions, and the init function for the panelGUI class.
-    # Note: the panelGUI init funciton calls a lot of other init funcitons, all
-    #   of which are in this section.  If they weren't seperated from the init
-    #   function, then it would be over 1000 lines long.
-    # fmt: on
+# fmt: off
+# ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗██████╗ ███████╗
+# ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝██╔══██╗██╔════╝
+# ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗  ██████╔╝███████╗
+# ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝  ██╔══██╗╚════██║
+# ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗██║  ██║███████║
+# ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝
+#
+# Signal definitions, and the init function for the panelGUI class.
+# Note: the panelGUI init funciton calls a lot of other init funcitons, all
+#   of which are in this section.  If they weren't seperated from the init
+#   function, then it would be over 1000 lines long.
+# fmt: on
 
     # Definition of signals, which are used for UI updates from threads other than the Main thread
     LockGUI = pyqtSignal(bool)
@@ -1184,17 +1184,17 @@ class panelGUI(QMainWindow):
             lambda: self.ui.positionSelect.setStyleSheet("")
         )
 
-    # fmt: off
-    # ██╗   ██╗ █████╗ ██╗     ██╗██████╗  █████╗ ████████╗ ██████╗ ██████╗ ███████╗
-    # ██║   ██║██╔══██╗██║     ██║██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝
-    # ██║   ██║███████║██║     ██║██║  ██║███████║   ██║   ██║   ██║██████╔╝███████╗
-    # ╚██╗ ██╔╝██╔══██║██║     ██║██║  ██║██╔══██║   ██║   ██║   ██║██╔══██╗╚════██║
-    # ╚████╔╝ ██║  ██║███████╗██║██████╔╝██║  ██║   ██║   ╚██████╔╝██║  ██║███████║
-    #  ╚═══╝  ╚═╝  ╚═╝╚══════╝╚═╝╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
-    #
-    # Functions that check user input.  Validator regular expressions are found
-    # in _init_validators in the Initializers section.
-    # fmt: on
+# fmt: off
+# ██╗   ██╗ █████╗ ██╗     ██╗██████╗  █████╗ ████████╗ ██████╗ ██████╗ ███████╗
+# ██║   ██║██╔══██╗██║     ██║██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝
+# ██║   ██║███████║██║     ██║██║  ██║███████║   ██║   ██║   ██║██████╔╝███████╗
+# ╚██╗ ██╔╝██╔══██║██║     ██║██║  ██║██╔══██║   ██║   ██║   ██║██╔══██╗╚════██║
+# ╚████╔╝ ██║  ██║███████╗██║██████╔╝██║  ██║   ██║   ╚██████╔╝██║  ██║███████║
+#  ╚═══╝  ╚═╝  ╚═╝╚══════╝╚═╝╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
+#
+# Functions that check user input.  Validator regular expressions are found
+# in _init_validators in the Initializers section.
+# fmt: on
 
     def checkSupplies(self):
         # Check that all supplies have been checked off
@@ -1305,17 +1305,17 @@ class panelGUI(QMainWindow):
             )
         return error
 
-    # fmt: off
-    # ███╗   ██╗ █████╗ ██╗   ██╗██╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
-    # ████╗  ██║██╔══██╗██║   ██║██║██╔════╝ ██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
-    # ██╔██╗ ██║███████║██║   ██║██║██║  ███╗███████║   ██║   ██║██║   ██║██╔██╗ ██║
-    # ██║╚██╗██║██╔══██║╚██╗ ██╔╝██║██║   ██║██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
-    # ██║ ╚████║██║  ██║ ╚████╔╝ ██║╚██████╔╝██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
-    # ╚═╝  ╚═══╝╚═╝  ╚═╝  ╚═══╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-    #
-    # Functions connected to various buttons that change pages/tabs, open/close
-    # the GUI, and start/pause/resume the GUI.
-    # fmt: on
+# fmt: off
+# ███╗   ██╗ █████╗ ██╗   ██╗██╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
+# ████╗  ██║██╔══██╗██║   ██║██║██╔════╝ ██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
+# ██╔██╗ ██║███████║██║   ██║██║██║  ███╗███████║   ██║   ██║██║   ██║██╔██╗ ██║
+# ██║╚██╗██║██╔══██║╚██╗ ██╔╝██║██║   ██║██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
+# ██║ ╚████║██║  ██║ ╚████╔╝ ██║╚██████╔╝██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
+# ╚═╝  ╚═══╝╚═╝  ╚═╝  ╚═══╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+#
+# Functions connected to various buttons that change pages/tabs, open/close
+# the GUI, and start/pause/resume the GUI.
+# fmt: on
 
     """
     openGUI(self, btn)
@@ -1591,16 +1591,16 @@ class panelGUI(QMainWindow):
         self.ui.proSelection.setCurrentIndex(1)
         self.ui.tabWidget.setCurrentIndex(0)
 
-    # fmt: off
-    # ███╗   ███╗██╗███████╗ ██████╗
-    # ████╗ ████║██║██╔════╝██╔════╝
-    # ██╔████╔██║██║███████╗██║
-    # ██║╚██╔╝██║██║╚════██║██║
-    # ██║ ╚═╝ ██║██║███████║╚██████╗
-    # ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
-    #
-    # Functions that I wasn't sure where to put.
-    # fmt: on
+# fmt: off
+# ███╗   ███╗██╗███████╗ ██████╗
+# ████╗ ████║██║██╔════╝██╔════╝
+# ██╔████╔██║██║███████╗██║
+# ██║╚██╔╝██║██║╚════██║██║
+# ██║ ╚═╝ ██║██║███████║╚██████╗
+# ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
+#
+# Functions that I wasn't sure where to put.
+# fmt: on
 
     @classmethod
     def setWidgetsDisabled(cls, widgets):
@@ -1657,7 +1657,17 @@ class panelGUI(QMainWindow):
         self.saveStep(step.name)  # changed
 
         if self.stepsList.allStepsChecked():
-            self.finishButton.setText("Finish")
+            # Pro 1 needs validated straws to enable finish
+            if self.pro == 1:
+                # self.checkLPALs will enable finish by changing the finish
+                # button text if straws are valid, otherwise it will highlight
+                # the LPAL fields and not change the text.
+                # The currentText of the pause/finish button is what enables
+                # or disables the finish button.
+                self.checkLPALs()
+            # Other pros do not
+            else:
+                self.finishButton.setText("Finish")
 
     """
     partsError(self)
@@ -2114,16 +2124,16 @@ class panelGUI(QMainWindow):
 
             time.sleep(0.01)
 
-    # fmt: off
-    # ███████╗ █████╗ ██╗   ██╗███████╗    ██████╗  █████╗ ████████╗ █████╗
-    # ██╔════╝██╔══██╗██║   ██║██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-    # ███████╗███████║██║   ██║█████╗      ██║  ██║███████║   ██║   ███████║
-    # ╚════██║██╔══██║╚██╗ ██╔╝██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
-    # ███████║██║  ██║ ╚████╔╝ ███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
-    # ╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-    #
-    # Definitely not functions that save data...  Definitely...
-    # fmt: on
+# fmt: off
+# ███████╗ █████╗ ██╗   ██╗███████╗    ██████╗  █████╗ ████████╗ █████╗
+# ██╔════╝██╔══██╗██║   ██║██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+# ███████╗███████║██║   ██║█████╗      ██║  ██║███████║   ██║   ███████║
+# ╚════██║██╔══██║╚██╗ ██╔╝██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+# ███████║██║  ██║ ╚████╔╝ ███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Definitely not functions that save data...  Definitely...
+# fmt: on
 
     def saveData(self):
         # Extract data from gui widgets
@@ -2245,16 +2255,16 @@ class panelGUI(QMainWindow):
         else:
             return None
 
-    # fmt: off
-    # ██╗   ██╗██████╗ ██████╗  █████╗ ████████╗███████╗    ██████╗  █████╗ ████████╗ █████╗
-    # ██║   ██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-    # ██║   ██║██████╔╝██║  ██║███████║   ██║   █████╗      ██║  ██║███████║   ██║   ███████║
-    # ██║   ██║██╔═══╝ ██║  ██║██╔══██║   ██║   ██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
-    # ╚██████╔╝██║     ██████╔╝██║  ██║   ██║   ███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
-    # ╚═════╝ ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-    #
-    # Functions that get data from input widgets
-    # fmt: on
+# fmt: off
+# ██╗   ██╗██████╗ ██████╗  █████╗ ████████╗███████╗    ██████╗  █████╗ ████████╗ █████╗
+# ██║   ██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+# ██║   ██║██████╔╝██║  ██║███████║   ██║   █████╗      ██║  ██║███████║   ██║   ███████║
+# ██║   ██║██╔═══╝ ██║  ██║██╔══██║   ██║   ██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+# ╚██████╔╝██║     ██████╔╝██║  ██║   ██║   ███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚═════╝ ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Functions that get data from input widgets
+# fmt: on
 
     """
     updateData(self)
@@ -2438,16 +2448,16 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
-    # fmt: off
-    # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
-    # ██║     ██╔═══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-    # ██║     ██║   ██║███████║██║  ██║    ██║  ██║███████║   ██║   ███████║
-    # ██║     ██║   ██║██╔══██║██║  ██║    ██║  ██║██╔══██║   ██║   ██╔══██║
-    # ███████╗╚██████╔╝██║  ██║██████╔╝    ██████╔╝██║  ██║   ██║   ██║  ██║
-    # ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-    #
-    # Functions that get data from data processor
-    # fmt: on
+# fmt: off
+# ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
+# ██║     ██╔═══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+# ██║     ██║   ██║███████║██║  ██║    ██║  ██║███████║   ██║   ███████║
+# ██║     ██║   ██║██╔══██║██║  ██║    ██║  ██║██╔══██║   ██║   ██╔══██║
+# ███████╗╚██████╔╝██║  ██║██████╔╝    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Functions that get data from data processor
+# fmt: on
 
     """
     loadpro(self)
@@ -2558,16 +2568,16 @@ class panelGUI(QMainWindow):
     def loadHVMeasurements(self, position=None):
         return self.DP.loadHVMeasurements()
 
-    # fmt: off
-    # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗
-    # ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-    # ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
-    # ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
-    # ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
-    # ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-    #
-    # Functions that put data into the UI widgets.
-    # fmt: on
+# fmt: off
+# ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗
+# ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+# ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
+# ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+# ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+# ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+#
+# Functions that put data into the UI widgets.
+# fmt: on
 
     # Puts comments into the comment display box
     def displayComments(self):
@@ -2744,8 +2754,10 @@ class panelGUI(QMainWindow):
 
         # loading from DB doesn't pass the validation bool for
         # the LPAL input, so it's added to the list here
+        print("REEEEE", len(self.data[0]))
         if len(data) == 22:
             self.data[0].append(False)
+            print("REEEEE", len(self.data[0]))
             if data[20] is not None and data[21] is not None:
                 self.data[0][22] = True
         if data[20] is not None:
@@ -3352,14 +3364,14 @@ class panelGUI(QMainWindow):
 
         self.displayComments()
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗      ██╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ███║
-    # ██████╔╝██████╔╝██║   ██║    ╚██║
-    # ██╔═══╝ ██╔══██╗██║   ██║     ██║
-    # ██║     ██║  ██║╚██████╔╝     ██║
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗      ██╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ███║
+# ██████╔╝██████╔╝██║   ██║    ╚██║
+# ██╔═══╝ ██╔══██╗██║   ██║     ██║
+# ██║     ██║  ██║╚██████╔╝     ██║
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═╝
+# fmt: on
 
     """
     pro1Part1(self)
@@ -3474,16 +3486,27 @@ class panelGUI(QMainWindow):
 
     # Validate LPALs
     def checkLPALs(self):
+        # Prevent out of bounds error
+        # Loading from DB doesn't load straw validation, so it's appended to the data list in the
+        # pro 1 parse function.  Somehow it's possible to not get that appending, so this prevents
+        # a crash in that circumstance.
+        if len(self.data[0]) < 23:
+            self.data[0].append(False)
+        
+        # Validate input, need LPAL**** in each field, where * is a digit 0-9
         if not self.validateInput(indices=[19, 20]):
+            # Failed, don't set as validated
             return
+        
+        # Pass, let user know and set as validated in self.data
         self.ui.lpalLabel.setText("Straws Validated.")
-        # print(self.data)
-        # print(len(self.data[0]))
         self.data[0][22] = True
 
+        # Enable finish button
         if self.stepsList.allStepsChecked():
             self.finishButton.setText("Finish")
 
+        # Save straws
         self.saveData()
 
     """
@@ -3540,14 +3563,14 @@ class panelGUI(QMainWindow):
         # Reset time display
         self.timers[1].reset()
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗     ██████╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ╚════██╗
-    # ██████╔╝██████╔╝██║   ██║     █████╔╝
-    # ██╔═══╝ ██╔══██╗██║   ██║    ██╔═══╝
-    # ██║     ██║  ██║╚██████╔╝    ███████╗
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚══════╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗     ██████╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ╚════██╗
+# ██████╔╝██████╔╝██║   ██║     █████╔╝
+# ██╔═══╝ ██╔══██╗██║   ██║    ██╔═══╝
+# ██║     ██║  ██║╚██████╔╝    ███████╗
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚══════╝
+# fmt: on
 
     """
     pro2part1(self)
@@ -3795,14 +3818,14 @@ class panelGUI(QMainWindow):
         for timer in self.timers[2:5]:
             timer.reset()
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗     ██████╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ╚════██╗
-    # ██████╔╝██████╔╝██║   ██║     █████╔╝
-    # ██╔═══╝ ██╔══██╗██║   ██║     ╚═══██╗
-    # ██║     ██║  ██║╚██████╔╝    ██████╔╝
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚═════╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗     ██████╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ╚════██╗
+# ██████╔╝██████╔╝██║   ██║     █████╔╝
+# ██╔═══╝ ██╔══██╗██║   ██║     ╚═══██╗
+# ██║     ██║  ██║╚██████╔╝    ██████╔╝
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚═════╝
+# fmt: on
 
     """
     pro3part1(self)
@@ -3890,14 +3913,14 @@ class panelGUI(QMainWindow):
         list(map(lambda obj: obj.setDisabled(True), self.continuity))
         list(map(lambda obj: obj.setDisabled(True), self.wire_pos))
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗     ██╗  ██╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ██║  ██║
-    # ██████╔╝██████╔╝██║   ██║    ███████║
-    # ██╔═══╝ ██╔══██╗██║   ██║    ╚════██║
-    # ██║     ██║  ██║╚██████╔╝         ██║
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝          ╚═╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗     ██╗  ██╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ██║  ██║
+# ██████╔╝██████╔╝██║   ██║    ███████║
+# ██╔═══╝ ██╔══██╗██║   ██║    ╚════██║
+# ██║     ██║  ██║╚██████╔╝         ██║
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝          ╚═╝
+# fmt: on
 
     def pro4part0(self):
         # Ensure that all parts have been checked off
@@ -4060,14 +4083,14 @@ class panelGUI(QMainWindow):
         self.timers[17].reset()
         self.timers[18].reset()
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗     ███████╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ██╔════╝
-    # ██████╔╝██████╔╝██║   ██║    ███████╗
-    # ██╔═══╝ ██╔══██╗██║   ██║    ╚════██║
-    # ██║     ██║  ██║╚██████╔╝    ███████║
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚══════╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗     ███████╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ██╔════╝
+# ██████╔╝██████╔╝██║   ██║    ███████╗
+# ██╔═══╝ ██╔══██╗██║   ██║    ╚════██║
+# ██║     ██║  ██║╚██████╔╝    ███████║
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝     ╚══════╝
+# fmt: on
 
     # Very little to do here.
     def pro5part0(self):
@@ -4084,14 +4107,14 @@ class panelGUI(QMainWindow):
     def resetPro5(self):
         self.ui.panelInput5.setText("")
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗      ██████╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ██╔════╝
-    # ██████╔╝██████╔╝██║   ██║    ███████╗
-    # ██╔═══╝ ██╔══██╗██║   ██║    ██╔═══██╗
-    # ██║     ██║  ██║╚██████╔╝    ╚██████╔╝
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗      ██████╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ██╔════╝
+# ██████╔╝██████╔╝██║   ██║    ███████╗
+# ██╔═══╝ ██╔══██╗██║   ██║    ██╔═══██╗
+# ██║     ██║  ██║╚██████╔╝    ╚██████╔╝
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝
+# fmt: on
 
     """
     pro6part1(self)
@@ -4350,14 +4373,14 @@ class panelGUI(QMainWindow):
         self.ui.mrInput1.setDisabled(False)
         self.ui.mrInput2.setDisabled(False)
 
-    # fmt: off
-    # ██████╗ ██████╗  ██████╗     ███████╗
-    # ██╔══██╗██╔══██╗██╔═══██╗    ╚════██║
-    # ██████╔╝██████╔╝██║   ██║        ██╔╝
-    # ██╔═══╝ ██╔══██╗██║   ██║       ██╔╝
-    # ██║     ██║  ██║╚██████╔╝       ██║
-    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝        ╚═╝
-    # fmt: on
+# fmt: off
+# ██████╗ ██████╗  ██████╗     ███████╗
+# ██╔══██╗██╔══██╗██╔═══██╗    ╚════██║
+# ██████╔╝██████╔╝██║   ██║        ██╔╝
+# ██╔═══╝ ██╔══██╗██║   ██║       ██╔╝
+# ██║     ██║  ██║╚██████╔╝       ██║
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝        ╚═╝
+# fmt: on
 
     """
     pro7part1(self)
@@ -4513,16 +4536,16 @@ class panelGUI(QMainWindow):
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
 
-    # fmt: off
-    # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
-    # ██╔════╝██║   ██║██╔══██╗    ██╔════╝ ██║   ██║██║██╔════╝
-    # ███████╗██║   ██║██████╔╝    ██║  ███╗██║   ██║██║███████╗
-    # ╚════██║██║   ██║██╔══██╗    ██║   ██║██║   ██║██║╚════██║
-    # ███████║╚██████╔╝██████╔╝    ╚██████╔╝╚██████╔╝██║███████║
-    # ╚══════╝ ╚═════╝ ╚═════╝      ╚═════╝  ╚═════╝ ╚═╝╚══════╝
-    #
-    # Functions that launch smaller windows like device guis, warning messages, etc.
-    # fmt: on
+# fmt: off
+# ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
+# ██╔════╝██║   ██║██╔══██╗    ██╔════╝ ██║   ██║██║██╔════╝
+# ███████╗██║   ██║██████╔╝    ██║  ███╗██║   ██║██║███████╗
+# ╚════██║██║   ██║██╔══██╗    ██║   ██║██║   ██║██║╚════██║
+# ███████║╚██████╔╝██████╔╝    ╚██████╔╝╚██████╔╝██║███████║
+# ╚══════╝ ╚═════╝ ╚═════╝      ╚═════╝  ╚═════╝ ╚═╝╚══════╝
+#
+# Functions that launch smaller windows like device guis, warning messages, etc.
+# fmt: on
 
     """
     generateBox(self, type, title, text, question = False)
