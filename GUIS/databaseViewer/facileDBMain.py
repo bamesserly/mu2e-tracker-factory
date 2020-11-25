@@ -1,7 +1,7 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 11/03/2020 /
+#  -   / ______  _/____)       /  Last Update 11/24/2020 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
