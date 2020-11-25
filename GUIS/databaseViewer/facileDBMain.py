@@ -846,6 +846,8 @@ class facileDBGUI(QMainWindow):
                 message=f"Data exported to MN{self.panelNumber}_pro_{curPro}_heat_data.csv",
             )
 
+
+
 # fmt: off
 #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
 # ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║██║████╗  ██║██╔════╝ 
@@ -1169,22 +1171,34 @@ class facileDBGUI(QMainWindow):
 
         # get the current pro
         curPro = self.ui.heatProBox.currentText()[8]
-        '''
-        itemsToAdd = [
-            f'Total Heat Time: {get(curPro,"HeatTime")}' if (get(curPro,"HeatTime") is not []) else "No Heat Time Data Found",
-            f'PAAS A Stats' if len(get(curPro,"AStats")) > 0 else "No PAAS A Data Found",
-            f'PAAS A Mean Temperature: {get(curPro,"AStats")[0]}' if len(get(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Maximum Temperature: {get(curPro,"AStats")[2]}' if len(get(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Minimum Temperature: {get(curPro,"AStats")[1]}' if len(get(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Standard Deviation: {get(curPro,"AStats")[3]} ({get(curPro,"AStats")[5]} - {get(curPro,"AStats")[4]})' if len(get(curPro,"AStats")) > 0 else "None",
-            f'PAAS B/C Stats' if len(get(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found",
-            f'PAAS B/C Mean Temperature: {get(curPro,"BCStats")[0]}' if len(get(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Maximum Temperature: {get(curPro,"BCStats")[2]}' if len(get(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Minimum Temperature: {get(curPro,"BCStats")[1]}' if len(get(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Standard Deviation: {get(curPro,"BCStats")[3]} ({get(curPro,"BCStats")[5]} - {get(curPro,"BCStats")[4]})' if len(get(curPro,"BCStats")) > 0 else "None",
-        ]
-        '''
 
+        paasAItemsToAdd = [
+            f'PAAS A Mean Temperature: {round(self.getHeat(curPro,"AStats")[0], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Maximum Temperature: {self.getHeat(curPro,"AStats")[2]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
+            f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None"
+        ]
+
+        paasBItemsToAdd = [
+            f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Maximum Temperature: {self.getHeat(curPro,"BCStats")[2]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Minimum Temperature: {self.getHeat(curPro,"BCStats")[1]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
+            f'PAAS B/C Standard Deviation: {round(self.getHeat(curPro,"BCStats")[3], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None"
+        ]
+        # ({round(self.getHeat(curPro,"BCStats")[4], 2)}, {round(self.getHeat(curPro,"BCStats")[5], 2)})
+
+        self.ui.heatListWidget.addItem(f'Total Heat Time: {self.getHeat(curPro,"HeatTime")}' if (self.getHeat(curPro,"HeatTime") is not []) else "No Heat Time Data Found")
+
+        self.ui.heatListWidget.addItem(f'PAAS A Stats' if len(self.getHeat(curPro,"AStats")) > 0 else "No PAAS A Data Found :(")
+        if len(self.getHeat(curPro,"AStats")) > 0:
+            self.ui.heatListWidget.addItems(paasAItemsToAdd)
+
+        self.ui.heatListWidget.addItem(f'PAAS B/C Stats' if len(self.getHeat(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found :(")
+        if len(self.getHeat(curPro,"BCStats")) > 0:
+            self.ui.heatListWidget.addItems(paasBItemsToAdd)
+
+
+        '''
         #self.ui.heatListWidget.addItems(itemsToAdd)
         if len(self.getHeat(curPro, "HeatData")) > 0:
             self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
@@ -1193,6 +1207,8 @@ class facileDBGUI(QMainWindow):
         self.ui.heatListWidget.addItem("Statistics will be placed here eventually.")
         self.ui.heatListWidget.addItem("Currently, graph and export work.")
         self.ui.heatListWidget.addItem("The graphs are still being improved for readability.")
+        '''
+
 
         
 # fmt: off
@@ -1223,6 +1239,7 @@ class facileDBGUI(QMainWindow):
         # Killing it with sys.exit() will not hurt the database.
 
 
+
 # fmt: off
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
 # ████╗ ████║██╔══██╗██║████╗  ██║
@@ -1239,10 +1256,10 @@ if __name__ == "__main__":
     window = facileDBGUI(Ui_MainWindow())  # make a window
     if ISLAB:
         window.connectToNetwork()  # link to database
-        window.setWindowTitle("Database Viewer") # change from default window title
+        window.setWindowTitle("Database Viewer, Network Connection") # change from default window title
     else:
         window.connectToLocal() #link to database
-        window.setWindowTitle("~~~~~~~LOCAL CONNECTION FOR DEVELOPMENT~~~~~~~")
+        window.setWindowTitle("Database Viewer, Local Connection")
         # make sure you can tell the difference between local and network connections
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
