@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../mu2e.jpg</normaloff>../../mu2e.jpg</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_6">
     <item row="0" column="0">
@@ -20,7 +24,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="4" column="0">
          <spacer name="verticalSpacer">
@@ -49,54 +53,6 @@
         </item>
         <item row="3" column="0">
          <layout class="QGridLayout" name="gridLayout">
-          <item row="3" column="1">
-           <widget class="QComboBox" name="tripBox">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-            <item>
-             <property name="text">
-              <string>Not Tripped</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Tripped</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Amps (μA)</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1" alignment="Qt::AlignRight">
            <widget class="QSpinBox" name="positionBox">
             <property name="sizePolicy">
@@ -138,7 +94,7 @@
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label_5">
             <property name="font">
              <font>
               <pointsize>14</pointsize>
@@ -147,14 +103,45 @@
              </font>
             </property>
             <property name="text">
-             <string>Trip Status</string>
+             <string>Amps (μA)</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="4" column="1">
+           <widget class="QComboBox" name="tripBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>120</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <item>
+             <property name="text">
+              <string>Not Tripped</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Tripped</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="1">
            <widget class="QLineEdit" name="ampsLE">
             <property name="minimumSize">
              <size>
@@ -182,24 +169,34 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item row="2" column="0">
-         <layout class="QGridLayout" name="gridLayout_3"/>
-        </item>
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0" alignment="Qt::AlignLeft">
-           <widget class="QLabel" name="label">
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_4">
             <property name="font">
              <font>
-              <pointsize>16</pointsize>
+              <pointsize>14</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
             <property name="text">
-             <string>Panel</string>
+             <string>Trip Status</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" alignment="Qt::AlignLeft">
+           <widget class="QLabel" name="label_3">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Side</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -230,6 +227,30 @@
             </item>
            </widget>
           </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <layout class="QGridLayout" name="gridLayout_3"/>
+        </item>
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0" alignment="Qt::AlignLeft">
+           <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Panel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="panelNumLE">
             <property name="maximumSize">
@@ -248,30 +269,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0" alignment="Qt::AlignLeft">
-           <widget class="QLabel" name="label_3">
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Side</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item row="3" column="1">
@@ -284,7 +281,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>10</width>
+            <width>20</width>
             <height>20</height>
            </size>
           </property>
@@ -292,7 +289,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_55">
@@ -390,7 +387,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>452</width>
+             <width>396</width>
              <height>248</height>
             </rect>
            </property>
