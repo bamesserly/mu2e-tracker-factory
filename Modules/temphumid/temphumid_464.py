@@ -25,14 +25,14 @@ f.write("date, temp (C), RH (%), epoch time (s)\n")
 # try:
 while True:
     try:
-        # ser.write(b"5")  # send arduino the number '5' in ascii
-        # time.sleep(10)  # wait 2 seconds
-        # data = str(ser.readline())  # get data from arduino serial
-        # data = data[2:]
-        # x = data.split(",")
-        # temp = x[0]
-        # humid = x[1]
-        # humid = humid[:5]
+        ser.write(b"5")  # send arduino the number '5' in ascii
+        time.sleep(10)  # wait 2 seconds
+        data = str(ser.readline())  # get data from arduino serial
+        data = data[2:]
+        x = data.split(",")
+        temp = x[0]
+        humid = x[1]
+        humid = humid[:5]
 
         print("464 main -- Temp = " + temp + " C  Humid = " + humid + "%")
 
