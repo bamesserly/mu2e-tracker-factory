@@ -119,11 +119,7 @@ class LoopingReusableThread(ReusableThread, LoopingThread):
         ReusableThread.join(self)
 
     def run(self):
-        dateTimeObj = datetime.now()
-        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        print("Automerge complete: ", timestampStr)
         LoopingThread.run(self)
-
 
 
 if __name__ == "__main__":

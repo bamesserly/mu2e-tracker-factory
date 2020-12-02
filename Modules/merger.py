@@ -72,6 +72,9 @@ class Merger:
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
+        dateTimeObj = datetime.now()
+        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
+        print("Automerge complete: ", timestampStr)
 
     def __execute(self, script, fetchall=False):
         return self.executeScript(
