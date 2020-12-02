@@ -40,7 +40,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from databaseManager import DatabaseManager
 from datetime import datetime
-from sys import modules
+from sys import modules, exit
 from inspect import isclass, getmembers
 from datetime import datetime
 from time import time
@@ -521,12 +521,32 @@ class Procedure(BASE, OBJECT):
                 break
 
         # Try to query a procedure that matches the given station and straw_location
-        procedure = (
-            cls.query()
-            .filter(cls.station == station.id)
-            .filter(cls.straw_location == straw_location.id)
-            .one_or_none()
-        )
+        try:
+            procedure = (
+                cls.query()
+                .filter(cls.station == station.id)
+                .filter(cls.straw_location == straw_location.id)
+                .one_or_none()
+            )
+        except sqlalchemy.orm.exc.MultipleResultsFound:
+            import tkinter
+
+            message = (
+                f"This process was probably started on computer A and "
+                "resumed on computer B without an intermediate "
+                "mergedown on computer B.\n\n Inform the "
+                "#tracker_production channel of this error, along with "
+                "the panel, process, and current computer ID. It takes "
+                "about 5 minutes to log into the computer and fix."
+            )
+            packageErrorRoot = tkinter.Tk()  # create a tkinter root
+            packageErrorRoot.withdraw()  # hide blank windows
+            tkinter.messagebox.showerror(  # show error message
+                title="Multiple Procedures Error",
+                message=message,
+            )
+            print("Multiple Procedures Error")
+            exit(1)
 
         # If one is found, return it.
         if procedure is not None:
