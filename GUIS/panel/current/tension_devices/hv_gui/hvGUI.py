@@ -200,7 +200,7 @@ class Ui_MainWindow(object):
         self.scrollAreaHV.setWidgetResizable(True)
         self.scrollAreaHV.setObjectName("scrollAreaHV")
         self.scrollContents = QtWidgets.QWidget()
-        self.scrollContents.setGeometry(QtCore.QRect(0, 0, 396, 248))
+        self.scrollContents.setGeometry(QtCore.QRect(0, 0, 385, 246))
         self.scrollContents.setObjectName("scrollContents")
         self.scrollAreaHV.setWidget(self.scrollContents)
         self.gridLayout_2.addWidget(self.scrollAreaHV, 1, 0, 1, 1)
@@ -212,6 +212,11 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.panelNumLE, self.sideBox)
+        MainWindow.setTabOrder(self.sideBox, self.ampsLE)
+        MainWindow.setTabOrder(self.ampsLE, self.tripBox)
+        MainWindow.setTabOrder(self.tripBox, self.positionBox)
+        MainWindow.setTabOrder(self.positionBox, self.scrollAreaHV)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

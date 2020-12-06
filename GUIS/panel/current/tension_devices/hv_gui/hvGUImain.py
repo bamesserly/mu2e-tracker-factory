@@ -25,6 +25,22 @@ from PyQt5.QtGui import QBrush, QIcon
 from PyQt5.QtCore import Qt, QRect, QObject
 # ui in .py format
 from hvGUI import Ui_MainWindow
+'''
+LIST OF IMPORTANT WIDGETS:
+    Initialized in .setupUi
+    Panel input                 --> panelNumLE
+    Straw position              --> positionBox
+    Panel side input            --> sideBox
+    Amps input                  --> ampsLE
+    Trip status input           --> tripBox
+
+    Initialized in _init_scroll
+    List of right current boxes --> self.currentRight
+    List of left current boxes  --> self.currentLeft
+    List of trip check boxes    --> self.isTripped
+    (to access the right current for straw 50,
+        use self.currentRight[50])
+'''
 
 class highVoltageGUI(QMainWindow):
 
@@ -43,6 +59,9 @@ class highVoltageGUI(QMainWindow):
 
         # init scroll area
         self._init_Scroll()
+
+        # bind function to enter pressed on ampsLE
+        self.ui.ampsLE.returnPressed.connect(self.nextStraw)
 
 
     #################################################################
@@ -148,6 +167,15 @@ class highVoltageGUI(QMainWindow):
         for i, box in enumerate(self.isTripped):
             box.stateChanged.connect(lambda changed, index=i: boxSaveHV(index))
         '''
+
+    def _init_validation(self):
+        pass
+
+    def nextStraw(self):
+        # self.saveData()
+        self.ui.positionBox.setValue(self.ui.positionBox.value() +1)
+        self.ui.ampsLE.clear()
+        self.ui.ampsLE.setFocus()
 
 
 
