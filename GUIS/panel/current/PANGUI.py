@@ -749,7 +749,7 @@ class panelGUI(QMainWindow):
                 self.ui.min_disp_13,
                 self.ui.sec_disp_13,
                 lambda: self.Timer_5.emit(),
-            ),  # 5 -> vestigial, use one that isn't associated with pro 3 to keep stuff moving
+            ),  # 5 sense wire insertion time
             QLCDTimer(
                 self.ui.hour_disp_8,
                 self.ui.min_disp_8,
@@ -2915,26 +2915,47 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro3Data(self, data):
+        # If panel id exists
         if data[0] is not None:
+            # set the panel id line edit text and disable it
             self.ui.panelInput3.setText(data[0])
             self.ui.panelInput3.setDisabled(True)
+        # If wire spool id exists
         if data[1] is not None:
+            # set the wire spool line edit text and disable it
             self.ui.wireInput.setText(data[1])
             self.ui.wireInput.setDisabled(True)
+            # enable tensioner and tension box
+            # setDisabled False ???
             self.ui.launch_wire_tensioner.setDisabled(False)
             self.ui.launch_tension_box.setDisabled(False)
-            # Enable all continuity widgets
+            # enable all continuity widgets
             self.setWidgetsEnabled(self.continuity + self.wire_pos)
+        # if wire spool id doesn't exist
+        #else:
+            # ensure wire input line edit is enabled
+            #self.ui.wireInput.setEnabled(True)
+
+        # If sense wire insertion time exists
         if data[2] is not None:
-            # Process timer
-            # print(data)
+            # extract from timer tuple
             elapsed_time, running = data[2]
+            # set timer to where it left off
             self.timers[5].setElapsedTime(elapsed_time)
+            # if it's still running, start it again
             if running:
                 self.startTimer(5)
+        # if sense wire insertion time doesn't exist
         else:
+            # start the timer
             self.startTimer(5)
 
+        # enable, tensioner, tension box, input widgets
+        #self.setWidgetsEnabled(self.continuity + self.wire_pos)
+        #self.ui.launch_wire_tensioner.setEnabled(True)
+        #self.ui.launch_tension_box.setEnabled(True)
+
+        # display comments
         self.displayComments()
 
     def parsePro4Data(self, data):
