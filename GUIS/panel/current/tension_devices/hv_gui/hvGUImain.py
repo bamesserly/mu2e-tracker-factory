@@ -1,5 +1,7 @@
 # for creating app, using paths
-import sys , os
+import sys , os, inspect
+# for using paths
+from pathlib import Path, PurePath
 # for interacting with db
 import sqlalchemy as sqla
 # for GUI widget management
@@ -25,6 +27,11 @@ from PyQt5.QtGui import QBrush, QIcon
 from PyQt5.QtCore import Qt, QRect, QObject
 # ui in .py format
 from hvGUI import Ui_MainWindow
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent))
+)
+from dataProcessor import MultipleDataProcessor as DataProcessor
+
 '''
 LIST OF IMPORTANT WIDGETS:
     Initialized in .setupUi
@@ -56,6 +63,16 @@ class highVoltageGUI(QMainWindow):
         # set icon in upper left
         dir_path = os.path.dirname(os.path.realpath(__file__))
         self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
+
+        # setup data processor
+        self.pro = 5
+        self.DP = DataProcessor(
+            gui=self,
+            save2txt=False,
+            save2SQL=True,
+            lab_version=True,
+            sql_primary=True,
+        )
 
         # init scroll area
         self._init_Scroll()
@@ -132,7 +149,6 @@ class highVoltageGUI(QMainWindow):
 
         # lineSaveHV is called whenever a lineEdit widget (currentLeft or currentRight) is changed
         # We want to write NULL values, so there is no restriction on what can be written.
-        '''
         def lineSaveHV(index):
             self.saveHVMeasurement(
                 index,
@@ -166,7 +182,19 @@ class highVoltageGUI(QMainWindow):
         # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
         for i, box in enumerate(self.isTripped):
             box.stateChanged.connect(lambda changed, index=i: boxSaveHV(index))
-        '''
+
+    def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
+        self.DP.saveHVMeasurement(position, current_left, current_right, is_tripped)
+
+        if self.currentLeft[position].text() != current_left:
+            self.displayHVMeasurement(position, current_left, current_right)
+        if self.currentRight[position].text() != current_right:
+            self.displayHVMeasurement(position, current_left, current_right)
+
+    def displayHVMeasurement(self, index, current_left, current_right, is_tripped=False):
+        self.currentLeft[index].setText(str(current_left))
+        self.currentRight[index].setText(str(current_right))
+        self.isTripped[index].setChecked(is_tripped)
 
     def _init_validation(self):
         pass
@@ -177,7 +205,7 @@ class highVoltageGUI(QMainWindow):
         self.ui.ampsLE.clear()
         self.ui.ampsLE.setFocus()
 
-
+    
 
 
 
