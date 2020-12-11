@@ -86,10 +86,7 @@ from tension_devices.tension_box.tensionbox_window import TensionBox
 from tension_devices.panel_heater.PanelHeater import HeatControl
 import logging
 
-# Import QLCDTimer from Modules
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
-)
+# Import QLCDTimer
 from timer import QLCDTimer
 
 # import packages that are used by other files (data processor, straw tensioner, etc.)
