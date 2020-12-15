@@ -2932,9 +2932,9 @@ class panelGUI(QMainWindow):
             # enable all continuity widgets
             self.setWidgetsEnabled(self.continuity + self.wire_pos)
         # if wire spool id doesn't exist
-        #else:
+        else:
             # ensure wire input line edit is enabled
-            #self.ui.wireInput.setEnabled(True)
+            self.ui.wireInput.setEnabled(True)
 
         # If sense wire insertion time exists
         if data[2] is not None:
@@ -2951,9 +2951,9 @@ class panelGUI(QMainWindow):
             self.startTimer(5)
 
         # enable, tensioner, tension box, input widgets
-        #self.setWidgetsEnabled(self.continuity + self.wire_pos)
-        #self.ui.launch_wire_tensioner.setEnabled(True)
-        #self.ui.launch_tension_box.setEnabled(True)
+        self.setWidgetsEnabled(self.continuity + self.wire_pos)
+        self.ui.launch_wire_tensioner.setEnabled(True)
+        self.ui.launch_tension_box.setEnabled(True)
 
         # display comments
         self.displayComments()
