@@ -4846,8 +4846,6 @@ if __name__ == "__main__":
     stdout_handler = logging.StreamHandler(sys.stdout)
     a_logger.addHandler(output_file_handler)
     a_logger.addHandler(stdout_handler)
-    # with open(log_file, 'a') as log:
-    #     sys.stderr = log
     sys.stderr = open(log_file, "a")
 
     sys.excepthook = (
