@@ -379,7 +379,7 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch_2,
             self.ui.temp4,
             self.ui.temp4_2,
-            self.ui.launch_straw_tensioner,
+            #self.ui.launch_straw_tensioner,
             self.ui.epoxy_inject1,
             self.ui.epoxy_inject2,
             self.ui.epoxy_mixed,
@@ -2798,6 +2798,9 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch.setText(
                 data[1]
             )  # set text of lower epoxy line edit widget to num
+        else:
+            self.ui.epoxy_batch.setEnabled(True)
+            self.ui.epoxy_mixed.setEnabled(True)
 
         if (
             data[2] is not None
@@ -2828,6 +2831,9 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch_2.setText(
                 data[3]
             )  # set text of upper epoxy line edit widget to num
+        else:
+            self.ui.epoxy_batch_2.setEnabled(True)
+            self.ui.epoxy_mixed_2.setEnabled(True)
 
         if (
             data[4] is not None
