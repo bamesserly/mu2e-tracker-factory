@@ -84,6 +84,7 @@ from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
 from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
 from tension_devices.tension_box.tensionbox_window import TensionBox
 from tension_devices.panel_heater.PanelHeater import HeatControl
+from tension_devices.hv_gui.hvGUImain import highVoltageGUI
 
 # Import QLCDTimer from Modules
 sys.path.insert(
@@ -297,6 +298,7 @@ class panelGUI(QMainWindow):
         self.wireTensionWindow = None
         self.tensionBoxWindow = None
         self.panelHeaterWindow = None
+        self.hvMeasurementsWindow = None
 
     def _init_worker_portal(self):
         self.Current_workers = [
@@ -562,6 +564,8 @@ class panelGUI(QMainWindow):
         # TODO Add any image buttons for pro 4 here
 
     def _init_pro5_setup(self):
+        self.ui.hvButton.clicked.connect(self.hvMeasurementsPopup)
+
         self.ui.panelInput5.installEventFilter(self)
 
         """
@@ -1999,8 +2003,9 @@ class panelGUI(QMainWindow):
             # Recolor secret feature
             # Allows lab personel to change the color of the gui
             # Definitely not essential, but it boosts morale
-            # enter goldy to change to UMN colors, Dan likes it too
-            if Current_worker == "GOLDY" or Current_worker == "WK-DAMBROSE01":
+            # enter goldy to change to UMN colors, don't add worker ids to the if
+            # since this will introduce unnecessary lag if gold/maroon is default
+            if Current_worker == "GOLDY":
                 self.changeColor(
                     (122, 0, 25), (255, 204, 51)
                 )  # 122/0/25 = maroon, 255/204/51 = gold
@@ -4715,6 +4720,21 @@ class panelGUI(QMainWindow):
                 ),
             )
             self.panelHeaterWindow.show()
+
+    # creates HV measurements gui window
+    # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain
+    def hvMeasurementsPopup(self):
+        self.hvMeasurementsWindow = highVoltageGUI(
+            saveMethod=(
+                lambda pos, ampsL, ampsR, isTrip: (
+                    self.DP.saveHVMeasurement(pos, ampsL, ampsR, isTrip)
+                )
+            ),
+            loadMethod=(lambda: self.DP.loadHVMeasurements),
+            panel=self.getCurrentPanel()
+        )
+        self.hvMeasurementsWindow.show()
+        self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1793</width>
+    <width>1800</width>
     <height>756</height>
    </rect>
   </property>
@@ -3004,10 +3004,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-
-                       <width>61</width>
-                       <height>18</height>
-
+                       <width>999</width>
+                       <height>213</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4153,8 +4151,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>16</height>
+                       <width>486</width>
+                       <height>541</height>
                       </rect>
                      </property>
                     </widget>
@@ -4212,7 +4210,7 @@ Tensioner</string>
                     </layout>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item row="2" column="0">
                    <widget class="QGroupBox" name="images">
                     <property name="font">
                      <font>
@@ -4280,6 +4278,13 @@ Tensioner</string>
                       </widget>
                      </item>
                     </layout>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QPushButton" name="hvButton">
+                    <property name="text">
+                     <string>Launch HV Popup</string>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -6725,8 +6730,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>

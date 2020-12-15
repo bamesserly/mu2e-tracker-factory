@@ -26,11 +26,8 @@ from PyQt5.QtGui import QBrush, QIcon
 # for GUI window management
 from PyQt5.QtCore import Qt, QRect, QObject
 # ui in .py format
-from hvGUI import Ui_MainWindow
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent))
-)
-from dataProcessor import MultipleDataProcessor as DataProcessor
+from tension_devices.hv_gui.hvGUI import Ui_MainWindow
+
 
 '''
 LIST OF IMPORTANT WIDGETS:
@@ -47,38 +44,68 @@ LIST OF IMPORTANT WIDGETS:
     List of trip check boxes    --> self.isTripped
     (to access the right current for straw 50,
         use self.currentRight[50])
+
+HOW DATA IS STORED:
+    After the scroll area is init'ed, the following members
+        self.currentRight
+        self.currentLeft
+        self.isTripped
+        are lists of the widgets in the scroll area.
+    These will be used to store all the data, rather than a
+        big list or something.
+
+    The current lists can have their text accessed by .text()
+        and it can be changed with .setText(<string>)
+    The trip checkbox list can have the boolean value of a box
+        returned with .isChecked() and the value can be changed
+        with .setChecked(<bool>)
+
+    However!  there are set/get methods for doing those things
+        to make code more readable.  See setAmp, getAmp,
+        setTrip, and getTrip
+    
 '''
 
 class highVoltageGUI(QMainWindow):
 
-    def __init__(self, ui_layout):
+    def __init__(
+        self,
+        parent = None,
+        ui_layout=Ui_MainWindow,
+        saveMethod = None,
+        loadMethod = None,
+        panel = None
+        ):
         # setup ui
         # init window
-        QMainWindow.__init__(self)
+        super(highVoltageGUI, self).__init__(parent)
         # create ui member
-        self.ui = ui_layout
-        # init widgets and stuff in ui, method in hvGUI.py
-        ui_layout.setupUi(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        # set other members from parameters
+        self.saveMethod = saveMethod
+        self.loadMethod = loadMethod
+        self.panel = panel
 
         # set icon in upper left
         dir_path = os.path.dirname(os.path.realpath(__file__))
         self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
 
-        # setup data processor
-        self.pro = 5
-        self.DP = DataProcessor(
-            gui=self,
-            save2txt=False,
-            save2SQL=True,
-            lab_version=True,
-            sql_primary=True,
-        )
-
         # init scroll area
         self._init_Scroll()
 
-        # bind function to enter pressed on ampsLE
+        # bind functions to next straw
         self.ui.ampsLE.returnPressed.connect(self.nextStraw)
+        self.ui.subStrawButton.clicked.connect(self.nextStraw)
+
+        # disable panel input AND load if launched from gui
+        if panel is not None:
+            self.ui.panelNumLE.setText(f'MN{panel}')
+            self.ui.panelNumLE.setDisabled(True)
+            self.ui.subPanelButton.setDisabled(True)
+
+            self.loadHVMeasurements()
 
 
     #################################################################
@@ -173,15 +200,145 @@ class highVoltageGUI(QMainWindow):
         #     [(0, (lC_00, rC_00)), (1, (lC_01, rC_01)), ..., (95, (lC_95, rC_95))]
         # The second for loop goes through each lineEdit widget in lineEdits and binds lineSaveHV to its textEdited signal
         # The binding makes the lineSaveHV function get called whenever the text in a lineEdit widget is changed by the user
+        # using .textChanged makes it save if the program or user changes it (.textEdited = only user change triggers it)
         # Also, python will cry if you don't use a lambda function in connect()
         for i, lineEdits in enumerate(zip(self.currentLeft, self.currentRight)):
             for widget in lineEdits:
-                widget.textEdited.connect(lambda changed, index=i: lineSaveHV(index))
+                widget.textChanged.connect(lambda changed, index=i: lineSaveHV(index))
 
         # Enumerate turns the list of checkBox widgets into a list of tuples of the form (<int>, <checkBox>)
         # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
         for i, box in enumerate(self.isTripped):
             box.stateChanged.connect(lambda changed, index=i: boxSaveHV(index))
+
+    # input validation.  TODO
+    def _init_validation(self):
+        pass
+    
+    # connected to the return pressed event for the amps line edit and submit straw button
+    # saves data to scroll area
+    def nextStraw(self):
+        # save data
+        self.saveHVMeasurement(
+            self.ui.positionBox.value(),
+            self.ui.ampsLE.text() if self.getSideInput() else "",
+            self.ui.ampsLE.text() if not self.getSideInput() else "",
+            self.ui.tripBox.currentIndex()
+        )
+        # increment position
+        self.ui.positionBox.setValue(self.ui.positionBox.value() +1)
+        self.ui.ampsLE.clear() # clear value
+        self.ui.tripBox.setCurrentIndex(0) # set to not tripped
+        self.ui.ampsLE.setFocus()
+
+    # saving every time an edit is made would require totally re-writing the csv...
+    #   maybe use some kind of buffer and save every few minutes/on close?
+    #   saving through pangui would avoid this.
+    def saveHVMeasurement(self, index, curLeft, curRight, isTrip):
+        # launched by PANGUI
+        if self.saveMethod is not None:
+            # pangui passes self.DP.saveHVMeasurement
+            self.saveMethod(index, curLeft, curRight, isTrip)
+        
+        # ensure that scroll area is updated
+        self.setAmp(0, index, curRight)
+        self.setAmp(1, index, curLeft)
+        self.setTrip(index, isTrip)
+
+    def loadHVMeasurements(self):
+        # launched by PANGUI
+        if self.loadMethod is not None:
+            # return PANGUI --> self.DP.loadHVMeasurements()
+            # returns list of the form:
+            # [(current_left0, current_right0, is_tripped0), (current_left1, current_right1, is_tripped1), ...]
+            bigList = self.loadMethod()()
+            for pos,straw in enumerate(bigList):
+                # set both currents
+                if straw[0] is not None:
+                    self.setAmp(1,pos,str(straw[0]))
+                if straw[1] is not None:
+                    self.setAmp(0,pos,str(straw[1]))
+                # if tripped
+                if straw[2]:
+                    # set it that way, default is not tripped
+                    self.setTrip(pos,True)
+    
+    # gets a current value from scroll area
+    # side = 0 for right, 1 for left
+    # position = straw position
+    def getAmp(self, side, position):
+        if side:
+            return self.currentLeft[position].text()
+        else:
+            return self.currentRight[position].text()
+
+    # gets a bool from scroll area
+    # position = straw position
+    def getTrip(self, position):
+        return self.isTripped[position].isChecked()
+
+    # gets the current side in side combo box represented as an int
+    # 0 = right, 1 = left
+    def getSideInput(self):
+        # index of right is 1, index of left is 2, so subtract 1
+        return (self.ui.sideBox.currentIndex()) - 1
+
+    # sets a current value in scroll area
+    # side = 0 for right, 1 for left
+    # position = straw position
+    # amps = new value
+    def setAmp(self, side, position, amps):
+        if side:
+            self.currentLeft[position].setText(amps)
+        else:
+            self.currentRight[position].setText(amps)
+
+    # sets a bool in scroll area
+    # position = straw position
+    # boool = new checkbox value
+    def setTrip(self, position, boool):
+        self.isTripped[position].setChecked(boool)
+
+# main
+if __name__ == "__main__":
+    # make app
+    app = QApplication(sys.argv)
+    # make window, give it "blank" window to use
+    window = highVoltageGUI()
+    # set window name
+    window.setWindowTitle("High Voltage Data Recording")
+    # show window on desktop
+    window.show()
+
+    # run it!
+    app.exec()
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+# setup data processor
+        self.pro = 5
+        self.DP = DataProcessor(
+            gui=self,
+            save2txt=False,
+            save2SQL=True,
+            lab_version=True,
+            sql_primary=True,
+        )
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent))
+)
+from dataProcessor import MultipleDataProcessor as DataProcessor
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         self.DP.saveHVMeasurement(position, current_left, current_right, is_tripped)
@@ -195,31 +352,4 @@ class highVoltageGUI(QMainWindow):
         self.currentLeft[index].setText(str(current_left))
         self.currentRight[index].setText(str(current_right))
         self.isTripped[index].setChecked(is_tripped)
-
-    def _init_validation(self):
-        pass
-
-    def nextStraw(self):
-        # self.saveData()
-        self.ui.positionBox.setValue(self.ui.positionBox.value() +1)
-        self.ui.ampsLE.clear()
-        self.ui.ampsLE.setFocus()
-
-    
-
-
-
-# main
-
-if __name__ == "__main__":
-    # make app
-    app = QApplication(sys.argv)
-    # make window, give it "blank" window to use
-    window = highVoltageGUI(Ui_MainWindow())
-    # set window name
-    window.setWindowTitle("High Voltage Data Recording")
-    # show window on desktop
-    window.show()
-
-    # run it!
-    app.exec()
+'''
