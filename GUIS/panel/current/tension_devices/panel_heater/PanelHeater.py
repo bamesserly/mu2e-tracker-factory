@@ -31,14 +31,14 @@ class HeatControl(QMainWindow):
     """ Python interface to collect and visualize data from PAAS heater control system """
 
     def __init__(
-        self, port, panel, wait=120000, ndatapts=300, parent=None, saveMethod=None
+        self, port, panel, wait=120000, ndatapts=450, parent=None, saveMethod=None
     ):
         super(HeatControl, self).__init__(parent)
         if port == "GUI":  # PANGUI doesn't have a get port function
             port = getport("VID:PID=2341:8037")  # opened in PANGUI w/ port = "GUI"
         self.port = port
         self.panel = panel
-        self.wait = wait  # wait interval between data points
+        self.wait = wait  # wait interval between data points (ms)
         self.ndatapts = ndatapts  # number data points to collect
         self.hct = None  # heater control data thread
         self.interval = QTimer()  # timer for interval between data points
