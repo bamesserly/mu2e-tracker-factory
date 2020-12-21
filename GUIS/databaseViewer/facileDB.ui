@@ -843,7 +843,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro1StartTime"/>
+               <widget class="QLineEdit" name="pro1STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_15">
@@ -853,7 +853,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro1EndTime"/>
+               <widget class="QLineEdit" name="pro1ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_16">
@@ -863,7 +863,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro1ETime"/>
+               <widget class="QLineEdit" name="pro1TTime"/>
               </item>
              </layout>
             </item>
@@ -890,7 +890,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro2StartTime"/>
+               <widget class="QLineEdit" name="pro2STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_20">
@@ -900,7 +900,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro2EndTime"/>
+               <widget class="QLineEdit" name="pro2ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_21">
@@ -910,7 +910,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro2ETime"/>
+               <widget class="QLineEdit" name="pro2TTime"/>
               </item>
              </layout>
             </item>
@@ -937,7 +937,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro3StartTime"/>
+               <widget class="QLineEdit" name="pro3STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_23">
@@ -947,7 +947,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro3EndTime"/>
+               <widget class="QLineEdit" name="pro3ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_24">
@@ -957,7 +957,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro3ETime"/>
+               <widget class="QLineEdit" name="pro3TTime"/>
               </item>
              </layout>
             </item>
@@ -984,7 +984,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro4StartTime"/>
+               <widget class="QLineEdit" name="pro4STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_26">
@@ -994,7 +994,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro4EndTime"/>
+               <widget class="QLineEdit" name="pro4ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_27">
@@ -1004,7 +1004,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro4ETime"/>
+               <widget class="QLineEdit" name="pro4TTime"/>
               </item>
              </layout>
             </item>
@@ -1031,7 +1031,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro5StartTime"/>
+               <widget class="QLineEdit" name="pro5STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_31">
@@ -1041,7 +1041,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro5EndTime"/>
+               <widget class="QLineEdit" name="pro5ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_29">
@@ -1051,7 +1051,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro5ETime"/>
+               <widget class="QLineEdit" name="pro5TTime"/>
               </item>
              </layout>
             </item>
@@ -1078,7 +1078,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro6StartTime"/>
+               <widget class="QLineEdit" name="pro6STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_34">
@@ -1088,7 +1088,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro6EndTime"/>
+               <widget class="QLineEdit" name="pro6ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_32">
@@ -1098,7 +1098,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro6ETime"/>
+               <widget class="QLineEdit" name="pro6TTime"/>
               </item>
              </layout>
             </item>
@@ -1125,7 +1125,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro7StartTime"/>
+               <widget class="QLineEdit" name="pro7STime"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_37">
@@ -1135,7 +1135,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro7EndTime"/>
+               <widget class="QLineEdit" name="pro7ETime"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_35">
@@ -1145,7 +1145,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro7ETime"/>
+               <widget class="QLineEdit" name="pro7TTime"/>
               </item>
              </layout>
             </item>
