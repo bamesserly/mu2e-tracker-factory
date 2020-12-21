@@ -382,7 +382,7 @@ class facileDBGUI(QMainWindow):
             # self.panelProcedureIDs is a dictionary with the name of each station as keys
         # print(self.panelProcedureIDs)
 
-    # get and display comments for selected panel (TODO: efficiency could be improved)
+    # get and display comments for selected panel (TODO: efficiency could be improved... ?)
     def findComments(self):
         comments = sqla.Table(
             "comment", self.metadata, autoload=True, autoload_with=self.engine
@@ -617,9 +617,9 @@ class facileDBGUI(QMainWindow):
         self.pro2AStats = []
         self.pro2BCStats = []
         self.pro2HeatTime = []
-        self.pro2AStats = []
-        self.pro2BCStats = []
-        self.pro2HeatTime = []
+        self.pro6AStats = []
+        self.pro6BCStats = []
+        self.pro6HeatTime = []
 
         # if a pro 1 exists, get the data!
         if self.panelProcedureIDs["pan1"] != -1:
@@ -1148,7 +1148,6 @@ class facileDBGUI(QMainWindow):
         extantWireData = False
         extantStrawData = False
         extantHVData = False
-        extantHeatData = False
 
         for toop in self.wireTensionData:  # for each tuple in self.wireTensionData
             if toop[1] != "No Data":  # if it isn't "No Data"
@@ -1215,44 +1214,43 @@ class facileDBGUI(QMainWindow):
         # get the current pro
         curPro = self.ui.heatProBox.currentText()[8]
 
-        paasAItemsToAdd = [
-            f'PAAS A Mean Temperature: {round(self.getHeat(curPro,"AStats")[0], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Maximum Temperature: {self.getHeat(curPro,"AStats")[2]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None"
-        ]
-        #self.ui.heatListWidget.addItems(itemsToAdd)
-        '''
 
-        paasBItemsToAdd = [
-            f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Maximum Temperature: {self.getHeat(curPro,"BCStats")[2]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Minimum Temperature: {self.getHeat(curPro,"BCStats")[1]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Standard Deviation: {round(self.getHeat(curPro,"BCStats")[3], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None"
-        ]
+        
         # ({round(self.getHeat(curPro,"BCStats")[4], 2)}, {round(self.getHeat(curPro,"BCStats")[5], 2)})
 
         self.ui.heatListWidget.addItem(f'Total Heat Time: {self.getHeat(curPro,"HeatTime")}' if (self.getHeat(curPro,"HeatTime") is not []) else "No Heat Time Data Found")
 
         self.ui.heatListWidget.addItem(f'PAAS A Stats' if len(self.getHeat(curPro,"AStats")) > 0 else "No PAAS A Data Found :(")
         if len(self.getHeat(curPro,"AStats")) > 0:
+            paasAItemsToAdd = [
+                f'PAAS A Mean Temperature: {round(self.getHeat(curPro,"AStats")[0], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
+                f'PAAS A Maximum Temperature: {self.getHeat(curPro,"AStats")[2]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
+                f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
+                f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None"
+            ]
             self.ui.heatListWidget.addItems(paasAItemsToAdd)
+        else:
+            self.ui.heatListWidget.addItem("No PAAS A data found :(")
 
         self.ui.heatListWidget.addItem(f'PAAS B/C Stats' if len(self.getHeat(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found :(")
         if len(self.getHeat(curPro,"BCStats")) > 0:
+            paasBItemsToAdd = [
+                f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
+                f'PAAS B/C Maximum Temperature: {self.getHeat(curPro,"BCStats")[2]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
+                f'PAAS B/C Minimum Temperature: {self.getHeat(curPro,"BCStats")[1]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
+                f'PAAS B/C Standard Deviation: {round(self.getHeat(curPro,"BCStats")[3], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None"
+            ]
             self.ui.heatListWidget.addItems(paasBItemsToAdd)
+        else:
+            self.ui.heatListWidget.addItem("No PAAS B/C data found :(")
 
 
-        '''
         #self.ui.heatListWidget.addItems(itemsToAdd)
         if len(self.getHeat(curPro, "HeatData")) > 0:
             self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
         else:
             self.ui.heatListWidget.addItem("No data found :(")
-        self.ui.heatListWidget.addItem("Statistics will be placed here eventually.")
-        self.ui.heatListWidget.addItem("Currently, graph and export work.")
-        self.ui.heatListWidget.addItem("The graphs are still being improved for readability.")
-        '''
+
 
 
         # enabled no matter what to allow switching between pros
@@ -1290,10 +1288,10 @@ class facileDBGUI(QMainWindow):
         tkinter.messagebox.showinfo(
                 title="Latest Changes",
                 message= """
-- Addition of menu bar on top of GUI
-- Most items in the menu bar are still being worked on
-- Addition of GUI session times next to comment box
-- Minor bugfixes
+                    - Addition of menu bar on top of GUI
+                    - Most items in the menu bar are still being worked on
+                    - Addition of GUI session times next to comment box
+                    - Minor bugfixes
                 """
             )
 
