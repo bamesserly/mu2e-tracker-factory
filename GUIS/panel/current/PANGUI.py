@@ -418,7 +418,11 @@ class panelGUI(QMainWindow):
             "Fail: Left Continuity",
             "Fail: Both Continuity",
         ]
-        lcItems = ["Select", "Top 1/3", "Middle 1/3", "Lower 1/3"]
+        lcItems = ["Select", 
+            "Short, Top", "Short, Middle", "Short, Bottom",
+            "Middle, Top", "True Middle", "Middle, Bottom",
+            "Long, Top", "Long, Middle", "Long, Bottom",
+        ]
 
         """
         listAssign(list, index, value)
