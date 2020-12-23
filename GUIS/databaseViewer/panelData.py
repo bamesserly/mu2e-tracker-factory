@@ -69,7 +69,7 @@ class PanelData():
         # Parts list: dict of part ids
         self.parts = {
             # Baseplate id
-            "BP" : -1,
+            "BASEPLATE" : -1,
             # MIR id
             "MIR" : -1,
             # BIR id
@@ -82,12 +82,15 @@ class PanelData():
             "PIRRB" : -1,
             "PIRRC" : -1,
             # ALF ids
-            "ALF1" : -1, # 1 = Left
-            "ALF2" : -1, # 2 = Right  ...?
+            "ALFL" : -1, # 1 = Left
+            "ALFR" : -1, # 2 = Right  ...?
             # PAAS ids
             "PAASA" : -1,
             "PAASB" : -1,
-            "PAASC" : -1
+            "PAASC" : -1,
+            "FRAME" : -1,
+            "MIDDLERIB_1" : -1,
+            "MIDDLERIB_2" : -1
         }
 
 
