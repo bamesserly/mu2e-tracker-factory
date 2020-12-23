@@ -1974,9 +1974,18 @@ class SQLDataProcessor(DataProcessor):
                 continuity_str in ["Pass: No Continuity", "Fail: Left Continuity"]
             ),
             wire_position={
-                "Lower 1/3": "lower",
-                "Middle 1/3": "middle",
-                "Top 1/3": "top",
+                "lower": "Lower 1/3",
+                "middle": "Middle 1/3",
+                "top": "Top 1/3",
+                "Short, Top": "short top",
+                "Short, Middle": "short middle",
+                "Short, Bottom": "short lower",
+                "Middle, Top": "middle top",
+                "True Middle": "middle middle",
+                "Middle, Bottom": "middle lower",
+                "Long, Top": "long top",
+                "Long, Middle": "long middle",
+                "Long, Bottom": "long lower"
             }[wire_position],
         )
 
@@ -2249,9 +2258,20 @@ class SQLDataProcessor(DataProcessor):
             # Wire Position
             wire_pos = {
                 None: None,
+                # old panels
                 "lower": "Lower 1/3",
                 "middle": "Middle 1/3",
                 "top": "Top 1/3",
+                # new panels
+                "short top": "Short, Top",
+                "short middle" : "Short, Middle",
+                "short lower" : "Short, Bottom",
+                "middle top" : "Middle, Top",
+                "middle middle" : "True Middle",
+                "middle lower" : "Middle, Bottom",
+                "long top" : "Long, Top",
+                "long middle" : "Long, Middle",
+                "long lower" : "Long, Bottom"
             }[meas.wire_position]
 
         # Return data as list
