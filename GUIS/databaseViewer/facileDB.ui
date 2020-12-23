@@ -141,7 +141,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="partPaasALE">
+         <widget class="QLineEdit" name="partPAASALE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -169,7 +169,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="partPaasBLE">
+         <widget class="QLineEdit" name="partPAASBLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -197,7 +197,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="partPaasCLE">
+         <widget class="QLineEdit" name="partPAASCLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -225,7 +225,7 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="partBasePlateLE">
+         <widget class="QLineEdit" name="partBASEPLATELE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -309,7 +309,7 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QLineEdit" name="partPLALE">
+         <widget class="QLineEdit" name="partPIRLALE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -337,7 +337,7 @@
          </widget>
         </item>
         <item row="7" column="1">
-         <widget class="QLineEdit" name="partPLBLE">
+         <widget class="QLineEdit" name="partPIRLBLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -365,7 +365,7 @@
          </widget>
         </item>
         <item row="8" column="1">
-         <widget class="QLineEdit" name="partPLCLE">
+         <widget class="QLineEdit" name="partPIRLCLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -393,7 +393,7 @@
          </widget>
         </item>
         <item row="9" column="1">
-         <widget class="QLineEdit" name="partPRALE">
+         <widget class="QLineEdit" name="partPIRRALE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -421,7 +421,7 @@
          </widget>
         </item>
         <item row="10" column="1">
-         <widget class="QLineEdit" name="partPRBLE">
+         <widget class="QLineEdit" name="partPIRRBLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -449,7 +449,7 @@
          </widget>
         </item>
         <item row="11" column="1">
-         <widget class="QLineEdit" name="partPRCLE">
+         <widget class="QLineEdit" name="partPIRRCLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -477,7 +477,7 @@
          </widget>
         </item>
         <item row="12" column="1">
-         <widget class="QLineEdit" name="partALF1LE">
+         <widget class="QLineEdit" name="partALFLLE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -505,7 +505,91 @@
          </widget>
         </item>
         <item row="13" column="1">
-         <widget class="QLineEdit" name="partALF2LE">
+         <widget class="QLineEdit" name="partALFRLE">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="0">
+         <widget class="QLabel" name="label_38">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="1">
+         <widget class="QLineEdit" name="partFRAMELE">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="0">
+         <widget class="QLabel" name="label_39">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Rib 1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="1">
+         <widget class="QLineEdit" name="partMIDDLERIB_1LE">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0">
+         <widget class="QLabel" name="label_40">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Rib 2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="1">
+         <widget class="QLineEdit" name="partMIDDLERIB_2LE">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -843,7 +927,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro1STime"/>
+               <widget class="QLineEdit" name="pro1STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_15">
@@ -853,7 +941,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro1ETime"/>
+               <widget class="QLineEdit" name="pro1ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_16">
@@ -863,7 +955,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro1TTime"/>
+               <widget class="QLineEdit" name="pro1TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -890,7 +986,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro2STime"/>
+               <widget class="QLineEdit" name="pro2STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_20">
@@ -900,7 +1000,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro2ETime"/>
+               <widget class="QLineEdit" name="pro2ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_21">
@@ -910,7 +1014,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro2TTime"/>
+               <widget class="QLineEdit" name="pro2TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -937,7 +1045,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro3STime"/>
+               <widget class="QLineEdit" name="pro3STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_23">
@@ -947,7 +1059,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro3ETime"/>
+               <widget class="QLineEdit" name="pro3ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_24">
@@ -957,7 +1073,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro3TTime"/>
+               <widget class="QLineEdit" name="pro3TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -984,7 +1104,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro4STime"/>
+               <widget class="QLineEdit" name="pro4STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_26">
@@ -994,7 +1118,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro4ETime"/>
+               <widget class="QLineEdit" name="pro4ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_27">
@@ -1004,7 +1132,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro4TTime"/>
+               <widget class="QLineEdit" name="pro4TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -1031,7 +1163,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro5STime"/>
+               <widget class="QLineEdit" name="pro5STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_31">
@@ -1041,7 +1177,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro5ETime"/>
+               <widget class="QLineEdit" name="pro5ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_29">
@@ -1051,7 +1191,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro5TTime"/>
+               <widget class="QLineEdit" name="pro5TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -1078,7 +1222,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro6STime"/>
+               <widget class="QLineEdit" name="pro6STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_34">
@@ -1088,7 +1236,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro6ETime"/>
+               <widget class="QLineEdit" name="pro6ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_32">
@@ -1098,7 +1250,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro6TTime"/>
+               <widget class="QLineEdit" name="pro6TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -1125,7 +1281,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro7STime"/>
+               <widget class="QLineEdit" name="pro7STime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_37">
@@ -1135,7 +1295,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro7ETime"/>
+               <widget class="QLineEdit" name="pro7ETime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_35">
@@ -1145,7 +1309,11 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro7TTime"/>
+               <widget class="QLineEdit" name="pro7TTime">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -1192,7 +1360,7 @@
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

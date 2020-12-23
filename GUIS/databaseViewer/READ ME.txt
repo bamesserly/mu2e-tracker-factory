@@ -5,3 +5,5 @@ The facileDB.py file is a pythonic version of the .ui file.
 facileDBMain.py is the launcher and back end of the GUI.
 panelData.py is a class used by facileDBMain to organize panel data in a consistent and organized way.
 The DB_VIEWER batch file launches the gui by excecuting the DB_VIEWER powershell script.
+
+The mu2e.jpg is the mu2e logo, it gets put up in the lefthand corner of the window (opposite side of the "X" button)
