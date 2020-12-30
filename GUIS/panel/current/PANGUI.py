@@ -458,6 +458,7 @@ class panelGUI(QMainWindow):
             menu2.addItems(lcItems)
             menu2.setObjectName(f"wire_position_{str(i).zfill(2)}")
             menu2.setFixedWidth(184)
+            menu2.setCurrentIndex(0)
             menu2.currentIndexChanged.connect(
                 lambda changed, index=i: checkSaveContinuity(index)
             )
@@ -2175,7 +2176,11 @@ class panelGUI(QMainWindow):
         Input:
             - position          (int)   The position of the wire that this measurement is for.
             - continuity_str    (str)   One of the following: ['Pass: No Continuity', 'Fail: Right Continuity', 'Fail: Left Continuity', 'Fail: Both Continuity']
-            - wire_position     (str)   One of the following : ['Top 1/3', 'Middle 1/3', 'Lower 1/3']
+            - wire_position     (str)   One of the following : ["Select", 
+                                                                "Short, Top", "Short, Middle", "Short, Bottom",
+                                                                "Middle, Top", "True Middle", "Middle, Bottom",
+                                                                "Long, Top", "Long, Middle", "Long, Bottom",
+                                                            ]
     """
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_pos_str):
@@ -2645,6 +2650,21 @@ class panelGUI(QMainWindow):
                 self.displayContinuityMeasurement(index, cont_str, wire_pos_str)
 
     def displayContinuityMeasurement(self, index, continuity_str, wire_pos_str):
+
+        # older panels will have three position options instead of nine
+        # this if statement checks if old data needs to be displayed and if it does
+        # it adds that old data as another selection option to allow it to be displayed
+        # and to allow it to be updated to something more specific
+        # check if trying to load an old option
+        if wire_pos_str in ["Lower 1/3", "Middle 1/3", "Top 1/3"]:
+            # change the tenth item's text to the old data to allow it to be displayed
+            try:
+                self.wire_pos[index][9].setItemText(wire_pos_str)
+            # an out of bounds exception will be thrown if it doesn't exist, in that case
+            # add a new item with the old data as it's text
+            except:
+                self.wire_pos[index].addItem(wire_pos_str)
+
         # Finds index of string, then sets index to that number
         setText = lambda combo_box, text: combo_box.setCurrentIndex(
             combo_box.findText(text if text != "" else "Select")

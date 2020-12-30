@@ -1962,9 +1962,13 @@ class SQLDataProcessor(DataProcessor):
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
         # Make sure all data is defined
+        print("wire",wire_position)
         if not all(el is not None for el in [position, continuity_str, wire_position]):
             return
+        if wire_position is '':
+            return
         # Save a continuity measurement
+
         self.procedure.recordContinuityMeasurement(
             position=position,
             left_continuity=(
@@ -1974,9 +1978,9 @@ class SQLDataProcessor(DataProcessor):
                 continuity_str in ["Pass: No Continuity", "Fail: Left Continuity"]
             ),
             wire_position={
-                "lower": "Lower 1/3",
-                "middle": "Middle 1/3",
-                "top": "Top 1/3",
+                "Lower 1/3": "lower",
+                "Middle 1/3": "middle",
+                "Top 1/3": "top",
                 "Short, Top": "short top",
                 "Short, Middle": "short middle",
                 "Short, Bottom": "short lower",
