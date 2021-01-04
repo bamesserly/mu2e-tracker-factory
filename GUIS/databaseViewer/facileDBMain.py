@@ -31,10 +31,10 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
 )
 from PyQt5.QtGui import QBrush, QIcon
-
 # for GUI widget management^
 from PyQt5.QtCore import Qt, QRect, QObject  # for gui window management
 from datetime import datetime  # for time formatting
+
 from facileDB import Ui_MainWindow  # import raw UI
 from panelData import PanelData # import class for data organization
 
@@ -179,26 +179,29 @@ class facileDBGUI(QMainWindow):
         # tuple of comment QListWidgets
         # index = pro number -1
         self.comWidgetList = (  
-            (self.ui.ringsComList, self.ui.ringsSesList),
-            (self.ui.strawsComList, self.ui.strawsSesList),
-            (self.ui.senseComList, self.ui.senseSesList),
-            (self.ui.pinsComList, self.ui.pinsSesList),
-            (self.ui.highComList, self.ui.highSesList),
-            (self.ui.manifoldComList, self.ui.manifoldSesList),
-            (self.ui.floodingComList, self.ui.floodingSesList)
+            (self.ui.ringsComList, self.ui.pan1TimeList),
+            (self.ui.strawsComList, self.ui.pan2TimeList),
+            (self.ui.senseComList, self.ui.pan3TimeList),
+            (self.ui.pinsComList, self.ui.pan4TimeList),
+            (self.ui.highComList, self.ui.pan5TimeList),
+            (self.ui.manifoldComList, self.ui.pan6TimeList),
+            (self.ui.floodingComList, self.ui.pan7TimeList)
         )
+
+        #for toop in self.comWidgetList:
+        #   toop[0].setStyleSheet("background-image: url(mu2e_logo.png)")
 
         # tuple of procedure timing/session QLineEdit widgets
         # each tuple in the tuple has the form: (<start time>, <end time>, <total time>)
         # index = pro number -1
         self.timeWidgetList = (
-            (self.ui.pro1STime,self.ui.pro1ETime,self.ui.pro1TTime),
-            (self.ui.pro2STime,self.ui.pro2ETime,self.ui.pro2TTime),
-            (self.ui.pro3STime,self.ui.pro3ETime,self.ui.pro3TTime),
-            (self.ui.pro4STime,self.ui.pro4ETime,self.ui.pro4TTime),
-            (self.ui.pro5STime,self.ui.pro5ETime,self.ui.pro5TTime),
-            (self.ui.pro6STime,self.ui.pro6ETime,self.ui.pro6TTime),
-            (self.ui.pro7STime,self.ui.pro7ETime,self.ui.pro7TTime)
+            (self.ui.pan1STime,self.ui.pan1ETime,self.ui.pan1TTime),
+            (self.ui.pan2STime,self.ui.pan2ETime,self.ui.pan2TTime),
+            (self.ui.pan3STime,self.ui.pan3ETime,self.ui.pan3TTime),
+            (self.ui.pan4STime,self.ui.pan4ETime,self.ui.pan4TTime),
+            (self.ui.pan5STime,self.ui.pan5ETime,self.ui.pan5TTime),
+            (self.ui.pan6STime,self.ui.pan6ETime,self.ui.pan6TTime),
+            (self.ui.pan7STime,self.ui.pan7ETime,self.ui.pan7TTime)
         )
 
         # tuple of QLineEdit widgets for parts
@@ -331,12 +334,17 @@ class facileDBGUI(QMainWindow):
         # Set new procedure ids
         # calling the function sets them
         # if nothing gets returned then abort, no procedures exist
-        if self.findProcedures():
-            print("~~~~~~~ NO PROCEDURES FOUND ~~~~~~~")
+        if not self.findProcedures():
+            # show error
+            tkinter.messagebox.showerror(  
+                title="Error",
+                message=f"No data for MN{str(self.data.humanID).zfill(3)} was found.",
+            )
             return
 
         if self.findProTiming():
-            print(self.data.timingLists)
+            self.displayTiming()
+        # no "else -> no data found" since display htiming takes care of it
 
         # FIND COMMENTS AND TIMING HERE
         self.findComments()
@@ -344,22 +352,31 @@ class facileDBGUI(QMainWindow):
         # Find part human IDs
         if self.findParts():
             self.displayParts()
+        # no "else -> no data found" since display parts takes care of it
 
         # Find heat data -- debug mode
         if self.findHeat() is not []:
             self.displayHeat()
+        # no "else -> no data found" since display heat takes care of it
+
         
         # Find wire tension data
         if self.findWires():
             self.displayWires()
+        else:
+            self.ui.wireListWidget.addItem("No data found :(")
 
         # Find straw tension data
         if self.findStraws():
             self.displayStraws()
+        else:
+            self.ui.strawListWidget.addItem("No data found :(")
 
         # Find high voltage data
         if self.findHV():
             self.displayHV()
+        else:
+            self.ui.hvListWidget.addItem("No data found :(")
 
 
     # Query to find database ID (straw_location id) for panel
@@ -411,7 +428,7 @@ class facileDBGUI(QMainWindow):
             # assign procedure ID to the corresponding station (above line)
             # self.data.proIDs is a dictionary with the name of each station as keys
         
-        return ([toop[0] for toop in panelProcedures] is None)
+        return not ([toop[0] for toop in panelProcedures] is None)
 
     # query to find procedure timestamps
     def findProTiming(self):
@@ -423,7 +440,7 @@ class facileDBGUI(QMainWindow):
             
             # don't waste any time on a procudure that doesn't exist yet
             if self.data.proIDs[pro] == -1:
-                return
+                return tuple('f')
 
             timingQuery = sqla.select(
                 [
@@ -448,7 +465,10 @@ class facileDBGUI(QMainWindow):
             # would it be more efficient to sort data inside this function?
             # that way the potentially large list stays in one frame on the stack?
             # or is this function's frame inside findProTiming's frame so it doesn't matter?
-            return resultSet
+            if resultSet is None:
+                return tuple('f')
+            else:
+                return resultSet
 
         retList = []
 
@@ -459,18 +479,19 @@ class facileDBGUI(QMainWindow):
                 # add the event to the list associated with this procedure
                 # only add the first and second index, we don't need the procedure now
                 # (did we ever really need the procedure?  is it necessary for the query?)
-                retList.append(toop)
-                self.data.timingLists[key].append([toop[1],toop[2]])
+                if toop[0] != "f":
+                    retList.append(toop)
+                    self.data.timingLists[key].append([toop[1],toop[2]])
 
             # sort by timestamp in ascending order
             self.data.timingLists[key] = sorted(
                 self.data.timingLists[key],
                 key = lambda x: x[1]
             )
-            
+
         return (retList is not None)
 
-    # STILL NEED TO DO?
+    # move displaying of comments to seperate functions
     # get and display comments for selected panel (TODO: efficiency could be improved... ?)
     def findComments(self):
         # make table
@@ -829,7 +850,7 @@ class facileDBGUI(QMainWindow):
             if len(heatTimes) > 0:
                 # find the total time it took
                 rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro1HeatTime = timedelta(rawHeatTime)
+                self.pro1HeatTime = timedelta(seconds=rawHeatTime)
 
         # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
         if self.pro2HeatData:
@@ -860,7 +881,7 @@ class facileDBGUI(QMainWindow):
             heatTimes = [toop[1] for toop in self.pro2HeatData]
             if len(heatTimes) > 0:
                 rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro2HeatTime = timedelta(rawHeatTime)
+                self.pro2HeatTime = timedelta(seconds=rawHeatTime)
 
         # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
         if self.pro6HeatData:
@@ -892,7 +913,8 @@ class facileDBGUI(QMainWindow):
             heatTimes = [toop[1] for toop in self.pro6HeatData]
             if len(heatTimes) > 0:
                 rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro6HeatTime = timedelta(seconds = rawHeatTime)
+                print("raw",rawHeatTime)
+                self.pro6HeatTime = timedelta(seconds=rawHeatTime)
 
         # stats lists are of the form: [mean, min, max, std dev, upper std dev, lower std dev]
         #print(self.pro6HeatData)
@@ -988,7 +1010,7 @@ class facileDBGUI(QMainWindow):
         # get the current pro
         curPro = self.ui.heatProBox.currentText()[8]
 
-        if len(self.getHeat(curPro, "HeatData")) == 0:
+        if len(self.getHeatData(curPro, "HeatData")) == 0:
             tkinter.messagebox.showerror(
                 title="Error", message=f"No heat data found for MN{self.data.humanID}"
             )
@@ -1005,7 +1027,7 @@ class facileDBGUI(QMainWindow):
                     "PAAS B/C Temp"
                 ]
             )
-            csvWriter.writerows(self.getHeat(curPro, "HeatData"))
+            csvWriter.writerows(self.getHeatData(curPro, "HeatData"))
             tkinter.messagebox.showinfo(
                 title="Data Exported",
                 message=f"Data exported to MN{self.data.humanID}_pro_{curPro}_heat_data.csv",
@@ -1160,7 +1182,7 @@ class facileDBGUI(QMainWindow):
 
         # make x data list by converting raw timesamps to matplotlib dates
         xData = [
-            mpl.dates.epoch2num(toop[1]) for toop in self.getHeat(curPro, "HeatData")
+            mpl.dates.epoch2num(toop[1]) for toop in self.getHeatData(curPro, "HeatData")
         ]
 
         if len(xData) <3 : # <3
@@ -1172,10 +1194,10 @@ class facileDBGUI(QMainWindow):
 
         # make y data sets
         yDataA = [
-            toop[2] for toop in self.getHeat(curPro, "HeatData")
+            toop[2] for toop in self.getHeatData(curPro, "HeatData")
         ]
         yDataBC = [
-            toop[3] for toop in self.getHeat(curPro, "HeatData")
+            toop[3] for toop in self.getHeatData(curPro, "HeatData")
         ]
         #yColorBC = [(heat - 5) for heat in yDataBC]
         
@@ -1241,6 +1263,7 @@ class facileDBGUI(QMainWindow):
         extantHVData = False
         # make sure data exists
         # look through data to look for a number
+        print("DATA:",self.data.hvData)
         for toop in self.data.hvData:
             if toop[1] != "No Data":
                 extantHVData = True
@@ -1264,8 +1287,7 @@ class facileDBGUI(QMainWindow):
                     self.ui.hvListWidget.addItem(
                         f"{str(toop[0]).ljust(18)}{str(toop[1]).ljust(18)}{str(toop[2]).ljust(18)}"
                     )  # display just the data
-        else:
-            self.ui.hvListWidget.addItem("No Data Found :(")
+
 
     # put wire tension data on gui
     def displayWires(self):
@@ -1285,8 +1307,7 @@ class facileDBGUI(QMainWindow):
                 self.ui.wireListWidget.addItem(
                     f"{str(toop[0]).ljust(18)}{toop[1]}"
                 )  # add position and tension to list TODO: use string fill?
-        else:  # otherwise
-            self.ui.wireListWidget.addItem("No Data Found :(")  # display no data
+
 
     # put straw tension data on gui
     def displayStraws(self):
@@ -1304,8 +1325,7 @@ class facileDBGUI(QMainWindow):
                 self.ui.strawListWidget.addItem(
                     f"{str(toop[0]).ljust(18)}{str(toop[1]).ljust(18)}{str(toop[2]).ljust(18)}"
                 )  # add position, tension, and uncertainty to list
-        else:
-            self.ui.strawListWidget.addItem("No Data Found :(")
+
     
     # put heat statistics on the gui
     def displayHeat(self):
@@ -1313,45 +1333,44 @@ class facileDBGUI(QMainWindow):
         # clear out the current data
         self.ui.heatListWidget.clear()
 
+        
+
         # get the current pro
         curPro = self.ui.heatProBox.currentText()[8]
 
-        # ({round(self.getHeat(curPro,"BCStats")[4], 2)}, {round(self.getHeat(curPro,"BCStats")[5], 2)})
 
-        self.ui.heatListWidget.addItem(f'Total Heat Time: {self.getHeat(curPro,"HeatTime")}' if (self.getHeat(curPro,"HeatTime") is not []) else "No Heat Time Data Found")
+        if isinstance(self.getHeatData(curPro, "HeatData"), list):
+            self.ui.heatListWidget.addItem(f'{len(self.getHeatData(curPro, "HeatData"))} measurements found for process {curPro}.')
+            self.ui.heatListWidget.addItem(f'Total Heat Time: {self.getHeatData(curPro,"HeatTime")}' if (self.getHeatData(curPro,"HeatTime") is not []) else "No Heat Time Data Found")
 
-        self.ui.heatListWidget.addItem(f'PAAS A Stats' if len(self.getHeat(curPro,"AStats")) > 0 else "No PAAS A Data Found :(")
-        if len(self.getHeat(curPro,"AStats")) > 0:
-            paasAItemsToAdd = [
-                f'PAAS A Mean Temperature: {round(self.getHeat(curPro,"AStats")[0], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-                f'PAAS A Maximum Temperature: {self.getHeat(curPro,"AStats")[2]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-                f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-                f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None"
-            ]
-            self.ui.heatListWidget.addItems(paasAItemsToAdd)
+            self.ui.heatExportButton.setEnabled(True)
+            self.ui.plotHeatDataButton.setEnabled(True)
+
+            self.ui.heatListWidget.addItem(f'PAAS A Stats' if len(self.getHeatData(curPro,"AStats")) > 0 else "No PAAS A Data Found :(")
+            if len(self.getHeatData(curPro,"AStats")) > 0:
+                paasAItemsToAdd = [
+                    f'PAAS A Mean Temperature: {round(self.getHeatData(curPro,"AStats")[0], 2)}' if len(self.getHeatData(curPro,"AStats")) > 0 else "None",
+                    f'PAAS A Maximum Temperature: {self.getHeatData(curPro,"AStats")[2]}' if len(self.getHeatData(curPro,"AStats")) > 0 else "None",
+                    f'PAAS A Minimum Temperature: {self.getHeatData(curPro,"AStats")[1]}' if len(self.getHeatData(curPro,"AStats")) > 0 else "None",
+                    f'PAAS A Standard Deviation: {round(self.getHeatData(curPro,"AStats")[3], 2)}' if len(self.getHeatData(curPro,"AStats")) > 0 else "None"
+                ]
+                self.ui.heatListWidget.addItems(paasAItemsToAdd)
+            else:
+                self.ui.heatListWidget.addItem("No PAAS A data found :(")
+
+            self.ui.heatListWidget.addItem(f'PAAS B/C Stats' if len(self.getHeatData(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found :(")
+            if len(self.getHeatData(curPro,"BCStats")) > 0:
+                paasBItemsToAdd = [
+                    f'PAAS B/C Mean Temperature: {round(self.getHeatData(curPro,"BCStats")[0], 2)}' if len(self.getHeatData(curPro,"BCStats")) > 0 else "None",
+                    f'PAAS B/C Maximum Temperature: {self.getHeatData(curPro,"BCStats")[2]}' if len(self.getHeatData(curPro,"BCStats")) > 0 else "None",
+                    f'PAAS B/C Minimum Temperature: {self.getHeatData(curPro,"BCStats")[1]}' if len(self.getHeatData(curPro,"BCStats")) > 0 else "None",
+                    f'PAAS B/C Standard Deviation: {round(self.getHeatData(curPro,"BCStats")[3], 2)}' if len(self.getHeatData(curPro,"BCStats")) > 0 else "None"
+                ]
+                self.ui.heatListWidget.addItems(paasBItemsToAdd)
+            else:
+                self.ui.heatListWidget.addItem("No PAAS B/C data found :(")
         else:
-            self.ui.heatListWidget.addItem("No PAAS A data found :(")
-
-        self.ui.heatListWidget.addItem(f'PAAS B/C Stats' if len(self.getHeat(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found :(")
-        if len(self.getHeat(curPro,"BCStats")) > 0:
-            paasBItemsToAdd = [
-                f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-                f'PAAS B/C Maximum Temperature: {self.getHeat(curPro,"BCStats")[2]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-                f'PAAS B/C Minimum Temperature: {self.getHeat(curPro,"BCStats")[1]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-                f'PAAS B/C Standard Deviation: {round(self.getHeat(curPro,"BCStats")[3], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None"
-            ]
-            self.ui.heatListWidget.addItems(paasBItemsToAdd)
-        else:
-            self.ui.heatListWidget.addItem("No PAAS B/C data found :(")
-
-
-        #self.ui.heatListWidget.addItems(itemsToAdd)
-        if len(self.getHeat(curPro, "HeatData")) > 0:
-            self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
-        else:
-            self.ui.heatListWidget.addItem("No data found :(")
-
-
+            self.ui.heatListWidget.addItem(f'0 measurements found for process {curPro}')
 
         # enabled no matter what to allow switching between pros
         self.ui.heatProBox.setEnabled(True)
@@ -1360,6 +1379,7 @@ class facileDBGUI(QMainWindow):
     def displayTiming(self):
 
         for key in self.data.timingLists:
+            print(key)
             if self.data.timingLists[key] is not []:
                 startTime = -1
                 stopTime = -1
@@ -1375,19 +1395,64 @@ class facileDBGUI(QMainWindow):
                 #   start;pause;...  ...;resume;stop
                 # I'm sure there's some way to get a different pattern...
 
-
-                # I NEED TO CHECK OVER THIS I WROTE IT WHILE TIRED AF
                 for event in self.data.timingLists[key]:
                     if event[0] == "start":
                         startTime = event[1]
                         lastTime = event[1]
+                        self.getTimeWidget(key,"L").addItem(
+                            f"START:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
+                        )
                     elif event[0] == "stop":
                         stopTime = event[1]
                         totalTime += (event[1] - lastTime)
+                        self.getTimeWidget(key,"L").addItem(
+                            f"END:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
+                        )
                     elif event[0] == "pause":
                         totalTime += (event[1] - lastTime)
+                        self.getTimeWidget(key,"L").addItem(
+                            f"PAUSE:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
+                        )
                     elif event[0] == "resume":
+                        self.getTimeWidget(key,"L").addItem(
+                            f"RESUME:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
+                        )
                         lastTime = event[1]
+
+                # start time
+                if startTime > 0:
+                    self.getTimeWidget(key, 'S').setText(
+                        time.strftime("%a, %d %b %Y %H:%M:%S", (time.localtime(startTime)))
+                    )
+                else:
+                    self.getTimeWidget(key, 'S').setText(
+                        "Not found"
+                    )
+
+                # end time
+                if stopTime > 0:
+                    self.getTimeWidget(key, 'E').setText(
+                        time.strftime("%a, %d %b %Y %H:%M:%S", (time.localtime(stopTime)))
+                    )
+                else:
+                    self.getTimeWidget(key, 'E').setText(
+                        "Not found"
+                    )
+                # total/elapsed time
+                if totalTime > 0:
+                    prefix = "Estimate: " if stopTime <= 0 else ""
+                    self.getTimeWidget(key, 'T').setText(
+                        # totalTime = total time in seconds
+                        # hours = totalTime//3600
+                        # minutes = (totalTime%3600)//60
+                        # seconds = totalTime%60
+                        f"{prefix}{totalTime//3600}:{(totalTime%3600)//60}:{totalTime%60}"
+                    )
+                else:
+                    self.getTimeWidget(key, 'T').setText(
+                        "Not found"
+                    )
+                
 
 
 
@@ -1435,10 +1500,17 @@ class facileDBGUI(QMainWindow):
     # takes a pro and type of data you want (should be one of AStats, BCStats, HeatData, HeatTime)
     # and returns a pointer to the member you indicated (ex, get(2,AStats) returns self.pro2AStats)
     # I should make one of these that can get any data from anywhere in the GUI...  maybe later!
-    def getHeat(self, pro, data):
+    def getHeatData(self, pro, data):
         return getattr(self, f"pro{pro}{data}")
 
-    
+    # similar to getHeatData, except it gets a specific widget
+    # pro = process station type (pan1, pan2, etc)
+    # event = 'S', 'E', 'T', or "L" s = start, e = end, t = total, l = list
+    def getTimeWidget(self, pro, event):
+        if event == "L":
+            return getattr(self.ui, f"{pro}TimeList")
+        else:
+            return getattr(self.ui, f"{pro}{event}Time")
 
     # override close button event (see comments in function)
     def closeEvent(self, event):
