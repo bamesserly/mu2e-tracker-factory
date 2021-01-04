@@ -29,6 +29,7 @@ from PyQt5 import QtGui
 import serial  ## Takes this from pyserial, not serial
 import datetime
 import numpy as np
+import ast
 import matplotlib.pyplot as plt
 from least_square_linear import *  ## Contributes fit functions
 from N0202a import Ui_MainWindow  ## Main GUI window
@@ -51,6 +52,14 @@ from workers.credentials.credentials import Credentials
 from remove import Ui_DialogBox
 
 import threading
+
+# import paths
+os.chdir("../../..")
+with open("paths.txt") as pathFile:
+    content = pathFile.read()
+    paths = ast.literal_eval(content)
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 class LeakTestStatus(QMainWindow):
@@ -117,16 +126,13 @@ class LeakTestStatus(QMainWindow):
         self.max_chambers = 50
 
         self.cpalDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\Leak test data\\CPALS in Testing\\CPALS.txt"
+            paths["local"] + "\\Data\\Leak test data\\CPALS in Testing\\CPALS.txt"
         )
         self.networkDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\Leak test data\\Leak Test Results\\"
+            paths["local"] + "\\Data\\Leak test data\\Leak Test Results\\"
         )
         self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\leak testing\\"
+            paths["local"] + "\\Data\\workers\\straw workers\\leak testing\\"
         )
 
         self.starttime = [
@@ -1434,9 +1440,7 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
-            rem = removeStraw(
-                self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
-            )
+            rem = removeStraw(self.cpals, paths["local"] + "\\Data\\Pallets\\")
             rem.exec_()
         else:
             self.openLogInDialog()

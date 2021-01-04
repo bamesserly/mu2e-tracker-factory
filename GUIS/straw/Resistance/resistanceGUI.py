@@ -36,6 +36,7 @@
 #   File saved at: Mu2e-factory/Straw lab GUIs/Resistance GUI
 
 import sys
+import ast
 from pathlib import Path
 import os
 import csv
@@ -48,6 +49,7 @@ from design import Ui_MainWindow
 from resistanceMeter import Resistance
 from measureByHand import MeasureByHandPopup
 
+
 # move up one directory
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
@@ -58,6 +60,13 @@ sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
 from workers.credentials.credentials import Credentials
+
+os.chdir("../../..")
+with open("paths.txt") as pathFile:
+    content = pathFile.read()
+    paths = ast.literal_eval(content)
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 class CompletionTrack(QtWidgets.QDialog):
@@ -82,16 +91,11 @@ class CompletionTrack(QtWidgets.QDialog):
 
         # Directories
         self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\resistance\\"
+            paths["local"] + "\\Data\\workers\\straw workers\\resistance\\"
         )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
-        self.prepDirectory = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Straw Prep Data\\"
-        )
-        self.boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
-        )
+        self.palletDirectory = paths["local"] + "\\Data/Pallets\\"
+        self.prepDirectory = paths["local"] + "\\Data\\Straw Prep Data\\"
+        self.boardPath = paths["local"] + "\\Data\\Status Board 464\\"
 
         # Connect buttons to respective functions
         self.ui.collect_button.clicked.connect(self.collectData)
@@ -709,9 +713,7 @@ class CompletionTrack(QtWidgets.QDialog):
 
     ### SAVE / RESET ###
     def getTempHumid(self):
-        directory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\temp_humid_data\\464B\\"
-        )
+        directory = paths["local"] + "\\Data\\temp_humid_data\\464B\\"
         D = os.listdir(directory)
         filename = ""
         for entry in D:
@@ -805,8 +807,8 @@ class CompletionTrack(QtWidgets.QDialog):
         first_strawID = self.strawIDs[i]
         last_strawID = self.strawIDs[j]
         fileName = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data/Resistance Testing\\Straw_Resistance"
+            paths["local"]
+            + "\\Data/Resistance Testing\\Straw_Resistance"
             + day
             + "_"
             + first_strawID
