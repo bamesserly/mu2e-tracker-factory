@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1600</width>
-    <height>871</height>
+    <height>842</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -892,7 +892,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="ringsTab">
            <attribute name="title">
@@ -1357,94 +1357,6 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1600</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <widget class="QMenu" name="menuExport">
-     <property name="title">
-      <string>Export CSV</string>
-     </property>
-     <widget class="QMenu" name="menuHeat_Data_CSV">
-      <property name="title">
-       <string>Heat Data</string>
-      </property>
-      <addaction name="actionPro1HeatCSV"/>
-      <addaction name="actionPro2HeatCSV"/>
-      <addaction name="actionPro6HeatCSV"/>
-      <addaction name="actionAllHeatCSV"/>
-     </widget>
-     <addaction name="menuHeat_Data_CSV"/>
-     <addaction name="actionHVCSV"/>
-     <addaction name="actionStrawCSV"/>
-     <addaction name="actionWireCSV"/>
-     <addaction name="actionAllCSV"/>
-    </widget>
-    <widget class="QMenu" name="menuExport_Graph">
-     <property name="title">
-      <string>Export Graph</string>
-     </property>
-     <widget class="QMenu" name="menuHeat_Data">
-      <property name="title">
-       <string>Heat Data</string>
-      </property>
-      <addaction name="actionPro1HeatGraph"/>
-      <addaction name="actionPro2HeatGraph"/>
-      <addaction name="actionPro6HeatGraph"/>
-     </widget>
-     <addaction name="menuHeat_Data"/>
-     <addaction name="actionHVGraph"/>
-     <addaction name="actionStrawGraph"/>
-     <addaction name="actionWireGraph"/>
-    </widget>
-    <addaction name="menuExport"/>
-    <addaction name="menuExport_Graph"/>
-    <addaction name="actionExport_Panel_Report"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-    <addaction name="actionGraph_Settings"/>
-    <addaction name="actionExport_Location"/>
-    <addaction name="actionDatabase_Location"/>
-   </widget>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>View</string>
-    </property>
-    <widget class="QMenu" name="menuColor_Scheme">
-     <property name="title">
-      <string>Color Scheme</string>
-     </property>
-     <addaction name="actionDefault"/>
-     <addaction name="actionBlack"/>
-     <addaction name="actionGoldy"/>
-     <addaction name="actionSurprise_Me"/>
-    </widget>
-    <addaction name="menuColor_Scheme"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionSend_Feedback_Issue"/>
-    <addaction name="actionLatest_Changes"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
-   <addaction name="menuView"/>
-   <addaction name="menuHelp"/>
-  </widget>
   <action name="actionHVCSV">
    <property name="text">
     <string>HV Data</string>
