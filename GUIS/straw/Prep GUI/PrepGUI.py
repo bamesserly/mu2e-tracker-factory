@@ -13,6 +13,7 @@ import time
 import os
 import csv
 import sys
+import ast
 from datetime import datetime
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -23,9 +24,17 @@ from design import Ui_MainWindow  ## edit via Qt Designer
 
 os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
+    1, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
 )
 from workers.credentials.credentials import Credentials
+
+# import paths
+os.chdir("../../..")
+with open("paths.txt") as pathFile:
+    content = pathFile.read()
+    paths = ast.literal_eval(content)
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # using straw_label_script instead of make_CPAL_labels
 # sys.path.insert(
@@ -47,16 +56,11 @@ class Prep(QMainWindow):
         self.ui.setupUi(self)
         self.stationID = "prep"
         self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\straw prep\\"
+            paths["local"] + "\\Data\\workers\\straw workers\\straw prep\\"
         )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
-        self.prepDirectory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Straw Prep Data\\"
-        )
-        self.boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data/Status Board 464\\"
-        )
+        self.palletDirectory = paths["local"] + "\\Data/Pallets\\"
+        self.prepDirectory = paths["local"] + "\\Data\\Straw Prep Data\\"
+        self.boardPath = paths["local"] + "\\Data/Status Board 464\\"
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.ui.tab_widget.setCurrentIndex(0)
         self.Current_workers = [
