@@ -26,6 +26,9 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QGridLayout" name="gridLayout_15">
     <item row="0" column="0" colspan="2">
      <widget class="QSplitter" name="splitter">
@@ -889,7 +892,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="ringsTab">
            <attribute name="title">
@@ -927,7 +930,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro1STime">
+               <widget class="QLineEdit" name="pan1STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -941,7 +944,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro1ETime">
+               <widget class="QLineEdit" name="pan1ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -955,7 +958,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro1TTime">
+               <widget class="QLineEdit" name="pan1TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -964,7 +967,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="ringsSesList"/>
+             <widget class="QListWidget" name="pan1TimeList"/>
             </item>
            </layout>
           </widget>
@@ -986,7 +989,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro2STime">
+               <widget class="QLineEdit" name="pan2STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1000,7 +1003,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro2ETime">
+               <widget class="QLineEdit" name="pan2ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1014,7 +1017,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro2TTime">
+               <widget class="QLineEdit" name="pan2TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1023,7 +1026,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="strawsSesList"/>
+             <widget class="QListWidget" name="pan2TimeList"/>
             </item>
            </layout>
           </widget>
@@ -1045,7 +1048,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro3STime">
+               <widget class="QLineEdit" name="pan3STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1059,7 +1062,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro3ETime">
+               <widget class="QLineEdit" name="pan3ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1073,7 +1076,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro3TTime">
+               <widget class="QLineEdit" name="pan3TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1082,7 +1085,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="senseSesList"/>
+             <widget class="QListWidget" name="pan3TimeList"/>
             </item>
            </layout>
           </widget>
@@ -1104,7 +1107,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro4STime">
+               <widget class="QLineEdit" name="pan4STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1118,7 +1121,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro4ETime">
+               <widget class="QLineEdit" name="pan4ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1132,7 +1135,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro4TTime">
+               <widget class="QLineEdit" name="pan4TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1141,7 +1144,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="pinsSesList"/>
+             <widget class="QListWidget" name="pan4TimeList"/>
             </item>
            </layout>
           </widget>
@@ -1163,7 +1166,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro5STime">
+               <widget class="QLineEdit" name="pan5STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1177,7 +1180,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro5ETime">
+               <widget class="QLineEdit" name="pan5ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1191,7 +1194,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro5TTime">
+               <widget class="QLineEdit" name="pan5TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1200,7 +1203,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="highSesList"/>
+             <widget class="QListWidget" name="pan5TimeList"/>
             </item>
            </layout>
           </widget>
@@ -1222,7 +1225,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro6STime">
+               <widget class="QLineEdit" name="pan6STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1236,7 +1239,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro6ETime">
+               <widget class="QLineEdit" name="pan6ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1250,7 +1253,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro6TTime">
+               <widget class="QLineEdit" name="pan6TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1259,7 +1262,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="manifoldSesList"/>
+             <widget class="QListWidget" name="pan6TimeList"/>
             </item>
            </layout>
           </widget>
@@ -1281,7 +1284,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="pro7STime">
+               <widget class="QLineEdit" name="pan7STime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1295,7 +1298,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="pro7ETime">
+               <widget class="QLineEdit" name="pan7ETime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1309,7 +1312,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro7TTime">
+               <widget class="QLineEdit" name="pan7TTime">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -1318,7 +1321,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QListWidget" name="floodingSesList"/>
+             <widget class="QListWidget" name="pan7TimeList"/>
             </item>
            </layout>
           </widget>
@@ -1360,7 +1363,7 @@
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
