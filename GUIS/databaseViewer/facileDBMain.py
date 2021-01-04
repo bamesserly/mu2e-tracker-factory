@@ -270,23 +270,23 @@ class facileDBGUI(QMainWindow):
     # link menus/actions to functions
     # some get disabled since they dont have any finished function yet
     def initMenusActions(self):
-        # file
-        self.ui.menuExport_Graph.setDisabled(True)
-        self.ui.menuExport.setDisabled(True)
-        self.ui.actionExport_Panel_Report.setDisabled(True)
+        pass
+    #    # file
+    #    self.ui.menuExport_Graph.setDisabled(True)
+    #    self.ui.menuExport.setDisabled(True)
+    #    self.ui.actionExport_Panel_Report.setDisabled(True)
 
-        # edit
-        self.ui.actionGraph_Settings.setDisabled(True)
-        self.ui.actionExport_Location.setDisabled(True)
-        self.ui.actionDatabase_Location.setDisabled(True)
+    #    # edit
+    #    self.ui.actionGraph_Settings.setDisabled(True)
+    #    self.ui.actionExport_Location.setDisabled(True)
+    #    self.ui.actionDatabase_Location.setDisabled(True)
 
-        # view
-        self.ui.menuColor_Scheme.setDisabled(True)
+    #    # view
+    #    self.ui.menuColor_Scheme.setDisabled(True)
 
-        # help
-        self.ui.actionSend_Feedback_Issue.setDisabled(True)
-        #self.ui.actionLatest_Changes.triggered.connect(self.latestChanges)
-
+    #    # help
+    #    self.ui.actionSend_Feedback_Issue.setDisabled(True)
+    #    #self.ui.actionLatest_Changes.triggered.connect(self.latestChanges)
 
 
 # fmt: off
@@ -377,7 +377,6 @@ class facileDBGUI(QMainWindow):
             self.displayHV()
         else:
             self.ui.hvListWidget.addItem("No data found :(")
-
 
     # Query to find database ID (straw_location id) for panel
     # returns either the id or a -1 to indicate no panel found
@@ -923,8 +922,6 @@ class facileDBGUI(QMainWindow):
         #print(self.pro6HeatTime)
 
         self.displayHeat()
-
-
 
 
 # fmt: off
@@ -1554,6 +1551,7 @@ class facileDBGUI(QMainWindow):
                 """
             )
     '''
+
 
 # fmt: off
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
