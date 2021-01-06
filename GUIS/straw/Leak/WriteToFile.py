@@ -28,7 +28,6 @@ class StrawFailedError(Exception):
 def ExtractPreviousStrawData(path):
     with open(path, "r") as f:
         reader = csv.reader(f)
-
         last = list(reader)[-1]
         test_name = last[1]
         names = list(filter(validStraw, last))
@@ -38,6 +37,9 @@ def ExtractPreviousStrawData(path):
 
 def FindCPAL(strawname):
     # Returns (CPALID, CPAL) of straw number
+    # If a straw is associated with more than one CPALID, use the largest (i.e.
+    # most recent) one.
+    cpal_return_pairs = []
     database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
     for i in range(1, 25):
         files = []
@@ -55,11 +57,19 @@ def FindCPAL(strawname):
 
             while line != "":
                 if strawname in line:
-                    return (cpalid, filename[:-4])
+                    cpal_return_pairs.append((cpalid, filename[:-4]))
 
                 line = f.readline()
 
             f.close()
+
+    # return the (cpalid,cpal) pair that has the highest cpalid.
+    if cpal_return_pairs:
+        print("Straw found in multiple CPALIDs.")
+        print("Selecting the highest CPALID among the following:")
+        print(cpal_return_pairs)
+        return max(cpal_return_pairs, key=lambda pair: pair[0])
+
     raise StrawNotFoundError
 
 
@@ -168,7 +178,7 @@ def checkPass(path, strawname, current_test):
     index = 0
     status = []
 
-    while line != "":
+    while line.strip():
         found = False
         index = 0
 
@@ -248,6 +258,7 @@ def checkStraw(strawname, expected_previous_test, current_test):
     for straw in straw_list:
         if straw == strawname:
             return
+
     raise StrawRemovedError
 
 
