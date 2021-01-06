@@ -377,7 +377,7 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch_2,
             self.ui.temp4,
             self.ui.temp4_2,
-            #self.ui.launch_straw_tensioner,
+            # self.ui.launch_straw_tensioner,
             self.ui.epoxy_inject1,
             self.ui.epoxy_inject2,
             self.ui.epoxy_mixed,
@@ -1328,8 +1328,8 @@ class panelGUI(QMainWindow):
     def openGUI(self, btn):
         # Get pro Information
         self.pro = int(btn.objectName()[3:-6])
-        print("pro selected: ", self.pro)
-        a_logger.debug("pro selected: ", self.pro)
+        message = "pro selected" + str(self.pro)
+        self._printGUI(message)
         self.pro_index = self.pro - 1
         self.ui.proSelection.setCurrentIndex(0)
         self.ui.GUIpro.setCurrentIndex(self.pro_index)
@@ -2123,6 +2123,19 @@ class panelGUI(QMainWindow):
 
             time.sleep(0.01)
 
+    """
+    _printGUI(self, credentials)
+
+        Description: Method to print output to the terminal and log error message to a txt file using
+                    the logging module
+
+        Parameter: message - A string containing the output message
+    """
+
+    def _printGUI(self, message):
+        print(message)
+        a_logger.debug(message)
+
     # fmt: off
     # ███████╗ █████╗ ██╗   ██╗███████╗    ██████╗  █████╗ ████████╗ █████╗
     # ██╔════╝██╔══██╗██║   ██║██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -2753,12 +2766,12 @@ class panelGUI(QMainWindow):
 
         # loading from DB doesn't pass the validation bool for
         # the LPAL input, so it's added to the list here
-        print("REEEEE", len(self.data[0]))
-        a_logger.debug("REEEEE", len(self.data[0]))
+        message = "REEEEE" + str(len(self.data[0]))
+        self._printGUI(message)
         if len(data) == 22:
             self.data[0].append(False)
-            print("REEEEE", len(self.data[0]))
-            a_logger.debug("REEEEE", len(self.data[0]))
+            message = "REEEEE" + str(len(self.data[0]))
+            self._printGUI(message)
             if data[20] is not None and data[21] is not None:
                 self.data[0][22] = True
         if data[20] is not None:
@@ -3201,8 +3214,8 @@ class panelGUI(QMainWindow):
         # needs to have a valid panel before that can be pushed, so really there's nothing to parse!
         # So really all this does is validates the panel input and prints stuff if it's invalid
         if not self.validateInput(indices=[0]):
-            print("\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n")
-            a_logger.debug("\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n")
+            message = "\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n"
+            self._printGUI(message)
 
         self.displayComments()
 
@@ -3997,8 +4010,8 @@ class panelGUI(QMainWindow):
     # connected to epoxy mixed for LP, starts timer 11
     def mixEpoxyLPP(self):
         if not self.validateInput(indices=[1]):
-            print("Validation Failed")
-            a_logger.debug("Validation Failed")
+            message = "Validation Failed"
+            self._printGUI(message)
             return
 
         self.startTimer(11)
@@ -4013,8 +4026,8 @@ class panelGUI(QMainWindow):
     # INDEX 4 POINTS TO ROP BATCH
     def mixEpoxyRPP(self):
         if not (self.validateInput(indices=[2])):
-            print("Validation Failed")
-            a_logger.debug("Validation Failed")
+            message = "Validation Failed"
+            self._printGUI(message)
             return
         self.startTimer(13)
         self.startTimer(14)
@@ -4052,8 +4065,8 @@ class panelGUI(QMainWindow):
 
     def mixEpoxyLOP(self):
         if not (self.validateInput(indices=[3])):
-            print("Validation Failed")
-            a_logger.debug("Validation Failed")
+            message = "Validation Failed"
+            self._printGUI(message)
             return
         self.startTimer(15)
         self.startTimer(17)
@@ -4065,8 +4078,8 @@ class panelGUI(QMainWindow):
 
     def mixEpoxyROP(self):
         if not (self.validateInput(indices=[4])):
-            print("Validation Failed")
-            a_logger.debug("Validation Failed")
+            message = "Validation Failed"
+            self._printGUI(message)
             return
         self.startTimer(16)
         self.startTimer(18)
@@ -4132,8 +4145,8 @@ class panelGUI(QMainWindow):
             return
 
         if not self.validateInput(indices=[0]):
-            print("Validation Failed")
-            a_logger.debug("Validation Failed")
+            message = "Validation Failed"
+            self._printGUI(message)
             return
         self.startRunning()
         self.saveData()
