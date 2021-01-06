@@ -1116,7 +1116,6 @@ class LeakTestStatus(QMainWindow):
     def unloadAction(self, ROW, COL, chamber, btn):
         self.SaveCSV(chamber)
         self.Save(chamber)
-        self.strawUpload(chamber)
         self.chambers_status[ROW][COL] = "empty"
         self.leak_rate[chamber] = 0
         self.leak_rate_err[chamber] = 0

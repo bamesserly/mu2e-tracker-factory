@@ -65,9 +65,6 @@ def FindCPAL(strawname):
 
     # return the (cpalid,cpal) pair that has the highest cpalid.
     if cpal_return_pairs:
-        print("Straw found in multiple CPALIDs.")
-        print("Selecting the highest CPALID among the following:")
-        print(cpal_return_pairs)
         return max(cpal_return_pairs, key=lambda pair: pair[0])
 
     raise StrawNotFoundError
