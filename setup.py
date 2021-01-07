@@ -94,12 +94,10 @@ merge_destination_db = (
 with open(merge_destination_db_location_file, "w") as f:
     f.write(merge_destination_db)
 
-with open("paths.txt", "w") as file:
-    file.write("{\n")
-    file.write("'local': " + "'" + str(local_top_dir) + "',\n")
-    file.write("'network': " + "'" + network_top_dir + "',\n")
-    file.write("'merge_destination': " + "'" + merge_destination_db + "',\n")
-    file.write("}")
+with open("paths.csv", "w") as file:
+    file.write("local," + str(local_top_dir) + "\n")
+    file.write("network," + network_top_dir + "\n")
+    file.write("merge_destination," + merge_destination_db + "\n")
 
 # ===============================================================================
 # 4. Finally, if this is software development, we need to make the dummy.db

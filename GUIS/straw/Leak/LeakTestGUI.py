@@ -55,9 +55,13 @@ import threading
 
 # import paths
 os.chdir("../../..")
-with open("paths.txt") as pathFile:
-    content = pathFile.read()
-    paths = ast.literal_eval(content)
+paths = {}
+with open("paths.csv") as pathFile:
+    reader = csv.reader(pathFile)
+    for row in reader:
+        k = row[0]
+        v = row[1]
+        paths[k] = v
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
