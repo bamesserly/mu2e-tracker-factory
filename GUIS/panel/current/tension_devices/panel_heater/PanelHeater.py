@@ -2,6 +2,7 @@
 #### python interface to collect and visualize data from [PAAS_heater_1009.ino]
 #### variable temperature setpoint input
 
+from pathlib import Path
 import serial  ## from pyserial
 import serial.tools.list_ports
 import time, csv, sys, os
@@ -14,9 +15,14 @@ import threading
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+
+# Add GUIS/panel/current to sys.path
+sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
+
 from tension_devices.panel_heater.heat_control_window import (
     Ui_MainWindow,
 )  ## edit via heat_control_window.ui in Qt Designer
+
 
 import matplotlib
 
