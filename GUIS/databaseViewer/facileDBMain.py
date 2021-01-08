@@ -1089,14 +1089,12 @@ class facileDBGUI(QMainWindow):
         plt.subplot(211)
         # plt.figure(figsize=(12,8))
         
-        '''try:
+        try:
             plt.errorbar(
                         xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
                     )  # make a scatterplot out of the x and y data
         except:
-            tkinter.messagebox.showerror(
-                title="Error", message=f"Insufficient data to plot uncertainties."
-            )'''
+            print("Insufficient data to plot error bars.")
             
         plt.axis([0, 100, 0, 1000])  # set the bounds of the graph
         plt.xlabel("Wire Position", fontsize=20)  # set x axis label
