@@ -1,5 +1,5 @@
 # for creating app, using paths
-import sys , os, inspect
+import sys , os, inspect, getpass
 # for using paths
 from pathlib import Path, PurePath
 # for interacting with db
@@ -26,7 +26,7 @@ from PyQt5.QtGui import QBrush, QIcon
 # for GUI window management
 from PyQt5.QtCore import Qt, QRect, QObject
 # ui in .py format
-from tension_devices.hv_gui.hvGUI import Ui_MainWindow
+from hvGUI import Ui_MainWindow
 
 
 '''
@@ -37,6 +37,7 @@ LIST OF IMPORTANT WIDGETS:
     Panel side input            --> sideBox
     Amps input                  --> ampsLE
     Trip status input           --> tripBox
+    voltage input               --> voltageBox
 
     Initialized in _init_scroll
     List of right current boxes --> self.currentRight
@@ -92,20 +93,36 @@ class highVoltageGUI(QMainWindow):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
 
-        # init scroll area
-        self._init_Scroll()
+        # set save mode, changes at the end of this function
+        self.saveMode = ""
 
         # bind functions to next straw
         self.ui.ampsLE.returnPressed.connect(self.nextStraw)
         self.ui.subStrawButton.clicked.connect(self.nextStraw)
+
+        # bind function to submit panel button
+        self.ui.subPanelButton.clicked.connect(self.submitPanel)
 
         # disable panel input AND load if launched from gui
         if panel is not None:
             self.ui.panelNumLE.setText(f'MN{panel}')
             self.ui.panelNumLE.setDisabled(True)
             self.ui.subPanelButton.setDisabled(True)
-
             self.loadHVMeasurements()
+            # init scroll area
+            self._init_Scroll()
+            # set save mode
+            self.saveMode = "DB"
+        else:
+            self.ui.positionBox.setDisabled(True)
+            self.ui.sideBox.setDisabled(True)
+            self.ui.ampsLE.setDisabled(True)
+            self.ui.tripBox.setDisabled(True)
+            self.ui.voltageBox.setDisabled(True)
+            self.ui.subStrawButton.setDisabled(True)
+            # set save mode
+            self.saveMode = "CSV"
+
 
 
     #################################################################
@@ -183,6 +200,7 @@ class highVoltageGUI(QMainWindow):
                 self.currentRight[index].text(),
                 self.isTripped[index].isChecked(),
             )
+            self.saveCSV()
 
         # boxSaveHV is called whenever a checkBox widget is checked or unckecked.
         # This function doesn't actually need to exist, since the check boxes could be bound to saveHVMeasurement(), but
@@ -194,6 +212,7 @@ class highVoltageGUI(QMainWindow):
                 self.currentRight[index].text(),
                 self.isTripped[index].isChecked(),
             )
+            self.saveCSV()
 
         # This loop binds all of the lineEdit widgets to lineSaveHV()
         # enumerate(zip(cL, cR)) -->
@@ -214,6 +233,28 @@ class highVoltageGUI(QMainWindow):
     # input validation.  TODO
     def _init_validation(self):
         pass
+
+    def submitPanel(self):
+        # set panel member as current panel
+        self.panel = self.ui.panelNumLE.text()
+        # return if id isn't complete
+        if len(self.panel) < 5:
+            return
+        # set csv file location
+        self.fileLocation = os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\{self.panel}_hv_data.csv"
+        # make directory for CSVs if it doesn't exist yet
+        if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"):
+            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data")
+
+        self.ui.positionBox.setEnabled(True)
+        self.ui.sideBox.setEnabled(True)
+        self.ui.ampsLE.setEnabled(True)
+        self.ui.tripBox.setEnabled(True)
+        self.ui.voltageBox.setEnabled(True)
+        self.ui.subStrawButton.setEnabled(True)
+
+        self.ui.panelNumLE.setDisabled(True)
+        self.ui.subPanelButton.setDisabled(False)
     
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
@@ -236,7 +277,7 @@ class highVoltageGUI(QMainWindow):
     #   saving through pangui would avoid this.
     def saveHVMeasurement(self, index, curLeft, curRight, isTrip):
         # launched by PANGUI
-        if self.saveMethod is not None:
+        if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
             self.saveMethod(index, curLeft, curRight, isTrip)
         
@@ -247,7 +288,7 @@ class highVoltageGUI(QMainWindow):
 
     def loadHVMeasurements(self):
         # launched by PANGUI
-        if self.loadMethod is not None:
+        if self.loadMethod is not None and self.saveMode == "DB":
             # return PANGUI --> self.DP.loadHVMeasurements()
             # returns list of the form:
             # [(current_left0, current_right0, is_tripped0), (current_left1, current_right1, is_tripped1), ...]
@@ -263,6 +304,29 @@ class highVoltageGUI(QMainWindow):
                     # set it that way, default is not tripped
                     self.setTrip(pos,True)
     
+
+    def saveCSV(self):
+        # ensure correct save mode
+        if not self.saveMode == "CSV":
+            return
+        # open file, use w to overwrite
+        with open(self.fileLocation, "w") as csv:
+            # write header
+            csv.write("position,left current,right current,voltage,is tripped")
+
+            for p in range(96):
+                # write each row, with data in the same order as the header
+                csv.write(f'{p},{self.getAmp(1,p)},{self.getAmp(0,p)},{self.getVoltInput()},{self.getTrip(p)}')
+
+            # close the file
+            csv.close()
+
+
+
+    def loadCSV(self):
+        pass
+
+
     # gets a current value from scroll area
     # side = 0 for right, 1 for left
     # position = straw position
@@ -282,6 +346,12 @@ class highVoltageGUI(QMainWindow):
     def getSideInput(self):
         # index of right is 1, index of left is 2, so subtract 1
         return (self.ui.sideBox.currentIndex()) - 1
+
+    # gets the current voltage in voltage combo box represented as an int
+    # 0 = 1100V, 1 = 1500V
+    def getVoltInput(self):
+        # index of 1100 is 1, index of 1500 is 2, so subtract 1
+        return (self.ui.voltageBox.currentIndex()) - 1
 
     # sets a current value in scroll area
     # side = 0 for right, 1 for left
