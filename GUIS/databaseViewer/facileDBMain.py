@@ -912,14 +912,9 @@ class facileDBGUI(QMainWindow):
             heatTimes = [toop[1] for toop in self.pro6HeatData]
             if len(heatTimes) > 0:
                 rawHeatTime = max(heatTimes) - min(heatTimes)
-                print("raw",rawHeatTime)
                 self.pro6HeatTime = timedelta(seconds=rawHeatTime)
 
         # stats lists are of the form: [mean, min, max, std dev, upper std dev, lower std dev]
-        #print(self.pro6HeatData)
-        #print(self.pro6AStats)
-        #print(self.pro6BCStats)
-        #print(self.pro6HeatTime)
 
         self.displayHeat()
 
@@ -1093,10 +1088,16 @@ class facileDBGUI(QMainWindow):
 
         plt.subplot(211)
         # plt.figure(figsize=(12,8))
-
-        plt.errorbar(
-            xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
-        )  # make a scatterplot out of the x and y data
+        
+        '''try:
+            plt.errorbar(
+                        xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
+                    )  # make a scatterplot out of the x and y data
+        except:
+            tkinter.messagebox.showerror(
+                title="Error", message=f"Insufficient data to plot uncertainties."
+            )'''
+            
         plt.axis([0, 100, 0, 1000])  # set the bounds of the graph
         plt.xlabel("Wire Position", fontsize=20)  # set x axis label
         plt.ylabel("Straw Tension", fontsize=20)  # set y axis label
@@ -1260,7 +1261,6 @@ class facileDBGUI(QMainWindow):
         extantHVData = False
         # make sure data exists
         # look through data to look for a number
-        print("DATA:",self.data.hvData)
         for toop in self.data.hvData:
             if toop[1] != "No Data":
                 extantHVData = True
@@ -1376,7 +1376,6 @@ class facileDBGUI(QMainWindow):
     def displayTiming(self):
 
         for key in self.data.timingLists:
-            print(key)
             if self.data.timingLists[key] is not []:
                 startTime = -1
                 stopTime = -1
