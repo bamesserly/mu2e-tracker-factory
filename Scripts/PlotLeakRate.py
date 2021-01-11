@@ -28,11 +28,14 @@ cmap = plt.get_cmap("tab10")
 color_box_temp = cmap(4)
 color_room_temp = cmap(0)
 color_pressure = cmap(1)
+color_pressure_ref = cmap(5)
+color_pressure_fill = cmap(6)
 fit1_color = cmap(2)
 fit2_color = cmap(3)
 
 
 ################################################################################
+# ARGUMENTS/OPTIONS
 # Parse input args - input filename, fit start/end times
 ################################################################################
 def GetOptions():
@@ -66,21 +69,40 @@ def GetOptions():
         default=None,
         help="Fit end point, in days.",
     )
-
     parser.add_option(
-        "--min_pressure",
-        dest="min_pressure",
+        "--min_diff_pressure",
+        dest="min_diff_pressure",
         type="float",
         default=None,
-        help="Set minimum pressure on vertical axis.",
+        help="Set minimum differential pressure on vertical axis.",
     )
-
     parser.add_option(
-        "--max_pressure",
-        dest="max_pressure",
+        "--max_diff_pressure",
+        dest="max_diff_pressure",
         type="float",
         default=None,
-        help="Set maximum pressure on vertical axis.",
+        help="Set maximum differential pressure on vertical axis.",
+    )
+    parser.add_option(
+        "--min_ref_pressure",
+        dest="min_ref_pressure",
+        type="float",
+        default=None,
+        help="Set minimum reference/fill pressure on vertical axis.",
+    )
+    parser.add_option(
+        "--max_ref_pressure",
+        dest="max_ref_pressure",
+        type="float",
+        default=None,
+        help="Set maximum reference/fill pressure on vertical axis.",
+    )
+    parser.add_option(
+        "--no_fit",
+        dest="do_fit",
+        default=True,
+        action="store_false",
+        help="Don't do any fits.",
     )
     options, remainder = parser.parse_args()
     return options
@@ -111,7 +133,36 @@ def GetFitStartTime(total_duration):
         return total_duration * 0.1
 
 
+# Plot full range of data points
+def PlotDataPoints(df, column_name, axis, color=None, label=None):
+    time = df["TIME(DAYS)"]
+    yvals = df[column_name]
+    # x_values = np.linspace(time.iloc[0], time.iloc[-1])
+
+    markersize = 1
+    # downsample temperatures
+    if "TEMPERATURE" in column_name:
+        yvals = np.array(yvals)
+        temp_size = yvals.size
+        yvals = signal.resample(yvals, 250)
+        yvals = signal.resample(yvals, temp_size)
+        label = column_name
+        markersize = 2
+
+    # plot
+    axis.plot(
+        np.array(time),
+        np.array(yvals),
+        "o",
+        color=color,
+        markersize=markersize,
+        label=label,
+    )
+
+
+
 ################################################################################
+# READ INPUT
 # Read the raw data (old or new format) into a dataframe
 ################################################################################
 def ReadLeakRateFile(infile, is_new_format="true"):
@@ -184,39 +235,13 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 
 
 ################################################################################
+# PLOT
 # From the dataframe, plot data points, straight-line fit using first and last
 # points, and straight-line fit using least squares
 ################################################################################
-def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
-    # Plot full range of data points
-    def PlotDataPoints(df, column_name, axis, color):
-        time = df["TIME(DAYS)"]
-        yvals = df[column_name]
-        # x_values = np.linspace(time.iloc[0], time.iloc[-1])
-
-        label = None
-        markersize = 1
-        # downsample temperatures
-        if "TEMPERATURE" in column_name:
-            yvals = np.array(yvals)
-            temp_size = yvals.size
-            yvals = signal.resample(yvals, 250)
-            yvals = signal.resample(yvals, temp_size)
-            label = column_name
-            markersize = 2
-
-        # plot
-        axis.plot(
-            np.array(time),
-            np.array(yvals),
-            "o",
-            color=color,
-            markersize=markersize,
-            label=label,
-        )
-
+def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
     # Standard numpy least squares linear regression
-    def FitAndPlot_1(df, axP):
+    def FitAndPlot_1(df, axDiffP):
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         slope, intercept, r_value, p_value, std_err = stats.linregress(time, pressure)
@@ -230,7 +255,7 @@ def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
         )
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 4)
-        axP.plot(
+        axDiffP.plot(
             np.array(time),
             np.array(y_values),
             color=fit1_color,
@@ -242,7 +267,7 @@ def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
         return slope, intercept, r_value, p_value, std_err
 
     # From first and last point
-    def FitAndPlot_2(df, axP):
+    def FitAndPlot_2(df, axDiffP):
         time = df["TIME(DAYS)"]
         pressure = df["PRESSURE(PSI)"]
         x_i = time.iloc[0]
@@ -257,7 +282,7 @@ def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
         print("slope:", round(slope, 4), "intercept:", round(intercept, 4))
         y_values = intercept + slope * time
         leak_rate_in_sccm = round(slope * kPSI_PER_DAY_TO_SCCM, 4)
-        axP.plot(
+        axDiffP.plot(
             np.array(time),
             np.array(y_values),
             color=fit2_color,
@@ -265,21 +290,11 @@ def PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT):
             label="From first and last points\n{0} sccm".format(leak_rate_in_sccm),
         )
 
-    # Plot data points
-    PlotDataPoints(df, "PRESSURE(PSI)", axP, color_pressure)
-    try:
-        PlotDataPoints(df, "ROOM TEMPERATURE(C)", axT, color_room_temp)
-    except KeyError:
-        pass
-    try:
-        PlotDataPoints(df, "BOX TEMPERATURE(C)", axT, color_box_temp)
-    except KeyError:
-        pass
 
     # Restrict fit range by start and end time, then do fit and plot it
     df = df.loc[(df["TIME(DAYS)"] > fit_start_time) & (df["TIME(DAYS)"] < fit_end_time)]
-    FitAndPlot_1(df, axP)
-    FitAndPlot_2(df, axP)
+    FitAndPlot_1(df, axDiffP)
+    FitAndPlot_2(df, axDiffP)
 
 
 ################################################################################
@@ -310,49 +325,77 @@ def main():
 
     # prep plots
     params = {"mathtext.default": "regular"}
-    fig, axP = plt.subplots(figsize=(13, 11))
-    axT = axP.twinx()
+    fig, axs = plt.subplots(2,figsize=(13, 11))
+    axDiffP = axs[0]
+    axTemp = axDiffP.twinx()
+    axRefP = axs[1]
 
-    # plot
-    PlotDataAndFit(df, fit_start_time, fit_end_time, axP, axT)
-
-    # legend
-    lines, labels = axP.get_legend_handles_labels()
-    lines2, labels2 = axT.get_legend_handles_labels()
-    legend = axT.legend(lines + lines2, labels + labels2, loc=0)
+    # Plot data points
+    PlotDataPoints(df, "PRESSURE(PSI)", axDiffP, color_pressure)
     try:
-        legend.legendHandles[2]._legmarker.set_markersize(8)
+        PlotDataPoints(df, "ROOM TEMPERATURE(C)", axTemp, color_room_temp)
+    except KeyError:
+        pass
+    try:
+        PlotDataPoints(df, "BOX TEMPERATURE(C)", axTemp, color_box_temp)
+    except KeyError:
+        pass
+    PlotDataPoints(df, "RefPSIA", axRefP, color_pressure_ref, "$P_{Ref}$" )
+    PlotDataPoints(df, "FillPSIA", axRefP, color_pressure_fill,"$P_{Fill}$"  )
+
+    # Do fit and plot it
+    if options.do_fit:
+        DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp)
+
+    # legends
+    lines, labels = axDiffP.get_legend_handles_labels()
+    lines2, labels2 = axTemp.get_legend_handles_labels()
+    legend = axTemp.legend(lines + lines2, labels + labels2, loc=0)
+    try:
+        legend.legendHandles[-1]._legmarker.set_markersize(8)
     except IndexError:
         pass
     try:
-        legend.legendHandles[3]._legmarker.set_markersize(8)
+        legend.legendHandles[-2]._legmarker.set_markersize(8)
     except IndexError:
         pass
+    lines3, labels3 = axRefP.get_legend_handles_labels()
+    legend3 = axRefP.legend(lines3, labels3, loc="lower left")
+    legend3.legendHandles[0]._legmarker.set_markersize(8)
+    legend3.legendHandles[1]._legmarker.set_markersize(8)
 
     # axis labels
     title = options.infile.split("\\")[-1]
     title = title.partition(".")[0]
     plt.title(title)
-    axP.set_xlabel("DAYS", fontweight="bold")
-    axP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
-    axT.set_ylabel("TEMPERATURE (C)", fontweight="bold")
-    axP.yaxis.label.set_color(color_pressure)
-    axT.yaxis.label.set_color("k")
+    axDiffP.set_xlabel("DAYS", fontweight="bold")
+    axDiffP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
+    axTemp.set_ylabel("TEMPERATURE (C)", fontweight="bold")
+    axDiffP.yaxis.label.set_color(color_pressure)
+    axTemp.yaxis.label.set_color("k")
+
+    axRefP.set_ylabel("PRESSURE (PSI)", fontweight="bold")
+    axRefP.yaxis.label.set_color("k")
 
     # Pressure axis - limits
-    # Pymin,Pymax = axP.get_ylim()
-    axP.relim()
-    axP.autoscale_view()
-    if options.min_pressure:
-        axP.set_ylim(bottom=options.min_pressure)
-    if options.max_pressure:
-        axP.set_ylim(top=options.max_pressure)
+    # Pymin,Pymax = axDiffP.get_ylim()
+    axDiffP.relim()
+    axDiffP.autoscale_view()
+    if options.min_diff_pressure:
+        axDiffP.set_ylim(bottom=options.min_diff_pressure)
+    if options.max_diff_pressure:
+        axDiffP.set_ylim(top=options.max_diff_pressure)
+
+    if options.min_ref_pressure:
+        axRefP.set_ylim(bottom=options.min_ref_pressure)
+    if options.max_ref_pressure:
+        axRefP.set_ylim(top=options.max_ref_pressure)
 
     # Temperature axis - limits
-    ymin, ymax = axT.get_ylim()
-    axT.relim()
-    axT.set_ylim(0, ymax * 1.1)
-    axT.autoscale_view()
+    ymin, ymax = axTemp.get_ylim()
+    axTemp.relim()
+    axTemp.set_ylim(0, ymax * 1.1)
+    axTemp.autoscale_view()
 
     # Create outdir for panel pdfs
     panel_id = GetPanelIDFromFilename(options.infile)

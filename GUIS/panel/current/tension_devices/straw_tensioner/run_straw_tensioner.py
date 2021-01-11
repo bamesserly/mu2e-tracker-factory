@@ -1,8 +1,20 @@
-#### run_straw_tensioner.pyw
-#### Goal1: PyQt5 GUI for tensioning straws with Vernier force sensor
-#### Goal2: Plots update in real time, data saves to csv file
-#### LargePrintEdition: Worker with tensioner can see GUI from across station
-
+# GUI for tensioning straws with Vernier force sensor.
+# Plots sensor output in realtime.
+# Acceptable straw tension is saved to a CSV file in
+# ..\..\..\..\..\Data\Panel Data\external_gui_data\straw_tension_data\
+#
+# This GUI is launched by PANGUI.py within process 2. Additionally, it can be
+# run in standalone mode, by running this .py script directly.
+#
+# Whether run from within PANGUI.py or standalone, it will save csv data to the
+# external_gui_data folder above.
+#
+# When called from within PANGUI.py, the saveMethod function is defined, and
+# the data is simultaneously saved to the database via a dataProcessor function
+# saveStrawTensionMeasurement. At the moment, only the database version of
+# saveStrawTensionMeasurement is defined, which means that the text data is not
+# saving its own copy of the csv data. The only csv data is being saved to
+# external_gui_data by this script itself.
 
 import sys, queue, time, csv
 import qwt  ## requires pythonqwt, sip
@@ -247,7 +259,8 @@ class StrawTension(QMainWindow):
             if DEBUG:
                 state = b"end"
             if state == b"end":
-                self.saveMethod(self.ui.strawnumbox.value(), tmp[-1], hmd[-1])
+                if self.saveMethod:
+                    self.saveMethod(self.ui.strawnumbox.value(), tmp[-1], hmd[-1])
                 self.pause_data()
                 self.ui.statusbar.showMessage(message)
 
@@ -974,20 +987,20 @@ class Ui_MainWindow(object):
 
 if __name__ == "__main__":
     """
-     arduino_ports = [p.device for p in serial.tools.list_ports.comports()
-                      if 'Arduino' in p.description]
-     if len(arduino_ports)==0:  ## fix for Day2/Day3 General Nanosystems Computers
-          arduino_ports = [p.device for p in serial.tools.list_ports.comports()
-                      if 'USB Serial' in p.description]
-     if len(arduino_ports)<1:
-          print('Arduino not found \nPlug straw tensioner into any USB port')
-          time.sleep(2)
-          print("Exiting script")
-          sys.exit()
-     print("Arduino at {}".format(arduino_ports[0]))
-     ## Locations of sensors
-     port_loc = {"Vernier Force Sensor":[arduino_ports[0],0]}
-     """
+    arduino_ports = [p.device for p in serial.tools.list_ports.comports()
+                     if 'Arduino' in p.description]
+    if len(arduino_ports)==0:  ## fix for Day2/Day3 General Nanosystems Computers
+         arduino_ports = [p.device for p in serial.tools.list_ports.comports()
+                     if 'USB Serial' in p.description]
+    if len(arduino_ports)<1:
+         print('Arduino not found \nPlug straw tensioner into any USB port')
+         time.sleep(2)
+         print("Exiting script")
+         sys.exit()
+    print("Arduino at {}".format(arduino_ports[0]))
+    ## Locations of sensors
+    port_loc = {"Vernier Force Sensor":[arduino_ports[0],0]}
+    """
     calibration = {"Vernier Force Sensor": None}
 
     app = QApplication(sys.argv)
