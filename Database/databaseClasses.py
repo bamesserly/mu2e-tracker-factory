@@ -2752,6 +2752,7 @@ class WireTensionMeasurement(BASE, OBJECT):
 class TensionboxMeasurement(BASE, OBJECT):
     __tablename__ = "measurement_tensionbox"
     id = Column(Integer, primary_key=True)
+    procedure = Column(Integer, ForeignKey("procedure.id"))
     panel = Column(Integer, ForeignKey("straw_location.id"))
     straw_wire = Column(VARCHAR)
     position = Column(Integer)
@@ -2761,9 +2762,18 @@ class TensionboxMeasurement(BASE, OBJECT):
     tension = Column(REAL)
 
     def __init__(
-        self, panel, straw_wire, position, length, frequency, pulse_width, tension
+        self,
+        procedure,
+        panel,
+        straw_wire,
+        position,
+        length,
+        frequency,
+        pulse_width,
+        tension,
     ):
         self.id = self.ID()
+        self.procedure = procedure.id
         self.panel = panel.id
         self.straw_wire = straw_wire
         self.position = position

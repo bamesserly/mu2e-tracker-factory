@@ -1938,16 +1938,18 @@ class SQLDataProcessor(DataProcessor):
     def saveTensionboxMeasurement(
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
-        is_straw = {True: "straw", False: "wire"}[is_straw]
-        TensionboxMeasurement(
-            panel=self.queryPanel(self.stripNumber(panel)),
-            straw_wire=is_straw,
-            position=position,
-            length=length,
-            frequency=frequency,
-            pulse_width=pulse_width,
-            tension=tension,
-        ).commit()
+        if self.ensureProcedure():
+            is_straw = {True: "straw", False: "wire"}[is_straw]
+            TensionboxMeasurement(
+                procedure=self.procedure,
+                panel=self.queryPanel(self.stripNumber(panel)),
+                straw_wire=is_straw,
+                position=position,
+                length=length,
+                frequency=frequency,
+                pulse_width=pulse_width,
+                tension=tension,
+            ).commit()
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
         # Make sure all data is defined

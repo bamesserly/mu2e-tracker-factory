@@ -336,6 +336,31 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
 
+        # Add entry to csv file
+        file_path = panel + ".csv"
+        if os.path.exists(file_path):
+            with open(file_path, "a") as f:
+                entry = (
+                    str(
+                        is_straw + position + length + frequency + pulse_width + tension
+                    )
+                    + "\n"
+                )
+                f.write(entry)
+        else:
+            with open(file_path, "w") as f:
+                f.write("Tension Box data for " + panel + "\n")
+                f.write(
+                    "is_straw, position, length, frequency, pulse_width, tension" + "\n"
+                )
+                entry = (
+                    str(
+                        is_straw + position + length + frequency + pulse_width + tension
+                    )
+                    + "\n"
+                )
+                f.write(entry)
+
     @staticmethod
     def getPortLocation():
         arduino_ports = [
@@ -431,7 +456,8 @@ def clean(item):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     hwl1 = TensionBox(
-        saveMethod=lambda *args: print(f"\nMeasurement: {args}"), panel="MN999"
+        saveMethod=lambda *args: print(f"\nMeasurement: {args}"),
+        panel="MN999",
     )
     hwl1.main()
     app.aboutToQuit.connect(hwl1.cleanUp)
