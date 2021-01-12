@@ -59,25 +59,28 @@ ser.logfile.write("# datetime: " + timestamp + "\n")
 
 # This section gathers the worker and panel IDs.
 # The workers can use the bar-code scanner or the keyboard for this.
-print "Welcome to the Resistance and Continuity Test"
-print "Type or scan your worker IDs, pressing enter after each one.  Enter a blank line when done"
+print("Welcome to the Resistance and Continuity Test")
+print(
+    "Type or scan your worker IDs, pressing enter after each one.  Enter a blank line when done"
+)
 workers = []
 while True:
-    worker = raw_input("worker name> ")
+    worker = input("worker name> ")
     if worker == "":
         break
     workers.append(worker)
 wstr = ", ".join(workers)
 ser.logfile.write("# workerids: " + wstr + "\n")
 
-print "Type or scan the panel ID number"
-panelid = raw_input("panel ID> ")
+print("Type or scan the panel ID number")
+panelid = input("panel ID> ")
+panelid = str(panelid)
 ser.logfile.write("# panelid:" + panelid + "\n")
 ser.readline()
 
 # Here begins the main loop to measure every straw and wire.
-print "Begin testing!  Press Ctrl+C when the panel is finished."
-print "Idx,\twire/straw,\tArduino R,\tHigh/Pass/Low,\tTruncated Mean R,\tN valid"
+print("Begin testing!  Press Ctrl+C when the panel is finished.")
+print("Idx,\twire/straw,\tArduino R,\tHigh/Pass/Low,\tTruncated Mean R,\tN valid")
 lastline, line = None, None  # lastline is a buffer for the previously-read line.
 try:
     while True:
@@ -93,15 +96,15 @@ try:
         if line.startswith("#"):
             # Ignore "commented" lines from the Arduino.
             # These get logged in the log file regardless.
-            print line
+            print(line)
             continue
         # Split the line along commas.
         # 104 tokens are expected: index, straw/wire, 100 ADC values,
         # Arduino mean resistance, and HIGH/LOW/PASS.
         linelist = line.split(",")
         if len(linelist) != 104:
-            print "# Possibly garbled line, please check and re-measure!"
-            print line
+            print("# Possibly garbled line, please check and re-measure!")
+            print(line)
             continue
         # Unpack the data
         idx, at_wire = int(linelist[0]), int(linelist[1])
@@ -131,7 +134,10 @@ try:
             if n_items < 90:
                 # Lots of filtered-out zeroes can indicate a problem, so we suggest
                 # that the workers re-measure.
-                print 100 - n_items, "measurements had to be discarded, please re-measure!"
+                print(
+                    100 - n_items,
+                    "measurements had to be discarded, please re-measure!",
+                )
         else:
             filtered = uncertainties.ufloat(0, 0)
             n_items = float("nan")
@@ -150,7 +156,19 @@ try:
             resistance_str = repr(resistance)
 
         # print the values for the user.  \t are tab characters.
-        print idx, "\t", at_wire_str, "\t\t", arduino_R, "\t\t", arduino_result, "\t\t", resistance_str, "\t\t", n_items
+        print(
+            idx,
+            "\t",
+            at_wire_str,
+            "\t\t",
+            arduino_R,
+            "\t\t",
+            arduino_result,
+            "\t\t",
+            resistance_str,
+            "\t\t",
+            n_items,
+        )
 
 except KeyboardInterrupt:
     # This happens when the user ends the test with Ctrl+C.
@@ -163,13 +181,13 @@ except KeyboardInterrupt:
                 if first:
                     first = False
                     sw_str = "wire" if i else "straw"
-                    print "Missing values for", sw_str,
-                print idx,
+                    print("Missing values for", sw_str)
+                print(idx)
         if first == False:
-            print ""
+            print("")
 
-    print "Finished measuring panel %s." % panelid
-    print "Log file is at", logfilename
+    print("Finished measuring panel %s." % panelid)
+    print("Log file is at", logfilename)
 
     # Close the serial port.
     del ser
@@ -180,7 +198,7 @@ except KeyboardInterrupt:
 import parse_log
 
 datafilename = parse_log.parse_log(logfilename)
-print "Data file and plots are at", datafilename
+print("Data file and plots are at", datafilename)
 import make_graph
 
 make_graph.make_graph(datafilename)
