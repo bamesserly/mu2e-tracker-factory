@@ -77,8 +77,8 @@ def parse_log(infilename):
 
 if __name__ == "__main__":
     logfilename = sys.argv[1]
-    print "Parsing", logfilename,
+    print("Parsing", logfilename)
     sys.stdout.flush()
     parse_log(logfilename)
-    print "done."
+    print("done.")
     sys.stdout.flush()

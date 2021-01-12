@@ -13,7 +13,14 @@ import numpy
 colorama.init(autoreset=True)
 
 # Serial port parameters.  You may need to change "port" if you change computers.
-port = "/dev/ttyACM0"
+# LINUX
+# port = "/dev/ttyACM0"
+
+# Windows
+# run: python -m serial.tools.list_ports to see available ports
+port = "COM1"
+# port = "COM3"
+
 # testing switched from /ttyAMC1
 # port = "/dev/cu.usbmodemFA131"
 # port = "/dev/cu.usbmodemFA1331"
@@ -76,7 +83,7 @@ print("Type or scan the panel ID number")
 panelid = input("panel ID> ")
 panelid = str(panelid)
 ser.logfile.write("# panelid:" + panelid + "\n")
-ser.readline()
+# ser.readline()
 
 # Here begins the main loop to measure every straw and wire.
 print("Begin testing!  Press Ctrl+C when the panel is finished.")
