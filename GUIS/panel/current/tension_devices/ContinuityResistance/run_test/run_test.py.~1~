@@ -1,0 +1,116 @@
+import datetime
+import serial
+import uncertainties
+import colorama
+import numpy
+
+colorama.init(autoreset=True)
+
+port = "/dev/ttyACM0"
+#port = "/dev/cu.usbmodemFA131"
+#port = "/dev/cu.usbmodemFD1231"
+baudrate = 115200
+timeout = 1
+
+calibration_resistor = uncertainties.ufloat(149.8, 0.3)
+
+serialport = serial.Serial(port=port,baudrate=baudrate,timeout=1)
+timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+logfilename = "log/resistancetest_" + timestamp + ".log"
+datafilename = "data/resistancetest_" + timestamp + ".csv"
+datafile = open(datafilename,"w")
+datafile.write("# datetime" + timestamp)
+
+class ser_wrapper:
+    def __init__(self,ser):
+        self.logfile = open(logfilename,"w")
+        self.ser = ser
+
+    def readline(self):
+        line = self.ser.readline()
+        self.logfile.write(line)
+        return line
+
+    def __del__(self):
+        self.logfile.close()
+
+ser = ser_wrapper(serialport)
+
+print "Welcome to the Resistance and Continuity Test"
+print "Type or scan your worker IDs all in the same line."
+workerids = raw_input(">")
+ser.logfile.write("# workerids:" + workerids)
+datafile.write("# workerids " + workerids + "\n")
+
+print "Type or scan the panel ID number"
+panelid = raw_input(">")
+ser.logfile.write("# panelid:" + panelid)
+datafile.write("# panel " + panelid + "\n")
+datafile.write("# idx, wire, resistance, d_resistance\n")
+
+print "Begin testing!  Press Ctrl+C when the panel is finished."
+print "Idx,\t wire/straw,\t Arduino R,\t High/Pass/Low ,\t Truncated Mean R, \t N valid"
+
+try:
+    while True:
+        if ser.ser.inWaiting():
+            line = ser.readline()
+        else:
+            continue
+
+        if not line:
+            continue
+        if line.startswith("#"):
+            print line
+            continue
+        linelist = line.split(",")
+        if len(linelist) != 104:
+            print "Possibly garbled line, please check and re-measure!"
+            print line
+            continue
+        idx, at_wire = int(linelist[0]), int(linelist[1])
+        data = sorted(map(int,linelist[2:-2]))
+        arduino_R = float(linelist[-2])
+        arduino_result = linelist[-1].strip()
+        at_wire_str = "wire" if at_wire else "straw"
+        
+        if arduino_result in ("HIGH", "LOW"):
+            arduino_result = colorama.Fore.RED + arduino_result
+        else:
+            arduino_result = colorama.Fore.GREEN + arduino_result
+
+        if sum(data) > 0:
+            filtered_data = [d for d in data if d != 0]
+            n_items = len(filtered_data)
+
+            filtered_mean = sum(filtered_data)/float(n_items)
+            filtered_sigma = numpy.std(filtered_data)
+            filtered = uncertainties.ufloat(filtered_mean, filtered_sigma)
+            if n_items < 90:
+                print 100-n_items, "measurements had to be discarded, please re-measure!"
+        else:
+            filtered = uncertainties.ufloat(0, 0)
+            n_items = float('nan')
+
+        #truncate = n_items//20
+        #truncated_data = data[truncate:-truncate]
+        #truncated_mean = sum(truncated_data)/float(len(truncated_data))
+        #truncated_sigma = numpy.std(truncated_data)
+        #truncated = uncertainties.ufloat(truncated_mean, truncated_sigma)
+        try:
+            resistance = calibration_resistor*(1023/filtered - 1)
+        except ZeroDivisionError:
+            resistance = uncertainties.ufloat(float('inf'),float('inf'))
+
+        print idx, "\t", at_wire_str, "\t", arduino_R, "\t", arduino_result, "\t", repr(resistance), "\t", n_items
+        datafile.write("%d, %d, %g, %g\n" % (idx,at_wire,resistance.nominal_value, resistance.std_dev))
+except KeyboardInterrupt:
+    print "Finished measuring panel %s." % panelid
+    print "Log file is at",logfilename
+    print "Data file and plots are at",datafilename
+    del ser
+    datafile.close()
+
+import make_graph
+make_graph.make_graph(datafilename)

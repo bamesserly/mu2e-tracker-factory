@@ -1,0 +1,22 @@
+# Position, wire/straw, resistance mean, resistance sigma, nvalues
+# 
+#  datetime: 20191111092131
+
+# 
+#  workerids: wk-wildber01
+
+# 
+#  panelid:MN015
+
+# 
+#  Position, wire/straw, ADC values..., resistance, PASS?
+
+0, 0, inf, inf, nan
+0, 0, inf, inf, nan
+0, 0, inf, inf, nan
+0, 0, inf, inf, nan
+0, 0, 29.9178, 0.124834, 100
+0, 0, 32.2752, 3.10289, 100
+0, 0, 30.0655, 0.146466, 5
+0, 0, 32.6935, 2.94653, 52
+0, 0, 31.2962, 2.16468, 100
