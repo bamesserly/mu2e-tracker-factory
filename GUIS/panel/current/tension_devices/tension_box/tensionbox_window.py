@@ -337,29 +337,30 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )
 
         # Add entry to csv file
-        file_path = panel + ".csv"
-        if os.path.exists(file_path):
-            with open(file_path, "a") as f:
-                entry = (
-                    str(
-                        is_straw + position + length + frequency + pulse_width + tension
-                    )
-                    + "\n"
-                )
-                f.write(entry)
-        else:
-            with open(file_path, "w") as f:
-                f.write("Tension Box data for " + panel + "\n")
-                f.write(
-                    "is_straw, position, length, frequency, pulse_width, tension" + "\n"
-                )
-                entry = (
-                    str(
-                        is_straw + position + length + frequency + pulse_width + tension
-                    )
-                    + "\n"
-                )
-                f.write(entry)
+        # TODO: data being passed does not match the database entry
+        # file_path = panel + ".csv"
+        # if os.path.exists(file_path):
+        #     with open(file_path, "a") as f:
+        #         entry = (
+        #             str(
+        #                 is_straw + position + length + frequency + pulse_width + tension
+        #             )
+        #             + "\n"
+        #         )
+        #         f.write(entry)
+        # else:
+        #     with open(file_path, "w") as f:
+        #         f.write("Tension Box data for " + panel + "\n")
+        #         f.write(
+        #             "is_straw, position, length, frequency, pulse_width, tension" + "\n"
+        #         )
+        #         entry = (
+        #             str(
+        #                 is_straw + position + length + frequency + pulse_width + tension
+        #             )
+        #             + "\n"
+        #         )
+        #         f.write(entry)
 
     @staticmethod
     def getPortLocation():
