@@ -11,6 +11,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QFileDialog
 import sys
+import os
 from pathlib import Path
 
 # print(f'dir: {str(Path(__file__).parent)}')
@@ -25,6 +26,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import serial  ## from pyserial
 import math, time, os
+import csv
 
 from scipy.signal import blackmanharris, fftconvolve
 from parabolic import parabolic
@@ -52,11 +54,12 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
     Vadim: hwl is inherited from both QtGui.QDialog and myui.Ui_Dialog
     """
 
-    def __init__(self, saveMethod=None, panel=str(), parent=None):
+    def __init__(self, saveMethod=None, panel=str(), pro=str(), parent=None):
         """ Vadim: Initialization of the class. Call the __init__ for the super classes """
         super(TensionBox, self).__init__(parent)
         self.setupUi(self)
         self.connectActions()
+        self.process = pro
 
         # Save input variables
         if panel:
@@ -324,11 +327,13 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
     """
 
     def save(self, is_straw, position, length, frequency, pulse_width, tension):
-
         # Get the panel ID
         panel = self.panelID.text()
         if panel == "":  ## default MN000 for testing
             panel = None
+
+        # Get process
+        process = str(self.process)
 
         # If this window has a pointer to a save method, call that method as well.
         if self.saveMethod is not None:
@@ -337,29 +342,32 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )
 
         # Add entry to csv file
-        file_path = panel + ".csv"
-        if os.path.exists(file_path):
-            with open(file_path, "a") as f:
-                entry = (
-                    str(
-                        is_straw + position + length + frequency + pulse_width + tension
-                    )
-                    + "\n"
-                )
-                f.write(entry)
+        filename = panel + "_proc" + process + ".csv"
+        file_path = "../../../Data/Panel data/external_gui_data/tensionbox_data/"
+
+        if not os.path.exists(file_path):
+            os.mkdir(file_path)
+
+        if os.path.exists(file_path + filename):
+            with open(file_path + filename, "a") as f:
+                csvwriter = csv.writer(f)
+                entry = [is_straw, position, length, frequency, pulse_width, tension]
+                csvwriter.writerow(entry)
         else:
-            with open(file_path, "w") as f:
+            with open(file_path + filename, "w") as f:
                 f.write("Tension Box data for " + panel + "\n")
-                f.write(
-                    "is_straw, position, length, frequency, pulse_width, tension" + "\n"
-                )
-                entry = (
-                    str(
-                        is_straw + position + length + frequency + pulse_width + tension
-                    )
-                    + "\n"
-                )
-                f.write(entry)
+                csvwriter = csv.writer(f)
+                header = [
+                    "is_straw",
+                    "position",
+                    "length",
+                    "frequency",
+                    "pulse_width",
+                    "tension",
+                ]
+                csvwriter.writerow(header)
+                entry = [is_straw, position, length, frequency, pulse_width, tension]
+                csvwriter.writerow(entry)
 
     @staticmethod
     def getPortLocation():

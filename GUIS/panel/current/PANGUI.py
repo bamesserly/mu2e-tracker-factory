@@ -4713,6 +4713,7 @@ class panelGUI(QMainWindow):
                         )
                     ),
                     panel=self.getCurrentPanel(),
+                    pro=self.pro,
                 )
             self.tensionBoxWindow.show()
 
