@@ -208,4 +208,4 @@ datafilename = parse_log.parse_log(logfilename)
 print("Data file and plots are at", datafilename)
 import make_graph
 
-make_graph.make_graph(datafilename)
+make_graph.make_graph(datafilename, panelid)
