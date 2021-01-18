@@ -1409,25 +1409,28 @@ class Pan5Procedure(PanelProcedure):
         position = Column(Integer)
         current_left = Column(REAL)
         current_right = Column(REAL)
+        voltage = Column(REAL)
         is_tripped = Column(BOOLEAN)
 
         def __init__(
-            self, procedure, position, current_left, current_right, is_tripped
+            self, procedure, position, current_left, current_right, voltage, is_tripped
         ):
             self.id = self.ID()
             self.procedure = procedure
             self.position = position
             self.current_left = current_left
             self.current_right = current_right
+            self.voltage = voltage
             self.is_tripped = is_tripped
 
         def __repr__(self):
-            return "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', is_tripped='%s')>" % (
+            return "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', voltage='%s', is_tripped='%s')>" % (
                 self.id,
                 self.procedure,
                 self.position,
                 self.current_left,
                 self.current_right,
+                self.voltage,
                 self.is_tripped,
             )
 
@@ -1437,6 +1440,7 @@ class Pan5Procedure(PanelProcedure):
                 self.position,
                 self.current_left,
                 self.current_right,
+                self.voltage,
                 self.is_tripped,
             ]
             return all([x is not None for x in data])
@@ -1451,6 +1455,9 @@ class Pan5Procedure(PanelProcedure):
             self.recordCurrentLeft(current_left)
             self.recordCurrentRight(current_right)
 
+        def recordVoltage(self, voltage):
+            self.voltage = voltage
+
         def recordIsTripped(self, is_tripped):
             self.is_tripped = is_tripped
 
@@ -1463,10 +1470,13 @@ class Pan5Procedure(PanelProcedure):
         def getRightHV(self):
             return self.current_right
 
+        def getVoltage(self):
+            return self.voltage
+
         def getIsTripped(self):
             return self.is_tripped
 
-    def recordHVMeasurement(self, position, current_left, current_right, is_tripped):
+    def recordHVMeasurement(self, position, current_left, current_right, voltage, is_tripped):
         # QA check. Currents arrive as strings � handle empty, alpha strings
         # If current is '', set it to None, commit it to DB.
         # If current is otherwise not a number, don't commit it to DB.
@@ -1502,6 +1512,7 @@ class Pan5Procedure(PanelProcedure):
                 position=position,
                 current_left=current_left if do_update_current_left else None,
                 current_right=current_right if do_update_current_right else None,
+                voltage=voltage,
                 is_tripped=is_tripped,
             )
 

@@ -1,5 +1,7 @@
-# for creating app, using paths
-import sys , os, inspect, getpass
+# for creating app, using paths, writing/reading csvs, fetting current date
+import sys , os, inspect, getpass, csv, datetime
+
+from tkinter import messagebox, Tk
 # for using paths
 from pathlib import Path, PurePath
 # for interacting with db
@@ -21,23 +23,30 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QLineEdit
 )
+
 # for GUI label and upper left icon management
 from PyQt5.QtGui import QBrush, QIcon
 # for GUI window management
 from PyQt5.QtCore import Qt, QRect, QObject
-# ui in .py format
-from hvGUI import Ui_MainWindow
+
+# Add GUIS/panel/current to sys.path
+sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
+# import UI
+from tension_devices.hv_gui.hvGUI import (
+    Ui_MainWindow,
+) 
 
 
 '''
 LIST OF IMPORTANT WIDGETS:
     Initialized in .setupUi
     Panel input                 --> panelNumLE
-    Straw position              --> positionBox
+    Voltage input               --> voltageBox
     Panel side input            --> sideBox
+    Straw position              --> positionBox
     Amps input                  --> ampsLE
     Trip status input           --> tripBox
-    voltage input               --> voltageBox
+    
 
     Initialized in _init_scroll
     List of right current boxes --> self.currentRight
@@ -48,14 +57,14 @@ LIST OF IMPORTANT WIDGETS:
 
 HOW DATA IS STORED:
     After the scroll area is init'ed, the following members
-        self.currentRight
-        self.currentLeft
+        self.current
+        and
         self.isTripped
         are lists of the widgets in the scroll area.
     These will be used to store all the data, rather than a
         big list or something.
 
-    The current lists can have their text accessed by .text()
+    The current list can have it's text accessed by .text()
         and it can be changed with .setText(<string>)
     The trip checkbox list can have the boolean value of a box
         returned with .isChecked() and the value can be changed
@@ -85,9 +94,13 @@ class highVoltageGUI(QMainWindow):
         self.ui.setupUi(self)
 
         # set other members from parameters
+        # save/load methods ("DB" or "CSV")
         self.saveMethod = saveMethod
         self.loadMethod = loadMethod
+        # panel id (MNXXX)
         self.panel = panel
+        # current straw (initial is 0)
+        self.straw = 0
 
         # set icon in upper left
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -100,37 +113,26 @@ class highVoltageGUI(QMainWindow):
         self.ui.ampsLE.returnPressed.connect(self.nextStraw)
         self.ui.subStrawButton.clicked.connect(self.nextStraw)
 
+        # bind typed change of spin box to strawChanged()
+        self.ui.positionBox.valueChanged.connect(self.strawChanged)
+
         # bind function to submit panel button
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
 
-        # disable panel input AND load if launched from gui
+        # disable straw data entry widgets
+        self.ui.ampsLE.setDisabled(True)
+        self.ui.tripBox.setDisabled(True)
+
+        # disable panel line edit if launched from gui
         if panel is not None:
-            self.ui.panelNumLE.setText(f'MN{panel}')
+            self.ui.panelNumLE.setText(panel)
             self.ui.panelNumLE.setDisabled(True)
-            self.ui.subPanelButton.setDisabled(True)
-            self.loadHVMeasurements()
-            # init scroll area
-            self._init_Scroll()
-            # set save mode
             self.saveMode = "DB"
         else:
-            self.ui.positionBox.setDisabled(True)
-            self.ui.sideBox.setDisabled(True)
-            self.ui.ampsLE.setDisabled(True)
-            self.ui.tripBox.setDisabled(True)
-            self.ui.voltageBox.setDisabled(True)
-            self.ui.subStrawButton.setDisabled(True)
-            # set save mode
             self.saveMode = "CSV"
 
 
 
-    #################################################################
-    ##### THIS WAS COPY/PASTED FROM panelGUI._init_pro5_setup() #####
-    #################################################################
-    # Literally didn't even have to change variable names.
-    # The fact that this works so smoothly makes me think that this program could 
-    #   potentially use the same data processor as PANGUI with little effort
     def _init_Scroll(self):
         self.ui.hvGrid = QGridLayout()
 
@@ -141,29 +143,19 @@ class highVoltageGUI(QMainWindow):
             )  # they can't (shouldn't) all have the same name
             self.ui.hvGrid.addWidget(hvLabel, i, 0)  # add them to grid, 0th column
 
-            # left current entry widgets
-            lCurrentEntry = QLineEdit(self.ui.scrollContents)  # make line edit widget
-            lCurrentEntry.setFixedWidth(150)  # set fixed width
-            lCurrentEntry.setObjectName(
-                f"lCurrent_{str(i).zfill(2)}"
+            # current entry widgets
+            currentEntry = QLineEdit(self.ui.scrollContents)  # make line edit widget
+            currentEntry.setFixedWidth(100)  # set fixed width
+            currentEntry.setObjectName(
+                f"current_{str(i).zfill(2)}"
             )  # name will be lCurrent_<position>, zfill pads with zeros
             self.ui.hvGrid.addWidget(
-                lCurrentEntry, i, 1
-            )  # place widget in it's row, 1st column
-
-            # lCurrent entry, except RIGHT side
-            rCurrentEntry = QLineEdit(self.ui.scrollContents)  # make line edit widget
-            rCurrentEntry.setFixedWidth(150)  # set fixed width
-            rCurrentEntry.setObjectName(
-                f"rCurrent_{str(i).zfill(2)}"
-            )  # name will be rCurrent_<position>, zfill pads with zeros
-            self.ui.hvGrid.addWidget(
-                rCurrentEntry, i, 2
+                currentEntry, i, 1
             )  # place widget in it's row, 1st column
 
             hvIsTripBool = QCheckBox(self.ui.scrollContents)
             hvIsTripBool.setObjectName(f"hvIsTripBool_{i}")  # use z fill?
-            self.ui.hvGrid.addWidget(hvIsTripBool, i, 3)
+            self.ui.hvGrid.addWidget(hvIsTripBool, i, 2)
 
         # lambda functions for finding widgets and returning lists of widgets
         findLineEdit = lambda name: [
@@ -174,43 +166,37 @@ class highVoltageGUI(QMainWindow):
             self.ui.scrollContents.findChild(QCheckBox, f"{name}_{i}")
             for i in range(96)
         ]
-        self.currentLeft = findLineEdit(
-            "lCurrent"
-        )  # make list of currentLeft lineEdits
-        self.currentRight = findLineEdit(
-            "rCurrent"
-        )  # make list of currentRight lineEdits
-        self.isTripped = findCheck("hvIsTripBool")  # make list of trip check boxes
+        # make list of currentLeft lineEdits
+        self.current = findLineEdit("current")
+        # make list of trip check boxes
+        self.isTripped = findCheck("hvIsTripBool")
 
-        self.ui.scrollContents.setLayout(
-            self.ui.hvGrid
-        )  # add the newly created grid layout to the GUI
+        # add the newly created grid layout to the GUI
+        self.ui.scrollContents.setLayout(self.ui.hvGrid)
         # scrollontents is made in the .ui file, and hvGrid is made in this file by the stuff above in this function
 
-        # The following two functions are bound to signals that the widgets in pro 5 emit
-        # Whenever a lineEdit or checkBox in the scroll area are changed, the corresponding function is called
-        # Both save all of the data for the straw that had a widget change
+        # disable everything
+        for i in range(95):
+            self.current[i].setReadOnly(True)
+            self.isTripped[i].setDisabled(True)
 
-        # lineSaveHV is called whenever a lineEdit widget (currentLeft or currentRight) is changed
-        # We want to write NULL values, so there is no restriction on what can be written.
-        def lineSaveHV(index):
+        '''
+        def widgetSaveHV(index):
+            # lambda returns true if testing on left side
+            isLeft = lambda : self.ui.sideBox.currentText() == "Left"
+            # lambda returns true if testing at 1100V
+            is1100 = lambda : self.ui.voltageBox.currentText() == "1100"
             self.saveHVMeasurement(
+                # current position
                 index,
-                self.currentLeft[index].text(),
-                self.currentRight[index].text(),
-                self.isTripped[index].isChecked(),
-            )
-            self.saveCSV()
-
-        # boxSaveHV is called whenever a checkBox widget is checked or unckecked.
-        # This function doesn't actually need to exist, since the check boxes could be bound to saveHVMeasurement(), but
-        # it would be pretty hard to read if saveHVMeasurement() was bound to the widget in a lambda function in a loop
-        def boxSaveHV(index):
-            self.saveHVMeasurement(
-                index,
-                self.currentLeft[index].text(),
-                self.currentRight[index].text(),
-                self.isTripped[index].isChecked(),
+                # give current to parameter for left side if using left
+                self.current[index].text() if isLeft else None,
+                # give current to parameter for right side if using right side
+                None if isLeft else self.current[index].text(),
+                # pass 1100 if testing at 1100 V
+                "1100" is is1100 else "1500",
+                # trip value
+                self.isTripped[index].isChecked()
             )
             self.saveCSV()
 
@@ -221,156 +207,236 @@ class highVoltageGUI(QMainWindow):
         # The binding makes the lineSaveHV function get called whenever the text in a lineEdit widget is changed by the user
         # using .textChanged makes it save if the program or user changes it (.textEdited = only user change triggers it)
         # Also, python will cry if you don't use a lambda function in connect()
-        for i, lineEdits in enumerate(zip(self.currentLeft, self.currentRight)):
-            for widget in lineEdits:
-                widget.textChanged.connect(lambda changed, index=i: lineSaveHV(index))
+        for i, widget in enumerate(self.current):
+            widget.textChanged.connect(lambda changed, index=i: widgetSaveHV(index))
+            widget.setReadOnly(True)
 
         # Enumerate turns the list of checkBox widgets into a list of tuples of the form (<int>, <checkBox>)
         # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
         for i, box in enumerate(self.isTripped):
-            box.stateChanged.connect(lambda changed, index=i: boxSaveHV(index))
+            box.stateChanged.connect(lambda changed, index=i: widgetSaveHV(index))
+            box.setDisabled(True)
+        '''
 
     # input validation.  TODO
     def _init_validation(self):
         pass
-
+    
+    # linked to the submit panel button
     def submitPanel(self):
         # set panel member as current panel
         self.panel = self.ui.panelNumLE.text()
+
         # return if id isn't complete
         if len(self.panel) < 5:
+            # show error
+            root = Tk()
+            root.withdraw()
+            messagebox.showerror(
+                title="Incomplete ID",
+                message="Please enter a panel ID in the format MN***",
+            )
+            # return early
             return
+
+        # return if voltage isn't chosen
+        if self.ui.voltageBox.currentIndex() == 0:
+            # show error
+            root = Tk()
+            root.withdraw()
+            messagebox.showerror(
+                title="Voltage not chosen",
+                message="Please select a voltage option: 1100V or 1500V",
+            )
+            # return early
+            return
+
+        # return if side isn't chosen
+        if self.ui.sideBox.currentIndex() == 0:
+            # show error
+            root = Tk()
+            root.withdraw()
+            messagebox.showerror(
+                title="Side not chosen",
+                message="Please select a side option: Right or Left",
+            )
+            # return early
+            return
+        
         # set csv file location
-        self.fileLocation = os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\{self.panel}_hv_data.csv"
+        today = datetime.date.today().strftime('%m%d%y')
+        today.replace(' ', '')
+        self.fileLocation = os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\{self.panel}_hv_data_{today}.csv"
         # make directory for CSVs if it doesn't exist yet
         if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"):
             os.mkdir(os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data")
 
+        # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
-        self.ui.sideBox.setEnabled(True)
+        
         self.ui.ampsLE.setEnabled(True)
         self.ui.tripBox.setEnabled(True)
-        self.ui.voltageBox.setEnabled(True)
         self.ui.subStrawButton.setEnabled(True)
 
+        # disable panel entry widgets
+        self.ui.sideBox.setDisabled(True)
+        self.ui.voltageBox.setDisabled(True)
         self.ui.panelNumLE.setDisabled(True)
         self.ui.subPanelButton.setDisabled(False)
-    
+
+        # initialize scroll area
+        self._init_Scroll()
+
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
     def nextStraw(self):
-        # save data
+        # save data for straw we're moving from
         self.saveHVMeasurement(
             self.ui.positionBox.value(),
-            self.ui.ampsLE.text() if self.getSideInput() else "",
-            self.ui.ampsLE.text() if not self.getSideInput() else "",
+            self.ui.ampsLE.text(),
+            self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex()
         )
         # increment position
         self.ui.positionBox.setValue(self.ui.positionBox.value() +1)
         self.ui.ampsLE.clear() # clear value
         self.ui.tripBox.setCurrentIndex(0) # set to not tripped
+        self.ui.ampsLE.setFocus() # move keyboard cursor to amps line edit
+        self.straw = self.ui.positionBox.value() # update current straw
+    
+    # called after moving from one straw to another
+    def strawChanged(self):
+        # save previous straw
+        self.saveHVMeasurement(
+            self.straw,
+            self.ui.ampsLE.text(),
+            self.ui.voltageBox.currentText(),
+            self.ui.tripBox.currentIndex()
+        )
+        # update current straw
+        self.straw = self.ui.positionBox.value()
+        # update entry widgets
+        self.ui.ampsLE.setText(
+            self.current[self.straw].text()
+        )
+        self.ui.tripBox.setCurrentIndex(
+            1 if self.isTripped[self.straw].isChecked() else 0
+        )
         self.ui.ampsLE.setFocus()
 
-    # saving every time an edit is made would require totally re-writing the csv...
-    #   maybe use some kind of buffer and save every few minutes/on close?
-    #   saving through pangui would avoid this.
-    def saveHVMeasurement(self, index, curLeft, curRight, isTrip):
+    # Save to DB, takes one position at a time, or saves a CSV
+    def saveHVMeasurement(self, index, current, volts, isTrip):
         # launched by PANGUI
         if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
-            self.saveMethod(index, curLeft, curRight, isTrip)
+            self.saveMethod(index, current, volts, isTrip)
+        else:
+            self.saveCSV()
         
         # ensure that scroll area is updated
-        self.setAmp(0, index, curRight)
-        self.setAmp(1, index, curLeft)
+        self.setAmp(index, current)
         self.setTrip(index, isTrip)
 
+    # Load from DB, and put data into scroll area
     def loadHVMeasurements(self):
         # launched by PANGUI
         if self.loadMethod is not None and self.saveMode == "DB":
             # return PANGUI --> self.DP.loadHVMeasurements()
             # returns list of the form:
-            # [(current_left0, current_right0, is_tripped0), (current_left1, current_right1, is_tripped1), ...]
+            # [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
             bigList = self.loadMethod()()
+            # figure out side outside of loop
+            side = self.getSide()
             for pos,straw in enumerate(bigList):
-                # set both currents
-                if straw[0] is not None:
-                    self.setAmp(1,pos,str(straw[0]))
-                if straw[1] is not None:
-                    self.setAmp(0,pos,str(straw[1]))
-                # if tripped
-                if straw[2]:
-                    # set it that way, default is not tripped
-                    self.setTrip(pos,True)
+                # set current
+                self.setAmp(pos, straw[side])
+                # if tripped, set it that way (default is not tripped)
+                if straw[3]: self.setTrip(pos,True) 
     
-
+    # Save to CSV, saves all posiitons with one call
     def saveCSV(self):
         # ensure correct save mode
         if not self.saveMode == "CSV":
             return
+
+        # make side string to shorten write header line
+        side = "RIGHT" if self.getSide() else "LEFT"
+        volt = "1500" if self.getVolt() else "1100"
+        now = datetime.datetime.now().strftime("%m/%d/%Y - %H:%M:%S")
         # open file, use w to overwrite
-        with open(self.fileLocation, "w") as csv:
-            # write header
-            csv.write("position,left current,right current,voltage,is tripped")
+        with open(self.fileLocation, "w") as csvF:
+            # write headers
+            csvF.write(f'Panel {self.panel} tested at {volt}V.  Last Update: {now}\n')
+            csvF.write(f'posiiton,{side} current,voltage,is tripped')
 
             for p in range(96):
+                csvF.write("\n")
                 # write each row, with data in the same order as the header
-                csv.write(f'{p},{self.getAmp(1,p)},{self.getAmp(0,p)},{self.getVoltInput()},{self.getTrip(p)}')
+                csvF.write(f'{p},{self.getAmp(p)},{self.getTrip(p)}')
 
             # close the file
-            csv.close()
+            csvF.close()
 
-
-
+    # Load from CSV, currently broken X_X
     def loadCSV(self):
-        pass
+        print("hello1")
+        # ensure correct save mode
+        if not self.saveMode == "CSV":
+            return
+        # open file for reading
+        with open(self.fileLocation, "r") as csvF:
+            print("hello2")
+            # make reader object
+            reader = csv.reader(csvF)
+            
+            # skip first line (header)
+            next(reader)
+
+            for row in reader:
+                if row[1] != '':
+                    self.setAmp(1,int(row[0]),row[1])
+                elif row[2] !='':
+                    self.setAmp(0,int(row[0]),row[2])
+                self.setTrip(int(row[0]),row[4])
 
 
     # gets a current value from scroll area
-    # side = 0 for right, 1 for left
     # position = straw position
-    def getAmp(self, side, position):
-        if side:
-            return self.currentLeft[position].text()
-        else:
-            return self.currentRight[position].text()
+    def getAmp(self, position):
+        return self.current[position].text()
 
     # gets a bool from scroll area
     # position = straw position
     def getTrip(self, position):
         return self.isTripped[position].isChecked()
 
-    # gets the current side in side combo box represented as an int
-    # 0 = right, 1 = left
-    def getSideInput(self):
-        # index of right is 1, index of left is 2, so subtract 1
-        return (self.ui.sideBox.currentIndex()) - 1
-
-    # gets the current voltage in voltage combo box represented as an int
-    # 0 = 1100V, 1 = 1500V
-    def getVoltInput(self):
-        # index of 1100 is 1, index of 1500 is 2, so subtract 1
-        return (self.ui.voltageBox.currentIndex()) - 1
-
     # sets a current value in scroll area
-    # side = 0 for right, 1 for left
     # position = straw position
     # amps = new value
-    def setAmp(self, side, position, amps):
-        if side:
-            self.currentLeft[position].setText(amps)
-        else:
-            self.currentRight[position].setText(amps)
+    def setAmp(self, position, amps):
+        self.current[position].setText(amps)
 
     # sets a bool in scroll area
     # position = straw position
     # boool = new checkbox value
     def setTrip(self, position, boool):
-        self.isTripped[position].setChecked(boool)
+        self.isTripped[position].setChecked(bool(boool))
+
+    # gets the current side in side combo box represented as an int
+    # 1 = right, 0 = left
+    def getSide(self):
+        # index of right is 1, index of left is 2, so subtract 1
+        return (self.ui.sideBox.currentIndex()) % 2
+
+    # gets the current voltage in voltage combo box represented as an int
+    # 0 = 1100V, 1 = 1500V
+    def getVolt(self):
+        # index of 1100 is 1, index of 1500 is 2, so subtract 1
+        return (self.ui.voltageBox.currentIndex()) - 1
 
 # main
 if __name__ == "__main__":
+
     # make app
     app = QApplication(sys.argv)
     # make window, give it "blank" window to use

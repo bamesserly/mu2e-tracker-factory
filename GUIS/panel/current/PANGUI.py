@@ -2648,7 +2648,7 @@ class panelGUI(QMainWindow):
 
     def displayAllHVMeasurements(self, data):
         for index, measurements in enumerate(data):
-            current_left, current_right, is_tripped = measurements
+            current_left, current_right, volts, is_tripped = measurements
             if any(current is not None for current in measurements):
                 self.displayHVMeasurement(
                     index, current_left, current_right, is_tripped
@@ -4753,14 +4753,15 @@ class panelGUI(QMainWindow):
     def hvMeasurementsPopup(self):
         self.hvMeasurementsWindow = highVoltageGUI(
             saveMethod=(
-                lambda pos, ampsL, ampsR, isTrip: (
-                    self.DP.saveHVMeasurement(pos, ampsL, ampsR, isTrip)
+                lambda pos, ampsL, ampsR, volts, isTrip: (
+                    self.DP.saveHVMeasurement(pos, ampsL, ampsR, volts, isTrip)
                 )
             ),
             loadMethod=(lambda: self.DP.loadHVMeasurements),
             panel=self.getCurrentPanel()
         )
         self.hvMeasurementsWindow.show()
+        self.hvMeasurementsWindow.setWindowTitle("High Voltage Data Recording")
         self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
 
 
