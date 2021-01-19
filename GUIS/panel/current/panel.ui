@@ -3004,8 +3004,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>999</width>
-                       <height>213</height>
+                       <width>994</width>
+                       <height>212</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4151,8 +4151,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>486</width>
-                       <height>541</height>
+                       <width>484</width>
+                       <height>539</height>
                       </rect>
                      </property>
                     </widget>
@@ -4210,7 +4210,7 @@ Tensioner</string>
                     </layout>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="1" column="0">
                    <widget class="QGroupBox" name="images">
                     <property name="font">
                      <font>
@@ -4278,13 +4278,6 @@ Tensioner</string>
                       </widget>
                      </item>
                     </layout>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QPushButton" name="hvButton">
-                    <property name="text">
-                     <string>Launch HV Popup</string>
-                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -6731,7 +6724,7 @@ Heater GUI</string>
  <connections/>
  <buttongroups>
   <buttongroup name="PortalButtons"/>
-  <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>

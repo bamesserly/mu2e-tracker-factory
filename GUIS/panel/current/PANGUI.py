@@ -564,7 +564,6 @@ class panelGUI(QMainWindow):
         # TODO Add any image buttons for pro 4 here
 
     def _init_pro5_setup(self):
-        self.ui.hvButton.clicked.connect(self.hvMeasurementsPopup)
 
         self.ui.panelInput5.installEventFilter(self)
 
