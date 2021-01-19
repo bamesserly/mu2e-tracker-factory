@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>808</width>
+    <width>1000</width>
     <height>413</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
-    <width>900</width>
+    <width>1500</width>
     <height>16777215</height>
    </size>
   </property>
@@ -157,7 +157,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>485</width>
+           <width>680</width>
            <height>342</height>
           </rect>
          </property>

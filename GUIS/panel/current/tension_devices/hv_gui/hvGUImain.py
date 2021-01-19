@@ -264,12 +264,21 @@ class highVoltageGUI(QMainWindow):
             return
         
         # set csv file location
+        # make string to represent today (mmddyyyy)
         today = datetime.date.today().strftime('%m%d%y')
         today.replace(' ', '')
-        self.fileLocation = os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\{self.panel}_hv_data_{today}.csv"
+        # make string for save location
+        pathString = "\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"
+        # make string for voltage (the index -1 will be 0 if it's 1100, 1 if 1500)
+        voltString = "1500V" if (self.ui.sideBox.currentIndex() - 1) else "1100V"
+        # make string for csv name (with \\ in the front to save inside the hv_data folder)
+        fString = f"\\{self.panel}_hv_data_{voltString}_{today}.csv"
+        # put it all together
+        self.fileLocation = os.path.dirname(os.path.realpath(__file__)) + pathString + fString
         # make directory for CSVs if it doesn't exist yet
-        if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"):
-            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + f"\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data")
+        print(self.fileLocation)
+        if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + pathString):
+            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + pathString)
 
         # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
