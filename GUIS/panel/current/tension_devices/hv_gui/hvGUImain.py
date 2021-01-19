@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (
 # for GUI label and upper left icon management
 from PyQt5.QtGui import QBrush, QIcon
 # for GUI window management
-from PyQt5.QtCore import Qt, QRect, QObject
+from PyQt5.QtCore import Qt, QRect
 
 # Add GUIS/panel/current to sys.path
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
@@ -150,12 +150,12 @@ class highVoltageGUI(QMainWindow):
                 f"current_{str(i).zfill(2)}"
             )  # name will be lCurrent_<position>, zfill pads with zeros
             self.ui.hvGrid.addWidget(
-                currentEntry, i, 1
+                currentEntry, i, 1, Qt.AlignHCenter
             )  # place widget in it's row, 1st column
 
             hvIsTripBool = QCheckBox(self.ui.scrollContents)
             hvIsTripBool.setObjectName(f"hvIsTripBool_{i}")  # use z fill?
-            self.ui.hvGrid.addWidget(hvIsTripBool, i, 2)
+            self.ui.hvGrid.addWidget(hvIsTripBool, i, 2, Qt.AlignHCenter)
 
         # lambda functions for finding widgets and returning lists of widgets
         findLineEdit = lambda name: [
