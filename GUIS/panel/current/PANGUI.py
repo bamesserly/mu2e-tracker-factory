@@ -27,10 +27,23 @@ Date of Last Update: 10/9/2020
 # ██║██║╚██╔╝██║██╔═══╝ ██║   ██║██╔══██╗   ██║   ╚════██║
 # ██║██║ ╚═╝ ██║██║     ╚██████╔╝██║  ██║   ██║   ███████║
 # ╚═╝╚═╝     ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
+
+import sys, time, os, tkinter, traceback, serial, platform
+from pathlib import Path, PurePath
+
+# Add Modules to sys.path
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
+)
+
+# Import logger from Modules (only do this once)
+from PANGUILogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root")
+
 import inspect
 import pyautogui
 from PIL import Image
-import sys, time, os, tkinter, traceback, serial, platform
 from datetime import datetime
 from threading import Thread, enumerate as enumerateThreads
 import numpy as np
@@ -78,7 +91,6 @@ from suppliesList import SuppliesList
 from dialogBox import DialogBox
 from stepsList import StepList
 import serial.tools.list_ports
-from pathlib import Path, PurePath
 from dataProcessor import MultipleDataProcessor as DataProcessor
 from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
 from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
@@ -86,16 +98,12 @@ from tension_devices.tension_box.tensionbox_window import TensionBox
 from tension_devices.panel_heater.PanelHeater import HeatControl
 
 # Import QLCDTimer from Modules
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
-)
 from timer import QLCDTimer
 
 # import packages that are used by other files (data processor, straw tensioner, etc.)
 # this 'should' slightly speed up the program while it's running, with a tiny bit of time added to starting it up
 # also allows for checking the packages right off the bat
 import cycler, kiwisolver, matplotlib, pyparsing, pyrect, pyscreeze, pytweening, scipy, setuptools, six, sqlalchemy
-
 
 # ██████╗ ██████╗ ███╗   ██╗███████╗████████╗ █████╗ ███╗   ██╗████████╗███████╗
 # ██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗████╗  ██║╚══██╔══╝██╔════╝
@@ -1330,7 +1338,7 @@ class panelGUI(QMainWindow):
     def openGUI(self, btn):
         # Get pro Information
         self.pro = int(btn.objectName()[3:-6])
-        print("pro selected: ", self.pro)
+        logger.info("pro selected: %s" % self.pro)
         self.pro_index = self.pro - 1
         self.ui.proSelection.setCurrentIndex(0)
         self.ui.GUIpro.setCurrentIndex(self.pro_index)
@@ -2754,10 +2762,8 @@ class panelGUI(QMainWindow):
 
         # loading from DB doesn't pass the validation bool for
         # the LPAL input, so it's added to the list here
-        print("REEEEE", len(self.data[0]))
         if len(data) == 22:
             self.data[0].append(False)
-            print("REEEEE", len(self.data[0]))
             if data[20] is not None and data[21] is not None:
                 self.data[0][22] = True
         if data[20] is not None:
@@ -3200,7 +3206,7 @@ class panelGUI(QMainWindow):
         # needs to have a valid panel before that can be pushed, so really there's nothing to parse!
         # So really all this does is validates the panel input and prints stuff if it's invalid
         if not self.validateInput(indices=[0]):
-            print("\n\npro 5 PANEL INPUT VALIDATION FAILED\n\n")
+            logger.warning("pro 5 PANEL INPUT VALIDATION FAILED")
 
         self.displayComments()
 
@@ -3995,7 +4001,7 @@ class panelGUI(QMainWindow):
     # connected to epoxy mixed for LP, starts timer 11
     def mixEpoxyLPP(self):
         if not self.validateInput(indices=[1]):
-            print("Validation Failed")
+            logger.warning("Validation Failed")
             return
 
         self.startTimer(11)
@@ -4010,7 +4016,7 @@ class panelGUI(QMainWindow):
     # INDEX 4 POINTS TO ROP BATCH
     def mixEpoxyRPP(self):
         if not (self.validateInput(indices=[2])):
-            print("Validation Failed")
+            logger.warning("Validation Failed")
             return
         self.startTimer(13)
         self.startTimer(14)
@@ -4048,7 +4054,7 @@ class panelGUI(QMainWindow):
 
     def mixEpoxyLOP(self):
         if not (self.validateInput(indices=[3])):
-            print("Validation Failed")
+            logger.warning("Validation Failed")
             return
         self.startTimer(15)
         self.startTimer(17)
@@ -4060,7 +4066,7 @@ class panelGUI(QMainWindow):
 
     def mixEpoxyROP(self):
         if not (self.validateInput(indices=[4])):
-            print("Validation Failed")
+            logger.warning("Validation Failed")
             return
         self.startTimer(16)
         self.startTimer(18)
@@ -4126,7 +4132,7 @@ class panelGUI(QMainWindow):
             return
 
         if not self.validateInput(indices=[0]):
-            print("Validation Failed")
+            logger.warning("Validation Failed")
             return
         self.startRunning()
         self.saveData()
@@ -4768,7 +4774,7 @@ def except_hook(exctype, exception, tb):
     Parameter: exception - Exception object that went uncaught.
     Parameter: tb - The traceback of the exception that specifies where and why it happened.
     """
-    sys.__excepthook__(exctype, exception, tb)
+    logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
     sys.exit()
 
 
@@ -4826,9 +4832,7 @@ def checkPackages():
 # ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
 if __name__ == "__main__":
-    sys.excepthook = (
-        except_hook  # catch annoying "python has stopped working" error on crash
-    )
+    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
     app = QApplication(sys.argv)  # create new app to run
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics

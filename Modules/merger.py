@@ -8,6 +8,10 @@ sys.path.insert(
 )  # Insert path to this directory
 from advancedthreading import LoopingReusableThread
 
+import logging
+
+logger = logging.getLogger("root")
+
 
 class Merger:
     """
@@ -27,7 +31,7 @@ class Merger:
         self.src_db = src_db
         self.dst_db = dst_db
 
-        print("Merging to database", dst_db)
+        logger.info("Merging to database %s" % dst_db)
 
         # Allias used when attaching source database
         self.attach_alias = "att"  # Alias for source database
@@ -74,7 +78,7 @@ class Merger:
         )
         dateTimeObj = datetime.now()
         timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        print("Automerge complete: ", timestampStr)
+        logger.info("Automerge complete: %s" % timestampStr)
 
     def __execute(self, script, fetchall=False):
         return self.executeScript(
@@ -149,8 +153,9 @@ class AutoMerger(Merger, LoopingReusableThread):
         )
 
     def run(self):
-        # print(f'\n\nAutomerge into {self.dst_db}\n\n')
-        print("Automerge has begun...")
+        logger.info(
+            "Automerger is running and will send data to the network every 10 min."
+        )
         LoopingReusableThread.run(self)
 
 
