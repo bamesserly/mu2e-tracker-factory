@@ -14,7 +14,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1600, 900)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
@@ -170,7 +172,9 @@ class Ui_MainWindow(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.tabWidget = QtWidgets.QTabWidget(self.commentBox)
         self.tabWidget.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
@@ -187,7 +191,9 @@ class Ui_MainWindow(object):
         self.gridLayout_5 = QtWidgets.QGridLayout(self.ringsTab)
         self.gridLayout_5.setObjectName("gridLayout_5")
         self.ringsComList = QtWidgets.QListWidget(self.ringsTab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.ringsComList.sizePolicy().hasHeightForWidth())
@@ -259,7 +265,9 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
         self.label = QtWidgets.QLabel(self.splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -269,7 +277,9 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.panelLE = QtWidgets.QLineEdit(self.splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelLE.sizePolicy().hasHeightForWidth())
@@ -280,7 +290,9 @@ class Ui_MainWindow(object):
         self.panelLE.setMaxLength(3)
         self.panelLE.setObjectName("panelLE")
         self.submitPB = QtWidgets.QPushButton(self.splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.submitPB.sizePolicy().hasHeightForWidth())
@@ -290,7 +302,9 @@ class Ui_MainWindow(object):
         self.submitPB.setFont(font)
         self.submitPB.setObjectName("submitPB")
         self.label_2 = QtWidgets.QLabel(self.splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
@@ -306,10 +320,14 @@ class Ui_MainWindow(object):
         self.splitter_2.setOrientation(QtCore.Qt.Vertical)
         self.splitter_2.setObjectName("splitter_2")
         self.ringsSetupBox = QtWidgets.QGroupBox(self.splitter_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.ringsSetupBox.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.ringsSetupBox.sizePolicy().hasHeightForWidth()
+        )
         self.ringsSetupBox.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -558,7 +576,9 @@ class Ui_MainWindow(object):
         self.partALF2LE.setObjectName("partALF2LE")
         self.gridLayout_4.addWidget(self.partALF2LE, 13, 1, 1, 1)
         self.gridLayout_15.addWidget(self.splitter_2, 1, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(1438, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            1438, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_15.addItem(spacerItem, 0, 2, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -588,21 +608,49 @@ class Ui_MainWindow(object):
         self.strawExportButton.setText(_translate("MainWindow", "Export To CSV"))
         self.plotStrawDataButton.setText(_translate("MainWindow", "Plot On Graph"))
         self.groupBox.setTitle(_translate("MainWindow", "Heating Data"))
-        self.heatProBox.setItemText(0, _translate("MainWindow", "Process 1 - Inner Rings"))
+        self.heatProBox.setItemText(
+            0, _translate("MainWindow", "Process 1 - Inner Rings")
+        )
         self.heatProBox.setItemText(1, _translate("MainWindow", "Process 2 - Straws"))
         self.heatProBox.setItemText(2, _translate("MainWindow", "Process 6 - Manifold"))
         self.plotHeatDataButton.setText(_translate("MainWindow", "Plot On Graph"))
         self.heatExportButton.setText(_translate("MainWindow", "Export To CSV"))
         self.commentBox.setTitle(_translate("MainWindow", "Comments"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.ringsTab), _translate("MainWindow", "1 - Rings"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.strawsTab), _translate("MainWindow", "2 - Straws"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.senseWireTab), _translate("MainWindow", "3 - Sense Wire"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.pinsTab), _translate("MainWindow", "4 - Pin Protectors"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.highVoltageTab), _translate("MainWindow", "5 - HV"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.manifoldTab), _translate("MainWindow", "6 - Manifold"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.floodingTab), _translate("MainWindow", "7 - Flooding"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.finalQCTab), _translate("MainWindow", "8 - Final QC"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.storageTab), _translate("MainWindow", "9 - Storage"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.ringsTab), _translate("MainWindow", "1 - Rings")
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.strawsTab),
+            _translate("MainWindow", "2 - Straws"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.senseWireTab),
+            _translate("MainWindow", "3 - Sense Wire"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.pinsTab),
+            _translate("MainWindow", "4 - Pin Protectors"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.highVoltageTab),
+            _translate("MainWindow", "5 - HV"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.manifoldTab),
+            _translate("MainWindow", "6 - Manifold"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.floodingTab),
+            _translate("MainWindow", "7 - Flooding"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.finalQCTab),
+            _translate("MainWindow", "8 - Final QC"),
+        )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.storageTab),
+            _translate("MainWindow", "9 - Storage"),
+        )
         self.label.setText(_translate("MainWindow", "Panel ID"))
         self.panelLE.setPlaceholderText(_translate("MainWindow", "***"))
         self.submitPB.setText(_translate("MainWindow", "Submit"))

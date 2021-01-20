@@ -3,7 +3,8 @@ import datetime
 
 straws = list()
 with open(
-    os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Straw storage\\StorageRejected.csv",
+    os.path.dirname(__file__)
+    + "\\..\\..\\..\\Data\\Straw storage\\StorageRejected.csv",
     "r",
 ) as f:
     reader = csv.DictReader(f)

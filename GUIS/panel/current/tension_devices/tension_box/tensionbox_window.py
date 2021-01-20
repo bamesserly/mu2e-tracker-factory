@@ -112,10 +112,10 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         Function that is called when the "runButton" is clicked
 
             Reads in relevant information from the UI. Calls the function that triggers the Arduino to take data, and
-            thus obtains the frequency of the straw's vibrations. Computes the tension. 
-            
+            thus obtains the frequency of the straw's vibrations. Computes the tension.
+
             ***
-            After each run, writes a line with the time, straw number, straw length, temperature, relative humidity, 
+            After each run, writes a line with the time, straw number, straw length, temperature, relative humidity,
             frequency, pulse width used, and tension to the output file.
             ***
         """

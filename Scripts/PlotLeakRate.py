@@ -126,7 +126,7 @@ def GetPanelIDFromFilename(filename):
 # total duration >= 2 days  --> t0 = 0.1*total duration
 def GetFitStartTime(total_duration):
     if total_duration < kFIT_START_TIME + 0.1:
-        return 0.
+        return 0.0
     elif total_duration * 0.1 < kFIT_START_TIME:
         return kFIT_START_TIME
     else:
@@ -158,7 +158,6 @@ def PlotDataPoints(df, column_name, axis, color=None, label=None):
         markersize=markersize,
         label=label,
     )
-
 
 
 ################################################################################
@@ -259,7 +258,7 @@ def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
             np.array(time),
             np.array(y_values),
             color=fit1_color,
-            linewidth=3.,
+            linewidth=3.0,
             label="Least Squares\n{0}+-{1} sccm\n$r^2$={2}".format(
                 leak_rate_in_sccm, round(std_err, 4), round(r_value ** 2, 3)
             ),
@@ -286,10 +285,9 @@ def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
             np.array(time),
             np.array(y_values),
             color=fit2_color,
-            linewidth=3.,
+            linewidth=3.0,
             label="From first and last points\n{0} sccm".format(leak_rate_in_sccm),
         )
-
 
     # Restrict fit range by start and end time, then do fit and plot it
     df = df.loc[(df["TIME(DAYS)"] > fit_start_time) & (df["TIME(DAYS)"] < fit_end_time)]
@@ -325,7 +323,7 @@ def main():
 
     # prep plots
     params = {"mathtext.default": "regular"}
-    fig, axs = plt.subplots(2,figsize=(13, 11))
+    fig, axs = plt.subplots(2, figsize=(13, 11))
     axDiffP = axs[0]
     axTemp = axDiffP.twinx()
     axRefP = axs[1]
@@ -340,8 +338,8 @@ def main():
         PlotDataPoints(df, "BOX TEMPERATURE(C)", axTemp, color_box_temp)
     except KeyError:
         pass
-    PlotDataPoints(df, "RefPSIA", axRefP, color_pressure_ref, "$P_{Ref}$" )
-    PlotDataPoints(df, "FillPSIA", axRefP, color_pressure_fill,"$P_{Fill}$"  )
+    PlotDataPoints(df, "RefPSIA", axRefP, color_pressure_ref, "$P_{Ref}$")
+    PlotDataPoints(df, "FillPSIA", axRefP, color_pressure_fill, "$P_{Fill}$")
 
     # Do fit and plot it
     if options.do_fit:

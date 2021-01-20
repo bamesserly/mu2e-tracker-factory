@@ -5,8 +5,10 @@
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
+
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
+
 # time formatting
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
@@ -14,7 +16,7 @@ import sqlalchemy as sqla  # for interacting with db
 import sqlite3  # for connecting with db
 import matplotlib.pyplot as plt  # for plotting
 import matplotlib as mpl  # also for plotting
-import pandas as pd # even more plotting
+import pandas as pd  # even more plotting
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -55,19 +57,17 @@ ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
 # fmt: on
 
 
-
-
 class facileDBGUI(QMainWindow):
 
-# fmt: off
-# ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗
-# ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝
-# ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗  
-# ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝  
-# ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗
-# ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝
-# Functions called by main, or by other functions under this section for the purpose of starting up the GUI.
-# fmt: on
+    # fmt: off
+    # ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗███████╗
+    # ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔════╝
+    # ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ █████╗
+    # ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══╝
+    # ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗███████╗
+    # ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝
+    # Functions called by main, or by other functions under this section for the purpose of starting up the GUI.
+    # fmt: on
 
     # initializer, takes ui parameter from the .ui file
     def __init__(self, ui_layout):
@@ -79,7 +79,7 @@ class facileDBGUI(QMainWindow):
         self.tkRoot.withdraw()  # hide root, it's necessary for popups to work, but it's just a blank window otherwise
 
         dir_path = os.path.dirname(os.path.realpath(__file__))  # put icon in upper left
-        self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
+        self.setWindowIcon(QIcon(f"{dir_path}\\mu2e.jpg"))
 
         self.initInputWidgets()
 
@@ -130,9 +130,8 @@ class facileDBGUI(QMainWindow):
             self.ui.partALF2LE,
             self.ui.partPaasALE,
             self.ui.partPaasBLE,
-            self.ui.partPaasCLE
+            self.ui.partPaasCLE,
         ]
-
 
     # make engine, connection, and metadata objects to interact with NETWORK database
     def connectToNetwork(self):
@@ -140,9 +139,7 @@ class facileDBGUI(QMainWindow):
         # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
         # this function returns a read only connection to the .db file at the secified location
         def connectSpecial():
-            return sqlite3.connect(
-                "file:X:\Data\database.db?mode=ro", uri=True
-            )
+            return sqlite3.connect("file:X:\Data\database.db?mode=ro", uri=True)
 
         # this create_engine call uses connectSpecial to open the sqlite database in read only
         self.engine = sqla.create_engine(
@@ -160,13 +157,12 @@ class facileDBGUI(QMainWindow):
             )  # show error message
             sys.exit()
 
-
         self.metadata = sqla.MetaData()  # create metadata
         self.initSQLTables()  # create important tables
 
     # make engine, connection, and metadata objects to interact with LOCAL database
     def connectToLocal(self):
-        
+
         # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
         # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
         # this function returns a read only connection to the .db file at the secified location
@@ -174,9 +170,9 @@ class facileDBGUI(QMainWindow):
         # double backslashes are necessary because \U is a unicode escape, but \\U is not
         def connectSpecial(dbPath):
             return sqlite3.connect(
-                f'file:C:\\Users\\{getpass.getuser()}\\Desktop\\production\\Data\\database.db?mode=ro',
-                uri=True
-                )
+                f"file:C:\\Users\\{getpass.getuser()}\\Desktop\\production\\Data\\database.db?mode=ro",
+                uri=True,
+            )
 
         # this create_engine call uses connectSpecial to open the sqlite database in read only
         self.engine = sqla.create_engine(
@@ -193,7 +189,6 @@ class facileDBGUI(QMainWindow):
                 message=f"Local read-only mode failed.  Contact a member of the software team for help.",
             )  # show error message
             sys.exit()
-
 
         self.metadata = sqla.MetaData()  # create metadata
         self.initSQLTables()  # create important tables
@@ -212,9 +207,9 @@ class facileDBGUI(QMainWindow):
         # bind function for submit button
         self.ui.submitPB.clicked.connect(self.findPanel)
         # bind function for export wire tension stuff
-        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements) 
+        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements)
         # bind function for wire plot button
-        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)  
+        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)
         # bind function for export straw tension data
         self.ui.strawExportButton.clicked.connect(self.exportStrawMeasurements)
         # bind function for plot straw tension data
@@ -230,21 +225,19 @@ class facileDBGUI(QMainWindow):
 
         # bind function for heat combo box change
         self.ui.heatProBox.currentIndexChanged.connect(self.displayHeat)
-        
-        
 
-# fmt: off
-# ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗ 
-# ██╔══██╗██╔════╝██╔══██╗██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ██╔══██╗██╔══██╗
-# ██████╔╝█████╗  ███████║██║  ██║    █████╗  ██████╔╝██║   ██║██╔████╔██║    ██║  ██║██████╔╝
-# ██╔══██╗██╔══╝  ██╔══██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╔╝██║    ██║  ██║██╔══██╗
-# ██║  ██║███████╗██║  ██║██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║    ██████╔╝██████╔╝
-# ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝    ╚═════╝ ╚═════╝ 
-# Functions that read from the SQL database
-# Find panel is a pretty important function, it's tied to the submit button and clears data
-#   from the GUI, checks for the existence of the submitted panel, and changes the top text
-#   label all before calling all the other "find" functions
-# fmt: on
+    # fmt: off
+    # ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗
+    # ██╔══██╗██╔════╝██╔══██╗██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ██╔══██╗██╔══██╗
+    # ██████╔╝█████╗  ███████║██║  ██║    █████╗  ██████╔╝██║   ██║██╔████╔██║    ██║  ██║██████╔╝
+    # ██╔══██╗██╔══╝  ██╔══██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╔╝██║    ██║  ██║██╔══██╗
+    # ██║  ██║███████╗██║  ██║██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║    ██████╔╝██████╔╝
+    # ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝    ╚═════╝ ╚═════╝
+    # Functions that read from the SQL database
+    # Find panel is a pretty important function, it's tied to the submit button and clears data
+    #   from the GUI, checks for the existence of the submitted panel, and changes the top text
+    #   label all before calling all the other "find" functions
+    # fmt: on
 
     # called upon hitting submit (does a lot of stuff)
     def findPanel(self):
@@ -262,7 +255,9 @@ class facileDBGUI(QMainWindow):
             widget.clear()
         for widget in self.partSetupWidgetList:  # erase all part IDs
             widget.setText("")
-        for key in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
+        for (
+            key
+        ) in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
             self.panelProcedureIDs[key] = -1
         # clear lists
         self.ui.hvListWidget.clear()  # clear text in widget
@@ -288,7 +283,7 @@ class facileDBGUI(QMainWindow):
         self.findComments()  # get comments, put them into list widgets
         self.findPanelParts()  # get part IDs, put them into disabled line edit widgets
         self.findMeasurements()  # get measurements, put them into class member lists and display them
-        self.findHeat() # get heat measurements
+        self.findHeat()  # get heat measurements
 
     # query to assign id to GUI class member (self.panelDatabaseID)
     def findPanelDatabaseID(self):
@@ -331,7 +326,7 @@ class facileDBGUI(QMainWindow):
         )  # fetch from proxy, gives list of tuples: (<PRO ID>, <STATION>)
 
         for toop in self.panelProcedures:  # go through results from procedures query
-            self.panelProcedureIDs[toop[1]] = toop[0] 
+            self.panelProcedureIDs[toop[1]] = toop[0]
             # assign procedure ID to the corresponding station (above line)
             # self.panelProcedureIDs is a dictionary with the name of each station as keys
         # print(self.panelProcedureIDs)
@@ -393,9 +388,9 @@ class facileDBGUI(QMainWindow):
 
         partsQuery = sqla.select(
             [
-                self.panelsTable.columns.number,    # panel number
+                self.panelsTable.columns.number,  # panel number
                 panelPartUsage.columns.panel_part,  # panel part ID
-                panelPartUsage.columns.panel,   # panel straw_location ID
+                panelPartUsage.columns.panel,  # panel straw_location ID
                 panelPartUsage.columns.left_right,  # ALF L/R
                 panelPartActual.columns.type,  # type of part (MIR, PIR, ALF, etc.)
                 panelPartActual.columns.number,  # part number
@@ -552,10 +547,7 @@ class facileDBGUI(QMainWindow):
     def findHeat(self):
         # get heat table
         panelHeats = sqla.Table(
-            "panel_heat",
-            self.metadata,
-            autoload=True,
-            autoload_with=self.engine
+            "panel_heat", self.metadata, autoload=True, autoload_with=self.engine
         )
 
         # make bools to keep track of what data we have
@@ -579,48 +571,48 @@ class facileDBGUI(QMainWindow):
         if self.panelProcedureIDs["pan1"] != -1:
             pro1HeatQuery = sqla.select(
                 [
-                    panelHeats.columns.timestamp,   # time temp taken
-                    panelHeats.columns.temp_paas_a, # PAAS A temp
-                    panelHeats.columns.temp_paas_bc,# PAAS BC temp
-                    panelHeats.columns.procedure
+                    panelHeats.columns.timestamp,  # time temp taken
+                    panelHeats.columns.temp_paas_a,  # PAAS A temp
+                    panelHeats.columns.temp_paas_bc,  # PAAS BC temp
+                    panelHeats.columns.procedure,
                 ]
             ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan1"])
             # where the procedure for the entry is the procedure for this panel
-            resultProxy = self.connection.execute(pro1HeatQuery) # make proxy
-            rawPro1HeatData = resultProxy.fetchall()    # get data from db
-            if rawPro1HeatData is not []:   # check if we actually have data
-                self.pro1HeatData = True # we do! huzzah!
+            resultProxy = self.connection.execute(pro1HeatQuery)  # make proxy
+            rawPro1HeatData = resultProxy.fetchall()  # get data from db
+            if rawPro1HeatData is not []:  # check if we actually have data
+                self.pro1HeatData = True  # we do! huzzah!
 
         # if a pro 2 exists, get the data!
         if self.panelProcedureIDs["pan2"] != -1:
             pro2HeatQuery = sqla.select(
                 [
-                    panelHeats.columns.timestamp,   # time temp taken
-                    panelHeats.columns.temp_paas_a, # PAAS A temp
-                    panelHeats.columns.temp_paas_bc # PAAS BC temp
+                    panelHeats.columns.timestamp,  # time temp taken
+                    panelHeats.columns.temp_paas_a,  # PAAS A temp
+                    panelHeats.columns.temp_paas_bc,  # PAAS BC temp
                 ]
             ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan2"])
             # where the procedure for the entry is the procedure for this panel
-            resultProxy = self.connection.execute(pro2HeatQuery) # make proxy
-            rawPro2HeatData = resultProxy.fetchall()    # get data from db
-            if rawPro2HeatData is not []:   # check if we actually have data
-                self.pro2HeatData = True # we do! noice!
+            resultProxy = self.connection.execute(pro2HeatQuery)  # make proxy
+            rawPro2HeatData = resultProxy.fetchall()  # get data from db
+            if rawPro2HeatData is not []:  # check if we actually have data
+                self.pro2HeatData = True  # we do! noice!
 
         # if a pro 6 exists, get the data!
         if self.panelProcedureIDs["pan6"] != -1:
             pro6HeatQuery = sqla.select(
                 [
-                    panelHeats.columns.timestamp,   # time temp taken
-                    panelHeats.columns.temp_paas_a, # PAAS A temp
-                    panelHeats.columns.temp_paas_bc # PAAS BC temp
+                    panelHeats.columns.timestamp,  # time temp taken
+                    panelHeats.columns.temp_paas_a,  # PAAS A temp
+                    panelHeats.columns.temp_paas_bc,  # PAAS BC temp
                 ]
             ).where(panelHeats.columns.procedure == self.panelProcedureIDs["pan6"])
             # where the procedure for the entry is the procedure for this panel
-            resultProxy = self.connection.execute(pro6HeatQuery) # make proxy
-            rawPro6HeatData = resultProxy.fetchall()    # get data from db
-            if rawPro6HeatData is not []:   # check if we actually have data
-                self.pro6HeatData = True # we do! excellent!
-        
+            resultProxy = self.connection.execute(pro6HeatQuery)  # make proxy
+            rawPro6HeatData = resultProxy.fetchall()  # get data from db
+            if rawPro6HeatData is not []:  # check if we actually have data
+                self.pro6HeatData = True  # we do! excellent!
+
         # The tuples in the raw data lists exist in the form: (timestamp, PAAS A temp, PAAS B temp)
 
         # the next 3 if blocks take the raw data and refine it
@@ -628,37 +620,48 @@ class facileDBGUI(QMainWindow):
         # readable timestamp at index 0.
         # second it gets statistics from the refined data temp: min, max, mean, std dev time: total time
         if self.pro1HeatData:
-            self.pro1HeatData = [] # switch bool to list
+            self.pro1HeatData = []  # switch bool to list
 
-            for toop in rawPro1HeatData:    # for each tuple in list,
+            for toop in rawPro1HeatData:  # for each tuple in list,
                 # add that data to the heat data with a human readable timestamp in front
-                self.pro1HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
-            
+                self.pro1HeatData.append(
+                    [
+                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
+                        toop[0],
+                        toop[1],
+                        toop[2],
+                    ]
+                )
+
             # make lists of temps for paas A and B/C
             paasATemps = [toop[2] for toop in self.pro1HeatData]
             paasBCTemps = [toop[3] for toop in self.pro1HeatData]
 
-            if len(paasATemps) > 0: # if paas A data exits
+            if len(paasATemps) > 0:  # if paas A data exits
                 # make a list of stats
                 self.pro1AStats = [
-                    statistics.mean(paasATemps),    # mean of paas A
-                    min(paasATemps),    # min of paas A
-                    max(paasATemps),    # max of paas A
-                    statistics.stdev(paasATemps),# standard dev of paas A
-                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
-                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                    statistics.mean(paasATemps),  # mean of paas A
+                    min(paasATemps),  # min of paas A
+                    max(paasATemps),  # max of paas A
+                    statistics.stdev(paasATemps),  # standard dev of paas A
+                    statistics.mean(paasATemps)
+                    - statistics.stdev(paasATemps),  # upper std dev
+                    statistics.mean(paasATemps)
+                    + statistics.stdev(paasATemps),  # lower std dev
                 ]
-            if len(paasBCTemps) > 0: # if paas B/C exists
+            if len(paasBCTemps) > 0:  # if paas B/C exists
                 # make a list of stats
                 self.pro1BCStats = [
-                    statistics.mean(paasBCTemps),    # mean of paas BC
-                    min(paasBCTemps),    # min of paas BC
-                    max(paasBCTemps),    # max of paas BC
-                    statistics.stdev(paasBCTemps),# standard dev of paas BC
-                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
-                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                    statistics.mean(paasBCTemps),  # mean of paas BC
+                    min(paasBCTemps),  # min of paas BC
+                    max(paasBCTemps),  # max of paas BC
+                    statistics.stdev(paasBCTemps),  # standard dev of paas BC
+                    statistics.mean(paasBCTemps)
+                    - statistics.stdev(paasBCTemps),  # upper std dev
+                    statistics.mean(paasBCTemps)
+                    + statistics.stdev(paasBCTemps),  # lower std dev
                 ]
-            
+
             # make a list of heat timestamps
             heatTimes = [toop[1] for toop in self.pro1HeatData]
             # if we have that data
@@ -671,26 +674,37 @@ class facileDBGUI(QMainWindow):
         if self.pro2HeatData:
             self.pro2HeatData = []
             for toop in rawPro2HeatData:
-                self.pro2HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
+                self.pro2HeatData.append(
+                    [
+                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
+                        toop[0],
+                        toop[1],
+                        toop[2],
+                    ]
+                )
             paasATemps = [toop[2] for toop in self.pro2HeatData]
             paasBCTemps = [toop[3] for toop in self.pro2HeatData]
             if len(paasATemps) > 0:
                 self.pro2AStats = [
-                    statistics.mean(paasATemps),    # mean of paas A
-                    min(paasATemps),    # min of paas A
-                    max(paasATemps),    # max of paas A
-                    statistics.stdev(paasATemps),# standard dev of paas A
-                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
-                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                    statistics.mean(paasATemps),  # mean of paas A
+                    min(paasATemps),  # min of paas A
+                    max(paasATemps),  # max of paas A
+                    statistics.stdev(paasATemps),  # standard dev of paas A
+                    statistics.mean(paasATemps)
+                    - statistics.stdev(paasATemps),  # upper std dev
+                    statistics.mean(paasATemps)
+                    + statistics.stdev(paasATemps),  # lower std dev
                 ]
             if len(paasBCTemps) > 0:
                 self.pro2BCStats = [
-                    statistics.mean(paasBCTemps),    # mean of paas BC
-                    min(paasBCTemps),    # min of paas BC
-                    max(paasBCTemps),    # max of paas BC
-                    statistics.stdev(paasBCTemps),# standard dev of paas BC
-                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
-                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                    statistics.mean(paasBCTemps),  # mean of paas BC
+                    min(paasBCTemps),  # min of paas BC
+                    max(paasBCTemps),  # max of paas BC
+                    statistics.stdev(paasBCTemps),  # standard dev of paas BC
+                    statistics.mean(paasBCTemps)
+                    - statistics.stdev(paasBCTemps),  # upper std dev
+                    statistics.mean(paasBCTemps)
+                    + statistics.stdev(paasBCTemps),  # lower std dev
                 ]
 
             heatTimes = [toop[1] for toop in self.pro2HeatData]
@@ -702,53 +716,62 @@ class facileDBGUI(QMainWindow):
         if self.pro6HeatData:
             self.pro6HeatData = []
             for toop in rawPro6HeatData:
-                self.pro6HeatData.append([time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(toop[0])), toop[0], toop[1], toop[2]])
-            
+                self.pro6HeatData.append(
+                    [
+                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
+                        toop[0],
+                        toop[1],
+                        toop[2],
+                    ]
+                )
+
             paasATemps = [toop[2] for toop in self.pro6HeatData]
             paasBCTemps = [toop[3] for toop in self.pro6HeatData]
             if len(paasATemps) > 0:
                 self.pro6AStats = [
-                    statistics.mean(paasATemps),    # mean of paas A
-                    min(paasATemps),    # min of paas A
-                    max(paasATemps),    # max of paas A
-                    statistics.stdev(paasATemps),# standard dev of paas A
-                    statistics.mean(paasATemps) - statistics.stdev(paasATemps),   # upper std dev
-                    statistics.mean(paasATemps) + statistics.stdev(paasATemps)    # lower std dev
+                    statistics.mean(paasATemps),  # mean of paas A
+                    min(paasATemps),  # min of paas A
+                    max(paasATemps),  # max of paas A
+                    statistics.stdev(paasATemps),  # standard dev of paas A
+                    statistics.mean(paasATemps)
+                    - statistics.stdev(paasATemps),  # upper std dev
+                    statistics.mean(paasATemps)
+                    + statistics.stdev(paasATemps),  # lower std dev
                 ]
             if len(paasBCTemps) > 0:
                 self.pro6BCStats = [
-                    statistics.mean(paasBCTemps),    # mean of paas BC
-                    min(paasBCTemps),    # min of paas BC
-                    max(paasBCTemps),    # max of paas BC
-                    statistics.stdev(paasBCTemps),# standard dev of paas BC
-                    statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps),   # upper std dev
-                    statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)    # lower std dev
+                    statistics.mean(paasBCTemps),  # mean of paas BC
+                    min(paasBCTemps),  # min of paas BC
+                    max(paasBCTemps),  # max of paas BC
+                    statistics.stdev(paasBCTemps),  # standard dev of paas BC
+                    statistics.mean(paasBCTemps)
+                    - statistics.stdev(paasBCTemps),  # upper std dev
+                    statistics.mean(paasBCTemps)
+                    + statistics.stdev(paasBCTemps),  # lower std dev
                 ]
-            
+
             heatTimes = [toop[1] for toop in self.pro6HeatData]
             if len(heatTimes) > 0:
                 rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro6HeatTime = timedelta(seconds = rawHeatTime)
+                self.pro6HeatTime = timedelta(seconds=rawHeatTime)
 
         # stats lists are of the form: [mean, min, max, std dev, upper std dev, lower std dev]
-        #print(self.pro6HeatData)
-        #print(self.pro6AStats)
-        #print(self.pro6BCStats)
-        #print(self.pro6HeatTime)
+        # print(self.pro6HeatData)
+        # print(self.pro6AStats)
+        # print(self.pro6BCStats)
+        # print(self.pro6HeatTime)
 
         self.displayHeat()
 
-
-
-# fmt: off
-# ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ 
-# ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ 
-# █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗
-# ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║
-# ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝
-# ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-# Functions responsible for writing data to CSV files, these all need more comments
-# fmt: on
+    # fmt: off
+    # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗
+    # ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝
+    # █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗
+    # ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║
+    # ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝
+    # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝
+    # Functions responsible for writing data to CSV files, these all need more comments
+    # fmt: on
 
     # export wire data to CSV file
     def exportWireMeasurements(self):
@@ -817,7 +840,7 @@ class facileDBGUI(QMainWindow):
                 title="Data Exported",
                 message=f"Data exported to MN{self.panelNumber}_HV_data.csv",
             )
-    
+
     # export heat data to CSV
     def exportHeatMeasurements(self):
         # get the current pro
@@ -829,16 +852,13 @@ class facileDBGUI(QMainWindow):
             )
             return
 
-        with open(f"MN{self.panelNumber}_pro_{curPro}_heat_data.csv", "w", newline="") as csvFile:
+        with open(
+            f"MN{self.panelNumber}_pro_{curPro}_heat_data.csv", "w", newline=""
+        ) as csvFile:
             csvWriter = csv.writer(csvFile)
             csvWriter.writerow([f"MN{self.panelNumber} heat Data"])
             csvWriter.writerow(
-                [
-                    "Time (Human)",
-                    "Time (Epoch)",
-                    "PAAS A Temp",
-                    "PAAS B/C Temp"
-                ]
+                ["Time (Human)", "Time (Epoch)", "PAAS A Temp", "PAAS B/C Temp"]
             )
             csvWriter.writerows(self.getHeat(curPro, "HeatData"))
             tkinter.messagebox.showinfo(
@@ -846,17 +866,15 @@ class facileDBGUI(QMainWindow):
                 message=f"Data exported to MN{self.panelNumber}_pro_{curPro}_heat_data.csv",
             )
 
-
-
-# fmt: off
-#  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗ 
-# ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║██║████╗  ██║██╔════╝ 
-# ██║  ███╗██████╔╝███████║██████╔╝███████║██║██╔██╗ ██║██║  ███╗
-# ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║██║██║╚██╗██║██║   ██║
-# ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║██║██║ ╚████║╚██████╔╝
-#  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-# Functions that use matplotlib to make graphs from the data in scroll areas
-# fmt: on
+    # fmt: off
+    #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗
+    # ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║██║████╗  ██║██╔════╝
+    # ██║  ███╗██████╔╝███████║██████╔╝███████║██║██╔██╗ ██║██║  ███╗
+    # ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║██║██║╚██╗██║██║   ██║
+    # ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║██║██║ ╚████║╚██████╔╝
+    #  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
+    # Functions that use matplotlib to make graphs from the data in scroll areas
+    # fmt: on
 
     # function to open new window with wire tension data graphed
     def plotWireData(self):
@@ -999,7 +1017,7 @@ class facileDBGUI(QMainWindow):
             mpl.dates.epoch2num(toop[1]) for toop in self.getHeat(curPro, "HeatData")
         ]
 
-        if len(xData) <3 : # <3
+        if len(xData) < 3:  # <3
             tkinter.messagebox.showerror(
                 title="Error",
                 message=f"Too little or no heat data was found for MN{self.panelNumber}, process {curPro}.",
@@ -1007,30 +1025,25 @@ class facileDBGUI(QMainWindow):
             return
 
         # make y data sets
-        yDataA = [
-            toop[2] for toop in self.getHeat(curPro, "HeatData")
-        ]
-        yDataBC = [
-            toop[3] for toop in self.getHeat(curPro, "HeatData")
-        ]
-        #yColorBC = [(heat - 5) for heat in yDataBC]
-        
+        yDataA = [toop[2] for toop in self.getHeat(curPro, "HeatData")]
+        yDataBC = [toop[3] for toop in self.getHeat(curPro, "HeatData")]
+        # yColorBC = [(heat - 5) for heat in yDataBC]
 
         # make subplot for PAAS A
         plt.subplot(211)
-        plt.plot_date(xData, yDataA) # make plot
+        plt.plot_date(xData, yDataA)  # make plot
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel("Temperature of PAAS A (°C)", fontsize=20)  # set y axis label
 
         # make subplot for PAAS A
         plt.subplot(212)
-        plt.plot_date(xData, yDataBC) # make plot
+        plt.plot_date(xData, yDataBC)  # make plot
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
-        
-        '''
+
+        """
         This adds color(sick as frick), but the x ticks are in days since 0001...
         # make subplot for PAAS B/C
         plt.subplot(212)
@@ -1038,23 +1051,21 @@ class facileDBGUI(QMainWindow):
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
-        '''
+        """
 
         plt.tight_layout()
         plt.show()
-        
-        
 
-# fmt: off
-# ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗ 
-# ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-# ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
-# ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
-# ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
-# ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-# Functions that put data onto the GUI
-# findComments() should be split into findComments() and displayComments()
-# fmt: on
+    # fmt: off
+    # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗
+    # ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+    # ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
+    # ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+    # ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
+    # ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+    # Functions that put data onto the GUI
+    # findComments() should be split into findComments() and displayComments()
+    # fmt: on
 
     # function to help sift through partsQuery results, also displays found data
     # this is essentially a helper for findPanelParts()
@@ -1155,14 +1166,14 @@ class facileDBGUI(QMainWindow):
                     )  # display just the data
         else:
             self.ui.hvListWidget.addItem("No Data Found :(")
-        
+
         if extantHeatData:
             self.ui.heatListWidget.addItem(
                 "Data Exists, but only the export and plot buttons work right now.  Check back in 173,000 seconds or so."
-                )
+            )
         else:
             self.ui.heatListWidget.addItem("No Data Found :(")
-    
+
     # put heat statistics on the gui
     def displayHeat(self):
 
@@ -1173,32 +1184,59 @@ class facileDBGUI(QMainWindow):
         curPro = self.ui.heatProBox.currentText()[8]
 
         paasAItemsToAdd = [
-            f'PAAS A Mean Temperature: {round(self.getHeat(curPro,"AStats")[0], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Maximum Temperature: {self.getHeat(curPro,"AStats")[2]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}' if len(self.getHeat(curPro,"AStats")) > 0 else "None",
-            f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}' if len(self.getHeat(curPro,"AStats")) > 0 else "None"
+            f'PAAS A Mean Temperature: {round(self.getHeat(curPro,"AStats")[0], 2)}'
+            if len(self.getHeat(curPro, "AStats")) > 0
+            else "None",
+            f'PAAS A Maximum Temperature: {self.getHeat(curPro,"AStats")[2]}'
+            if len(self.getHeat(curPro, "AStats")) > 0
+            else "None",
+            f'PAAS A Minimum Temperature: {self.getHeat(curPro,"AStats")[1]}'
+            if len(self.getHeat(curPro, "AStats")) > 0
+            else "None",
+            f'PAAS A Standard Deviation: {round(self.getHeat(curPro,"AStats")[3], 2)}'
+            if len(self.getHeat(curPro, "AStats")) > 0
+            else "None",
         ]
 
         paasBItemsToAdd = [
-            f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Maximum Temperature: {self.getHeat(curPro,"BCStats")[2]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Minimum Temperature: {self.getHeat(curPro,"BCStats")[1]}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None",
-            f'PAAS B/C Standard Deviation: {round(self.getHeat(curPro,"BCStats")[3], 2)}' if len(self.getHeat(curPro,"BCStats")) > 0 else "None"
+            f'PAAS B/C Mean Temperature: {round(self.getHeat(curPro,"BCStats")[0], 2)}'
+            if len(self.getHeat(curPro, "BCStats")) > 0
+            else "None",
+            f'PAAS B/C Maximum Temperature: {self.getHeat(curPro,"BCStats")[2]}'
+            if len(self.getHeat(curPro, "BCStats")) > 0
+            else "None",
+            f'PAAS B/C Minimum Temperature: {self.getHeat(curPro,"BCStats")[1]}'
+            if len(self.getHeat(curPro, "BCStats")) > 0
+            else "None",
+            f'PAAS B/C Standard Deviation: {round(self.getHeat(curPro,"BCStats")[3], 2)}'
+            if len(self.getHeat(curPro, "BCStats")) > 0
+            else "None",
         ]
         # ({round(self.getHeat(curPro,"BCStats")[4], 2)}, {round(self.getHeat(curPro,"BCStats")[5], 2)})
 
-        self.ui.heatListWidget.addItem(f'Total Heat Time: {self.getHeat(curPro,"HeatTime")}' if (self.getHeat(curPro,"HeatTime") is not []) else "No Heat Time Data Found")
+        self.ui.heatListWidget.addItem(
+            f'Total Heat Time: {self.getHeat(curPro,"HeatTime")}'
+            if (self.getHeat(curPro, "HeatTime") is not [])
+            else "No Heat Time Data Found"
+        )
 
-        self.ui.heatListWidget.addItem(f'PAAS A Stats' if len(self.getHeat(curPro,"AStats")) > 0 else "No PAAS A Data Found :(")
-        if len(self.getHeat(curPro,"AStats")) > 0:
+        self.ui.heatListWidget.addItem(
+            f"PAAS A Stats"
+            if len(self.getHeat(curPro, "AStats")) > 0
+            else "No PAAS A Data Found :("
+        )
+        if len(self.getHeat(curPro, "AStats")) > 0:
             self.ui.heatListWidget.addItems(paasAItemsToAdd)
 
-        self.ui.heatListWidget.addItem(f'PAAS B/C Stats' if len(self.getHeat(curPro,"BCStats")) > 0 else "No PAAS B/C Data Found :(")
-        if len(self.getHeat(curPro,"BCStats")) > 0:
+        self.ui.heatListWidget.addItem(
+            f"PAAS B/C Stats"
+            if len(self.getHeat(curPro, "BCStats")) > 0
+            else "No PAAS B/C Data Found :("
+        )
+        if len(self.getHeat(curPro, "BCStats")) > 0:
             self.ui.heatListWidget.addItems(paasBItemsToAdd)
 
-
-        '''
+        """
         #self.ui.heatListWidget.addItems(itemsToAdd)
         if len(self.getHeat(curPro, "HeatData")) > 0:
             self.ui.heatListWidget.addItem(f'{len(self.getHeat(curPro, "HeatData"))} measurements found for process {curPro}.')
@@ -1207,19 +1245,17 @@ class facileDBGUI(QMainWindow):
         self.ui.heatListWidget.addItem("Statistics will be placed here eventually.")
         self.ui.heatListWidget.addItem("Currently, graph and export work.")
         self.ui.heatListWidget.addItem("The graphs are still being improved for readability.")
-        '''
+        """
 
-
-        
-# fmt: off
-# ███╗   ███╗██╗███████╗ ██████╗
-# ████╗ ████║██║██╔════╝██╔════╝
-# ██╔████╔██║██║███████╗██║     
-# ██║╚██╔╝██║██║╚════██║██║     
-# ██║ ╚═╝ ██║██║███████║╚██████╗
-# ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
-# The isle of misfit functions
-# fmt: on
+    # fmt: off
+    # ███╗   ███╗██╗███████╗ ██████╗
+    # ████╗ ████║██║██╔════╝██╔════╝
+    # ██╔████╔██║██║███████╗██║
+    # ██║╚██╔╝██║██║╚════██║██║
+    # ██║ ╚═╝ ██║██║███████║╚██████╗
+    # ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
+    # The isle of misfit functions
+    # fmt: on
 
     # a function to get heat related member variables from facileDBGUI by name
     # takes a pro and type of data you want (should be one of AStats, BCStats, HeatData, HeatTime)
@@ -1239,7 +1275,6 @@ class facileDBGUI(QMainWindow):
         # Killing it with sys.exit() will not hurt the database.
 
 
-
 # fmt: off
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
 # ████╗ ████║██╔══██╗██║████╗  ██║
@@ -1256,9 +1291,11 @@ if __name__ == "__main__":
     window = facileDBGUI(Ui_MainWindow())  # make a window
     if ISLAB:
         window.connectToNetwork()  # link to database
-        window.setWindowTitle("Database Viewer, Network Connection") # change from default window title
+        window.setWindowTitle(
+            "Database Viewer, Network Connection"
+        )  # change from default window title
     else:
-        window.connectToLocal() #link to database
+        window.connectToLocal()  # link to database
         window.setWindowTitle("Database Viewer, Local Connection")
         # make sure you can tell the difference between local and network connections
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)

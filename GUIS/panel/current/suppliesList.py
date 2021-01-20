@@ -644,7 +644,10 @@ class SuppliesList:
 
         for index, checkbox in enumerate(partsCheckboxes):
             checkbox.clicked.connect(
-                lambda box=checkbox, workerLabel=partsWorkersLabels[index], dateLabel=partsDateLabels[index], i=index: self.writeTPS("parts", box, workerLabel, dateLabel, i
+                lambda box=checkbox, workerLabel=partsWorkersLabels[
+                    index
+                ], dateLabel=partsDateLabels[index], i=index: self.writeTPS(
+                    "parts", box, workerLabel, dateLabel, i
                 )
             )
 
@@ -913,19 +916,28 @@ class SuppliesList:
         )
         suppliesCheckboxes = self.supplyWidget.findChildren(QtWidgets.QCheckBox)
 
-
         for index, checkbox in enumerate(toolsCheckboxes):
             checkbox.setChecked(True)
-            self.writeTPS("tools", True, toolsWorkersLabels[index], toolsDateLabels[index], index)
+            self.writeTPS(
+                "tools", True, toolsWorkersLabels[index], toolsDateLabels[index], index
+            )
 
         for index, checkbox in enumerate(partsCheckboxes):
             checkbox.setChecked(True)
-            self.writeTPS("parts", True, partsWorkersLabels[index], partsDateLabels[index], index)
+            self.writeTPS(
+                "parts", True, partsWorkersLabels[index], partsDateLabels[index], index
+            )
 
         for index, checkbox in enumerate(suppliesCheckboxes):
             checkbox.setChecked(True)
-            self.writeTPS("supplies", True, suppliesWorkersLabels[index], suppliesDateLabels[index], index)
-        
+            self.writeTPS(
+                "supplies",
+                True,
+                suppliesWorkersLabels[index],
+                suppliesDateLabels[index],
+                index,
+            )
+
     """
     loadMoldReleaseList(self, data)
 
