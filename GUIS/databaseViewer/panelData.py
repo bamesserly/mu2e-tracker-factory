@@ -1,16 +1,11 @@
-
-# Class to organize panel data in order to 
+# Class to organize panel data in order to
 #   make storing/accesing data easier and
 #   more consistent
 
 
-
-
-
-class PanelData():
-
+class PanelData:
     def __init__(self):
-        
+
         # FIRST, init space for data!
         # Data we need:
         #   Panel human id
@@ -24,7 +19,7 @@ class PanelData():
         #   Parts - Base plate, MIR, BIR,
         #           PIR L/R A/B/C, ALF 1/2,
         #           PAAS A/B/C
-        
+
         # Human ID always an int between 1 and 999, inclusive
         self.humanID = -1
 
@@ -69,30 +64,29 @@ class PanelData():
         # Parts list: dict of part ids
         self.parts = {
             # Baseplate id
-            "BASEPLATE" : -1,
+            "BASEPLATE": -1,
             # MIR id
-            "MIR" : -1,
+            "MIR": -1,
             # BIR id
-            "BIR" : -1,
+            "BIR": -1,
             # PIR ids
-            "PIRLA" : -1,
-            "PIRLB" : -1,
-            "PIRLC" : -1,
-            "PIRRA" : -1,
-            "PIRRB" : -1,
-            "PIRRC" : -1,
+            "PIRLA": -1,
+            "PIRLB": -1,
+            "PIRLC": -1,
+            "PIRRA": -1,
+            "PIRRB": -1,
+            "PIRRC": -1,
             # ALF ids
-            "ALFL" : -1, # 1 = Left
-            "ALFR" : -1, # 2 = Right  ...?
+            "ALFL": -1,  # 1 = Left
+            "ALFR": -1,  # 2 = Right  ...?
             # PAAS ids
-            "PAASA" : -1,
-            "PAASB" : -1,
-            "PAASC" : -1,
-            "FRAME" : -1,
-            "MIDDLERIB_1" : -1,
-            "MIDDLERIB_2" : -1
+            "PAASA": -1,
+            "PAASB": -1,
+            "PAASC": -1,
+            "FRAME": -1,
+            "MIDDLERIB_1": -1,
+            "MIDDLERIB_2": -1,
         }
-
 
         # HV data: list of hv data where list index = straw
         # List of tuples of the form: (<TODO>)
@@ -113,8 +107,6 @@ class PanelData():
         #   index = wire
         # List of tuples of the form: (<TODO>)
         self.wireData = []
-        
-        
 
     # Clear all panel data (calls everyting in init)
     def clearPanel(self):
@@ -126,7 +118,7 @@ class PanelData():
 
         for key in self.timingLists:
             self.timingLists[key] = []
-        
+
         for key in self.comLists:
             self.comLists[key] = []
 
@@ -155,11 +147,10 @@ class PanelData():
         self.partPaasB = -1
         self.partPaasC = -1
 
-    
     # print ALL the data (for debugging)
     def __str__(self):
-        return f'''PANEL: {self.humanID}
-        '''
+        return f"""PANEL: {self.humanID}
+        """
 
 
 """
