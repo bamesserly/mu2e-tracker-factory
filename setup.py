@@ -102,5 +102,12 @@ if not is_official_lab_production:
     p.communicate()
     print("    Done setting up autoformatter.")
 
+# ===============================================================================
+# 5. Create an empty folder to dump logfiles in.
+# ===============================================================================
+try:
+    os.mkdir("logfiles")
+except OSError as error:
+    pass
 
 print("Done!")

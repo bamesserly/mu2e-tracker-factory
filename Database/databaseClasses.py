@@ -45,6 +45,10 @@ from inspect import isclass, getmembers
 from datetime import datetime
 from time import time
 
+import logging
+
+logger = logging.getLogger("root")
+
 # GLOBAL VARIABLES #
 DM = DatabaseManager()
 BASE = declarative_base()
@@ -545,7 +549,7 @@ class Procedure(BASE, OBJECT):
                 title="Multiple Procedures Error",
                 message=message,
             )
-            print("Multiple Procedures Error")
+            logger.error("Multiple Procedures Error")
             exit(1)
 
         # If one is found, return it.

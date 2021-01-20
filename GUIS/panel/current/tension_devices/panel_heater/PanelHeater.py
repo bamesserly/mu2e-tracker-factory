@@ -23,6 +23,9 @@ from tension_devices.panel_heater.heat_control_window import (
     Ui_MainWindow,
 )  ## edit via heat_control_window.ui in Qt Designer
 
+import logging
+
+logger = logging.getLogger("root")
 
 import matplotlib
 
@@ -69,7 +72,7 @@ class HeatControl(QMainWindow):
 
         ## user choice temperature setpoint
         self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
-        print("initialized")
+        logger.info("initialized")
 
     def saveMethod_placeholder(self):
         ## self.tempArec = PAAS-A temperatures
@@ -95,7 +98,7 @@ class HeatControl(QMainWindow):
             self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
             # if thread already running, send it the new setpoint
             if self.hct:
-                print("sending sp", self.setpt)
+                logger.info("sending sp %s" % self.setpt)
                 self.hct.setpt = self.setpt
         else:  # for case with 'Select...' option (start will be disabled)
             self.setpt = 0
@@ -107,7 +110,7 @@ class HeatControl(QMainWindow):
         self.ui.paas2_box.setDisabled(True)
         self.ui.setpt_box.removeItem(0)  # cannot revert to 'Select...'
         self.paas2input = self.ui.paas2_box.currentText().split()[0]
-        print("2nd PAAS type:", self.paas2input)
+        logger.info("2nd PAAS type: %s" % self.paas2input)
         self.update_setpoint()  # initial temperature setpoint
         ## map combobox entries to character to send via serial
         paas2dict = {"PAAS-B": "b", "PAAS-C": "c", "None": "0"}
@@ -218,10 +221,10 @@ class DataThread(threading.Thread):
                 file.write(
                     ",".join(["Date", "PAASA_Temp[C]", "2ndPAAS_Temp[C]", "Epoc\n"])
                 )
-        print("saving data to", self.datafile)
+        logger.info("saving data to %s" % self.datafile)
 
     def run(self):
-        print("thread running")
+        logger.info("thread running")
         n, nmax = 0, 40
         while self.running.isSet():
             self.micro.write(self.paastype)
@@ -239,16 +242,16 @@ class DataThread(threading.Thread):
                     continue
                 # print(repr(test))
                 if len(test.strip().split()) < 2:  # skip split line error
-                    print("skipping fragment of split line")
+                    logger.info("skipping fragment of split line")
                     continue
                 if "val" in test:  # duty cycle 0-255 for voltage control
-                    print(test.strip())
+                    logger.info(test.strip())
                 elif "Temp" in test:  # temperature reading
                     test = test.strip().split()
                     try:
                         float(test[-1])
                     except ValueError:
-                        print("skipping fragment of split line")
+                        logger.info("skipping fragment of split line")
                         continue
                     if test[1] == "1:":
                         temp1 = test[-1]  # PAAS-A temperature [C]
@@ -257,19 +260,19 @@ class DataThread(threading.Thread):
                 n += 1
                 time.sleep(1)
             if n == nmax:  # probable error with serial connection
-                print("Error with serial connection ->")
+                logger.error("Error with serial connection ->")
                 # clear temps to not send old value if requested by GUI
                 self.temp1 = 0  # 'error'
                 self.temp2 = 0  # 'error'
                 n = 0
                 return
             else:
-                print("PAAS-A temp:", temp1)
-                print("2nd PAAS temp:", temp2)
+                logger.info("PAAS-A temp: %s" % temp1)
+                logger.info("2nd PAAS temp: %s" % temp2)
                 self.temp1 = temp1
                 self.temp2 = temp2
                 n = 0
-        print("thread running check")
+        logger.info("thread running check")
         ## close serial if thread joined
         if self.micro:
             self.micro.close()
@@ -288,7 +291,7 @@ class DataThread(threading.Thread):
                     ]
                 )
         else:
-            print("failed saving measurement: temperature data not collected")
+            logger.warning("failed saving measurement: temperature data not collected")
 
     def transfer(self):
         try:
@@ -299,7 +302,7 @@ class DataThread(threading.Thread):
     def join(self, timeout=None):
         self.running.clear()
         threading.Thread.join(self, timeout)
-        print("thread joined")
+        logger.info("thread joined")
 
 
 class DataCanvas(FigureCanvas):
@@ -363,9 +366,8 @@ def getport(hardwareID):
         p.device for p in serial.tools.list_ports.comports() if hardwareID in p.hwid
     ]
     if len(ports) < 1:
-        print("Arduino not found \nPlug device into any USB port")
+        logger.error("Arduino not found \nPlug device into any USB port")
         time.sleep(2)
-        print("Exiting script")
         sys.exit()
     return ports[0]
 
@@ -373,7 +375,7 @@ def getport(hardwareID):
 if __name__ == "__main__":
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
-    print("Arduino Micro at {}".format(port))
+    logger.info("Arduino Micro at {}".format(port))
 
     # view traceback if error causes GUI to crash
     sys.excepthook = traceback.print_exception

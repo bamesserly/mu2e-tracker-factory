@@ -12,6 +12,10 @@ from os import listdir, path
 import sys
 from pathlib import Path
 
+import logging
+
+logger = logging.getLogger("root")
+
 # Insert path to this Modules
 sys.path.insert(
     0, str(Path(__file__).resolve().parent.parent / "Modules")
@@ -27,7 +31,7 @@ class DatabaseManager:
         self._db_file = db_file
         self._db_path = path.join(self._dir, self._db_file)
 
-        print("Reading and writing from database", self._db_path)
+        logger.info("Reading and writing from database %s" % self._db_path)
 
         ## Connect to SQL database
         self._Connection = dbconnection()
