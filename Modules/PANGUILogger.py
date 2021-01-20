@@ -3,9 +3,7 @@ import logging
 
 # the order that these lines appear in is important!
 def SetupPANGUILogger(name="root"):
-    sformatter = logging.Formatter(
-        "[%(asctime)s][%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S"
-    )
+    sformatter = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
     fformatter = logging.Formatter(
         "[%(asctime)s][%(levelname)-8s][%(threadName)-10s][%(module)-11s] %(message)s",
         "%Y-%m-%d %H:%M:%S",
