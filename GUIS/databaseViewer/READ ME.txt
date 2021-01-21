@@ -1,5 +1,0 @@
-The facileDB is a GUI to help visualize data from the database in a quick and easy way.
-
-The .ui file is essentially the graphics part of the GUI, and is pretty much just a lot of XML.
-The facileDB.py file is a pythonic version of the .ui file.
-facileDBMain.py is the launcher and back end of the GUI.
