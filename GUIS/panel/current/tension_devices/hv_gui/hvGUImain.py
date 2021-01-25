@@ -21,7 +21,8 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QPushButton,
     QTableWidgetItem,
-    QLineEdit
+    QLineEdit,
+    QMessageBox
 )
 
 # for GUI label and upper left icon management
@@ -93,6 +94,21 @@ class highVoltageGUI(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # member to allow popup to exist for more than a millisecond
+        self.pop = None
+
+        # Go gophers!
+        self.ui.centralwidget.setStyleSheet(
+            """QMainWindow, QWidget#centralwidget, QWidget#scrollContents { background-color: rgb(122, 0, 25); }
+            QLineEdit { color: rgb(255, 204, 51); background-color: rgb(142, 20, 45); }QLabel { color: rgb(255, 204, 51); }
+            QSpinBox { color: rgb(255, 204, 51); background-color: rgb(111, 0, 14); }
+            QPushButton, QScrollArea { color: rgb(255, 204, 51); background-color: rgb(111, 0, 14) }
+            QCheckBox { color: rgb(255, 204, 51); background-color: rgb(111, 0, 14); }
+            QComboBox, QComboBox QAbstractItemView { color: rgb(255, 204, 51); background-color: rgb(122, 0, 25);
+                selection-color: rgb(133, 255, 230); selection-background-color: rgb(0, 51, 204); }
+            QStatusBar {color: rgb(255, 204, 51)}"""
+        )
+
         # set other members from parameters
         # save/load methods ("DB" or "CSV")
         self.saveMethod = saveMethod
@@ -106,7 +122,7 @@ class highVoltageGUI(QMainWindow):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         self.setWindowIcon(QIcon(f'{dir_path}\\mu2e.jpg'))
 
-        # set save mode, changes at the end of this function
+        # set save mode (DB or CSV), changes at the end of this function
         self.saveMode = ""
 
         # bind functions to next straw
@@ -120,6 +136,7 @@ class highVoltageGUI(QMainWindow):
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
 
         # disable straw data entry widgets
+        self.ui.positionBox.setDisabled(True)
         self.ui.ampsLE.setDisabled(True)
         self.ui.tripBox.setDisabled(True)
 
@@ -229,38 +246,20 @@ class highVoltageGUI(QMainWindow):
 
         # return if id isn't complete
         if len(self.panel) < 5:
-            # show error
-            root = Tk()
-            root.withdraw()
-            messagebox.showerror(
-                title="Incomplete ID",
-                message="Please enter a panel ID in the format MN***",
-            )
-            # return early
+            # show error and return early
+            self.givePop("Please enter a panel ID in the format MN***")
             return
 
         # return if voltage isn't chosen
         if self.ui.voltageBox.currentIndex() == 0:
-            # show error
-            root = Tk()
-            root.withdraw()
-            messagebox.showerror(
-                title="Voltage not chosen",
-                message="Please select a voltage option: 1100V or 1500V",
-            )
-            # return early
+            # show error and return early
+            self.givePop("Please choose a voltage option")
             return
 
         # return if side isn't chosen
         if self.ui.sideBox.currentIndex() == 0:
-            # show error
-            root = Tk()
-            root.withdraw()
-            messagebox.showerror(
-                title="Side not chosen",
-                message="Please select a side option: Right or Left",
-            )
-            # return early
+            # show error and return early
+            self.givePop("Please choose a side option")
             return
         
         # set csv file location
@@ -291,10 +290,17 @@ class highVoltageGUI(QMainWindow):
         self.ui.sideBox.setDisabled(True)
         self.ui.voltageBox.setDisabled(True)
         self.ui.panelNumLE.setDisabled(True)
-        self.ui.subPanelButton.setDisabled(False)
+        self.ui.subPanelButton.setDisabled(True)
 
         # initialize scroll area
         self._init_Scroll()
+
+        # disable everything in scroll area
+        # done earlier, but somehow launching from pangui undos it
+        for i in range(95):
+            self.current[i].setReadOnly(True)
+            self.isTripped[i].setDisabled(True)
+
 
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
@@ -302,6 +308,7 @@ class highVoltageGUI(QMainWindow):
         # save data for straw we're moving from
         self.saveHVMeasurement(
             self.ui.positionBox.value(),
+            self.ui.sideBox.currentText(),
             self.ui.ampsLE.text(),
             self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex()
@@ -318,6 +325,7 @@ class highVoltageGUI(QMainWindow):
         # save previous straw
         self.saveHVMeasurement(
             self.straw,
+            self.ui.sideBox.currentText(),
             self.ui.ampsLE.text(),
             self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex()
@@ -334,11 +342,11 @@ class highVoltageGUI(QMainWindow):
         self.ui.ampsLE.setFocus()
 
     # Save to DB, takes one position at a time, or saves a CSV
-    def saveHVMeasurement(self, index, current, volts, isTrip):
+    def saveHVMeasurement(self, index, side, current, volts, isTrip):
         # launched by PANGUI
         if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
-            self.saveMethod(index, current, volts, isTrip)
+            self.saveMethod(index, side, current, volts, isTrip)
         else:
             self.saveCSV()
         
@@ -442,6 +450,16 @@ class highVoltageGUI(QMainWindow):
     def getVolt(self):
         # index of 1100 is 1, index of 1500 is 2, so subtract 1
         return (self.ui.voltageBox.currentIndex()) - 1
+    
+    # takes a message (string) and returns warning popup with the message
+    # return a popup
+    def givePop(self, message):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText(message)
+        msg.setWindowTitle("Warning")
+        self.pop = msg
+        self.pop.show()
 
 # main
 if __name__ == "__main__":

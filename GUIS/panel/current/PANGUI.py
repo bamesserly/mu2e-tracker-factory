@@ -203,6 +203,7 @@ class panelGUI(QMainWindow):
         self.changeColor(
             (122, 0, 25), (255, 204, 51)
         )  # 122/0/25 = UMN MAROON,255/204/51 == UMN GOLD
+        #print(self.application.styleSheet())
         self.ui.scrollArea.setStyleSheet("background-color: rgb(122, 0, 25);")
         self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
 
@@ -227,6 +228,7 @@ class panelGUI(QMainWindow):
         self._init_worker_portal()
 
         # Panel Input
+        self.pro_index = -1
         self._init_panel_input()
 
         # Setup each pro
@@ -496,6 +498,9 @@ class panelGUI(QMainWindow):
         # Disable all
         self.setWidgetsDisabled(self.continuity + self.wire_pos)
         self.ui.launch_wire_tensioner.setDisabled(True)
+        # bind launch hv w/ corresponding function
+        self.ui.launchHVpro3.clicked.connect(self.hvMeasurementsPopup)
+        self.ui.launchHVpro3.setDisabled(True)
 
         [
             combo.installEventFilter(self) for combo in self.continuity + self.wire_pos
@@ -687,6 +692,9 @@ class panelGUI(QMainWindow):
         self.ui.heat_finished4.clicked.connect(self.pro6CheckTemp)
         self.ui.pro6PanelHeater.clicked.connect(self.panelHeaterPopup)
 
+        # launch hv gui
+        self.ui.launchHVpro6.clicked.connect(self.hvMeasurementsPopup)
+
         # Images
         self.ui.picfour1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picfour2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
@@ -703,6 +711,7 @@ class panelGUI(QMainWindow):
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
             self.ui.heat_start,
+            self.ui.launchHVpro6
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -2939,6 +2948,7 @@ class panelGUI(QMainWindow):
             # setDisabled False ???
             self.ui.launch_wire_tensioner.setDisabled(False)
             self.ui.launch_tension_box.setDisabled(False)
+            self.ui.launchHVpro3.setEnabled(True)
             # enable all continuity widgets
             self.setWidgetsEnabled(self.continuity + self.wire_pos)
         # if wire spool id doesn't exist
@@ -2963,6 +2973,7 @@ class panelGUI(QMainWindow):
         # enable, tensioner, tension box, input widgets
         self.setWidgetsEnabled(self.continuity + self.wire_pos)
         self.ui.launch_wire_tensioner.setEnabled(True)
+        self.ui.launchHVpro3.setEnabled(True)
         self.ui.launch_tension_box.setEnabled(True)
 
         # display comments
@@ -3320,6 +3331,7 @@ class panelGUI(QMainWindow):
                 self.ui.temp4_4.setDisabled(True)
                 self.ui.temp4_5.setDisabled(True)
 
+        self.ui.launchHVpro6.setEnabled(True)
         self.displayComments()
 
     """
@@ -3906,7 +3918,7 @@ class panelGUI(QMainWindow):
         )
 
         # Enable wire tensioner button
-        self.setWidgetsEnabled([self.ui.launch_wire_tensioner])
+        self.setWidgetsEnabled([self.ui.launch_wire_tensioner,self.ui.launchHVpro3])
 
         # Enable all widgets in the continuity table
         self.setWidgetsEnabled(self.continuity + self.wire_pos)
@@ -4182,13 +4194,14 @@ class panelGUI(QMainWindow):
             ]
         )
 
-        # Enable Epoxy and gap measurements
+        # Enable Epoxy and gap measurements and launch hv gui
         self.setWidgetsEnabled(
             [
                 self.ui.epoxy_batch41,
                 self.ui.epoxy_mixed41,
                 self.ui.bpmirgapL,
                 self.ui.bpmirgapR,
+                self.ui.launchHVpro6
             ]
         )
 

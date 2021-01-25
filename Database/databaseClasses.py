@@ -1476,54 +1476,16 @@ class Pan5Procedure(PanelProcedure):
         def getIsTripped(self):
             return self.is_tripped
 
-    def recordHVMeasurement(self, position, current_left, current_right, voltage, is_tripped):
-        # QA check. Currents arrive as strings � handle empty, alpha strings
-        # If current is '', set it to None, commit it to DB.
-        # If current is otherwise not a number, don't commit it to DB.
-        def QACheck(current):
-            do_update_current = True
-            if current is "":
-                current = None
-            else:
-                try:
-                    current = float(current)
-                except ValueError:
-                    do_update_current = False
-            return current, do_update_current
-
-        current_left, do_update_current_left = QACheck(current_left)
-        current_right, do_update_current_right = QACheck(current_right)
-
-        # Check if a measurement has already been made at this position
-        meas = self._queryMeasurement(position).one_or_none()
-
-        # If so, update continuity and resistance
-        if meas:
-            if do_update_current_left:
-                meas.recordCurrentLeft(current_left)
-            if do_update_current_right:
-                meas.recordCurrentRight(current_right)
-            meas.recordIsTripped(is_tripped)
-
-        # If not, construct a new one with all data defined
-        else:
-            meas = Pan5Procedure.MeasurementPan5(
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        record = Pan5Procedure.MeasurementPan5(
                 procedure=self.id,
                 position=position,
-                current_left=current_left if do_update_current_left else None,
-                current_right=current_right if do_update_current_right else None,
+                current_left=current if side == "Left" else None,
+                current_right=current if side == "Right" else None,
                 voltage=voltage,
                 is_tripped=is_tripped,
             )
-
-        # debugging: print the types of the members of meas
-        # attr = vars(meas)
-        # print("=====",', '.join("%s: %s" % item for item in attr.items()))
-
-        # TODO does this need anything more?
-        # If all data is defined, commit (updated) measurement
-        # if meas.isCompletelyDefined():
-        return meas.commit()
+        return record.commit()
 
     def getHVMeasurements(self):
         measurements = self._queryMeasurements().all()
