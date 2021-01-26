@@ -1,4 +1,0 @@
-numpy
-matplotlib
-scipy
-pyqt5
