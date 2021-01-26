@@ -83,10 +83,10 @@ from modules.pangui_logger import SetupPANGUILogger
 logger = SetupPANGUILogger("root")
 
 # Local stuff
+from .panel_heater.PanelHeater import HeatControl
 from .straw_tensioner.run_straw_tensioner import StrawTension
 from .wire_tensioner.wire_tension import WireTensionWindow
 from .tension_box.tensionbox_window import TensionBox
-from .panel_heater.PanelHeater import HeatControl
 from modules.data_processor import MultipleDataProcessor as DataProcessor
 from modules.timer import QLCDTimer
 from utils.suppliesList import SuppliesList
