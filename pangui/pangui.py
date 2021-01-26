@@ -28,26 +28,23 @@ Date of Last Update: 10/9/2020
 # ██║██║ ╚═╝ ██║██║     ╚██████╔╝██║  ██║   ██║   ███████║
 # ╚═╝╚═╝     ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
-import sys, time, os, tkinter, traceback, serial, platform
-from pathlib import Path, PurePath
-
-# Add Modules to sys.path
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
-)
-
-# Import logger from Modules (only do this once)
-from PANGUILogger import SetupPANGUILogger
-
-logger = SetupPANGUILogger("root")
-
-import inspect
-import pyautogui
-from PIL import Image
+# Basic stuff
 from datetime import datetime
+from pathlib import Path, PurePath
 from threading import Thread, enumerate as enumerateThreads
-import numpy as np
+import inspect
 import subprocess  ## run straw and wire tensioner GUIs as subprocesses
+import sys, time, os, traceback, serial, platform
+
+# Fancy stuff
+from PIL import Image
+import cycler, kiwisolver, matplotlib, pyparsing, pyrect, pyscreeze, pytweening, scipy, setuptools, six, sqlalchemy
+import numpy as np
+import pyautogui
+import tkinter
+import serial.tools.list_ports
+
+# PyQt
 from PyQt5.Qt import PYQT_VERSION_STR  # used for version checking
 from PyQt5.QtCore import (
     QCoreApplication,
@@ -64,8 +61,6 @@ from PyQt5.QtGui import (
     QValidator,
     QDoubleValidator,
 )
-
-# pyqt5 docs: https://www.riverbankcomputing.com/static/Docs/PyQt4/classes.html
 from PyQt5.QtWidgets import (
     QCheckBox,
     QLabel,
@@ -81,29 +76,25 @@ from PyQt5.QtWidgets import (
     QGridLayout,
 )
 
-# the next import is the class for the ui
-# edit it via Qt Designer
-# changing the gui color is easy using panelGUI.changeColor in the panelGUI init function
-# when making changes to this file make sure that the button names and stuff match up
-from panel import Ui_MainWindow
+# Set up a logger globally
+# Must do so BEFORE we import local stuff that uses this same "root" logger.
+from modules.pangui_logger import SetupPANGUILogger
 
-from suppliesList import SuppliesList
-from dialogBox import DialogBox
-from stepsList import StepList
-import serial.tools.list_ports
-from dataProcessor import MultipleDataProcessor as DataProcessor
-from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
-from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
-from tension_devices.tension_box.tensionbox_window import TensionBox
-from tension_devices.panel_heater.PanelHeater import HeatControl
+logger = SetupPANGUILogger("root")
 
-# Import QLCDTimer from Modules
-from timer import QLCDTimer
+# Local stuff
+from .straw_tensioner.run_straw_tensioner import StrawTension
+from .wire_tensioner.wire_tension import WireTensionWindow
+from .tension_box.tensionbox_window import TensionBox
+from .panel_heater.PanelHeater import HeatControl
+from modules.data_processor import MultipleDataProcessor as DataProcessor
+from modules.timer import QLCDTimer
+from utils.suppliesList import SuppliesList
+from utils.dialogBox import DialogBox
+from utils.stepsList import StepList
 
-# import packages that are used by other files (data processor, straw tensioner, etc.)
-# this 'should' slightly speed up the program while it's running, with a tiny bit of time added to starting it up
-# also allows for checking the packages right off the bat
-import cycler, kiwisolver, matplotlib, pyparsing, pyrect, pyscreeze, pytweening, scipy, setuptools, six, sqlalchemy
+# UI, edited with QT creator. Py file generated with
+from main_window import Ui_MainWindow
 
 # ██████╗ ██████╗ ███╗   ██╗███████╗████████╗ █████╗ ███╗   ██╗████████╗███████╗
 # ██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗████╗  ██║╚══██╔══╝██╔════╝
