@@ -1342,6 +1342,10 @@ class panelGUI(QMainWindow):
     def openGUI(self, btn):
         # Get pro Information
         self.pro = int(btn.objectName()[3:-6])
+        # DISABLE PRO 5
+        if self.pro == 5:
+            self.pro = 0
+            return
         print("pro selected: ", self.pro)
         self.pro_index = self.pro - 1
         self.ui.proSelection.setCurrentIndex(0)
