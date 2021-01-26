@@ -227,7 +227,7 @@ class highVoltageGUI(QMainWindow):
         
         # set csv file location
         # make string to represent today (mmddyyyy)
-        today = datetime.date.today().strftime('%m%d%y')
+        today = datetime.date.today().strftime("%Y%m%d_%H%M%S")
         today.replace(' ', '')
         # make string for save location
         pathString = "\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"
