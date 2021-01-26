@@ -197,43 +197,6 @@ class highVoltageGUI(QMainWindow):
             self.current[i].setReadOnly(True)
             self.isTripped[i].setDisabled(True)
 
-        '''
-        def widgetSaveHV(index):
-            # lambda returns true if testing on left side
-            isLeft = lambda : self.ui.sideBox.currentText() == "Left"
-            # lambda returns true if testing at 1100V
-            is1100 = lambda : self.ui.voltageBox.currentText() == "1100"
-            self.saveHVMeasurement(
-                # current position
-                index,
-                # give current to parameter for left side if using left
-                self.current[index].text() if isLeft else None,
-                # give current to parameter for right side if using right side
-                None if isLeft else self.current[index].text(),
-                # pass 1100 if testing at 1100 V
-                "1100" is is1100 else "1500",
-                # trip value
-                self.isTripped[index].isChecked()
-            )
-            self.saveCSV()
-
-        # This loop binds all of the lineEdit widgets to lineSaveHV()
-        # enumerate(zip(cL, cR)) -->
-        #     [(0, (lC_00, rC_00)), (1, (lC_01, rC_01)), ..., (95, (lC_95, rC_95))]
-        # The second for loop goes through each lineEdit widget in lineEdits and binds lineSaveHV to its textEdited signal
-        # The binding makes the lineSaveHV function get called whenever the text in a lineEdit widget is changed by the user
-        # using .textChanged makes it save if the program or user changes it (.textEdited = only user change triggers it)
-        # Also, python will cry if you don't use a lambda function in connect()
-        for i, widget in enumerate(self.current):
-            widget.textChanged.connect(lambda changed, index=i: widgetSaveHV(index))
-            widget.setReadOnly(True)
-
-        # Enumerate turns the list of checkBox widgets into a list of tuples of the form (<int>, <checkBox>)
-        # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
-        for i, box in enumerate(self.isTripped):
-            box.stateChanged.connect(lambda changed, index=i: widgetSaveHV(index))
-            box.setDisabled(True)
-        '''
 
     # input validation.  TODO
     def _init_validation(self):
@@ -305,20 +268,11 @@ class highVoltageGUI(QMainWindow):
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
     def nextStraw(self):
-        # save data for straw we're moving from
-        self.saveHVMeasurement(
-            self.ui.positionBox.value(),
-            self.ui.sideBox.currentText(),
-            self.ui.ampsLE.text(),
-            self.ui.voltageBox.currentText(),
-            self.ui.tripBox.currentIndex()
-        )
         # increment position
         self.ui.positionBox.setValue(self.ui.positionBox.value() +1)
-        self.ui.ampsLE.clear() # clear value
-        self.ui.tripBox.setCurrentIndex(0) # set to not tripped
-        self.ui.ampsLE.setFocus() # move keyboard cursor to amps line edit
-        self.straw = self.ui.positionBox.value() # update current straw
+        # self.strawChanged gets called
+
+        
     
     # called after moving from one straw to another
     def strawChanged(self):
@@ -346,6 +300,7 @@ class highVoltageGUI(QMainWindow):
         # launched by PANGUI
         if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
+            #print("Saving: ",index," ",side," ",current," ",volts," ",isTrip)
             self.saveMethod(index, side, current, volts, isTrip)
         else:
             self.saveCSV()

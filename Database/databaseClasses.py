@@ -1209,6 +1209,18 @@ class Pan3Procedure(PanelProcedure):
             calibration_factor=calibration_factor,
         ).commit()
 
+    # HV measurements
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        MeasurementPan5(
+            procedure=self.id,
+            position=position,
+            current_left=current if side == "Left" else None,
+            current_right=current if side == "Right" else None,
+            voltage=voltage,
+            is_tripped=is_tripped,
+        ).commit()
+
+
 
 # Pin Protectors
 class Pan4Procedure(PanelProcedure):
@@ -1380,7 +1392,7 @@ class Pan4Procedure(PanelProcedure):
     def getSilverEpoxyRightTimeIsRunning(self):
         return self.details.silver_epoxy_right_time_is_running
 
-
+'''
 # HV
 class Pan5Procedure(PanelProcedure):
     __mapper_args__ = {"polymorphic_identity": "pan5"}
@@ -1508,7 +1520,7 @@ class Pan5Procedure(PanelProcedure):
             .filter(Pan5Procedure.MeasurementPan5.procedure == self.id)
             .order_by(Pan5Procedure.MeasurementPan5.position.asc())
         )
-
+'''
 
 # Manifold
 class Pan6Procedure(PanelProcedure):
@@ -1622,6 +1634,17 @@ class Pan6Procedure(PanelProcedure):
         self.details.heat_time = time
         self.details.heat_time_running = running
         self.commit()
+
+    # HV measurements
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        MeasurementPan5(
+            procedure=self.id,
+            position=position,
+            current_left=current if side == "Left" else None,
+            current_right=current if side == "Right" else None,
+            voltage=voltage,
+            is_tripped=is_tripped,
+        ).commit()
 
 
 # Flooding
@@ -2740,6 +2763,28 @@ class TensionboxMeasurement(BASE, OBJECT):
         self.frequency = frequency
         self.pulse_width = pulse_width
         self.tension = tension
+
+    
+class MeasurementPan5(BASE, OBJECT):
+    __tablename__ = "measurement_pan5"
+    id = Column(Integer, primary_key=True)
+    procedure = Column(Integer, ForeignKey("procedure.id"))
+    position = Column(Integer)
+    current_left = Column(REAL)
+    current_right = Column(REAL)
+    voltage = Column(REAL)
+    is_tripped = Column(BOOLEAN)
+
+    def __init__(
+        self, procedure, position, current_left, current_right, voltage, is_tripped
+    ):
+        self.id = self.ID()
+        self.procedure = procedure
+        self.position = position
+        self.current_left = current_left
+        self.current_right = current_right
+        self.voltage = voltage
+        self.is_tripped = is_tripped
 
 
 def main():

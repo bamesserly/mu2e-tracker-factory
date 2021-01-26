@@ -4765,8 +4765,8 @@ class panelGUI(QMainWindow):
     def hvMeasurementsPopup(self):
         self.hvMeasurementsWindow = highVoltageGUI(
             saveMethod=(
-                lambda pos, ampsL, ampsR, volts, isTrip: (
-                    self.DP.saveHVMeasurement(pos, ampsL, ampsR, volts, isTrip)
+                lambda position, side, current, volts, isTrip: (
+                    self.DP.saveHVMeasurement(position, side, current, volts, isTrip)
                 )
             ),
             loadMethod=(lambda: self.DP.loadHVMeasurements),
