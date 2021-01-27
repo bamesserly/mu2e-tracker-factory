@@ -1141,6 +1141,13 @@ class TxtDataProcessor(DataProcessor):
         if not file.exists():
             with file.open("w+") as f:
                 f.write(
+                    "Tension Box data for "
+                    + panel
+                    + " process "
+                    + str(self.getPro())
+                    + "\n"
+                )
+                f.write(
                     "Timestamp,Epoch,Panel,Position,Length,Frequency,PulseWidth,Tension\n"
                 )
         # Append measurement at the end of the file
@@ -1306,12 +1313,14 @@ class TxtDataProcessor(DataProcessor):
 
     def getStrawTensionBoxPath(self, panel):
         return (
-            self.strawTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
+            self.strawTensionboxDirectory
+            / f"TB_straws_{panel}_proc{self.getPro()}_{str(datetime.now().date())}.csv"
         )
 
     def getWireTensionBoxPath(self, panel):
         return (
-            self.wireTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
+            self.wireTensionboxDirectory
+            / f"TB_wires_{panel}_proc{self.getPro()}_{str(datetime.now().date())}.csv"
         )
 
     #  _   _                _            ______                _   _
