@@ -401,6 +401,7 @@ class panelGUI(QMainWindow):
         self.ui.pro2PanelHeater.clicked.connect(self.panelHeaterPopup)
         self.ui.launch_wire_tensioner.clicked.connect(self.wireTensionPopup)
         self.ui.launch_tension_box.clicked.connect(self.tensionboxPopup)
+        self.ui.pro6TensionBox.clicked.connect(self.tensionboxPopup)
 
     def _init_pro3_setup(self):
         ## Connect
@@ -3230,6 +3231,7 @@ class panelGUI(QMainWindow):
         if data[1] is not None:
             self.ui.frameInput.setText(data[1])
             self.ui.frameInput.setDisabled(True)
+            self.ui.pro6TensionBox.setDisabled(False)
         if data[2] is not None:
             self.ui.mrInput1.setText(data[2])
             self.ui.mrInput1.setDisabled(True)
@@ -3321,6 +3323,8 @@ class panelGUI(QMainWindow):
                 self.ui.heat_finished4.setDisabled(True)
                 self.ui.temp4_4.setDisabled(True)
                 self.ui.temp4_5.setDisabled(True)
+
+        self.ui.pro6TensionBox.setEnabled(True)
 
         self.displayComments()
 
@@ -4713,6 +4717,7 @@ class panelGUI(QMainWindow):
                         )
                     ),
                     panel=self.getCurrentPanel(),
+                    pro=self.pro,
                 )
             self.tensionBoxWindow.show()
 

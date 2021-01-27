@@ -11,6 +11,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QFileDialog
 import sys
+import os
 from pathlib import Path
 
 # print(f'dir: {str(Path(__file__).parent)}')
@@ -25,6 +26,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import serial  ## from pyserial
 import math, time, os
+import csv
 
 from scipy.signal import blackmanharris, fftconvolve
 from parabolic import parabolic
@@ -52,11 +54,12 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
     Vadim: hwl is inherited from both QtGui.QDialog and myui.Ui_Dialog
     """
 
-    def __init__(self, saveMethod=None, panel=str(), parent=None):
+    def __init__(self, saveMethod=None, panel=str(), pro=str(), parent=None):
         """ Vadim: Initialization of the class. Call the __init__ for the super classes """
         super(TensionBox, self).__init__(parent)
         self.setupUi(self)
         self.connectActions()
+        self.process = pro
 
         # Save input variables
         if panel:
@@ -232,16 +235,18 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         """
         Function that prompts the Arduino to take data for one iteration
 
-        Reads in the resulting data. Writes it to an output file. Returns relative humidity, temperature, and
-        measured vibration frequency.
+        Reads in the resulting data. Writes it to an output file. Returns
+        relative humidity, temperature, and measured vibration frequency.
+
+        These output files are just used to hold values in order to iteratively
+        calculate means. I don't think they should be tracked or saved."
         """
 
         data1 = [0] * nlines
         for ik in range(0, self.SpinNpulses.value()):
 
-            filename = "output" + str(ik) + ".txt"
+            filename = "cache/cache" + str(ik) + ".txt"
             file = os.path.join(this_folder, filename)
-            print(f"file: {file}")
             f = open(file, "w")
 
             # Trigger the Arduino to take data
@@ -257,10 +262,8 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             if ik == 0:
                 # print (str(self.ser.readline()))  # Read in and print line where Arduino prints pulse width
                 print(self.ser.readline().decode("utf-8").strip())
-                print(int(pulse_width))
             else:
                 self.ser.readline()  # Read in and print line where Arduino prints pulse width
-                print(int(pulse_width))
             # Read in the straw displacement data, and write it out to a file
             for ic in range(0, nlines):
                 line = int(self.ser.readline())
@@ -324,17 +327,64 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
     """
 
     def save(self, is_straw, position, length, frequency, pulse_width, tension):
-
         # Get the panel ID
         panel = self.panelID.text()
         if panel == "":  ## default MN000 for testing
             panel = None
+
+        # Get process
+        process = str(self.process)
 
         # If this window has a pointer to a save method, call that method as well.
         if self.saveMethod is not None:
             self.saveMethod(
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
+
+        # Add entry to csv file
+        filename = panel + "_proc" + process + ".csv"
+        file_path = "../../../Data/Panel data/external_gui_data/tensionbox_data/"
+
+        if not os.path.exists(file_path):
+            os.mkdir(file_path)
+
+        if os.path.exists(file_path + filename):
+            with open(file_path + filename, "a", newline="") as f:
+                csvwriter = csv.writer(f)
+                entry = [
+                    dt.now().isoformat(),
+                    is_straw,
+                    position,
+                    length,
+                    frequency,
+                    pulse_width,
+                    tension,
+                ]
+                csvwriter.writerow(entry)
+        else:
+            with open(file_path + filename, "w", newline="") as f:
+                f.write("Tension Box data for " + panel + "\n")
+                csvwriter = csv.writer(f)
+                header = [
+                    "timestamp",
+                    "is_straw",
+                    "position",
+                    "length",
+                    "frequency",
+                    "pulse_width",
+                    "tension",
+                ]
+                csvwriter.writerow(header)
+                entry = [
+                    dt.now().isoformat(),
+                    is_straw,
+                    position,
+                    length,
+                    frequency,
+                    pulse_width,
+                    tension,
+                ]
+                csvwriter.writerow(entry)
 
     @staticmethod
     def getPortLocation():
@@ -431,7 +481,8 @@ def clean(item):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     hwl1 = TensionBox(
-        saveMethod=lambda *args: print(f"\nMeasurement: {args}"), panel="MN999"
+        saveMethod=lambda *args: print(f"\nMeasurement: {args}"),
+        panel="MN999",
     )
     hwl1.main()
     app.aboutToQuit.connect(hwl1.cleanUp)

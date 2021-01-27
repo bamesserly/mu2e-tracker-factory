@@ -1129,7 +1129,7 @@ class TxtDataProcessor(DataProcessor):
             if not written:  # if the new row is actually new and not an update...
                 writer.writerow(newRow)  # write it!
 
-    # save tension measurement (DEFUNCT)
+    # save tension measurement
     def saveTensionboxMeasurement(
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
@@ -1141,12 +1141,19 @@ class TxtDataProcessor(DataProcessor):
         if not file.exists():
             with file.open("w+") as f:
                 f.write(
-                    "Timestamp,Panel,Position,Length,Frequency,PulseWidth,Tension,Epoch"
+                    "Tension Box data for "
+                    + panel
+                    + " process "
+                    + str(self.getPro())
+                    + "\n"
+                )
+                f.write(
+                    "Timestamp,Epoch,Panel,Position,Length,Frequency,PulseWidth,Tension\n"
                 )
         # Append measurement at the end of the file
         with file.open("a") as f:
             f.write(
-                f"{self.timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}, {datetime.now().timestamp()}"
+                f"{datetime.now().isoformat()}, {datetime.now().timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}\n"
             )
 
     # save panel heating measurement (DEFUNCT)
@@ -1306,12 +1313,14 @@ class TxtDataProcessor(DataProcessor):
 
     def getStrawTensionBoxPath(self, panel):
         return (
-            self.strawTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
+            self.strawTensionboxDirectory
+            / f"TB_straws_{panel}_proc{self.getPro()}_{str(datetime.now().date())}.csv"
         )
 
     def getWireTensionBoxPath(self, panel):
         return (
-            self.wireTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
+            self.wireTensionboxDirectory
+            / f"TB_wires_{panel}_proc{self.getPro()}_{str(datetime.now().date())}.csv"
         )
 
     #  _   _                _            ______                _   _
@@ -1938,16 +1947,18 @@ class SQLDataProcessor(DataProcessor):
     def saveTensionboxMeasurement(
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
-        is_straw = {True: "straw", False: "wire"}[is_straw]
-        TensionboxMeasurement(
-            panel=self.queryPanel(self.stripNumber(panel)),
-            straw_wire=is_straw,
-            position=position,
-            length=length,
-            frequency=frequency,
-            pulse_width=pulse_width,
-            tension=tension,
-        ).commit()
+        if self.ensureProcedure():
+            is_straw = {True: "straw", False: "wire"}[is_straw]
+            TensionboxMeasurement(
+                procedure=self.procedure,
+                panel=self.queryPanel(self.stripNumber(panel)),
+                straw_wire=is_straw,
+                position=position,
+                length=length,
+                frequency=frequency,
+                pulse_width=pulse_width,
+                tension=tension,
+            ).commit()
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_position):
         # Make sure all data is defined
