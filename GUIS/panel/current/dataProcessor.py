@@ -1129,7 +1129,7 @@ class TxtDataProcessor(DataProcessor):
             if not written:  # if the new row is actually new and not an update...
                 writer.writerow(newRow)  # write it!
 
-    # save tension measurement (DEFUNCT)
+    # save tension measurement
     def saveTensionboxMeasurement(
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
@@ -1141,12 +1141,12 @@ class TxtDataProcessor(DataProcessor):
         if not file.exists():
             with file.open("w+") as f:
                 f.write(
-                    "Timestamp,Panel,Position,Length,Frequency,PulseWidth,Tension,Epoch"
+                    "Timestamp,Epoch,Panel,Position,Length,Frequency,PulseWidth,Tension\n"
                 )
         # Append measurement at the end of the file
         with file.open("a") as f:
             f.write(
-                f"{self.timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}, {datetime.now().timestamp()}"
+                f"{datetime.now().isoformat()}, {datetime.now().timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}\n"
             )
 
     # save panel heating measurement (DEFUNCT)

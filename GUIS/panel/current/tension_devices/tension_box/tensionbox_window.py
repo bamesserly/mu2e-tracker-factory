@@ -235,16 +235,18 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         """
         Function that prompts the Arduino to take data for one iteration
 
-        Reads in the resulting data. Writes it to an output file. Returns relative humidity, temperature, and
-        measured vibration frequency.
+        Reads in the resulting data. Writes it to an output file. Returns
+        relative humidity, temperature, and measured vibration frequency.
+
+        These output files are just used to hold values in order to iteratively
+        calculate means. I don't think they should be tracked or saved."
         """
 
         data1 = [0] * nlines
         for ik in range(0, self.SpinNpulses.value()):
 
-            filename = "output" + str(ik) + ".txt"
+            filename = "cache/cache" + str(ik) + ".txt"
             file = os.path.join(this_folder, filename)
-            print(f"file: {file}")
             f = open(file, "w")
 
             # Trigger the Arduino to take data
@@ -260,10 +262,8 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             if ik == 0:
                 # print (str(self.ser.readline()))  # Read in and print line where Arduino prints pulse width
                 print(self.ser.readline().decode("utf-8").strip())
-                print(int(pulse_width))
             else:
                 self.ser.readline()  # Read in and print line where Arduino prints pulse width
-                print(int(pulse_width))
             # Read in the straw displacement data, and write it out to a file
             for ic in range(0, nlines):
                 line = int(self.ser.readline())
@@ -349,15 +349,24 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             os.mkdir(file_path)
 
         if os.path.exists(file_path + filename):
-            with open(file_path + filename, "a") as f:
+            with open(file_path + filename, "a", newline="") as f:
                 csvwriter = csv.writer(f)
-                entry = [is_straw, position, length, frequency, pulse_width, tension]
+                entry = [
+                    dt.now().isoformat(),
+                    is_straw,
+                    position,
+                    length,
+                    frequency,
+                    pulse_width,
+                    tension,
+                ]
                 csvwriter.writerow(entry)
         else:
-            with open(file_path + filename, "w") as f:
+            with open(file_path + filename, "w", newline="") as f:
                 f.write("Tension Box data for " + panel + "\n")
                 csvwriter = csv.writer(f)
                 header = [
+                    "timestamp",
                     "is_straw",
                     "position",
                     "length",
@@ -366,7 +375,15 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                     "tension",
                 ]
                 csvwriter.writerow(header)
-                entry = [is_straw, position, length, frequency, pulse_width, tension]
+                entry = [
+                    dt.now().isoformat(),
+                    is_straw,
+                    position,
+                    length,
+                    frequency,
+                    pulse_width,
+                    tension,
+                ]
                 csvwriter.writerow(entry)
 
     @staticmethod
