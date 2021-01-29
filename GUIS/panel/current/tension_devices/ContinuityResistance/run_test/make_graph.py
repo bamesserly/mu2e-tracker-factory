@@ -4,9 +4,14 @@ import numpy as np
 from itertools import islice
 import csv
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
+dir_path = dir_path[: -len(suffix)]
+dir_path += "\Data\Panel data\\FinalQC\\Resistance\\"
+
 # Function that makes and saves a graph for visually summarizing
 # the continuity test results.
-def make_graph(filename, panelid):
+def make_graph(filename, panelid, logfilename):
     idx_wires = []
     idx_straws = []
     resistances_wires = []
@@ -70,7 +75,12 @@ def make_graph(filename, panelid):
     plt.yticks(y)
     plt.axis([0, 100, 0, 500])
     plt.show()
-    fig.savefig(filename[:-3] + "png")
+    logfilename = logfilename[:-3] + "png"
+    print("\n\n\n")
+    print(logfilename)
+    d = dir_path + "Plots\\" + logfilename
+    print(d)
+    fig.savefig(dir_path + "Plots\\" + logfilename)
 
 
 if __name__ == "__main__":

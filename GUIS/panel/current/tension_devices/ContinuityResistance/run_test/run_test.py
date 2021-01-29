@@ -7,6 +7,7 @@ import serial
 import uncertainties  # module for propagating uncertainties.
 import colorama  # used to colour the terminal output
 import numpy
+import os
 
 # Initialize colorama.  autoreset = True makes it return to
 # normal output after each print statement.
@@ -35,7 +36,11 @@ calibration_resistor = uncertainties.ufloat(149.8, 0.3)
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-logfilename = "log/resistancetest_" + timestamp + ".log"
+logfilename = "\\resistancetest_" + timestamp + ".log"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
+dir_path = dir_path[: -len(suffix)]
+dir_path += "\Data\Panel data\\FinalQC\\Resistance\\"
 
 # Lists to keep track of OK vs bad measurements.
 wires_ok = [False] * 96
@@ -46,7 +51,7 @@ oks = [wires_ok, straws_ok]
 # all written/read lines to a logfile.
 class ser_wrapper:
     def __init__(self, ser):
-        self.logfile = open(logfilename, "w", buffering=1)
+        self.logfile = open(dir_path + "RawData\\" + logfilename, "w", buffering=1)
         self.ser = ser
 
     def readline(self):
@@ -195,7 +200,7 @@ except KeyboardInterrupt:
             print("")
 
     print("Finished measuring panel %s." % panelid)
-    print("Log file is at", logfilename)
+    print("Log file is at", dir_path + logfilename)
 
     # Close the serial port.
     del ser
@@ -205,8 +210,8 @@ except KeyboardInterrupt:
 # we can rerun parse_log or make_graph.
 import parse_log
 
-datafilename = parse_log.parse_log(logfilename)
+datafilename = parse_log.parse_log(dir_path + "RawData\\" + logfilename)
 print("Data file and plots are at", datafilename)
 import make_graph
 
-make_graph.make_graph(datafilename, panelid)
+make_graph.make_graph(datafilename, panelid, logfilename)
