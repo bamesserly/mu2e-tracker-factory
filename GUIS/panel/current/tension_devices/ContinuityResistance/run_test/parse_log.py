@@ -14,10 +14,6 @@ def parse_log(infilename):
     infile = open(infilename, "r")
     outfile = open(outfilename, "w")
 
-    outfile.write(
-        "# Position, wire/straw, resistance mean, resistance sigma, nvalues\n"
-    )
-
     # Loop over all the lines in the input file.
     for line in infile:
         # Copy comment lines directly into the output file.
@@ -60,7 +56,7 @@ def parse_log(infilename):
 
         # Write the line to the file.
         outfile.write(
-            "%d, %d, %g, %g, %g\n"
+            "%d,%d,%g,%g,%g\n"
             % (
                 position,
                 wirestraw,

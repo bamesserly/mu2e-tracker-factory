@@ -18,7 +18,7 @@ colorama.init(autoreset=True)
 
 # Windows
 # run: python -m serial.tools.list_ports to see available ports
-port = "COM1"
+port = "COM6"
 # port = "COM3"
 
 # testing switched from /ttyAMC1
@@ -50,7 +50,7 @@ class ser_wrapper:
         self.ser = ser
 
     def readline(self):
-        line = self.ser.readline()
+        line = self.ser.readline().decode("utf-8").strip() + "\n"
         self.logfile.write(line)
         return line
 
@@ -100,6 +100,7 @@ try:
 
         if not line:
             continue
+            print("not line")
         if line.startswith("#"):
             # Ignore "commented" lines from the Arduino.
             # These get logged in the log file regardless.
