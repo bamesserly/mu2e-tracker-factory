@@ -1,0 +1,4 @@
+local,D:\Personal\Software\GitHub\mu2e-tracker-factory,
+network,\\rds01.storage.umn.edu\cse_spa_mu2e,
+merge_destination,D:\Personal\Software\GitHub\mu2e-tracker-factory\Data\dummy.db,
+data,D:\Personal\Software\GitHub\mu2e-tracker-factory\Data,

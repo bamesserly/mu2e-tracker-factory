@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from datetime import datetime, timedelta
-from credentials import Credentials
-from stepsList import Step
+from .credentials import Credentials
+from .stepsList import Step
 from pathlib import Path
 import numpy as np, os, csv, shutil, sys
 from csv import DictReader, DictWriter
@@ -9,10 +9,7 @@ import tkinter
 from tkinter import messagebox
 
 # Import DataProcessor for database access
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Database"))
-)
-from databaseClasses import (
+from .database_classes import (
     Comment,
     Procedure,
     Station,

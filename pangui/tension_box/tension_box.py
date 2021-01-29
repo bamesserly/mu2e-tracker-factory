@@ -16,7 +16,7 @@ from pathlib import Path
 # print(f'dir: {str(Path(__file__).parent)}')
 sys.path.insert(0, str(Path(__file__).parent))
 import serial.tools.list_ports  ## automatically get COM port
-import tensionbox_ui  ## edit in Qt Designer, convert with pyuic5
+import main_window  ## edit in Qt Designer, convert with pyuic5
 
 import numpy as np
 from numpy.fft import rfft, irfft
@@ -45,7 +45,7 @@ nlines = 2000  # Should match DataLength in the Arduino code
 this_folder = os.path.dirname(os.path.realpath(__file__))
 
 
-class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
+class TensionBox(QMainWindow, main_window.Ui_MainWindow):
     """
     Class definition for the UI and associated functions.
 

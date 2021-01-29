@@ -38,7 +38,7 @@ from sqlalchemy.sql.expression import true, false
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
-from databaseManager import DatabaseManager
+from .database_manager import DatabaseManager
 from datetime import datetime
 from sys import modules, exit
 from inspect import isclass, getmembers

@@ -83,10 +83,10 @@ from modules.pangui_logger import SetupPANGUILogger
 logger = SetupPANGUILogger("root")
 
 # Local stuff
-from .panel_heater.PanelHeater import HeatControl
-from .straw_tensioner.run_straw_tensioner import StrawTension
-from .wire_tensioner.wire_tension import WireTensionWindow
-from .tension_box.tensionbox_window import TensionBox
+from panel_heater.panel_heater import HeatControl
+from straw_tensioner.straw_tensioner import StrawTension
+from wire_tensioner.wire_tension import WireTensionWindow
+from tension_box.tension_box import TensionBox
 from modules.data_processor import MultipleDataProcessor as DataProcessor
 from modules.timer import QLCDTimer
 from utils.suppliesList import SuppliesList
@@ -4829,16 +4829,8 @@ if __name__ == "__main__":
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
 
-    # Load various location paths from the txt file paths-lab.txt
-    # Assume that PANGUI lives in GUIS/panel/current
-    current_dir = os.path.dirname(__file__)
-    top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-    paths_file_location = os.path.abspath(
-        os.path.join(current_dir, "paths-lab.txt")
-    )  # absolute location of the txt file
-    paths = dict(
-        np.loadtxt(paths_file_location, delimiter=",", dtype=str)
-    )  # load the paths
+    paths_file = "paths_lab.txt"
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))  # load the paths
     paths.update(
         (k, top_dir + "/" + v) for k, v in paths.items()
     )  # make paths absolute

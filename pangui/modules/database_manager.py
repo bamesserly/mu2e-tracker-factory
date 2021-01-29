@@ -11,16 +11,18 @@ from sqlalchemy import create_engine
 from os import listdir, path
 import sys
 from pathlib import Path
+import csv
+
+d = {}
+with open("./paths.csv", "r") as infile:
+    reader = csv.reader(infile)
+    d = {rows[0]: rows[1] for rows in reader}
 
 import logging
 
 logger = logging.getLogger("root")
 
-# Insert path to this Modules
-sys.path.insert(
-    0, str(Path(__file__).resolve().parent.parent / "Modules")
-)  # Insert path to this directory
-from merger import AutoMerger
+from .merger import AutoMerger
 
 
 class DatabaseManager:
@@ -55,11 +57,11 @@ class DatabaseManager:
 
     def _loadLocalDatabasePath(self):
         current_dir = path.dirname(__file__)
-        return open(path.join(current_dir, "localDatabasePath.txt"), "r").read()
+        return d["data"]
 
     def _loadNetworkDatabasePath(self):
         current_dir = path.dirname(__file__)
-        return open(path.join(current_dir, "networkDatabasePath.txt"), "r").read()
+        return d["network"]
 
     def getDatabasePath(self):
         return self._db_path

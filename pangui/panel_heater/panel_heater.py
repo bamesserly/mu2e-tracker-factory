@@ -19,9 +19,7 @@ from PyQt5.QtWidgets import *
 # Add GUIS/panel/current to sys.path
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
 
-from tension_devices.panel_heater.heat_control_window import (
-    Ui_MainWindow,
-)  ## edit via heat_control_window.ui in Qt Designer
+from main_window import Ui_MainWindow
 
 import logging
 

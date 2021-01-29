@@ -13,7 +13,7 @@ def SetupPANGUILogger(name="root"):
     shandler.setFormatter(sformatter)
     shandler.setLevel(logging.INFO)
 
-    logfile = "./../../../logfiles/" + datetime.strftime(
+    logfile = "logfiles/" + datetime.strftime(
         datetime.now(), "%Y%m%d_%H%M%S_PANGUI_log.txt"
     )
     fhandler = logging.FileHandler(logfile)
