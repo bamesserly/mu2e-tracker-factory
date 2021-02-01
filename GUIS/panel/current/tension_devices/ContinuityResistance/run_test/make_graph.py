@@ -7,7 +7,7 @@ import csv
 dir_path = os.path.dirname(os.path.realpath(__file__))
 suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
 dir_path = dir_path[: -len(suffix)]
-dir_path += "\Data\Panel data\\FinalQC\\Resistance\\"
+dir_path += "\Data\Panel data\\FinalQC\\Resistance\\Plots\\"
 
 # Function that makes and saves a graph for visually summarizing
 # the continuity test results.
@@ -20,25 +20,25 @@ def make_graph(filename, panelid, logfilename):
         filt = islice(infile, 12, None)  # filter to skip 12 lines
         wr = csv.reader(filt)
         for line in wr:
-            index = line[0]
-            wire = int(line[1])
-            resistance = line[2]
-            d_resistance = line[3]
-            # not valid reading
-            print("wire value", wire)
-            if resistance == "inf":
-                pass
-            # valid reading
-            else:
-                # check if the reading was made for wire or straw
-                if wire == 1:
-                    print("inside wire")
-                    idx_wires.append(int(index))
-                    resistances_wires.append(float(resistance))
+            if line:
+                index = line[0]
+                wire = int(line[1])
+                resistance = line[2]
+                d_resistance = line[3]
+                # not valid reading
+                if resistance == "inf":
+                    pass
+                # valid reading
                 else:
-                    print("inside straw")
-                    idx_straws.append(int(index))
-                    resistances_straws.append(float(resistance))
+                    # check if the reading was made for wire or straw
+                    if wire == 1:
+                        idx_wires.append(int(index))
+                        resistances_wires.append(float(resistance))
+                    else:
+                        idx_straws.append(int(index))
+                        resistances_straws.append(float(resistance))
+            else:
+                pass
 
     # sort (wire, measurements) and (straw, measurements) in ascending order
     sorted_idx_wires = sorted(
@@ -52,8 +52,6 @@ def make_graph(filename, panelid, logfilename):
     x = [0, 20, 40, 60, 80, 100]
     y = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
     # Get x and y values for wires and straws
-    print(sorted_idx_straws)
-    print(sorted_idx_wires)
     X_wires, Y_wires = zip(*sorted_idx_wires)
     X_straws, Y_strws = zip(*sorted_idx_straws)
     X_w = np.array(X_wires)
@@ -73,15 +71,39 @@ def make_graph(filename, panelid, logfilename):
     )
     plt.ylabel("Resistance")
     plt.yticks(y)
-    plt.axis([0, 100, 0, 500])
+    maxy_s = Y_s[np.isfinite(Y_s)].max() + 20
+    maxy_axis = max(maxy_s, 200)
+    print(maxy_axis)
+    plt.axis([0, 100, 0, maxy_axis])
     plt.show()
     logfilename = logfilename[:-3] + "png"
-    print("\n\n\n")
-    print(logfilename)
-    d = dir_path + "Plots\\" + logfilename
-    print(d)
-    fig.savefig(dir_path + "Plots\\" + logfilename)
+
+    # check if panel folder exist, create otherwise
+    if os.path.exists(dir_path + "\MN" + panelid):
+        fig.savefig(dir_path + "\MN" + panelid + "\\" + logfilename)
+    else:
+        os.makedirs(dir_path + "\MN" + panelid)
+        fig.savefig(dir_path + "\MN" + panelid + "\\" + logfilename)
 
 
 if __name__ == "__main__":
-    make_graph()
+    file_path = ""
+    panelid = 0
+    correct_argv = True
+    if len(sys.argv) < 3:
+        correct_argv = False
+        print("Please specify the csv file to be used and the panel ID.\n")
+        file_path = input("Paths of the csv file: ")
+        panelid = input("Panel id: ")
+
+    while correct_argv:
+        if os.path.exists(sys.argv[1]):
+            file_path = sys.argv[1]
+            panelid = sys.argv[2]
+            break
+        else:
+            print("The csv specified does not exist")
+            print("Please enter a valid csv file path or press Ctrl+C to quit")
+
+    logfile = file_path[-33:]
+    make_graph(file_path, panelid, logfile)

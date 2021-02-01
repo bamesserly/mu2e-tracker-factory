@@ -40,7 +40,7 @@ logfilename = "\\resistancetest_" + timestamp + ".log"
 dir_path = os.path.dirname(os.path.realpath(__file__))
 suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
 dir_path = dir_path[: -len(suffix)]
-dir_path += "\Data\Panel data\\FinalQC\\Resistance\\"
+dir_path += "\Data\Panel data\\FinalQC\\Resistance\\RawData\\"
 
 # Lists to keep track of OK vs bad measurements.
 wires_ok = [False] * 96
@@ -51,7 +51,7 @@ oks = [wires_ok, straws_ok]
 # all written/read lines to a logfile.
 class ser_wrapper:
     def __init__(self, ser):
-        self.logfile = open(dir_path + "RawData\\" + logfilename, "w", buffering=1)
+        self.logfile = open(dir_path + logfilename, "w", buffering=1)
         self.ser = ser
 
     def readline(self):
@@ -89,6 +89,13 @@ panelid = input("panel ID> ")
 panelid = str(panelid)
 ser.logfile.write("# panelid:" + panelid + "\n")
 # ser.readline()
+
+# check if a folder for this panel already exists
+if os.path.exists(dir_path + "\MN" + panelid):
+        dir_path = dir_path + "\MN" + panelid + "\\"
+    else:
+        os.makedirs(dir_path + "\MN" + panelid)
+        dir_path = dir_path + "\MN" + panelid + "\\"
 
 # Here begins the main loop to measure every straw and wire.
 print("Begin testing!  Press Ctrl+C when the panel is finished.")
@@ -210,7 +217,7 @@ except KeyboardInterrupt:
 # we can rerun parse_log or make_graph.
 import parse_log
 
-datafilename = parse_log.parse_log(dir_path + "RawData\\" + logfilename)
+datafilename = parse_log.parse_log(dir_path + logfilename)
 print("Data file and plots are at", datafilename)
 import make_graph
 
