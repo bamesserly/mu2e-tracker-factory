@@ -777,6 +777,7 @@ class TxtDataProcessor(DataProcessor):
             5: self._pro5header,
             6: self._pro6header,
             7: self._pro7header,
+            8: self._pro8header,
         }[self.getPro()]()
 
         # Count number of steps
@@ -839,6 +840,7 @@ class TxtDataProcessor(DataProcessor):
             5: self._pro5header,
             6: self._pro6header,
             7: self._pro7header,
+            8: self._pro8header,
         }[self.getPro()]()
 
         # steps are automatically saved periodically while gui is running
@@ -1425,6 +1427,10 @@ class TxtDataProcessor(DataProcessor):
             "Flood Epoxy Work Time (H:M:S) (Right)",
         ]
 
+    # TODO: implement for proc8
+    def _pro8header(self):
+        pass
+
     # ___  ____            _   _      _
     # |  \/  (_)          | | | |    | |
     # | .  . |_ ___  ___  | |_| | ___| |_ __   ___ _ __ ___
@@ -1522,6 +1528,7 @@ class SQLDataProcessor(DataProcessor):
         self.station = Station.panelStation(
             day=self.getPro()
         )  # DO NOT CHANGE "day" IN THE ABOVE LINE TO "pro"
+        print("station", self.station)
         self.session = self.station.startSession()
         self.procedure = None
 
@@ -1542,6 +1549,7 @@ class SQLDataProcessor(DataProcessor):
             5: self.saveDataProcess5,
             6: self.saveDataProcess6,
             7: self.saveDataProcess7,
+            8: self.saveDataProcess8,
         }[self.getPro()]()
 
     # IR
@@ -1774,6 +1782,11 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             self.procedure.recordEpoxyTimeRight, *self.parseTimeTuple(data[4])
         )  # Flood Epoxy Work Time (Right)
+
+    # QC
+    # TODO: proc8 save data method
+    def saveDataProcess8(self):
+        data = self.getProData()
 
     ## TIME EVENTS ##
 
