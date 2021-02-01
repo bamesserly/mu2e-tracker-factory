@@ -96,14 +96,27 @@ if __name__ == "__main__":
         file_path = input("Paths of the csv file: ")
         panelid = input("Panel id: ")
 
+        # if the path does not exist, prompt user again
+        # Set correct_argv to True to enter the while loop
+        if not os.path.exists(path):
+            correct_argv = True
+
     while correct_argv:
-        if os.path.exists(sys.argv[1]):
-            file_path = sys.argv[1]
-            panelid = sys.argv[2]
+        path = sys.argv[1]
+        panel = sys.argv[2]
+        if os.path.exists(path):
+            file_path = path
+            panelid = panel
             break
         else:
             print("The csv specified does not exist")
             print("Please enter a valid csv file path or press Ctrl+C to quit")
+            path = input("Path to csv: ")
+            panel = input("Panel id: ")
+            if os.path.exists(path):
+                file_path = path
+                panelid = panel
+                break
 
     logfile = file_path[-33:]
     make_graph(file_path, panelid, logfile)
