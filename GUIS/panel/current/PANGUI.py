@@ -2551,13 +2551,11 @@ class panelGUI(QMainWindow):
 
         ## Process 5 HV data
         if self.pro == 5:
-            # [(current_left0, current_right0, is_tripped0), (current_left1, current_right1, is_tripped1), ... ]
+            # [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
             # (None,None,None) if no measurement at that position.
             measurements = self.loadHVMeasurements()
 
-            # if ANY current in ANY measurement is not None then display
-            if any(any(current is not None for current in m) for m in measurements):
-                self.displayAllHVMeasurements(measurements)
+            self.displayAllHVMeasurements(measurements)
 
         ## Parse Steps
         self.parseSteps(steps_completed)

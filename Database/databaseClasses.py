@@ -1413,7 +1413,7 @@ class Pan4Procedure(PanelProcedure):
     def getSilverEpoxyRightTimeIsRunning(self):
         return self.details.silver_epoxy_right_time_is_running
 
-'''
+
 # HV
 class Pan5Procedure(PanelProcedure):
     __mapper_args__ = {"polymorphic_identity": "pan5"}
@@ -1434,78 +1434,9 @@ class Pan5Procedure(PanelProcedure):
 
         return Details
 
-    # HV Measurements
-    class MeasurementPan5(BASE, OBJECT):
-        __tablename__ = "measurement_pan5"
-        id = Column(Integer, primary_key=True)
-        procedure = Column(Integer, ForeignKey("procedure.id"))
-        position = Column(Integer)
-        current_left = Column(REAL)
-        current_right = Column(REAL)
-        is_tripped = Column(BOOLEAN)
-
-        def __init__(
-            self, procedure, position, current_left, current_right, is_tripped
-        ):
-            self.id = self.ID()
-            self.procedure = procedure
-            self.position = position
-            self.current_left = current_left
-            self.current_right = current_right
-            self.is_tripped = is_tripped
-
-        def __repr__(self):
-            return "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', voltage='%s', is_tripped='%s')>" % (
-                self.id,
-                self.procedure,
-                self.position,
-                self.current_left,
-                self.current_right,
-                self.voltage,
-                self.is_tripped,
-            )
-
-        def isCompletelyDefined(self):
-            data = [
-                self.procedure,
-                self.position,
-                self.current_left,
-                self.current_right,
-                self.voltage,
-                self.is_tripped,
-            ]
-            return all([x is not None for x in data])
-
-        def recordCurrentLeft(self, current):
-            self.current_left = current
-
-        def recordCurrentRight(self, current):
-            self.current_right = current
-
-        def recordCurrent(self, current_left, current_right):
-            self.recordCurrentLeft(current_left)
-            self.recordCurrentRight(current_right)
-
-        def recordVoltage(self, voltage):
-            self.voltage = voltage
-
-        def recordIsTripped(self, is_tripped):
-            self.is_tripped = is_tripped
-
-        def getPosition(self):
-            return self.position
-
-        def getLeftHV(self):
-            return self.current_left
-
-        def getRightHV(self):
-            return self.current_right
-
-        def getIsTripped(self):
-            return self.is_tripped
 
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
-        record = Pan5Procedure.MeasurementPan5(
+        record = MeasurementPan5(
                 procedure=self.id,
                 position=position,
                 current_left=current if side == "Left" else None,
@@ -1527,16 +1458,16 @@ class Pan5Procedure(PanelProcedure):
 
     def _queryMeasurement(self, position):
         return self._queryMeasurements().filter(
-            Pan5Procedure.MeasurementPan5.position == position
+            MeasurementPan5.position == position
         )
 
     def _queryMeasurements(self):
         return (
-            Pan5Procedure.MeasurementPan5.query()
-            .filter(Pan5Procedure.MeasurementPan5.procedure == self.id)
-            .order_by(Pan5Procedure.MeasurementPan5.position.asc())
+            MeasurementPan5.query()
+            .filter(MeasurementPan5.procedure == self.id)
+            .order_by(MeasurementPan5.position.asc())
         )
-'''
+
 
 # Manifold
 class Pan6Procedure(PanelProcedure):
