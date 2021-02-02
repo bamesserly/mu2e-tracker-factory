@@ -4814,18 +4814,33 @@ class panelGUI(QMainWindow):
     # creates HV measurements gui window
     # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain
     def hvMeasurementsPopup(self):
-        self.hvMeasurementsWindow = highVoltageGUI(
-            saveMethod=(
-                lambda position, side, current, volts, isTrip: (
-                    self.DP.saveHVMeasurement(position, side, current, volts, isTrip)
-                )
-            ),
-            loadMethod=(lambda: self.DP.loadHVMeasurements),
-            panel=self.getCurrentPanel()
-        )
-        self.hvMeasurementsWindow.show()
-        self.hvMeasurementsWindow.setWindowTitle("High Voltage Data Recording")
-        self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
+
+        if self.hvMeasurementsWindow is not None:  # if a window already exists
+            buttonReply = QMessageBox.question(  # prompt user, ask if they want to kill old window
+                self,
+                "HV Measurements Window",
+                "If an HV measurements window is already open, launching a new one will close the old one.  Continue?",
+                QMessageBox.Yes | QMessageBox.Cancel,  # button options
+                QMessageBox.Cancel,
+            )  # default selection
+            if buttonReply == QMessageBox.Yes:
+                self.hvMeasurementsWindow = None  # close the window!
+            else:
+                return  # don't close the window!  keep it safe by returning!
+
+        if self.hvMeasurementsWindow is None:
+            self.hvMeasurementsWindow = highVoltageGUI(
+                saveMethod=(
+                    lambda position, side, current, volts, isTrip: (
+                        self.DP.saveHVMeasurement(position, side, current, volts, isTrip)
+                    )
+                ),
+                loadMethod=(lambda: self.DP.loadHVMeasurements),
+                panel=self.getCurrentPanel()
+            )
+            self.hvMeasurementsWindow.show()
+            self.hvMeasurementsWindow.setWindowTitle("High Voltage Data Recording")
+            self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
