@@ -2005,15 +2005,26 @@ class SQLDataProcessor(DataProcessor):
     # Called directly by the GUI in the initialization of Process 5
     def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
         if self.ensureProcedure():
-            # convert string to float (cut the "V" off the end)
-            voltage = float(voltage[:4])
-            # don't save if no data to save
-            if current == '':
-                return
+            # convert string to float (cut the "V" off the end) if not a none type
+            if voltage is not None:
+                voltage = float(voltage[:4])
+                # don't save if no data to save
+                if current == '':
+                    return
 
-            self.procedure.recordHVMeasurement(
-                position, side, current, voltage, is_tripped
-            )
+                self.procedure.recordHVMeasurement(
+                    position, side, current, voltage, is_tripped
+                )
+            else:
+                # if voltage is none, skip string chopping
+
+                # don't save if no data to save
+                if current == '':
+                    return
+
+                self.procedure.recordHVMeasurement(
+                    position, side, current, voltage, is_tripped
+                )
 
     def wireQCd(self, wire):
         id = self.stripNumber(wire)
@@ -2182,6 +2193,7 @@ class SQLDataProcessor(DataProcessor):
         # ret = [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
         ret = list()
         measurements = self.procedure.getHVMeasurements()
+        print(self.procedure)
         for m in measurements:
             if m == None:
                 ret.append((None, None, None, None))

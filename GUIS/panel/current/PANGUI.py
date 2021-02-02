@@ -680,12 +680,25 @@ class panelGUI(QMainWindow):
         # This loop binds all of the lineEdit widgets to lineSaveHV()
         # enumerate(zip(cL, cR)) -->
         #     [(0, (lC_00, rC_00)), (1, (lC_01, rC_01)), ..., (95, (lC_95, rC_95))]
-        # The second for loop goes through each lineEdit widget in lineEdits and binds lineSaveHV to its textEdited signal
-        # The binding makes the lineSaveHV function get called whenever the text in a lineEdit widget is changed by the user
+        # The second for loop goes through each lineEdit widget in lineEdits and binds lineSaveHV to its editingFinished signal
+        # The binding makes the lineSaveHV function get called whenever the text in a lineEdit widget is changed then moved away from
         # Also, python will cry if you don't use a lambda function in connect()
         for i, lineEdits in enumerate(zip(self.currentLeft, self.currentRight)):
-            for widget in lineEdits:
-                widget.textEdited.connect(lambda changed, index=i: lineSaveHV(index))
+            if i < 95:
+                # covers return pressed
+                lineEdits[0].returnPressed.connect(lambda index=i: self.currentLeft[index+1].setFocus())
+                lineEdits[1].returnPressed.connect(lambda index=i: self.currentRight[index+1].setFocus())
+                # covers tab pressed
+                lineEdits[0].editingFinished.connect(lambda index=i: self.currentLeft[index+1].setFocus())
+                lineEdits[1].editingFinished.connect(lambda index=i: self.currentLeft[index+1].setFocus())
+                # bind to save
+                lineEdits[0].editingFinished.connect(lambda index=i: lineSaveHV(index))
+                lineEdits[1].editingFinished.connect(lambda index=i: lineSaveHV(index))
+            else:
+                # i = 95 would cause index out of bounds
+                lineEdits[0].editingFinished.connect(lambda index=i: lineSaveHV(index))
+                lineEdits[1].editingFinished.connect(lambda index=i: lineSaveHV(index))
+
 
         # Enumerate turns the list of checkBox widgets into a list of tuples of the form (<int>, <checkBox>)
         # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
@@ -2207,12 +2220,16 @@ class panelGUI(QMainWindow):
             self.displayContinuityMeasurement(position, continuity_str, wire_pos_str)
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
-        self.DP.saveHVMeasurement(position, current_left, current_right, is_tripped)
+        if current_left is not None:
+            self.DP.saveHVMeasurement(position, "Left", current_left, None, is_tripped)
+        
+        if current_right is not None:
+            self.DP.saveHVMeasurement(position, "Right", current_right, None, is_tripped)
 
-        if self.currentLeft[position].text() != current_left:
-            self.displayHVMeasurement(position, current_left, current_right)
-        if self.currentRight[position].text() != current_right:
-            self.displayHVMeasurement(position, current_left, current_right)
+        #if self.currentLeft[position].text() != current_left:
+        #    self.displayHVMeasurement(position, current_left, current_right)
+        #if self.currentRight[position].text() != current_right:
+        #    self.displayHVMeasurement(position, current_left, current_right)
 
     """
     saveStep(self, name)
