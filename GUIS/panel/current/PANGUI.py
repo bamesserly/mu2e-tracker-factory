@@ -96,6 +96,7 @@ from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
 from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
 from tension_devices.tension_box.tensionbox_window import TensionBox
 from tension_devices.panel_heater.PanelHeater import HeatControl
+from tension_devices.hv_gui.hvGUImain import highVoltageGUI
 
 # Import QLCDTimer from Modules
 from timer import QLCDTimer
@@ -234,6 +235,7 @@ class panelGUI(QMainWindow):
         self._init_worker_portal()
 
         # Panel Input
+        self.pro_index = -1
         self._init_panel_input()
 
         # Setup each pro
@@ -305,6 +307,7 @@ class panelGUI(QMainWindow):
         self.wireTensionWindow = None
         self.tensionBoxWindow = None
         self.panelHeaterWindow = None
+        self.hvMeasurementsWindow = None
 
     def _init_worker_portal(self):
         self.Current_workers = [
@@ -508,6 +511,9 @@ class panelGUI(QMainWindow):
         # Disable all
         self.setWidgetsDisabled(self.continuity + self.wire_pos)
         self.ui.launch_wire_tensioner.setDisabled(True)
+        # bind launch hv w/ corresponding function
+        self.ui.launchHVpro3.clicked.connect(self.hvMeasurementsPopup)
+        self.ui.launchHVpro3.setDisabled(True)
 
         [
             combo.installEventFilter(self) for combo in self.continuity + self.wire_pos
@@ -576,6 +582,7 @@ class panelGUI(QMainWindow):
         # TODO Add any image buttons for pro 4 here
 
     def _init_pro5_setup(self):
+
         self.ui.panelInput5.installEventFilter(self)
 
         """
@@ -698,6 +705,9 @@ class panelGUI(QMainWindow):
         self.ui.heat_finished4.clicked.connect(self.pro6CheckTemp)
         self.ui.pro6PanelHeater.clicked.connect(self.panelHeaterPopup)
 
+        # launch hv gui
+        self.ui.launchHVpro6.clicked.connect(self.hvMeasurementsPopup)
+
         # Images
         self.ui.picfour1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picfour2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
@@ -714,6 +724,7 @@ class panelGUI(QMainWindow):
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
             self.ui.heat_start,
+            self.ui.launchHVpro6
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -2013,8 +2024,8 @@ class panelGUI(QMainWindow):
             # Recolor secret feature
             # Allows lab personel to change the color of the gui
             # Definitely not essential, but it boosts morale
-            # enter goldy to change to UMN colors, Dan likes it too
-            if Current_worker == "GOLDY" or Current_worker == "WK-DAMBROSE01":
+            # enter goldy to change to UMN colors
+            if Current_worker == "GOLDY":
                 self.changeColor(
                     (122, 0, 25), (255, 204, 51)
                 )  # 122/0/25 = maroon, 255/204/51 = gold
@@ -2676,7 +2687,7 @@ class panelGUI(QMainWindow):
 
     def displayAllHVMeasurements(self, data):
         for index, measurements in enumerate(data):
-            current_left, current_right, is_tripped = measurements
+            current_left, current_right, volts, is_tripped = measurements
             if any(current is not None for current in measurements):
                 self.displayHVMeasurement(
                     index, current_left, current_right, is_tripped
@@ -2966,6 +2977,7 @@ class panelGUI(QMainWindow):
             # setDisabled False ???
             self.ui.launch_wire_tensioner.setDisabled(False)
             self.ui.launch_tension_box.setDisabled(False)
+            self.ui.launchHVpro3.setEnabled(True)
             # enable all continuity widgets
             self.setWidgetsEnabled(self.continuity + self.wire_pos)
         # if wire spool id doesn't exist
@@ -2990,6 +3002,7 @@ class panelGUI(QMainWindow):
         # enable, tensioner, tension box, input widgets
         self.setWidgetsEnabled(self.continuity + self.wire_pos)
         self.ui.launch_wire_tensioner.setEnabled(True)
+        self.ui.launchHVpro3.setEnabled(True)
         self.ui.launch_tension_box.setEnabled(True)
 
         # display comments
@@ -3349,6 +3362,8 @@ class panelGUI(QMainWindow):
                 self.ui.temp4_5.setDisabled(True)
 
         self.ui.pro6TensionBox.setEnabled(True)
+
+        self.ui.launchHVpro6.setEnabled(True)
 
         self.displayComments()
 
@@ -3936,7 +3951,7 @@ class panelGUI(QMainWindow):
         )
 
         # Enable wire tensioner button
-        self.setWidgetsEnabled([self.ui.launch_wire_tensioner])
+        self.setWidgetsEnabled([self.ui.launch_wire_tensioner,self.ui.launchHVpro3])
 
         # Enable all widgets in the continuity table
         self.setWidgetsEnabled(self.continuity + self.wire_pos)
@@ -4212,13 +4227,14 @@ class panelGUI(QMainWindow):
             ]
         )
 
-        # Enable Epoxy and gap measurements
+        # Enable Epoxy and gap measurements and launch hv gui
         self.setWidgetsEnabled(
             [
                 self.ui.epoxy_batch41,
                 self.ui.epoxy_mixed41,
                 self.ui.bpmirgapL,
                 self.ui.bpmirgapR,
+                self.ui.launchHVpro6
             ]
         )
 
@@ -4778,6 +4794,22 @@ class panelGUI(QMainWindow):
                 ),
             )
             self.panelHeaterWindow.show()
+
+    # creates HV measurements gui window
+    # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain
+    def hvMeasurementsPopup(self):
+        self.hvMeasurementsWindow = highVoltageGUI(
+            saveMethod=(
+                lambda position, side, current, volts, isTrip: (
+                    self.DP.saveHVMeasurement(position, side, current, volts, isTrip)
+                )
+            ),
+            loadMethod=(lambda: self.DP.loadHVMeasurements),
+            panel=self.getCurrentPanel()
+        )
+        self.hvMeasurementsWindow.show()
+        self.hvMeasurementsWindow.setWindowTitle("High Voltage Data Recording")
+        self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

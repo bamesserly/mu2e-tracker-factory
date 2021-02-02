@@ -1213,6 +1213,16 @@ class Pan3Procedure(PanelProcedure):
             calibration_factor=calibration_factor,
         ).commit()
 
+    # HV measurements
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        MeasurementPan5(
+            procedure=self.id,
+            position=position,
+            current_left=current if side == "Left" else None,
+            current_right=current if side == "Right" else None,
+            voltage=voltage,
+            is_tripped=is_tripped,
+        ).commit()
 
 # Pin Protectors
 class Pan4Procedure(PanelProcedure):
@@ -1426,12 +1436,13 @@ class Pan5Procedure(PanelProcedure):
             self.is_tripped = is_tripped
 
         def __repr__(self):
-            return "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', is_tripped='%s')>" % (
+            return "<MeasurementPan5(id='%s', procedure='%s', position='%s', current_left='%s', current_right='%s', voltage='%s', is_tripped='%s')>" % (
                 self.id,
                 self.procedure,
                 self.position,
                 self.current_left,
                 self.current_right,
+                self.voltage,
                 self.is_tripped,
             )
 
@@ -1441,6 +1452,7 @@ class Pan5Procedure(PanelProcedure):
                 self.position,
                 self.current_left,
                 self.current_right,
+                self.voltage,
                 self.is_tripped,
             ]
             return all([x is not None for x in data])
@@ -1454,6 +1466,9 @@ class Pan5Procedure(PanelProcedure):
         def recordCurrent(self, current_left, current_right):
             self.recordCurrentLeft(current_left)
             self.recordCurrentRight(current_right)
+
+        def recordVoltage(self, voltage):
+            self.voltage = voltage
 
         def recordIsTripped(self, is_tripped):
             self.is_tripped = is_tripped
@@ -1470,53 +1485,16 @@ class Pan5Procedure(PanelProcedure):
         def getIsTripped(self):
             return self.is_tripped
 
-    def recordHVMeasurement(self, position, current_left, current_right, is_tripped):
-        # QA check. Currents arrive as strings � handle empty, alpha strings
-        # If current is '', set it to None, commit it to DB.
-        # If current is otherwise not a number, don't commit it to DB.
-        def QACheck(current):
-            do_update_current = True
-            if current is "":
-                current = None
-            else:
-                try:
-                    current = float(current)
-                except ValueError:
-                    do_update_current = False
-            return current, do_update_current
-
-        current_left, do_update_current_left = QACheck(current_left)
-        current_right, do_update_current_right = QACheck(current_right)
-
-        # Check if a measurement has already been made at this position
-        meas = self._queryMeasurement(position).one_or_none()
-
-        # If so, update continuity and resistance
-        if meas:
-            if do_update_current_left:
-                meas.recordCurrentLeft(current_left)
-            if do_update_current_right:
-                meas.recordCurrentRight(current_right)
-            meas.recordIsTripped(is_tripped)
-
-        # If not, construct a new one with all data defined
-        else:
-            meas = Pan5Procedure.MeasurementPan5(
+def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        record = Pan5Procedure.MeasurementPan5(
                 procedure=self.id,
                 position=position,
-                current_left=current_left if do_update_current_left else None,
-                current_right=current_right if do_update_current_right else None,
+                current_left=current if side == "Left" else None,
+                current_right=current if side == "Right" else None,
+                voltage=voltage,
                 is_tripped=is_tripped,
             )
-
-        # debugging: print the types of the members of meas
-        # attr = vars(meas)
-        # print("=====",', '.join("%s: %s" % item for item in attr.items()))
-
-        # TODO does this need anything more?
-        # If all data is defined, commit (updated) measurement
-        # if meas.isCompletelyDefined():
-        return meas.commit()
+        return record.commit()
 
     def getHVMeasurements(self):
         measurements = self._queryMeasurements().all()
@@ -1653,6 +1631,17 @@ class Pan6Procedure(PanelProcedure):
         self.details.heat_time = time
         self.details.heat_time_running = running
         self.commit()
+
+    # HV measurements
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        MeasurementPan5(
+            procedure=self.id,
+            position=position,
+            current_left=current if side == "Left" else None,
+            current_right=current if side == "Right" else None,
+            voltage=voltage,
+            is_tripped=is_tripped,
+        ).commit()
 
 
 # Flooding
@@ -2781,6 +2770,28 @@ class TensionboxMeasurement(BASE, OBJECT):
         self.frequency = frequency
         self.pulse_width = pulse_width
         self.tension = tension
+
+
+class MeasurementPan5(BASE, OBJECT):
+    __tablename__ = "measurement_pan5"
+    id = Column(Integer, primary_key=True)
+    procedure = Column(Integer, ForeignKey("procedure.id"))
+    position = Column(Integer)
+    current_left = Column(REAL)
+    current_right = Column(REAL)
+    voltage = Column(REAL)
+    is_tripped = Column(BOOLEAN)
+
+    def __init__(
+        self, procedure, position, current_left, current_right, voltage, is_tripped
+    ):
+        self.id = self.ID()
+        self.procedure = procedure
+        self.position = position
+        self.current_left = current_left
+        self.current_right = current_right
+        self.voltage = voltage
+        self.is_tripped = is_tripped
 
 
 def main():
