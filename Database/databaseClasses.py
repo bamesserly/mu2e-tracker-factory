@@ -1213,6 +1213,25 @@ class Pan3Procedure(PanelProcedure):
             calibration_factor=calibration_factor,
         ).commit()
 
+    def getHVMeasurements(self):
+        measurements = self._queryMeasurementsHV().all()
+        lst = [None for _ in range(96)]
+        for m in measurements:
+            lst[m.position] = m
+        return lst
+
+    def _queryMeasurementHV(self, position):
+        return self._queryMeasurementsHV().filter(
+            MeasurementPan5.position == position
+        )
+
+    def _queryMeasurementsHV(self):
+        return (
+            MeasurementPan5.query()
+            .filter(MeasurementPan5.procedure == self.id)
+            .order_by(MeasurementPan5.position.asc())
+        )
+
     # HV measurements
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
         MeasurementPan5(
@@ -1394,7 +1413,7 @@ class Pan4Procedure(PanelProcedure):
     def getSilverEpoxyRightTimeIsRunning(self):
         return self.details.silver_epoxy_right_time_is_running
 
-
+'''
 # HV
 class Pan5Procedure(PanelProcedure):
     __mapper_args__ = {"polymorphic_identity": "pan5"}
@@ -1485,7 +1504,7 @@ class Pan5Procedure(PanelProcedure):
         def getIsTripped(self):
             return self.is_tripped
 
-def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
         record = Pan5Procedure.MeasurementPan5(
                 procedure=self.id,
                 position=position,
@@ -1517,7 +1536,7 @@ def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
             .filter(Pan5Procedure.MeasurementPan5.procedure == self.id)
             .order_by(Pan5Procedure.MeasurementPan5.position.asc())
         )
-
+'''
 
 # Manifold
 class Pan6Procedure(PanelProcedure):
@@ -1633,6 +1652,26 @@ class Pan6Procedure(PanelProcedure):
         self.commit()
 
     # HV measurements
+
+    def getHVMeasurements(self):
+        measurements = self._queryMeasurementsHV().all()
+        lst = [None for _ in range(96)]
+        for m in measurements:
+            lst[m.position] = m
+        return lst
+
+    def _queryMeasurementHV(self, position):
+        return self._queryMeasurementsHV().filter(
+            MeasurementPan5.position == position
+        )
+
+    def _queryMeasurementsHV(self):
+        return (
+            MeasurementPan5.query()
+            .filter(MeasurementPan5.procedure == self.id)
+            .order_by(MeasurementPan5.position.asc())
+        )
+    
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
         MeasurementPan5(
             procedure=self.id,

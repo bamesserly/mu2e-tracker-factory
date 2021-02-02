@@ -2189,6 +2189,8 @@ class SQLDataProcessor(DataProcessor):
                 ret.append((m.current_left, m.current_right, m.voltage, m.is_tripped))
         return ret
 
+    #def loadHVwithTimestamp(self):
+
     ##########################################################################
 
     def ensureProcedure(self):

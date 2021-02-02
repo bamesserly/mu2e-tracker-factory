@@ -264,6 +264,9 @@ class highVoltageGUI(QMainWindow):
             self.current[i].setReadOnly(True)
             self.isTripped[i].setDisabled(True)
 
+        # if launching from pangui, utilize load method
+        self.loadHVMeasurements()
+
 
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
@@ -317,11 +320,22 @@ class highVoltageGUI(QMainWindow):
             # returns list of the form:
             # [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
             bigList = self.loadMethod()()
-            # figure out side outside of loop
+
+            # figure out side and voltage
             side = self.getSide()
+            volt = self.getVolt()
+            # adjust volt to match int from db
+            volt = 1500 if volt else 1100
+            
+            # filter list to only include measurements of the correct side/voltage
+            bigList = filter(
+                lambda toop : True if (toop[2] == volt and toop[side] is not None) else False,
+                bigList
+            )
+
             for pos,straw in enumerate(bigList):
                 # set current
-                self.setAmp(pos, straw[side])
+                self.setAmp(pos, str(straw[side]))
                 # if tripped, set it that way (default is not tripped)
                 if straw[3]: self.setTrip(pos,True) 
     
@@ -432,42 +446,3 @@ if __name__ == "__main__":
     app.exec()
 
 
-
-
-
-
-
-
-
-
-
-
-
-'''
-# setup data processor
-        self.pro = 5
-        self.DP = DataProcessor(
-            gui=self,
-            save2txt=False,
-            save2SQL=True,
-            lab_version=True,
-            sql_primary=True,
-        )
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent))
-)
-from dataProcessor import MultipleDataProcessor as DataProcessor
-
-    def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
-        self.DP.saveHVMeasurement(position, current_left, current_right, is_tripped)
-
-        if self.currentLeft[position].text() != current_left:
-            self.displayHVMeasurement(position, current_left, current_right)
-        if self.currentRight[position].text() != current_right:
-            self.displayHVMeasurement(position, current_left, current_right)
-
-    def displayHVMeasurement(self, index, current_left, current_right, is_tripped=False):
-        self.currentLeft[index].setText(str(current_left))
-        self.currentRight[index].setText(str(current_right))
-        self.isTripped[index].setChecked(is_tripped)
-'''

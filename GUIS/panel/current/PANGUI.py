@@ -2594,6 +2594,7 @@ class panelGUI(QMainWindow):
 
     # position = None   : All HV measurements in a list
     # position = int    : HV measurement at specified position
+    # ret = [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
     def loadHVMeasurements(self, position=None):
         return self.DP.loadHVMeasurements()
 
