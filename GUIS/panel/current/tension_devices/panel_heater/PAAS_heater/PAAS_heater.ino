@@ -21,6 +21,7 @@ float Pa=5.0;
 float Pb=5.0;  
 float tempA;
 float temp2;
+float initial_temp2;
 float usrsp;  // user choice setpoint temperature 
 
 float setpoint2;  
@@ -40,6 +41,7 @@ void setup() {
   maxamp.begin(MAX31865_2WIRE);
   maxamp2.begin(MAX31865_2WIRE);
   //wdt_enable(WDTO_2S); 
+  initial_temp2 = maxamp2.temperature(RNOMINAL_PTCO2, RREF);
 }
 
 void loop() {
@@ -122,7 +124,15 @@ void temp_control(){
       // PAAS-B correction: RTD placed in corner measures lower temperature than bulk surface at 55C
       //dT = tempA - temp2 - 8.0*(max(0,temp2-34)/10);  // experimental: no cube foam
       dT = tempA - temp2 - 4.5*(max(0,temp2-34)/16);  // experimental: with cube foam
-      if (setpointB<34){ dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);  } // experimental calibration for PAAS-B
+      //if (setpointB<34){ dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);  } //previous. too slow rise to 34C 
+      if (setpointB<34){      // new 0125. try to get faster rise to 34C by altering where feedback constraint applies
+        // 0130. adding condition on temp2 to prevent heating if B not plugged in
+        if (tempA<31 && temp2>initial_temp2+2){dT=0;}
+        else {dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);}
+      }
+      if (setpointA>50 && tempA<40){ // new 0130. speed up start of transition (34->55) by relaxing feedback constraint 
+        dT=0;
+      }
     }
     if (dT<0 && valA==255) valB+=int(round(Pb * dT));
     else if (dT>0 && valB==255) valA-=int(round(Pa *dT));
