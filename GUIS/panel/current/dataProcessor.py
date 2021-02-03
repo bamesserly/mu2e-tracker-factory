@@ -28,6 +28,10 @@ from databaseClasses import (
     TensionboxMeasurement,
 )
 
+import logging
+
+logger = logging.getLogger("root")
+
 # MkI saves DB friendly CSV files
 # MkII saves human friendly CSV files
 # MkI can be on, but no data will be lost if it's off.
@@ -1485,7 +1489,7 @@ class TxtDataProcessor(DataProcessor):
                     for row in reader:
                         self.validWorkers.append(row[0].upper())
             else:
-                print("Unable to read worker list")
+                logger.warning("Unable to read worker list")
 
         return worker.upper() in self.validWorkers
 
@@ -1964,7 +1968,10 @@ class SQLDataProcessor(DataProcessor):
         # Make sure all data is defined
         if not all(el is not None for el in [position, continuity_str, wire_position]):
             return
+        if wire_position is "":
+            return
         # Save a continuity measurement
+
         self.procedure.recordContinuityMeasurement(
             position=position,
             left_continuity=(
@@ -1977,6 +1984,15 @@ class SQLDataProcessor(DataProcessor):
                 "Lower 1/3": "lower",
                 "Middle 1/3": "middle",
                 "Top 1/3": "top",
+                "Short, Top": "short top",
+                "Short, Middle": "short middle",
+                "Short, Bottom": "short lower",
+                "Middle, Top": "middle top",
+                "True Middle": "middle middle",
+                "Middle, Bottom": "middle lower",
+                "Long, Top": "long top",
+                "Long, Middle": "long middle",
+                "Long, Bottom": "long lower",
             }[wire_position],
         )
 
@@ -2249,9 +2265,20 @@ class SQLDataProcessor(DataProcessor):
             # Wire Position
             wire_pos = {
                 None: None,
+                # old panels
                 "lower": "Lower 1/3",
                 "middle": "Middle 1/3",
                 "top": "Top 1/3",
+                # new panels
+                "short top": "Short, Top",
+                "short middle": "Short, Middle",
+                "short lower": "Short, Bottom",
+                "middle top": "Middle, Top",
+                "middle middle": "True Middle",
+                "middle lower": "Middle, Bottom",
+                "long top": "Long, Top",
+                "long middle": "Long, Middle",
+                "long lower": "Long, Bottom",
             }[meas.wire_position]
 
         # Return data as list
