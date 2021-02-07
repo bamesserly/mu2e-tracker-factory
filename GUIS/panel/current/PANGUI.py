@@ -96,6 +96,7 @@ from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
 from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
 from tension_devices.tension_box.tensionbox_window import TensionBox
 from tension_devices.panel_heater.PanelHeater import HeatControl
+from tension_devices.ContinuityResistance.run_test import run_test
 
 # Import QLCDTimer from Modules
 from timer import QLCDTimer
@@ -724,6 +725,7 @@ class panelGUI(QMainWindow):
     # TODO: implement _init_pro8_setup()
     def _init_pro8_setup(self):
         self.ui.panelInput8.installEventFilter(self)
+        self.ui.rest_test.clicked.connect(self.run_test)
 
     def _init_timers(self):
         self.timers = [
@@ -1580,6 +1582,7 @@ class panelGUI(QMainWindow):
             self.resetPro5,
             self.resetpro6,
             self.resetpro7,
+            self.resetpro8,
         ][self.pro_index]()
 
         # Reset data and dataTime lists to lists of None
@@ -4612,7 +4615,6 @@ class panelGUI(QMainWindow):
 
     # TODO: proc8 implementation
     def pro8part1(self):
-
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
@@ -4801,6 +4803,13 @@ class panelGUI(QMainWindow):
                 ),
             )
             self.panelHeaterWindow.show()
+
+    # TODO: run_test from modules method
+    def run_test(self):
+        if self.checkDevice() == True:  # if no device connected,
+            return  # return from this function
+
+        run_test.main()
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
