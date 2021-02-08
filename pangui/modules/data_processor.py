@@ -1246,39 +1246,33 @@ class TxtDataProcessor(DataProcessor):
 
     def getPanelPathMk2(self):
         # ("getPanelPath:", self.getPanel())
-        return (
-            self.panelDirectory / f"Day {self.getPro()} data" / f"{self.getPanel()}.csv"
+        return self.panelDirectory + "/Day {} data/{}.csv".format(
+            self.getPro(), self.getPanel()
         )
 
     def getPanelPathMkI(self):
-        return (
-            self.panelDirectory
-            / f"Day {self.getPro()} data"
-            / f"{self.getPanel()}_DB.csv"
+        return self.panelDirectory + "/Day {} data/{}_DB.csv".format(
+            self.getPro(), self.getPanel()
         )
 
     def getPanelLongContinuityDataPath(self):
-        return (
-            self.panelDirectory
-            / f"Day {self.getPro()} data"
-            / f"{self.getPanel()}LongContinuityData.csv"
+        return self.panelDirectory + "/Day {} data/{}LongContinuityData.csv".format(
+            self.getPro(), self.getPanel()
         )
 
     def getPanelLongHVDataPath(self):
-        return (
-            self.panelDirectory
-            / f"Day {self.getPro()} data"
-            / f"{self.getPanel()}LongHVData.csv"
+        return self.panelDirectory + "/Day {} data/{}LongHVData.csv".format(
+            self.getPro(), self.getPanel()
         )
 
     def getListPath(self):
-        return Path(f"{self.listDirectory}\Day {self.getPro()}.txt").resolve()
+        return self.panelDirectory + "/Day {}.txt".format(self.getPro())
 
     def getMoldReleasePath(self):
-        return Path(self.paths["moldReleasePath"]).resolve()
+        return self.panelDirectory + "/Mold Release/Mold Release.csv"
 
     def getStepsPath(self):
-        return Path(self.stepsDirectory / f"Day {self.getPro()}.csv").resolve()
+        return self.panelDirectory + "/Steps/Day {}.csv".format(self.getPro())
 
     def checkPanelFileExistsMk2(self):
         return self.getPanelPathMk2().exists()
@@ -1287,30 +1281,29 @@ class TxtDataProcessor(DataProcessor):
         return self.getPanelPathMkI.exists()
 
     def getCommentFileAddress(self, proNum):
-        return self.commentDirectory / f"{self.getPanel()}_day_{proNum}.txt"
+        return self.commentDirectory + "/{}_day_{}.txt".format(self.getPanel(), proNum)
 
     def getWireTensionerPath(self):
-        return (
-            self.wire_tensionerDirectory / f"{self.getPanel()}_wire_initial_tension.csv"
+        return self.wire_tensionerDirectory + "/{}_wire_initial_tension.csv".format(
+            self.getPanel()
         )
 
     def getContinuityDataPath(self):
-        return self.continuity_dataDirectory / f"{self.getPanel()}.csv"
+        return self.continuity_dataDirectory + "/{}.csv".format(self.getPanel())
 
     def getStrawTensionerPath(self):
-        return (
-            self.straw_tensionerDirectory
-            / f"{self.getPanel()}_straw_initial_tension.csv"
+        return self.straw_tensionerDirectory + "/{}_straw_initial_tension.csv".format(
+            self.getPanel()
         )
 
     def getStrawTensionBoxPath(self, panel):
-        return (
-            self.strawTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
+        return self.strawTensionboxDirectory + "/{}_{}.csv".format(
+            panel, str(datetime.now().date())
         )
 
     def getWireTensionBoxPath(self, panel):
-        return (
-            self.wireTensionboxDirectory / f"{panel}_{str(datetime.now().date())}.csv"
+        return self.wireTensionboxDirectory + "/{}_{}.csv".format(
+            panel, str(datetime.now().date())
         )
 
     #  _   _                _            ______                _   _
