@@ -19,7 +19,7 @@ class Credentials:
         self.stationID = stationID
 
         # Location of Credentials information
-        self.credentials_file = Path(credentialsChecklist).resolve()
+        self.credentials_file = credentialsChecklist
 
         self.getWorkerCredentials()
 

@@ -697,7 +697,8 @@ class TxtDataProcessor(DataProcessor):
         super().__init__(gui)
         self._init_directories(lab_version)
         self.credentialChecker = Credentials(
-            "pan" + str(self.getPro()), self.paths["credentialsChecklist"]
+            "pan" + str(self.getPro()),
+            self.paths["data"] + "/workers/credentials/WorkerProficiencyChecklist.csv",
         )
         self.sessionWorkers = []
         self.workerInformation = []
@@ -707,36 +708,37 @@ class TxtDataProcessor(DataProcessor):
 
         # Get paths from file
         # TODO paths.txt is deprecated.
-        path_files = {True: "paths-lab.txt", False: "paths.txt"}
+        # path_files = {True: "paths-lab.txt", False: "paths.txt"}
 
-        path_file = path_files[lab_version]
-        path = (Path(__file__).parent / path_file).resolve()
-        self.paths = dict(np.loadtxt(path, delimiter=",", dtype=str))
+        # path_file = path_files[lab_version]
+        # path = (Path(__file__).parent / path_file).resolve()
+        # self.paths = dict(np.loadtxt(path, delimiter=",", dtype=str))
 
-        current_dir = os.path.dirname(__file__)
-        top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-        self.paths.update(
-            (k, top_dir + "/" + v) for k, v in self.paths.items()
-        )  # make paths absolute
+        d = {}
+        with open("pangui\paths.csv", encoding="utf8") as infile:
+            reader = csv.reader(infile)
+            d = {rows[0]: rows[1] for rows in reader}
+
+        self.paths = d
 
         # Save directories as instance variables
-        self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()
-        self.panelDirectory = Path(self.paths["panelDirectory"]).resolve()
-        self.failDirectory = self.panelDirectory / "Failures"
-        self.commentDirectory = self.panelDirectory / "Comments"
-        self.listDirectory = Path(self.paths["listsDirectory"]).resolve()
-        self.stepsDirectory = Path(self.paths["stepsDirectory"]).resolve()
-        self.continuity_dataDirectory = Path(self.paths["continuity_data"]).resolve()
-        self.wire_tensionerDirectory = Path(self.paths["wire_tensioner_data"]).resolve()
-        self.strawTensionboxDirectory = Path(
-            self.paths["tensionbox_data_straw"]
-        ).resolve()
-        self.wireTensionboxDirectory = Path(
-            self.paths["tensionbox_data_wire"]
-        ).resolve()
-        self.straw_tensionerDirectory = Path(
-            self.paths["straw_tensioner_data"]
-        ).resolve()
+        self.workerDirectory = self.paths["workers"]
+        self.panelDirectory = self.paths["panel"]
+        self.failDirectory = self.panelDirectory + "\Failures"
+        self.commentDirectory = self.panelDirectory + "\Comments"
+        self.listDirectory = self.panelDirectory + "/Lists/"
+        self.stepsDirectory = self.panelDirectory + "/Steps/"
+        self.continuity_dataDirectory = (
+            self.panelDirectory + "\wire_stringing_continuity_data"
+        )
+        self.wire_tensionerDirectory = self.panelDirectory + "\wire_tensioner_data"
+        self.strawTensionboxDirectory = (
+            self.panelDirectory + "/tensionbox_data\straw_measurements"
+        )
+        self.wireTensionboxDirectory = (
+            self.panelDirectory + "/tensionbox_data\straw_measurements"
+        )
+        self.straw_tensionerDirectory = self.panelDirectory + "\straw_tensioner_data"
 
     #  _____                  ___  ___     _   _               _
     # /  ___|                 |  \/  |    | | | |             | |
@@ -895,10 +897,10 @@ class TxtDataProcessor(DataProcessor):
     # worker is the worker's ID as a string
     # login = True --> logging in, login = False --> logging out
     def saveWorkers(self, worker, login):
-        path = Path(self.paths["workerDirectory"]).resolve()
-        lockFile = path / "workers.lock"
-        workerFile = path / "workers.csv"
-        tempFile = path / "temp.csv"
+        path = self.workerDirectory
+        lockFile = path + "/workers.lock"
+        workerFile = path + "/workers.csv"
+        tempFile = path + "/temp.csv"
 
         index = [worker.upper() in info for info in self.workerInformation].index(True)
         workerRow = self.workerInformation[index]

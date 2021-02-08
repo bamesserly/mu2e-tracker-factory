@@ -34,7 +34,7 @@ from pathlib import Path, PurePath
 from threading import Thread, enumerate as enumerateThreads
 import inspect
 import subprocess  ## run straw and wire tensioner GUIs as subprocesses
-import sys, time, os, traceback, serial, platform
+import sys, time, os, traceback, serial, platform, csv
 
 # Fancy stuff
 from PIL import Image
@@ -188,7 +188,7 @@ class panelGUI(QMainWindow):
 
         ## File paths
         self.paths = paths
-        self.imagePath = Path(self.paths["imagePath"]).resolve()
+        self.imagePath = self.paths["data"] + "/Panel data/diagrams"
 
         ## Setup UI
         self.ui = Ui_MainWindow()
@@ -4829,13 +4829,18 @@ if __name__ == "__main__":
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
 
-    paths_file = "paths_lab.txt"
-    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))  # load the paths
-    paths.update(
-        (k, top_dir + "/" + v) for k, v in paths.items()
-    )  # make paths absolute
-    print(paths)
+    d = {}
+    with open("pangui\paths.csv", encoding="utf8") as infile:
+        reader = csv.reader(infile)
+        d = {rows[0]: rows[1] for rows in reader}
 
-    ctr = panelGUI(paths)  # create gui window
+    # paths_file = "pangui\paths_lab.txt"
+    # paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))  # load the paths
+    # paths.update(
+    #     (k, top_dir + "/" + v) for k, v in paths.items()
+    # )  # make paths absolute
+    # print(paths)
+
+    ctr = panelGUI(d)  # create gui window
     ctr.show()  # show gui window
     app.exec_()  # go!

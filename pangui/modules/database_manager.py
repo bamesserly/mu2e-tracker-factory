@@ -14,7 +14,7 @@ from pathlib import Path
 import csv
 
 d = {}
-with open("./paths.csv", "r") as infile:
+with open("pangui\paths.csv", encoding="utf8") as infile:
     reader = csv.reader(infile)
     d = {rows[0]: rows[1] for rows in reader}
 

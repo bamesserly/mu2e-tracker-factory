@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import *
 # Add GUIS/panel/current to sys.path
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
 
-from main_window import Ui_MainWindow
+from .main_window import Ui_MainWindow
 
 import logging
 
