@@ -2030,6 +2030,7 @@ class SQLDataProcessor(DataProcessor):
                 5: self.loadDataProcess5,
                 6: self.loadDataProcess6,
                 7: self.loadDataProcess7,
+                8: self.loadDataProcess8,
             }[self.getPro()]()
 
             # Elapsed Time
@@ -2466,6 +2467,14 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getEpoxyTimeRight(),
                 self.procedure.getEpoxyTimeRightRunning(),
             ),  # Flood Epoxy Work Time (Right)
+        ]
+
+    # Final QC
+    # TODO: proc8
+    def loadDataProcess8(self):
+        panel = self.panel
+        return [
+            self.getBarcode(panel),
         ]
 
 

@@ -96,7 +96,8 @@ from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
 from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
 from tension_devices.tension_box.tensionbox_window import TensionBox
 from tension_devices.panel_heater.PanelHeater import HeatControl
-from tension_devices.ContinuityResistance.run_test import run_test
+
+# from tension_devices.ContinuityResistance.run_test import run_test
 
 # Import QLCDTimer from Modules
 from timer import QLCDTimer
@@ -1033,6 +1034,7 @@ class panelGUI(QMainWindow):
             self.ui.startButton5,
             self.ui.startButton6,
             self.ui.startButton7,
+            self.ui.startButton8,
         ]
 
         # without the loop it would look like self.ui.startButton1.clicked.connect(self.pro1part1)
@@ -2308,6 +2310,7 @@ class panelGUI(QMainWindow):
             self.updateDataProcess5,
             self.updateDataProcess6,
             self.updateDataProcess7,
+            self.updateDataProcess8,
         ][self.pro_index]()
 
         # Process the updated data list by replacing all elements in the list that don't pass bool(el) with None
@@ -2472,6 +2475,10 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.timerTuple(self.timers[9])
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
+
+    # TODO: proc8
+    def updateDataProcess8(self):
+        pass
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -4618,6 +4625,12 @@ class panelGUI(QMainWindow):
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
+
+        # Disable
+        self.setWidgetsDisabled([self.ui.startButton8, self.ui.panelInput8])
+
+        # Start timer
+        self.startRunning()
 
     def resetpro8(self):
         pass

@@ -1732,6 +1732,18 @@ class Pan7Procedure(PanelProcedure):
         self.commit()
 
 
+# Final QC
+# TODO: proc8
+class Pan8Procedure(PanelProcedure):
+    __mapper_args__ = {"polymorphic_identity": "pan8"}
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "pan8"
+        ), f"Error. Tried to construct Pan8Procedure for a station '{station.id}' not 'pan8'."
+        super().__init__(station, straw_location, create_key)
+
+
 """
 class Co2Procedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "co2"}
