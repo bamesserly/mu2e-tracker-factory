@@ -1143,7 +1143,7 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_3,
             ],
             # TODO: pro8 Widgets
-            # pro 7 Widgets
+            # pro 8 Widgets
             [
                 self.ui.panelInput8,
             ],

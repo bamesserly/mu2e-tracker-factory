@@ -1429,7 +1429,10 @@ class TxtDataProcessor(DataProcessor):
 
     # TODO: implement for proc8
     def _pro8header(self):
-        pass
+        return [
+            1,
+            "Panel ID",
+        ]
 
     # ___  ____            _   _      _
     # |  \/  (_)          | | | |    | |
@@ -2472,7 +2475,7 @@ class SQLDataProcessor(DataProcessor):
     # Final QC
     # TODO: proc8
     def loadDataProcess8(self):
-        panel = self.panel
+        panel = self.panel()
         return [
             self.getBarcode(panel),
         ]
