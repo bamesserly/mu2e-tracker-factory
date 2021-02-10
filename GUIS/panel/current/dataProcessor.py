@@ -340,7 +340,7 @@ class DataProcessor(ABC):
         pass
 
     @abstractmethod
-    def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
+    def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
         pass
 
     @abstractmethod
@@ -607,9 +607,9 @@ class MultipleDataProcessor(DataProcessor):
         for dp in self.processors:
             dp.savePanelTempMeasurement(temp_paas_a, temp_paas_bc)
 
-    def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
+    def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
         for dp in self.processors:
-            dp.saveHVMeasurement(position, current_left, current_right, is_tripped)
+            dp.saveHVMeasurement(position, side, current, voltage, is_tripped)
 
     def saveTensionboxMeasurement(
         self, panel, is_straw, position, length, frequency, pulse_width, tension
@@ -1076,11 +1076,11 @@ class TxtDataProcessor(DataProcessor):
 
     # update all HV measurements for panel
     # parameters are lists of data
-    def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
+    def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
         # only works to a certain degree right now...
 
         # make header for file (the first line)
-        header = "Position,CurrentLeft,CurrentRight,IsTripped,Timestamp"
+        header = "Position,CurrentLeft,CurrentRight,Voltage,IsTripped,Timestamp"
 
         # make a new file if one doesn't already exist
         if not self.getPanelLongHVDataPath().exists():
@@ -1103,6 +1103,7 @@ class TxtDataProcessor(DataProcessor):
                     "Position",
                     "CurrentLeft",
                     "CurrentRight",
+                    "Voltage",
                     "IsTripped",
                     "Timestamp",
                 ],
@@ -1110,8 +1111,9 @@ class TxtDataProcessor(DataProcessor):
             # DictWriters treat every row as a dictionary
             newRow = {
                 "Position": position,
-                "CurrentLeft": current_left,
-                "CurrentRight": current_right,
+                "CurrentLeft": current if side == "Left" else "",
+                "CurrentRight": current if side == "Right" else "",
+                "Voltage": voltage,
                 "IsTripped": str(is_tripped),
                 "Timestamp": datetime.now(),
             }
@@ -2001,11 +2003,28 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordPanelTempMeasurement(temp_paas_a, temp_paas_bc)
 
     # Called directly by the GUI in the initialization of Process 5
-    def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
+    def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
         if self.ensureProcedure():
-            self.procedure.recordHVMeasurement(
-                position, current_left, current_right, is_tripped
-            )
+            # convert string to float (cut the "V" off the end) if not a none type
+            if voltage is not None:
+                voltage = float(voltage[:4])
+                # don't save if no data to save
+                if current == '':
+                    return
+
+                self.procedure.recordHVMeasurement(
+                    position, side, current, voltage, is_tripped
+                )
+            else:
+                # if voltage is none, skip string chopping
+
+                # don't save if no data to save
+                if current == '':
+                    return
+
+                self.procedure.recordHVMeasurement(
+                    position, side, current, voltage, is_tripped
+                )
 
     def wireQCd(self, wire):
         id = self.stripNumber(wire)
@@ -2171,15 +2190,18 @@ class SQLDataProcessor(DataProcessor):
         return ret
 
     def loadHVMeasurements(self):
-        # ret = [(current_left0, current_right0, is_tripped0), (current_left1, current_right1, is_tripped1), ...]
+        # ret = [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
         ret = list()
         measurements = self.procedure.getHVMeasurements()
+        print(self.procedure)
         for m in measurements:
             if m == None:
-                ret.append((None, None, None))
+                ret.append((None, None, None, None))
             else:
-                ret.append((m.current_left, m.current_right, m.is_tripped))
+                ret.append((m.current_left, m.current_right, m.voltage, m.is_tripped))
         return ret
+
+    #def loadHVwithTimestamp(self):
 
     ##########################################################################
 
