@@ -27,7 +27,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="proSelection">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -5622,6 +5622,9 @@ Tension Box</string>
                      <property name="text">
                       <string>Save</string>
                      </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">saveButtons</string>
+                     </attribute>
                     </widget>
                    </item>
                   </layout>

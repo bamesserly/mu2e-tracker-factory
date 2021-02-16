@@ -3367,6 +3367,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.saveButton8.setFont(font)
         self.saveButton8.setObjectName("saveButton8")
+        self.saveButtons.addButton(self.saveButton8)
         self.gridLayout_64.addWidget(self.saveButton8, 0, 1, 1, 1)
         self.gridLayout_5.addWidget(self.groupBox_26, 2, 0, 1, 1)
         self.GUIpro.addWidget(self.p8FinalQC)
@@ -3912,7 +3913,7 @@ class Ui_MainWindow(object):
         self.actionDiagrams.setObjectName("actionDiagrams")
 
         self.retranslateUi(MainWindow)
-        self.proSelection.setCurrentIndex(1)
+        self.proSelection.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(2)
         self.suppliesList.setCurrentIndex(0)
         self.GUIpro.setCurrentIndex(7)
