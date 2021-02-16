@@ -3436,8 +3436,8 @@ class panelGUI(QMainWindow):
     """
 
     # TODO: proc8
-    def parsepro7Data(self, data):
-        pass
+    def parsepro8Data(self, data):
+        self.displayComments()
 
     # fmt: off
     # ██████╗ ██████╗  ██████╗      ██╗
