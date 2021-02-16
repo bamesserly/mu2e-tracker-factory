@@ -789,8 +789,8 @@ class TxtDataProcessor(DataProcessor):
         # if no file present, make a new one and give it a header
         # in the header, the first two items are ints
         # the first is number of variables to record, second is number of steps
-        if not self.getPanelPathMkI().exists():
-            with self.getPanelPathMkI().open("w") as file:
+        if not Path(self.getPanelPathMkI()).exists():
+            with open(self.getPanelPathMkI(), "w") as file:
                 for item in header[1:]:  # for each variable,
                     file.write(f"{item},")  # write it with a comma (no new line)
                 file.write("Number of Steps completed,")
@@ -817,7 +817,7 @@ class TxtDataProcessor(DataProcessor):
         row += "\n"
 
         if not row == "":
-            with self.getPanelPathMkI().open("a") as file:
+            with open(self.getPanelPathMkI(), "a") as file:
                 file.write(row)
 
     def saveDataMkII(self):
@@ -845,7 +845,7 @@ class TxtDataProcessor(DataProcessor):
         steps = [line.strip() for line in self.loadRawSteps() if line != "\n"]
 
         # open file to write to
-        with self.getPanelPathMk2().open("w") as file:
+        with open(self.getPanelPathMk2(), "w") as file:
             # write timestamp
             file.write("Timestamp," + self.timestamp() + "\n")
 
@@ -977,19 +977,17 @@ class TxtDataProcessor(DataProcessor):
     def saveComment(self, text, panNum, proNum):
         comment = text.strip()  # remove whitespace around text
 
-        if not self.getCommentFileAddress(
-            proNum
+        if not Path(
+            self.getCommentFileAddress(proNum)
         ).exists():  # if the comment file doesn't exist yet
-            with (
-                self.getCommentFileAddress(proNum).open("a")
-            ) as comFile:  # create one
+            with open(self.getCommentFileAddress(proNum), "a") as comFile:  # create one
                 comFile.write(
                     f"{panNum} Procedure {proNum} Comments\n\n"
                 )  # write header
                 comFile.close()  # close file
 
-        with (self.getCommentFileAddress(proNum)).open(
-            "a"
+        with open(
+            self.getCommentFileAddress(proNum), "a"
         ) as comFile:  # open the comment file in append mode
             comFile.write(f"\n{self.timestamp()}")  # add new line and a timestamp
             comFile.write(
@@ -1008,7 +1006,7 @@ class TxtDataProcessor(DataProcessor):
         step = ",".join([self.timestamp(), step_name] + self.sessionWorkers).strip()
 
         # Append to file
-        with self.getPanelPathMk2().open("a") as file:  # append mode
+        with open(self.getPanelPathMk2(), "a") as file:  # append mode
 
             file.write("\n" + step)
 
@@ -1044,13 +1042,13 @@ class TxtDataProcessor(DataProcessor):
         # REFER TO saveHVMeasurement() FOR INFO ON HOW THIS WORKS
         # They're pretty much the same thing, just different data
         con_header = "Panel,Position,Continuity,WirePosition,TimeStamp"
-        if not self.getPanelLongContinuityDataPath().exists():
-            with self.getPanelLongContinuityDataPath().open("w") as con_data:
+        if not Path(self.getPanelLongContinuityDataPath()).exists():
+            with open(self.getPanelLongContinuityDataPath(), "w") as con_data:
                 con_data.write(con_header)
-        with self.getPanelLongContinuityDataPath().open("r") as con_data:
+        with open(self.getPanelLongContinuityDataPath(), "r") as con_data:
             reader = DictReader(con_data)
             rows = sorted([row for row in reader], key=lambda row: int(row["Position"]))
-        with self.getPanelLongContinuityDataPath().open("w", newline="\n") as con_data:
+        with open(self.getPanelLongContinuityDataPath(), "w", newline="\n") as con_data:
             writer = DictWriter(con_data, fieldnames=reader.fieldnames)
             new_row = {
                 "Panel": self.getPanel(),
@@ -1078,18 +1076,18 @@ class TxtDataProcessor(DataProcessor):
         header = "Position,CurrentLeft,CurrentRight,IsTripped,Timestamp"
 
         # make a new file if one doesn't already exist
-        if not self.getPanelLongHVDataPath().exists():
-            with self.getPanelLongHVDataPath().open(
-                "w"
+        if not Path(self.getPanelLongHVDataPath()).exists():
+            with open(
+                self.getPanelLongHVDataPath(), "w"
             ) as hvData:  # with path as hvData...
                 hvData.write(header)  # ...write the header, and boom! new file.
         # next read from the existing file.  If we don't make sure a file already
         # exists, then python will cry when we try to read a file that isn't there
-        with self.getPanelLongHVDataPath().open("r") as hvData:
+        with open(self.getPanelLongHVDataPath(), "r") as hvData:
             reader = DictReader(hvData)  # read the rows of the file into a dictionary
             rows = sorted([row for row in reader], key=lambda row: int(row["Position"]))
 
-        with self.getPanelLongHVDataPath().open("w", newline="\n") as hvData:
+        with open(self.getPanelLongHVDataPath(), "w", newline="\n") as hvData:
             # fieldnames are the first row of what reader read - the header
             # or at least that's what they should be
             writer = DictWriter(
@@ -1198,7 +1196,8 @@ class TxtDataProcessor(DataProcessor):
     def loadRawSteps(self):
         if not self.checkPanelFileExistsMk2():
             return list()
-        file = self.getPanelPathMk2().open("r").readlines()
+
+        file = open(self.getPanelPathMk2(), "r").readlines()
         for i in range(len(file)):
             line = file[i]
             if line.strip() == "Steps:":
@@ -1275,10 +1274,10 @@ class TxtDataProcessor(DataProcessor):
         return self.panelDirectory + "/Steps/Day {}.csv".format(self.getPro())
 
     def checkPanelFileExistsMk2(self):
-        return self.getPanelPathMk2().exists()
+        return Path(self.getPanelPathMk2()).exists()
 
     def checkPanelFileExistsMk1(self):
-        return self.getPanelPathMkI.exists()
+        return Path(self.getPanelPathMkI).exists()
 
     def getCommentFileAddress(self, proNum):
         return self.commentDirectory + "/{}_day_{}.txt".format(self.getPanel(), proNum)
