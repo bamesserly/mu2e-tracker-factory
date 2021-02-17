@@ -118,15 +118,15 @@ class LeakTestStatus(QMainWindow):
 
         self.cpalDirectory = (
             os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\Leak test data\\CPALS in Testing\\CPALS.txt"
+            + "\..\\..\\..\\Data\\Leak test data\\CPALS in Testing\\CPALS.txt"
         )
         self.networkDirectory = (
             os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\Leak test data\\Leak Test Results\\"
+            + "\..\\..\\..\\Data\\Leak test data\\Leak Test Results\\"
         )
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\leak testing\\"
+            + "\..\\..\\..\\Data\\workers\\straw workers\\leak testing\\"
         )
 
         self.starttime = [
@@ -1116,7 +1116,6 @@ class LeakTestStatus(QMainWindow):
     def unloadAction(self, ROW, COL, chamber, btn):
         self.SaveCSV(chamber)
         self.Save(chamber)
-        self.strawUpload(chamber)
         self.chambers_status[ROW][COL] = "empty"
         self.leak_rate[chamber] = 0
         self.leak_rate_err[chamber] = 0
