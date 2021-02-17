@@ -63,9 +63,11 @@ def FindCPAL(strawname):
 
             f.close()
 
-    # return the (cpalid,cpal) pair that has the highest cpalid.
+    # return the (cpalid,cpal) pair that has the highest cpal.
+    # e.g. max([('CPAL01', 'CPAL0123'), ('CPAL01, 'CPAL6798')]), the max
+    # function is performed on 'CPAL0123' vs 'CPAL6789', and 'CPAL6789' wins.
     if cpal_return_pairs:
-        return max(cpal_return_pairs, key=lambda pair: pair[0])
+        return max(cpal_return_pairs, key=lambda pair: pair[1])
 
     raise StrawNotFoundError
 
