@@ -21,6 +21,12 @@ from pynput.keyboard import Key, Controller
 from pathlib import Path
 from design import Ui_MainWindow  ## edit via Qt Designer
 
+# Import DataProcessor for database access
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Database"))
+)
+from databaseClasses import Straw
+
 os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
@@ -983,12 +989,15 @@ class Prep(QMainWindow):
 
             writer.writeheader()
             for i in range(24):
-                straw_data = {
-                    "straw": self.strawIDs[i],
-                    "batch": self.batchBarcodes[i],
-                    "paperPullGrade": self.paperPullGrades[i],
-                }
-                writer.writerow(straw_data)
+                if self.strawIDs[i].startswith("ST"):
+                    straw_data = {
+                        "straw": self.strawIDs[i],
+                        "batch": self.batchBarcodes[i],
+                        "paperPullGrade": self.paperPullGrades[i],
+                    }
+                    # save straw to the database
+                    self.save_straw_db(i)
+                    writer.writerow(straw_data)
 
             # Done creating data file
 
@@ -1045,6 +1054,35 @@ class Prep(QMainWindow):
         QMessageBox.about(self, "Save", "Data saved successfully!!")
 
         self.resetGUI()
+
+    """
+        Method to save a straw to the database
+            Input -> int: index of the straw to be added
+            Output -> None
+
+            Create a new straw object using the Straw constructor
+            Updates fields of the information collected during Prep:
+                Batch
+                Grade
+                Previous step
+
+            If straw does not get a passing grade, set straw to inactive
+
+    """
+
+    def save_straw_db(self, straw_idx):
+        straw = Straw(self.strawIDs[straw_idx])
+        straw.batch = self.batchBarcodes[straw_idx]
+        straw.paper_grade = self.paperPullGrades[straw_idx]
+        print("INFO: straw" + self.strawIDs[straw_idx])
+        print("batch", self.batchBarcodes[straw_idx])
+        print("paperPullGrade", self.paperPullGrades[straw_idx])
+        if straw.paper_grade == "PP.A" or straw.paper_grade == "PP.B":
+            straw.previous_passed = "prep"
+        else:
+            straw.previous_passed = "fail"
+            straw.active = 0
+        straw.CPAL = self.palletNumber
 
     def resetGUI(self):
         # Pallet ID
