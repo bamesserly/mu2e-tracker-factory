@@ -139,6 +139,9 @@ class highVoltageGUI(QMainWindow):
 
         # bind typed change of spin box to strawChanged()
         self.ui.positionBox.valueChanged.connect(self.strawChanged)
+        # turn off keyboard tracking so that value changed is
+        # only emitted when enter is pressed or the widget loses focus
+        self.ui.positionBox.setKeyboardTracking(False)
 
         # bind function to submit panel button
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
@@ -251,7 +254,6 @@ class highVoltageGUI(QMainWindow):
 
         # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
-
         self.ui.ampsLE.setEnabled(True)
         self.ui.tripBox.setEnabled(True)
         self.ui.subStrawButton.setEnabled(True)
@@ -283,6 +285,11 @@ class highVoltageGUI(QMainWindow):
 
     # called after moving from one straw to another
     def strawChanged(self):
+        # first ensure that the new straw is in bounds
+        if self.ui.positionBox.value() > 95:
+            # if not, undo the change and return early
+            self.ui.positionBox.setValue(self.straw)
+            return
         # save previous straw
         self.saveHVMeasurement(
             self.straw,
@@ -293,6 +300,7 @@ class highVoltageGUI(QMainWindow):
         )
         # update current straw
         self.straw = self.ui.positionBox.value()
+        #print(self.straw)
         # update entry widgets
         self.ui.ampsLE.setText(self.current[self.straw].text())
         self.ui.tripBox.setCurrentIndex(
