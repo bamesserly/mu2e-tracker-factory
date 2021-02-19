@@ -39,6 +39,12 @@ from WriteToFile import *  ## Functions to save to pallet file
 import csv
 from pathlib import Path
 
+# Import DataProcessor for database access
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Database"))
+)
+from databaseClasses import Straw, Query
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 os.chdir(dir_path)
 
@@ -1291,6 +1297,9 @@ class LeakTestStatus(QMainWindow):
                 # print(self.leak_rate)
                 result.write(str(self.leak_rate[chamber]) + ",")
                 result.write(str(self.leak_rate_err[chamber]))
+
+                # Assuming this is the straw ID
+                save_straw_db(self.Choosenames[ROW][COL][:7], self.leak_rate[chamber])
                 # result.close()
 
             # Write to network
@@ -1313,6 +1322,25 @@ class LeakTestStatus(QMainWindow):
                 # print(self.leak_rate)
                 result.write(str(self.leak_rate[chamber]) + ",")
                 result.write(str(self.leak_rate_err[chamber]))
+
+    """
+        Method to save a straw to the database
+            Input -> straw: string, grade: bool
+            Output -> None
+
+            straw argument is the ID of the straw that needs to be updated.
+            Get straws from table and update straw
+
+            If grade is False, set straw to inactive
+
+    """
+
+    def save_leak_rate_straw_db(self, straw, leak_rate):
+        straws = Straw.query()
+        for straw in straws:
+            if straw.id == straw:
+                straw.leak_rate = leak_rate
+                straw.commit()
 
     def closeEvent(self, event):
         # print("Terminate leak tests and data collection?")
@@ -1808,10 +1836,13 @@ to permanently remove "
                             file.write(straws[place] + ",")
                             if passfail[place] == "Pass":
                                 file.write("P,")
+                                # Assuming straws[place] is the straw ID
+                                save_straw_db(straws[place], True)
                             elif passfail[place] == "Incomplete":
                                 file.write("_,")
                             else:
                                 file.write("F,")
+                                save_straw_db(straws[place], False)
                         i = 0
                         for worker in self.sessionWorkers:
                             file.write(worker)
@@ -1820,6 +1851,29 @@ to permanently remove "
                             i = i + 1
         CPAL, lastTask, straws, passfail = self.getPallet(CPAL)
         self.displayPallet(CPAL, lastTask, straws, passfail)
+
+    """
+    Method to update a straw's last passed process
+        Input -> straw: string, grade: bool
+        Output -> None
+
+        straw argument is the ID of the straw that needs to be updated.
+        Get straws from table and update straw
+
+        If grade is False, set straw to inactive
+
+    """
+
+    def save_straw_db(self, straw, leak_rate):
+        straws = Straw.query()
+        for straw in straws:
+            if straw.id == straw:
+                if leak_rate:
+                    straw.previous_passed = "leak"
+                    straw.commit()
+                else:
+                    straw.active = 0
+                    straw.commit()
 
     def moveStraw(self, btn):
         pos = int(btn.objectName().strip("move_")) - 1

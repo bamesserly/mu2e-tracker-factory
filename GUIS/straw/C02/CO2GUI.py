@@ -17,6 +17,12 @@ from pynput.keyboard import Key, Controller
 from pathlib import Path
 from co2 import Ui_MainWindow  ## edit via Qt Designer
 
+# Import DataProcessor for database access
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Database"))
+)
+from databaseClasses import Straw, Query
+
 # move up one directory
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
@@ -378,6 +384,7 @@ class CO2(QMainWindow):
                     palletWrite.write(",")
                     if straw != "":
                         palletWrite.write("P")
+                        save_straw_db(straw)
                     palletWrite.write(",")
                 i = 0
                 for worker in self.sessionWorkers:
@@ -411,6 +418,23 @@ class CO2(QMainWindow):
         file.close()
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
+
+    """
+        Method to save a straw to the database
+            Input -> straw: string
+            Output -> None
+
+            straw argument is the ID of the straw that needs to be updated.
+            Get straws from table and update last previous passed process
+
+    """
+
+    def save_straw_db(self, straw):
+        straws = Straw.query()
+        for straw in straws:
+            if straw.id == straw:
+                straw.previous_passed = "co2"
+                straw.commit()
 
     def resetGUI(self):
         self.palletID = ""

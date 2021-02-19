@@ -48,6 +48,12 @@ from design import Ui_MainWindow
 from resistanceMeter import Resistance
 from measureByHand import MeasureByHandPopup
 
+# Import DataProcessor for database access
+sys.path.insert(
+    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Database"))
+)
+from databaseClasses import Straw, Query
+
 # move up one directory
 sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 
@@ -347,6 +353,7 @@ class CompletionTrack(QtWidgets.QDialog):
             rem.palletDirectory = self.palletDirectory
             rem.sessionWorkers = self.sessionWorkers
             CPAL, lastTask, straws, passfail = rem.getPallet(self.palletNumber)
+            print("STRAWS", straws)
             self.interpretEditPallet(CPAL, lastTask, straws, passfail)
 
         self.calledInitializePallet = True
@@ -858,6 +865,8 @@ class CompletionTrack(QtWidgets.QDialog):
                                 else:
                                     pass_fail = "F"
 
+                                save_straw_db(straw, boolean)
+
                             file.write(straw + "," + pass_fail + ",")
 
                         i = 0
@@ -869,6 +878,29 @@ class CompletionTrack(QtWidgets.QDialog):
                     file.close()
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
+
+    """
+        Method to save a straw to the database
+            Input -> straw: string, grade: bool
+            Output -> None
+
+            straw argument is the ID of the straw that needs to be updated.
+            Get straws from table and update straw
+
+            If grade is False, set straw to inactive
+
+    """
+
+    def save_straw_db(self, straw, grade):
+        straws = Straw.query()
+        for straw in straws:
+            if straw.id == straw:
+                if grade:
+                    straw.previous_passed = "res"
+                    straw.commit()
+                else:
+                    straw.active = 0
+                    straw.commit()
 
     def saveReset(self):
         if self.measureByHand_counter < 2:
