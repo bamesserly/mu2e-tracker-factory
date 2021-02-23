@@ -57,7 +57,8 @@ checkP = dummyPath + "Check Straw"
 sys.path.insert(0, removeP)
 sys.path.insert(0, checkP)
 # move up one directory
-sys.path.insert(0, os.path.dirname(__file__) + "..\\")
+# sys.path.insert(0, os.path.dirname(__file__) + "..\\")
+sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent)))
 from removeStraw import *
 from checkstraw import *
 
@@ -97,14 +98,16 @@ class cutMenu(QMainWindow):
         self.ui.viewButton.clicked.connect(self.editPallet)
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\laser cutting\\"
+            + "\\..\\..\\..\\Data\\workers\\straw workers\\laser cutting\\"
         )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
+        self.palletDirectory = (
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data/Pallets\\"
+        )
         self.laserDirectory = boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Laser cut data\\"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Laser cut data\\"
         )
         self.boardPath = boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Status Board 464\\"
         )
         self.palletID = ""
         self.palletNum = ""
@@ -297,7 +300,8 @@ class cutMenu(QMainWindow):
     # Obtain current temperature and humidy
     def getTempHumid(self):
         directory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\temp_humid_data\\464_main\\"
+            os.path.dirname(__file__)
+            + "\\..\\..\\..\\Data\\temp_humid_data\\464_main\\"
         )
         D = os.listdir(directory)
         found = False
@@ -315,8 +319,8 @@ class cutMenu(QMainWindow):
             )
             return
 
-        with open(directory + filename) as file:
-            data = csv.reader(file)
+        with open(directory + filename) as f:
+            data = csv.reader(f)
             rows = list(data)
             temperature = float(rows[-1][1])
             humidity = float(rows[-1][2])
@@ -687,8 +691,7 @@ class cutMenu(QMainWindow):
                 if prev != self.justLogOut:
                     activeWorkers.append(prev)
         with open(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
-            "a+",
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv", "a+",
         ) as workers:
             if exists:
                 workers.write("\n")
@@ -845,10 +848,7 @@ class cutMenu(QMainWindow):
         self.ui.commentBox.document().setPlainText("")
         self.step = 0
         self.ui.instructions.setText(
-            "Once the pallet is properly alligned on the cutting table, scan the pallet number with format CPAL####.\
- \n\nNext scan the FIRST barcode to initiate the first cut. If this information is \
-correct, the first cut will begin immediately.\n\nDo not touch the mouse or keyboard for 60 seconds after scanning \
-FIRST."
+            "Once the pallet is properly alligned on the cutting table, scan the pallet number with format CPAL####.\n\nNext scan the FIRST barcode to initiate the first cut. If this information is correct, the first cut will begin immediately.\n\nDo not touch the mouse or keyboard for 60 seconds after scanning FIRST."
         )
         self.ui.instructions.setFocus()
         self.initializePallet()
