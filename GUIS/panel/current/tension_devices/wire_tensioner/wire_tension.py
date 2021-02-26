@@ -42,6 +42,8 @@ class WireTensionWindow(QMainWindow):
         ## Setup UI
         self.ui = Ui_Dialog()  ## set up GUI window
         self.ui.setupUi(self)
+        self.mode = "tension"  ## switch set to tension
+        self.wait = wait
 
         ## Widgets
         self.interval = QTimer()  ## wait interval between data points
@@ -58,14 +60,13 @@ class WireTensionWindow(QMainWindow):
         self.ui.tarebutton.clicked.connect(lambda: self.tareloadcell(tare=50))
         self.ui.tarebutton2.clicked.connect(lambda: self.tareloadcell(tare=0))
         self.ui.setcalbutton.clicked.connect(self.setcalibration)
-        self.ui.strawnumbox.valueChanged.connect(
-            lambda: self.ui.recordlabel.setText("")
-        )
-        self.ui.strawnumbox.valueChanged.connect(
-            lambda i: self.loadContinuity(position=i)
+        self.ui.strawnumbox.valueChanged.connect(self.clearlabel)
+        # replaced wire with higher installation tension to compensate for friction on solder
+        self.ui.tension_replaced.clicked.connect(
+            lambda: self.tension_wire(pretension=True, replaced=True)
         )
 
-        ## Load callibration factor
+        ## Load calibration factor
         self.micro = serial.Serial(port=self.port, baudrate=9600, timeout=0.08)
         self.micro.write(b"c")
         self.micro.write(b"\n")
@@ -86,12 +87,16 @@ class WireTensionWindow(QMainWindow):
         # Start data
         self.start_data()
 
+    def clearlabel(self):
+        self.ui.recordlabel.setText("")
+
     def start_data(self):
         """ Monitor data continuously through GUI """
         self.wire_number = self.ui.strawnumbox.value()
         print("wire", self.wire_number)
         qs = queue.Queue()
-        self.thdl = GetDataThread(qs, self.port)
+        if self.mode == "tension":
+            self.thdl = GetDataThread(qs, self.port)
         self.thdl.start()
         self.interval.start(self.wait)
         self.wirestarttime = int(time.time())
@@ -126,7 +131,7 @@ class WireTensionWindow(QMainWindow):
         self.micro.write(b"\n")
         time.sleep(2)
         cal = self.initcal
-        for _ in range(30):
+        for i in range(30):
             x = self.micro.readline()
             print(x)
             if x != b"":
@@ -148,7 +153,6 @@ class WireTensionWindow(QMainWindow):
 
     ## METHOD THAT WRITES DATA TO TEXT FILE ###################################
     def record(self):
-
         got_data = False
 
         try:
@@ -183,7 +187,10 @@ class WireTensionWindow(QMainWindow):
         if pretension:
             self.micro.write(b"p")
             self.micro.write(b"\n")
-        self.micro.write(b"t")
+        if replaced:
+            self.micro.write(b"t85")
+        else:
+            self.micro.write(b"t")
         self.micro.write(b"\n")
         self.micro.close()
         self.start_data()
@@ -307,7 +314,7 @@ class GetDataThread(threading.Thread):
         print("thread joined")
 
 
-def main():
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     ctr = WireTensionWindow(
         lambda tension, continuity: print(
@@ -316,7 +323,3 @@ def main():
     )
     ctr.show()
     app.exec_()
-
-
-if __name__ == "__main__":
-    main()
