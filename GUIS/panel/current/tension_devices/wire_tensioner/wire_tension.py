@@ -179,7 +179,7 @@ class WireTensionWindow(QMainWindow):
                 # (position, cont, wire_pos),
             )
 
-    def tension_wire(self, pretension=True):
+    def tension_wire(self, pretension=True, replaced=False):
         self.thdl.join()
         self.wirestarttime = int(time.time())
         self.ui.statuslabel.setText("Tensioning wire")
