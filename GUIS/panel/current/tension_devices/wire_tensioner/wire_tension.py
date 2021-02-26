@@ -25,6 +25,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 from pathlib import Path
+
 sys.path.insert(0, str(Path(Path(__file__).parent).resolve()))
 from wire_tensioner_window import Ui_Dialog  ## edit via QTDesigner
 
@@ -82,7 +83,7 @@ class WireTensionWindow(QMainWindow):
         )
 
         ## Try to load and display the continuity measurement for the default position
-        self.loadContinuity()
+        # self.loadContinuity()
 
         # Start data
         self.start_data()
@@ -161,7 +162,7 @@ class WireTensionWindow(QMainWindow):
             tension = float(self.ui.tensionlabel.text().strip("-"))
             timer = float(self.ui.strawtimelabel.text())
             calib = float(self.ui.calibfactor.text())
-            cont = self.ui.selectContinuity.currentText()
+            cont = "N/A"
             wire_pos = self.ui.selectWirePosition.currentText()
             got_data = True
         except ValueError:
@@ -174,8 +175,8 @@ class WireTensionWindow(QMainWindow):
             self.saveMethod(
                 # Tension measurement
                 (position, tension, timer, calib),
-                # Continuity measurement
-                (position, cont, wire_pos),
+                ## Continuity measurement
+                # (position, cont, wire_pos),
             )
 
     def tension_wire(self, pretension=True):
