@@ -6,7 +6,25 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtWidgets import (
+    QLabel,
+    QFrame,
+    QStackedWidget,
+    QWidget,
+    QPushButton,
+    QSizePolicy,
+    QCheckBox,
+    QVBoxLayout,
+    QLayout,
+    QSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QApplication,
+    QComboBox,
+    QMessageBox,
+)
 
 
 class Ui_Dialog(object):
@@ -503,5 +521,3 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Wire Number"))
         self.caliblabel_2.setText(_translate("Dialog", "Calibration Factor"))
         self.calibfactor.setText(_translate("Dialog", "0"))
-
-
