@@ -1240,8 +1240,7 @@ class Pan3Procedure(PanelProcedure):
             current_left=current if side == "Left" else None,
             current_right=current if side == "Right" else None,
             voltage=voltage,
-            is_tripped=is_tripped,
-            timestamp=datetime.now()
+            is_tripped=is_tripped
         ).commit()
 
 # Pin Protectors
@@ -1612,7 +1611,6 @@ class Pan6Procedure(PanelProcedure):
             current_right=current if side == "Right" else None,
             voltage=voltage,
             is_tripped=is_tripped,
-            timestamp=int(datetime.now().timestamp())
         ).commit()
 
 
@@ -2756,7 +2754,7 @@ class MeasurementPan5(BASE, OBJECT):
     timestamp = Column(Integer)
 
     def __init__(
-        self, procedure, position, current_left, current_right, voltage, is_tripped, timestamp
+        self, procedure, position, current_left, current_right, voltage, is_tripped
     ):
         self.id = self.ID()
         self.procedure = procedure
@@ -2765,7 +2763,7 @@ class MeasurementPan5(BASE, OBJECT):
         self.current_right = current_right
         self.voltage = voltage
         self.is_tripped = is_tripped
-        self.timestamp = timestamp
+        self.timestamp = int(datetime.now().timestamp())
 
 
 def main():
