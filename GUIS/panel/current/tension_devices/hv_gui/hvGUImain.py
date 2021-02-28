@@ -212,6 +212,7 @@ class highVoltageGUI(QMainWindow):
 
     # linked to the submit panel button
     def submitPanel(self):
+        logger.debug("EINS")
         # set panel member as current panel
         self.panel = self.ui.panelNumLE.text()
 
@@ -251,6 +252,8 @@ class highVoltageGUI(QMainWindow):
         logger.info("CSV data being saved to %s" % self.fileLocation)
         if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + pathString):
             os.mkdir(os.path.dirname(os.path.realpath(__file__)) + pathString)
+        # tell user where it's being saved
+        self.ui.statusbar.showMessage(f"CSV saved at: production\Data\Panel Data\hv_data{fString}")
 
         # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
@@ -264,6 +267,8 @@ class highVoltageGUI(QMainWindow):
         self.ui.panelNumLE.setDisabled(True)
         self.ui.subPanelButton.setDisabled(True)
 
+        logger.debug("ZWEI")
+
         # initialize scroll area
         self._init_Scroll()
 
@@ -273,8 +278,11 @@ class highVoltageGUI(QMainWindow):
             self.current[i].setReadOnly(True)
             self.isTripped[i].setDisabled(True)
 
+        logger.debug("DREI")
+
         # if launching from pangui, utilize load method
         self.loadHVMeasurements()
+        logger.debug("load hv finished")
 
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
@@ -326,31 +334,39 @@ class highVoltageGUI(QMainWindow):
     def loadHVMeasurements(self):
         # launched by PANGUI
         if self.loadMethod is not None and self.saveMode == "DB":
+            logger.debug("VIER")
             # return PANGUI --> self.DP.loadHVMeasurements()
-            # returns list of the form:
-            # [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
+            # returns list of tuples of the form:
+            # (current_left0, current_right0, voltage0, is_tripped0, position0, timestamp0)
+            #  float^           float^       float??^       bool^       int^      int^
+            # one of the current vars will be None and if no measurement exists for the
+            #   position then the whole tuple will be (None,None,None,None,None,None)
             bigList = self.loadMethod()()
-
+            logger.debug("FUNF")
             # figure out side and voltage
             side = self.getSide()
             volt = self.getVolt()
             # adjust volt to match int from db
             volt = 1500 if volt else 1100
 
-            # filter list to only include measurements of the correct side/voltage
-            bigList = filter(
-                lambda toop: True
-                if (toop[2] == volt and toop[side] is not None)
-                else False,
-                bigList,
-            )
+            for toop in bigList:
+                logger.debug(f'{toop}')
+                
+                
+            '''
+            i = 0
+            while i < len(bigList):
+                logger.debug(f"SECHS.{i}")
+                if bigList[2] == volt:
+                    logger.debug(f"SIEBEN.{i}")
+                    self.setAmp(i, str(bigList[side]))
+                    if bigList[3]:
+                        self.setTrip(i, True)
+                else:
+                    i -= 1
+                i += 1
+            '''
 
-            for pos, straw in enumerate(bigList):
-                # set current
-                self.setAmp(pos, str(straw[side]))
-                # if tripped, set it that way (default is not tripped)
-                if straw[3]:
-                    self.setTrip(pos, True)
 
     # Save to CSV, saves all posiitons with one call
     def saveCSV(self):
@@ -378,6 +394,7 @@ class highVoltageGUI(QMainWindow):
 
     # Load from CSV, currently broken X_X
     def loadCSV(self):
+        return
         # ensure correct save mode
         if not self.saveMode == "CSV":
             return
