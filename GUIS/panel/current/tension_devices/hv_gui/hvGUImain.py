@@ -212,7 +212,6 @@ class highVoltageGUI(QMainWindow):
 
     # linked to the submit panel button
     def submitPanel(self):
-        logger.debug("EINS")
         # set panel member as current panel
         self.panel = self.ui.panelNumLE.text()
 
