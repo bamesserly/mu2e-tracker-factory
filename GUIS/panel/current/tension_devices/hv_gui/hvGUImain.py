@@ -267,8 +267,6 @@ class highVoltageGUI(QMainWindow):
         self.ui.panelNumLE.setDisabled(True)
         self.ui.subPanelButton.setDisabled(True)
 
-        logger.debug("ZWEI")
-
         # initialize scroll area
         self._init_Scroll()
 
@@ -278,11 +276,8 @@ class highVoltageGUI(QMainWindow):
             self.current[i].setReadOnly(True)
             self.isTripped[i].setDisabled(True)
 
-        logger.debug("DREI")
-
         # if launching from pangui, utilize load method
         self.loadHVMeasurements()
-        logger.debug("load hv finished")
 
     # connected to the return pressed event for the amps line edit and submit straw button
     # saves data to scroll area
@@ -334,7 +329,6 @@ class highVoltageGUI(QMainWindow):
     def loadHVMeasurements(self):
         # launched by PANGUI
         if self.loadMethod is not None and self.saveMode == "DB":
-            logger.debug("VIER")
             # return PANGUI --> self.DP.loadHVMeasurements()
             # returns list of tuples of the form:
             # (current_left0, current_right0, voltage0, is_tripped0, position0, timestamp0)
@@ -342,30 +336,33 @@ class highVoltageGUI(QMainWindow):
             # one of the current vars will be None and if no measurement exists for the
             #   position then the whole tuple will be (None,None,None,None,None,None)
             bigList = self.loadMethod()()
-            logger.debug("FUNF")
             # figure out side and voltage
             side = self.getSide()
             volt = self.getVolt()
             # adjust volt to match int from db
             volt = 1500 if volt else 1100
 
+            # this list keeps track of timestamps of loaded data
+            # each index corresponds to the same number straw position
+            # if an index is None, no data loaded yet
+            # if an index is an int (a timestamp) thats the time the loaded
+            # data for that posiiton was recorded
+            tSList = [None for _ in range(96)]
+            
+            # toop[side] refers to index 0 or 1, the left or right current
+            # toop[2] = voltage (1100 or 1500)
+            # toop[3] = trip status (bool)
+            # toop[4] = position (int between 0 and 95 inclusive)
+            # toop[5] = timestamp (int, epoch time)
             for toop in bigList:
-                logger.debug(f'{toop}')
-                
-                
-            '''
-            i = 0
-            while i < len(bigList):
-                logger.debug(f"SECHS.{i}")
-                if bigList[2] == volt:
-                    logger.debug(f"SIEBEN.{i}")
-                    self.setAmp(i, str(bigList[side]))
-                    if bigList[3]:
-                        self.setTrip(i, True)
-                else:
-                    i -= 1
-                i += 1
-            '''
+                # if correct side and voltage
+                if (toop[side] is not None) and (toop[2] == volt):
+                    # if no data present yet or toop is newer data
+                    if (tSList[toop[4]] is None) or (tSList[toop[4]] < toop[5]):
+                        # need to update
+                        tSList[toop[4]] = toop[5]
+                        self.setAmp(toop[4], str(toop[side]))
+                        self.setTrip(toop[4], toop[3])
 
 
     # Save to CSV, saves all posiitons with one call
