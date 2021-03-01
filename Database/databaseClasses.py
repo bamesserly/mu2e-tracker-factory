@@ -1586,9 +1586,9 @@ class Pan6Procedure(PanelProcedure):
 
     def getHVMeasurements(self):
         measurements = self._queryMeasurementsHV().all()
-        lst = [None for _ in range(96)]
+        lst = []
         for m in measurements:
-            lst[m.position] = m
+            lst += [m]
         return lst
 
     def _queryMeasurementHV(self, position):

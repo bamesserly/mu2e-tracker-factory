@@ -315,7 +315,9 @@ class highVoltageGUI(QMainWindow):
         # launched by PANGUI
         if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
-            # print("Saving: ",index," ",side," ",current," ",volts," ",isTrip)
+            if (current.lower() == "null"):
+                current = -78857676 # ascii code for NULL, 78=N 85=U, 76=L
+            # save!
             self.saveMethod(index, side, current, volts, isTrip)
         else:
             self.saveCSV()
@@ -422,7 +424,10 @@ class highVoltageGUI(QMainWindow):
     # sets a current value in scroll area
     # position = straw position
     # amps = new value
+    # accounts for how null is saved
     def setAmp(self, position, amps):
+        if (amps == '-78857676.0'):
+            amps = "null"
         self.current[position].setText(amps)
 
     # sets a bool in scroll area
