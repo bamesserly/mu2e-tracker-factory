@@ -29,10 +29,10 @@ from PyQt5.QtWidgets import (
 )
 
 # for GUI label and upper left icon management
-from PyQt5.QtGui import QBrush, QIcon
+from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator
 
 # for GUI window management
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QRegExp
 
 # Add GUIS/panel/current to sys.path
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
@@ -133,7 +133,9 @@ class highVoltageGUI(QMainWindow):
         # set save mode (DB or CSV), changes at the end of this function
         self.saveMode = ""
 
-        # bind functions to next straw
+        # bind save functions
+        # hitting enter while at amps line edit or clicking submit
+        # straw button triggers save
         self.ui.ampsLE.returnPressed.connect(self.nextStraw)
         self.ui.subStrawButton.clicked.connect(self.nextStraw)
 
@@ -142,6 +144,11 @@ class highVoltageGUI(QMainWindow):
         # turn off keyboard tracking so that value changed is
         # only emitted when enter is pressed or the widget loses focus
         self.ui.positionBox.setKeyboardTracking(False)
+
+        # set validator for amps input
+        regexp = QRegExp('[+-]?[0-9]+\.[0-9]+|null|NULL')
+        ampValidator = QRegExpValidator(regexp)
+        self.ui.ampsLE.setValidator(ampValidator)
 
         # bind function to submit panel button
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
@@ -278,21 +285,11 @@ class highVoltageGUI(QMainWindow):
         # if launching from pangui, utilize load method
         self.loadHVMeasurements()
 
-    # connected to the return pressed event for the amps line edit and submit straw button
+    # connected to the return pressed event for the
+    # amps line edit and submit straw button
     # saves data to scroll area
     def nextStraw(self):
-        # increment position
-        self.ui.positionBox.setValue(self.ui.positionBox.value() + 1)
-        # self.strawChanged gets called
-
-    # called after moving from one straw to another
-    def strawChanged(self):
-        # first ensure that the new straw is in bounds
-        if self.ui.positionBox.value() > 95:
-            # if not, undo the change and return early
-            self.ui.positionBox.setValue(self.straw)
-            return
-        # save previous straw
+        # save straw
         self.saveHVMeasurement(
             self.straw,
             self.ui.sideBox.currentText(),
@@ -300,9 +297,20 @@ class highVoltageGUI(QMainWindow):
             self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex(),
         )
+        # increment position
+        self.ui.positionBox.setValue(self.ui.positionBox.value() + 1)
+        # self.strawChanged() gets called, since positionBox.value() changed
+
+    # called after moving from one straw to another
+    # makes sure all displayed data is up to date
+    def strawChanged(self):
+        # first ensure that the new straw is in bounds
+        if self.ui.positionBox.value() > 95:
+            # if not, undo the change and return early
+            self.ui.positionBox.setValue(self.straw)
+            return
         # update current straw
         self.straw = self.ui.positionBox.value()
-        #print(self.straw)
         # update entry widgets
         self.ui.ampsLE.setText(self.current[self.straw].text())
         self.ui.tripBox.setCurrentIndex(
