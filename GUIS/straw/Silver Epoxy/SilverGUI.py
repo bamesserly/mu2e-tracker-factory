@@ -331,6 +331,7 @@ class Silver(QMainWindow):
 
                     if straw != "_______":
                         palletWrite.write(",P,")
+                        save_straw_db(straw)
                     else:
                         palletWrite.write(",_,")
 
@@ -383,6 +384,22 @@ class Silver(QMainWindow):
     ##
     ##        if reply == QMessageBox.Yes:
     ##            self.logOut()
+
+    """
+    Method to update a straw's last passed process
+        Input -> straw: string
+
+        straw argument is the ID of the straw that needs to be updated.
+        Get straws from table and update last process of the straw to be silver
+
+    """
+
+    def save_straw_db(self, straw):
+        straws = Straw.query()
+        for straw in straws:
+            if straw.id == straw:
+                straw.previous_passed = "silver"
+                straw.commit()
 
     def getStraws(self):
         with open(

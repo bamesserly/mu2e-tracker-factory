@@ -764,6 +764,7 @@ class cutMenu(QMainWindow):
                     palletWrite.write(",")
                     if straw != "":
                         palletWrite.write("P")
+                        save_straw_db(straw)
                     palletWrite.write(",")
                 i = 0
                 palletWrite.write(",".join(self.sessionWorkers))
@@ -816,6 +817,22 @@ class cutMenu(QMainWindow):
         # self.updateBoard()
         # self.uploadData()
         self.resetGUI()
+
+    """
+    Method to update a straw's last passed process
+        Input -> straw: string
+
+        straw argument is the ID of the straw that needs to be updated.
+        Get straws from table and update last process of the straw to be laser
+
+    """
+
+    def save_straw_db(self, straw):
+        straws = Straw.query()
+        for straw in straws:
+            if straw.id == straw:
+                straw.previous_passed = "laser"
+                straw.commit()
 
     def editPallet(self):
         rem = removeStraw(self.sessionWorkers)
