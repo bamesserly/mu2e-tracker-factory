@@ -146,7 +146,7 @@ class highVoltageGUI(QMainWindow):
         self.ui.positionBox.setKeyboardTracking(False)
 
         # set validator for amps input
-        regexp = QRegExp('[+-]?[0-9]+\.[0-9]+|null|NULL')
+        regexp = QRegExp("[+-]?[0-9]+\.[0-9]+|null|NULL")
         ampValidator = QRegExpValidator(regexp)
         self.ui.ampsLE.setValidator(ampValidator)
 
@@ -240,27 +240,6 @@ class highVoltageGUI(QMainWindow):
             self.givePop("Please choose a side option")
             return
 
-        # set csv file location
-        # make string to represent today (mmddyyyy)
-        today = datetime.datetime.today().strftime("%Y%m%d_%H%M%S")
-        today.replace(" ", "")
-        # make string for save location
-        pathString = "\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"
-        # make string for voltage (the index -1 will be 0 if it's 1100, 1 if 1500)
-        voltString = "1500V" if (self.ui.voltageBox.currentIndex() - 1) else "1100V"
-        # make string for csv name (with \\ in the front to save inside the hv_data folder)
-        fString = f"\\{self.panel}_hv_data_{voltString}_{today}.csv"
-        # put it all together
-        self.fileLocation = (
-            os.path.dirname(os.path.realpath(__file__)) + pathString + fString
-        )
-        # make directory for CSVs if it doesn't exist yet
-        logger.info("CSV data being saved to %s" % self.fileLocation)
-        if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + pathString):
-            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + pathString)
-        # tell user where it's being saved
-        self.ui.statusbar.showMessage(f"CSV saved at: production\Data\Panel Data\hv_data{fString}")
-
         # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
         self.ui.ampsLE.setEnabled(True)
@@ -323,12 +302,12 @@ class highVoltageGUI(QMainWindow):
         # launched by PANGUI
         if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
-            if (current.lower() == "null"):
-                current = -78857676 # ascii code for NULL, 78=N 85=U, 76=L
+            if current.lower() == "null":
+                current = -78857676  # ascii code for NULL, 78=N 85=U, 76=L
             # save!
             self.saveMethod(index, side, current, volts, isTrip)
         else:
-            self.saveCSV()
+            self.saveCSV(index, side, current, volts, isTrip)
 
         # ensure that scroll area is updated
         self.setAmp(index, current)
@@ -357,7 +336,7 @@ class highVoltageGUI(QMainWindow):
             # if an index is an int (a timestamp) thats the time the loaded
             # data for that posiiton was recorded
             tSList = [None for _ in range(96)]
-            
+
             # toop[side] refers to index 0 or 1, the left or right current
             # toop[2] = voltage (1100 or 1500)
             # toop[3] = trip status (bool)
@@ -373,30 +352,38 @@ class highVoltageGUI(QMainWindow):
                         self.setAmp(toop[4], str(toop[side]))
                         self.setTrip(toop[4], toop[3])
 
-
-    # Save to CSV, saves all posiitons with one call
-    def saveCSV(self):
-        # ensure correct save mode
-        if not self.saveMode == "CSV":
-            return
-
-        # make side string to shorten write header line
-        side = "RIGHT" if self.getSide() else "LEFT"
-        volt = "1500" if self.getVolt() else "1100"
-        now = datetime.datetime.now().strftime("%m/%d/%Y - %H:%M:%S")
-        # open file, use w to overwrite
-        with open(self.fileLocation, "w") as csvF:
-            # write headers
-            csvF.write(f"Panel {self.panel} tested at {volt}V.  Last Update: {now}\n")
-            csvF.write(f"posiiton,{side} current,voltage,is tripped")
-
-            for p in range(96):
-                csvF.write("\n")
-                # write each row, with data in the same order as the header
-                csvF.write(f"{p},{self.getAmp(p)},{self.getTrip(p)}")
-
-            # close the file
-            csvF.close()
+    # Save one HV measurement, append CSV file
+    def saveCSV(self, position, side, current, voltage, is_tripped):
+        headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
+        pathString = "..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\"
+        today = datetime.datetime.today().strftime("%Y%m%d")
+        outfile = pathString + self.panel + "_hv_data_" + today + ".csv"
+        outfile = Path(outfile).resolve()
+        self.ui.statusbar.showMessage(f"CSV saved at: {outfile}")
+        print("Saving HV current data to", outfile)
+        file_exists = os.path.isfile(outfile)
+        try:
+            with open(outfile, "a+") as f:
+                writer = csv.DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Current": current,
+                        "Side": side,
+                        "Voltage": voltage,
+                        "IsTripped": str(is_tripped),
+                        "Timestamp": datetime.datetime.now().isoformat(),
+                    }
+                )
+        except PermissionError:
+            print(
+                "HV data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            print("HV data is not being saved to CSV files.")
 
     # Load from CSV, currently broken X_X
     def loadCSV(self):
@@ -434,7 +421,7 @@ class highVoltageGUI(QMainWindow):
     # amps = new value
     # accounts for how null is saved
     def setAmp(self, position, amps):
-        if (amps == '-78857676.0'):
+        if amps == "-78857676.0":
             amps = "null"
         self.current[position].setText(amps)
 
