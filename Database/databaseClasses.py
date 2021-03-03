@@ -1213,11 +1213,12 @@ class Pan3Procedure(PanelProcedure):
             calibration_factor=calibration_factor,
         ).commit()
 
+    # hv measurements
     def getHVMeasurements(self):
         measurements = self._queryMeasurementsHV().all()
-        lst = [None for _ in range(96)]
+        lst = []
         for m in measurements:
-            lst[m.position] = m
+            lst += [m]
         return lst
 
     def _queryMeasurementHV(self, position):
@@ -1232,7 +1233,6 @@ class Pan3Procedure(PanelProcedure):
             .order_by(MeasurementPan5.position.asc())
         )
 
-    # HV measurements
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
         MeasurementPan5(
             procedure=self.id,
@@ -1240,7 +1240,7 @@ class Pan3Procedure(PanelProcedure):
             current_left=current if side == "Left" else None,
             current_right=current if side == "Right" else None,
             voltage=voltage,
-            is_tripped=is_tripped,
+            is_tripped=is_tripped
         ).commit()
 
 # Pin Protectors
@@ -1586,9 +1586,9 @@ class Pan6Procedure(PanelProcedure):
 
     def getHVMeasurements(self):
         measurements = self._queryMeasurementsHV().all()
-        lst = [None for _ in range(96)]
+        lst = []
         for m in measurements:
-            lst[m.position] = m
+            lst += [m]
         return lst
 
     def _queryMeasurementHV(self, position):
@@ -2751,6 +2751,7 @@ class MeasurementPan5(BASE, OBJECT):
     current_right = Column(REAL)
     voltage = Column(REAL)
     is_tripped = Column(BOOLEAN)
+    timestamp = Column(Integer)
 
     def __init__(
         self, procedure, position, current_left, current_right, voltage, is_tripped
@@ -2762,6 +2763,7 @@ class MeasurementPan5(BASE, OBJECT):
         self.current_right = current_right
         self.voltage = voltage
         self.is_tripped = is_tripped
+        self.timestamp = int(datetime.now().timestamp())
 
 
 def main():

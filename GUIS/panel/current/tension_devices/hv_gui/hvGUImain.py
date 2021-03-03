@@ -29,10 +29,10 @@ from PyQt5.QtWidgets import (
 )
 
 # for GUI label and upper left icon management
-from PyQt5.QtGui import QBrush, QIcon
+from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator
 
 # for GUI window management
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QRegExp
 
 # Add GUIS/panel/current to sys.path
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
@@ -133,12 +133,22 @@ class highVoltageGUI(QMainWindow):
         # set save mode (DB or CSV), changes at the end of this function
         self.saveMode = ""
 
-        # bind functions to next straw
+        # bind save functions
+        # hitting enter while at amps line edit or clicking submit
+        # straw button triggers save
         self.ui.ampsLE.returnPressed.connect(self.nextStraw)
         self.ui.subStrawButton.clicked.connect(self.nextStraw)
 
         # bind typed change of spin box to strawChanged()
         self.ui.positionBox.valueChanged.connect(self.strawChanged)
+        # turn off keyboard tracking so that value changed is
+        # only emitted when enter is pressed or the widget loses focus
+        self.ui.positionBox.setKeyboardTracking(False)
+
+        # set validator for amps input
+        regexp = QRegExp("[+-]?[0-9]+\.[0-9]+|null|NULL")
+        ampValidator = QRegExpValidator(regexp)
+        self.ui.ampsLE.setValidator(ampValidator)
 
         # bind function to submit panel button
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
@@ -230,28 +240,8 @@ class highVoltageGUI(QMainWindow):
             self.givePop("Please choose a side option")
             return
 
-        # set csv file location
-        # make string to represent today (mmddyyyy)
-        today = datetime.datetime.today().strftime("%Y%m%d_%H%M%S")
-        today.replace(" ", "")
-        # make string for save location
-        pathString = "\\..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data"
-        # make string for voltage (the index -1 will be 0 if it's 1100, 1 if 1500)
-        voltString = "1500V" if (self.ui.voltageBox.currentIndex() - 1) else "1100V"
-        # make string for csv name (with \\ in the front to save inside the hv_data folder)
-        fString = f"\\{self.panel}_hv_data_{voltString}_{today}.csv"
-        # put it all together
-        self.fileLocation = (
-            os.path.dirname(os.path.realpath(__file__)) + pathString + fString
-        )
-        # make directory for CSVs if it doesn't exist yet
-        logger.info("CSV data being saved to %s" % self.fileLocation)
-        if not os.path.exists(os.path.dirname(os.path.realpath(__file__)) + pathString):
-            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + pathString)
-
         # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
-
         self.ui.ampsLE.setEnabled(True)
         self.ui.tripBox.setEnabled(True)
         self.ui.subStrawButton.setEnabled(True)
@@ -274,16 +264,11 @@ class highVoltageGUI(QMainWindow):
         # if launching from pangui, utilize load method
         self.loadHVMeasurements()
 
-    # connected to the return pressed event for the amps line edit and submit straw button
+    # connected to the return pressed event for the
+    # amps line edit and submit straw button
     # saves data to scroll area
     def nextStraw(self):
-        # increment position
-        self.ui.positionBox.setValue(self.ui.positionBox.value() + 1)
-        # self.strawChanged gets called
-
-    # called after moving from one straw to another
-    def strawChanged(self):
-        # save previous straw
+        # save straw
         self.saveHVMeasurement(
             self.straw,
             self.ui.sideBox.currentText(),
@@ -291,6 +276,18 @@ class highVoltageGUI(QMainWindow):
             self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex(),
         )
+        # increment position
+        self.ui.positionBox.setValue(self.ui.positionBox.value() + 1)
+        # self.strawChanged() gets called, since positionBox.value() changed
+
+    # called after moving from one straw to another
+    # makes sure all displayed data is up to date
+    def strawChanged(self):
+        # first ensure that the new straw is in bounds
+        if self.ui.positionBox.value() > 95:
+            # if not, undo the change and return early
+            self.ui.positionBox.setValue(self.straw)
+            return
         # update current straw
         self.straw = self.ui.positionBox.value()
         # update entry widgets
@@ -305,10 +302,12 @@ class highVoltageGUI(QMainWindow):
         # launched by PANGUI
         if self.saveMethod is not None and self.saveMode == "DB":
             # pangui passes self.DP.saveHVMeasurement
-            # print("Saving: ",index," ",side," ",current," ",volts," ",isTrip)
+            if current.lower() == "null":
+                current = -78857676  # ascii code for NULL, 78=N 85=U, 76=L
+            # save!
             self.saveMethod(index, side, current, volts, isTrip)
         else:
-            self.saveCSV()
+            self.saveCSV(index, side, current, volts, isTrip)
 
         # ensure that scroll area is updated
         self.setAmp(index, current)
@@ -319,57 +318,76 @@ class highVoltageGUI(QMainWindow):
         # launched by PANGUI
         if self.loadMethod is not None and self.saveMode == "DB":
             # return PANGUI --> self.DP.loadHVMeasurements()
-            # returns list of the form:
-            # [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
+            # returns list of tuples of the form:
+            # (current_left0, current_right0, voltage0, is_tripped0, position0, timestamp0)
+            #  float^           float^       float??^       bool^       int^      int^
+            # one of the current vars will be None and if no measurement exists for the
+            #   position then the whole tuple will be (None,None,None,None,None,None)
             bigList = self.loadMethod()()
-
             # figure out side and voltage
             side = self.getSide()
             volt = self.getVolt()
             # adjust volt to match int from db
             volt = 1500 if volt else 1100
 
-            # filter list to only include measurements of the correct side/voltage
-            bigList = filter(
-                lambda toop: True
-                if (toop[2] == volt and toop[side] is not None)
-                else False,
-                bigList,
+            # this list keeps track of timestamps of loaded data
+            # each index corresponds to the same number straw position
+            # if an index is None, no data loaded yet
+            # if an index is an int (a timestamp) thats the time the loaded
+            # data for that posiiton was recorded
+            tSList = [None for _ in range(96)]
+
+            # toop[side] refers to index 0 or 1, the left or right current
+            # toop[2] = voltage (1100 or 1500)
+            # toop[3] = trip status (bool)
+            # toop[4] = position (int between 0 and 95 inclusive)
+            # toop[5] = timestamp (int, epoch time)
+            for toop in bigList:
+                # if correct side and voltage
+                if (toop[side] is not None) and (toop[2] == volt):
+                    # if no data present yet or toop is newer data
+                    if (tSList[toop[4]] is None) or (tSList[toop[4]] < toop[5]):
+                        # need to update
+                        tSList[toop[4]] = toop[5]
+                        self.setAmp(toop[4], str(toop[side]))
+                        self.setTrip(toop[4], toop[3])
+
+    # Save one HV measurement, append CSV file
+    def saveCSV(self, position, side, current, voltage, is_tripped):
+        headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
+        pathString = "..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\"
+        today = datetime.datetime.today().strftime("%Y%m%d")
+        outfile = pathString + self.panel + "_hv_data_" + today + ".csv"
+        outfile = Path(outfile).resolve()
+        self.ui.statusbar.showMessage(f"CSV saved at: {outfile}")
+        print("Saving HV current data to", outfile)
+        file_exists = os.path.isfile(outfile)
+        try:
+            with open(outfile, "a+") as f:
+                writer = csv.DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Current": current,
+                        "Side": side,
+                        "Voltage": voltage,
+                        "IsTripped": str(is_tripped),
+                        "Timestamp": datetime.datetime.now().isoformat(),
+                    }
+                )
+        except PermissionError:
+            print(
+                "HV data CSV file is locked. Probably open somewhere. Close and try again."
             )
-
-            for pos, straw in enumerate(bigList):
-                # set current
-                self.setAmp(pos, str(straw[side]))
-                # if tripped, set it that way (default is not tripped)
-                if straw[3]:
-                    self.setTrip(pos, True)
-
-    # Save to CSV, saves all posiitons with one call
-    def saveCSV(self):
-        # ensure correct save mode
-        if not self.saveMode == "CSV":
-            return
-
-        # make side string to shorten write header line
-        side = "RIGHT" if self.getSide() else "LEFT"
-        volt = "1500" if self.getVolt() else "1100"
-        now = datetime.datetime.now().strftime("%m/%d/%Y - %H:%M:%S")
-        # open file, use w to overwrite
-        with open(self.fileLocation, "w") as csvF:
-            # write headers
-            csvF.write(f"Panel {self.panel} tested at {volt}V.  Last Update: {now}\n")
-            csvF.write(f"posiiton,{side} current,voltage,is tripped")
-
-            for p in range(96):
-                csvF.write("\n")
-                # write each row, with data in the same order as the header
-                csvF.write(f"{p},{self.getAmp(p)},{self.getTrip(p)}")
-
-            # close the file
-            csvF.close()
+            print("HV data is not being saved to CSV files.")
 
     # Load from CSV, currently broken X_X
     def loadCSV(self):
+        return
         # ensure correct save mode
         if not self.saveMode == "CSV":
             return
@@ -401,7 +419,10 @@ class highVoltageGUI(QMainWindow):
     # sets a current value in scroll area
     # position = straw position
     # amps = new value
+    # accounts for how null is saved
     def setAmp(self, position, amps):
+        if amps == "-78857676.0":
+            amps = "null"
         self.current[position].setText(amps)
 
     # sets a bool in scroll area

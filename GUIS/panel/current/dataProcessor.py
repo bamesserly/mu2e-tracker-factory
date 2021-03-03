@@ -1077,63 +1077,34 @@ class TxtDataProcessor(DataProcessor):
     # update all HV measurements for panel
     # parameters are lists of data
     def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
-        # only works to a certain degree right now...
+        headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
 
-        # make header for file (the first line)
-        header = "Position,CurrentLeft,CurrentRight,Voltage,IsTripped,Timestamp"
-
-        # make a new file if one doesn't already exist
-        if not self.getPanelLongHVDataPath().exists():
-            with self.getPanelLongHVDataPath().open(
-                "w"
-            ) as hvData:  # with path as hvData...
-                hvData.write(header)  # ...write the header, and boom! new file.
-        # next read from the existing file.  If we don't make sure a file already
-        # exists, then python will cry when we try to read a file that isn't there
-        with self.getPanelLongHVDataPath().open("r") as hvData:
-            reader = DictReader(hvData)  # read the rows of the file into a dictionary
-            rows = sorted([row for row in reader], key=lambda row: int(row["Position"]))
-
-        with self.getPanelLongHVDataPath().open("w", newline="\n") as hvData:
-            # fieldnames are the first row of what reader read - the header
-            # or at least that's what they should be
-            writer = DictWriter(
-                hvData,
-                fieldnames=[
-                    "Position",
-                    "CurrentLeft",
-                    "CurrentRight",
-                    "Voltage",
-                    "IsTripped",
-                    "Timestamp",
-                ],
+        file_exists = os.path.isfile(self.getPanelLongHVDataPath())
+        logger.info(
+            "Saving HV current data to {0}".format(self.getPanelLongHVDataPath())
+        )
+        try:
+            with open(self.getPanelLongHVDataPath(), "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Current": current,
+                        "Side": side,
+                        "Voltage": voltage,
+                        "IsTripped": str(is_tripped),
+                        "Timestamp": datetime.now().isoformat(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "HV data CSV file is locked. Probably open somewhere. Close and try again."
             )
-            # DictWriters treat every row as a dictionary
-            newRow = {
-                "Position": position,
-                "CurrentLeft": current if side == "Left" else "",
-                "CurrentRight": current if side == "Right" else "",
-                "Voltage": voltage,
-                "IsTripped": str(is_tripped),
-                "Timestamp": datetime.now(),
-            }
-            written = False  # has the new row been written yet?
-
-            # recall that rows is a sorted list of row dictionaries we got from reader
-            # now we're going to re-write the whole file which is super inefficient, but
-            # it's the best we have (for now... )
-            hvData.write(header)
-            hvData.write("\n")
-            for row in rows:  # for all existing rows...
-                if row["Position"] == str(
-                    position
-                ):  # if the row is for the straw we're updating, then update it!
-                    row = newRow
-                    written = True  # the new row already existed, so we updated it
-                writer.writerow(row)  # write the row
-
-            if not written:  # if the new row is actually new and not an update...
-                writer.writerow(newRow)  # write it!
+            logger.warning("HV data is not being saved to CSV files.")
 
     # save tension measurement
     def saveTensionboxMeasurement(
@@ -1970,7 +1941,7 @@ class SQLDataProcessor(DataProcessor):
         # Make sure all data is defined
         if not all(el is not None for el in [position, continuity_str, wire_position]):
             return
-        if wire_position is "":
+        if wire_position == "":
             return
         # Save a continuity measurement
 
@@ -2009,7 +1980,7 @@ class SQLDataProcessor(DataProcessor):
             if voltage is not None:
                 voltage = float(voltage[:4])
                 # don't save if no data to save
-                if current == '':
+                if current == "":
                     return
 
                 self.procedure.recordHVMeasurement(
@@ -2019,7 +1990,7 @@ class SQLDataProcessor(DataProcessor):
                 # if voltage is none, skip string chopping
 
                 # don't save if no data to save
-                if current == '':
+                if current == "":
                     return
 
                 self.procedure.recordHVMeasurement(
@@ -2193,15 +2164,23 @@ class SQLDataProcessor(DataProcessor):
         # ret = [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
         ret = list()
         measurements = self.procedure.getHVMeasurements()
-        print(self.procedure)
         for m in measurements:
             if m == None:
-                ret.append((None, None, None, None))
+                ret.append((None, None, None, None, None, None))
             else:
-                ret.append((m.current_left, m.current_right, m.voltage, m.is_tripped))
+                ret.append(
+                    (
+                        m.current_left,
+                        m.current_right,
+                        m.voltage,
+                        m.is_tripped,
+                        m.position,
+                        m.timestamp,
+                    )
+                )
         return ret
 
-    #def loadHVwithTimestamp(self):
+    # def loadHVwithTimestamp(self):
 
     ##########################################################################
 
