@@ -154,25 +154,17 @@ class WireTensionWindow(QMainWindow):
 
     ## METHOD THAT WRITES DATA TO TEXT FILE ###################################
     def record(self):
-        print("inside record")
         got_data = False
-
-        position = int(self.ui.strawnumbox.value())
-        tension = float(self.ui.tensionlabel.text().strip("-"))
-        timer = float(self.ui.strawtimelabel.text())
-        calib = float(self.ui.calibfactor.text())
         cont = "N/A"
-        # wire_pos = self.ui.selectWirePosition.currentText()
-        print(position, tension, timer, calib, cont)
-
+        # wire_alignment = self.ui.selectWireAlignment.currentText()
         try:
             # Extract data from widgets
             position = int(self.ui.strawnumbox.value())
             tension = float(self.ui.tensionlabel.text().strip("-"))
             timer = float(self.ui.strawtimelabel.text())
-            calib = float(self.ui.calibfactor.text())
+            calibration = float(self.ui.calibfactor.text())
             cont = "N/A"
-            print(position, tension, timer, calib, cont)
+            print(position, tension, timer, calibration, cont)
             got_data = True
         except ValueError:
             pass
@@ -183,12 +175,15 @@ class WireTensionWindow(QMainWindow):
             # Call save method with data
             self.saveMethod(
                 # Tension measurement
-                position,
-                tension,
-                timer,
-                calib,
-                ## Continuity measurement
-                # (position, cont, wire_pos),
+                (
+                    position,
+                    tension,
+                    timer,
+                    calibration,
+                ),
+                # Continuity measurement
+                (-1, "", "")
+                # (position, continuity, wire alignment,),
             )
 
     def tension_wire(self, pretension=True, replaced=False):
@@ -252,18 +247,18 @@ class WireTensionWindow(QMainWindow):
         if position is None:
             position = self.ui.strawnumbox.value()
         # Load data using method given in initialization
-        cont, wire_pos = self.loadContinuityMethod(position)
+        cont, wire_align = self.loadContinuityMethod(position)
         # If nothing is loaded, use default measurement
-        if not all(meas is not None for meas in [cont, wire_pos]):
+        if not all(meas is not None for meas in [cont, wire_align]):
             cont = "Pass: No Continuity"
-            wire_pos = "Middle 1/3"
+            wire_align = "Middle 1/3"
         # Finds index of string, then sets index to that number
         setText = lambda combo_box, text: combo_box.setCurrentIndex(
             combo_box.findText(text)
         )
         # Call method on both continuity drop-downs with loaded data
         setText(self.ui.selectContinuity, cont)
-        setText(self.ui.selectWirePosition, wire_pos)
+        setText(self.ui.selectWireAlignment, wire_align)
 
     @staticmethod
     def getPortLocation():
@@ -330,8 +325,8 @@ class GetDataThread(threading.Thread):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ctr = WireTensionWindow(
-        lambda position, tension, timer, calib: print(
-            f"\nPosition:\t{position}\nTension:\t{tension}\nTimer:\t{timer}\nCalibration:\t{calib}",
+        lambda tension_tpl, continuity_tpl: print(
+            f"\nPosition:\t{tension_tpl[0]}\nTension:\t{tension_tpl[1]}\nTimer:\t{tension_tpl[2]}\nCalibration:\t{tension_tpl[3]}",
         ),
         None,
     )

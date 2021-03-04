@@ -331,12 +331,12 @@ class DataProcessor(ABC):
             continuity_str  (str)   Will be one of the following :
                 ['Pass: No Continuity', 'Fail: Right Continuity', 'Fail: Left Continuity', 'Fail: Both Continuity']
 
-            wire_position   (str)   Will be one of the following :
+            wire_alignment   (str)   Will be one of the following :
                 ['Top 1/3', 'Middle 1/3', 'Lower 1/3']
     """
 
     @abstractmethod
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         pass
 
     @abstractmethod
@@ -393,7 +393,7 @@ class DataProcessor(ABC):
                             - corresponding timestamps
                             - steps completed
                             (if pro 3)
-                            - continuity, wire position, resistance, and corresponding timestamps (if 6 more lists)
+                            - continuity, wire alignment, resistance, and corresponding timestamps (if 6 more lists)
 
         Returns: List of lists
             [
@@ -403,8 +403,8 @@ class DataProcessor(ABC):
             steps completed,
             continuity,
             continuity timestamp,
-            wire position,
-            wire position timestamp,
+            wire alignment,
+            wire alignment timestamp,
             resistance,
             resistance timestamp
             ]
@@ -468,7 +468,7 @@ class DataProcessor(ABC):
         Input:  position (int)  Position of wire to load continuity for. If None, this
                                 method should return all the continuity measurements for the panel.
 
-        Returns:    Tuples of (continuity, wire_pos) for each measurement loaded.
+        Returns:    Tuples of (continuity, wire_align) for each measurement loaded.
     """
 
     @abstractmethod
@@ -599,9 +599,9 @@ class MultipleDataProcessor(DataProcessor):
         for dp in self.processors:
             dp.saveWireTensionMeasurement(position, tension, wire_timer, calib_factor)
 
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         for dp in self.processors:
-            dp.saveContinuityMeasurement(position, continuity_str, wire_position)
+            dp.saveContinuityMeasurement(position, continuity_str, wire_alignment)
 
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
         for dp in self.processors:
@@ -1044,11 +1044,11 @@ class TxtDataProcessor(DataProcessor):
 
     # update all continuity measurements for panel
     # parameters are lists of data
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         # The original author didn't comment this function so:
         # REFER TO saveHVMeasurement() FOR INFO ON HOW THIS WORKS
         # They're pretty much the same thing, just different data
-        con_header = "Panel,Position,Continuity,WirePosition,TimeStamp"
+        con_header = "Panel,Position,Continuity,WireAlignment,TimeStamp"
         if not self.getPanelLongContinuityDataPath().exists():
             with self.getPanelLongContinuityDataPath().open("w") as con_data:
                 con_data.write(con_header)
@@ -1061,7 +1061,7 @@ class TxtDataProcessor(DataProcessor):
                 "Panel": self.getPanel(),
                 "Position": str(position),
                 "Continuity": str(continuity_str),
-                "WirePosition": str(wire_position),
+                "WireAlignment": str(wire_alignment),
                 "TimeStamp": self.timestamp(),
             }
             written = False
@@ -1077,34 +1077,63 @@ class TxtDataProcessor(DataProcessor):
     # update all HV measurements for panel
     # parameters are lists of data
     def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
-        headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
+        # only works to a certain degree right now...
 
-        file_exists = os.path.isfile(self.getPanelLongHVDataPath())
-        logger.info(
-            "Saving HV current data to {0}".format(self.getPanelLongHVDataPath())
-        )
-        try:
-            with open(self.getPanelLongHVDataPath(), "a+") as f:
-                writer = DictWriter(
-                    f, delimiter=",", lineterminator="\n", fieldnames=headers
-                )
-                if not file_exists:
-                    writer.writeheader()  # file doesn't exist yet, write a header
-                writer.writerow(
-                    {
-                        "Position": position,
-                        "Current": current,
-                        "Side": side,
-                        "Voltage": voltage,
-                        "IsTripped": str(is_tripped),
-                        "Timestamp": datetime.now().isoformat(),
-                    }
-                )
-        except PermissionError:
-            logger.warning(
-                "HV data CSV file is locked. Probably open somewhere. Close and try again."
+        # make header for file (the first line)
+        header = "Position,CurrentLeft,CurrentRight,Voltage,IsTripped,Timestamp"
+
+        # make a new file if one doesn't already exist
+        if not self.getPanelLongHVDataPath().exists():
+            with self.getPanelLongHVDataPath().open(
+                "w"
+            ) as hvData:  # with path as hvData...
+                hvData.write(header)  # ...write the header, and boom! new file.
+        # next read from the existing file.  If we don't make sure a file already
+        # exists, then python will cry when we try to read a file that isn't there
+        with self.getPanelLongHVDataPath().open("r") as hvData:
+            reader = DictReader(hvData)  # read the rows of the file into a dictionary
+            rows = sorted([row for row in reader], key=lambda row: int(row["Position"]))
+
+        with self.getPanelLongHVDataPath().open("w", newline="\n") as hvData:
+            # fieldnames are the first row of what reader read - the header
+            # or at least that's what they should be
+            writer = DictWriter(
+                hvData,
+                fieldnames=[
+                    "Position",
+                    "CurrentLeft",
+                    "CurrentRight",
+                    "Voltage",
+                    "IsTripped",
+                    "Timestamp",
+                ],
             )
-            logger.warning("HV data is not being saved to CSV files.")
+            # DictWriters treat every row as a dictionary
+            newRow = {
+                "Position": position,
+                "CurrentLeft": current if side == "Left" else "",
+                "CurrentRight": current if side == "Right" else "",
+                "Voltage": voltage,
+                "IsTripped": str(is_tripped),
+                "Timestamp": datetime.now(),
+            }
+            written = False  # has the new row been written yet?
+
+            # recall that rows is a sorted list of row dictionaries we got from reader
+            # now we're going to re-write the whole file which is super inefficient, but
+            # it's the best we have (for now... )
+            hvData.write(header)
+            hvData.write("\n")
+            for row in rows:  # for all existing rows...
+                if row["Position"] == str(
+                    position
+                ):  # if the row is for the straw we're updating, then update it!
+                    row = newRow
+                    written = True  # the new row already existed, so we updated it
+                writer.writerow(row)  # write the row
+
+            if not written:  # if the new row is actually new and not an update...
+                writer.writerow(newRow)  # write it!
 
     # save tension measurement
     def saveTensionboxMeasurement(
@@ -1937,11 +1966,11 @@ class SQLDataProcessor(DataProcessor):
                 tension=tension,
             ).commit()
 
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         # Make sure all data is defined
-        if not all(el is not None for el in [position, continuity_str, wire_position]):
+        if not all(el is not None for el in [position, continuity_str, wire_alignment]):
             return
-        if wire_position == "":
+        if wire_alignment is "":
             return
         # Save a continuity measurement
 
@@ -1953,7 +1982,7 @@ class SQLDataProcessor(DataProcessor):
             right_continuity=(
                 continuity_str in ["Pass: No Continuity", "Fail: Left Continuity"]
             ),
-            wire_position={
+            wire_alignment={
                 "Lower 1/3": "lower",
                 "Middle 1/3": "middle",
                 "Top 1/3": "top",
@@ -1966,7 +1995,7 @@ class SQLDataProcessor(DataProcessor):
                 "Long, Top": "long top",
                 "Long, Middle": "long middle",
                 "Long, Bottom": "long lower",
-            }[wire_position],
+            }[wire_alignment],
         )
 
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
@@ -2148,7 +2177,7 @@ class SQLDataProcessor(DataProcessor):
         return lst
 
     def loadContinuityMeasurements(self, position=None):
-        # If position is None, return all in list of tuples Ex: [(cont, wire_pos,), (con, wire_pos), ...]
+        # If position is None, return all in list of tuples Ex: [(cont, wire_align,), (con, wire_align), ...]
         if position is None:
             ret = list()
             measurements = self.procedure.getContinuityMeasurements()
@@ -2164,20 +2193,12 @@ class SQLDataProcessor(DataProcessor):
         # ret = [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
         ret = list()
         measurements = self.procedure.getHVMeasurements()
+        print(self.procedure)
         for m in measurements:
             if m == None:
-                ret.append((None, None, None, None, None, None))
+                ret.append((None, None, None, None))
             else:
-                ret.append(
-                    (
-                        m.current_left,
-                        m.current_right,
-                        m.voltage,
-                        m.is_tripped,
-                        m.position,
-                        m.timestamp,
-                    )
-                )
+                ret.append((m.current_left, m.current_right, m.voltage, m.is_tripped))
         return ret
 
     # def loadHVwithTimestamp(self):
@@ -2251,7 +2272,7 @@ class SQLDataProcessor(DataProcessor):
     @staticmethod
     def parseContinuityMeasurement(meas):
         continuity = None
-        wire_pos = None
+        wire_align = None
 
         if meas is not None:
             # Continuity
@@ -2264,7 +2285,7 @@ class SQLDataProcessor(DataProcessor):
             }[meas.left_continuity, meas.right_continuity]
 
             # Wire Position
-            wire_pos = {
+            wire_align = {
                 None: None,
                 # old panels
                 "lower": "Lower 1/3",
@@ -2280,10 +2301,10 @@ class SQLDataProcessor(DataProcessor):
                 "long top": "Long, Top",
                 "long middle": "Long, Middle",
                 "long lower": "Long, Bottom",
-            }[meas.wire_position]
+            }[meas.wire_alignment]
 
         # Return data as list
-        return continuity, wire_pos
+        return continuity, wire_align
 
     @staticmethod
     def getBarcode(obj):
