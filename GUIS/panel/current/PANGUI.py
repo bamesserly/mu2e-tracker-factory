@@ -421,10 +421,17 @@ class panelGUI(QMainWindow):
             "Fail: Left Continuity",
             "Fail: Both Continuity",
         ]
-        lcItems = ["Select", 
-            "Short, Top", "Short, Middle", "Short, Bottom",
-            "Middle, Top", "True Middle", "Middle, Bottom",
-            "Long, Top", "Long, Middle", "Long, Bottom",
+        lcItems = [
+            "Select",
+            "Short, Top",
+            "Short, Middle",
+            "Short, Bottom",
+            "Middle, Top",
+            "True Middle",
+            "Middle, Bottom",
+            "Long, Top",
+            "Long, Middle",
+            "Long, Bottom",
         ]
 
         """
@@ -686,11 +693,19 @@ class panelGUI(QMainWindow):
         for i, lineEdits in enumerate(zip(self.currentLeft, self.currentRight)):
             if i < 95:
                 # covers return pressed
-                lineEdits[0].returnPressed.connect(lambda index=i: self.currentLeft[index+1].setFocus())
-                lineEdits[1].returnPressed.connect(lambda index=i: self.currentRight[index+1].setFocus())
+                lineEdits[0].returnPressed.connect(
+                    lambda index=i: self.currentLeft[index + 1].setFocus()
+                )
+                lineEdits[1].returnPressed.connect(
+                    lambda index=i: self.currentRight[index + 1].setFocus()
+                )
                 # covers tab pressed
-                lineEdits[0].editingFinished.connect(lambda index=i: self.currentLeft[index+1].setFocus())
-                lineEdits[1].editingFinished.connect(lambda index=i: self.currentLeft[index+1].setFocus())
+                lineEdits[0].editingFinished.connect(
+                    lambda index=i: self.currentLeft[index + 1].setFocus()
+                )
+                lineEdits[1].editingFinished.connect(
+                    lambda index=i: self.currentLeft[index + 1].setFocus()
+                )
                 # bind to save
                 lineEdits[0].editingFinished.connect(lambda index=i: lineSaveHV(index))
                 lineEdits[1].editingFinished.connect(lambda index=i: lineSaveHV(index))
@@ -698,7 +713,6 @@ class panelGUI(QMainWindow):
                 # i = 95 would cause index out of bounds
                 lineEdits[0].editingFinished.connect(lambda index=i: lineSaveHV(index))
                 lineEdits[1].editingFinished.connect(lambda index=i: lineSaveHV(index))
-
 
         # Enumerate turns the list of checkBox widgets into a list of tuples of the form (<int>, <checkBox>)
         # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
@@ -737,7 +751,7 @@ class panelGUI(QMainWindow):
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
             self.ui.heat_start,
-            self.ui.launchHVpro6
+            self.ui.launchHVpro6,
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -1334,13 +1348,13 @@ class panelGUI(QMainWindow):
                 "Plug device into any USB port and try again.",
             )
 
-        if len(arduino_ports) > 1:
-            error = True
-            self.generateBox(
-                "critical",
-                "More than one Arduino found",
-                "Disconnect the ones not in use and try again.",
-            )
+        # if len(arduino_ports) > 1:
+        #    error = True
+        #    self.generateBox(
+        #        "critical",
+        #        "More than one Arduino found",
+        #        "Disconnect the ones not in use and try again.",
+        #    )
         return error
 
     # fmt: off
@@ -2222,13 +2236,15 @@ class panelGUI(QMainWindow):
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         if current_left is not None:
             self.DP.saveHVMeasurement(position, "Left", current_left, None, is_tripped)
-        
-        if current_right is not None:
-            self.DP.saveHVMeasurement(position, "Right", current_right, None, is_tripped)
 
-        #if self.currentLeft[position].text() != current_left:
+        if current_right is not None:
+            self.DP.saveHVMeasurement(
+                position, "Right", current_right, None, is_tripped
+            )
+
+        # if self.currentLeft[position].text() != current_left:
         #    self.displayHVMeasurement(position, current_left, current_right)
-        #if self.currentRight[position].text() != current_right:
+        # if self.currentRight[position].text() != current_right:
         #    self.displayHVMeasurement(position, current_left, current_right)
 
     """
@@ -3967,7 +3983,7 @@ class panelGUI(QMainWindow):
         )
 
         # Enable wire tensioner button
-        self.setWidgetsEnabled([self.ui.launch_wire_tensioner,self.ui.launchHVpro3])
+        self.setWidgetsEnabled([self.ui.launch_wire_tensioner, self.ui.launchHVpro3])
 
         # Enable all widgets in the continuity table
         self.setWidgetsEnabled(self.continuity + self.wire_pos)
@@ -4250,7 +4266,7 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_mixed41,
                 self.ui.bpmirgapL,
                 self.ui.bpmirgapR,
-                self.ui.launchHVpro6
+                self.ui.launchHVpro6,
             ]
         )
 
@@ -4832,15 +4848,19 @@ class panelGUI(QMainWindow):
             self.hvMeasurementsWindow = highVoltageGUI(
                 saveMethod=(
                     lambda position, side, current, volts, isTrip: (
-                        self.DP.saveHVMeasurement(position, side, current, volts, isTrip)
+                        self.DP.saveHVMeasurement(
+                            position, side, current, volts, isTrip
+                        )
                     )
                 ),
                 loadMethod=(lambda: self.DP.loadHVMeasurements),
-                panel=self.getCurrentPanel()
+                panel=self.getCurrentPanel(),
             )
             self.hvMeasurementsWindow.show()
             self.hvMeasurementsWindow.setWindowTitle("High Voltage Data Recording")
-            self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
+            self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet(
+                "background-color: rgb(122, 0, 25);"
+            )
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

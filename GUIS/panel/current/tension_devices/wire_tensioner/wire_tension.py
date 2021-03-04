@@ -154,7 +154,16 @@ class WireTensionWindow(QMainWindow):
 
     ## METHOD THAT WRITES DATA TO TEXT FILE ###################################
     def record(self):
+        print("inside record")
         got_data = False
+
+        position = int(self.ui.strawnumbox.value())
+        tension = float(self.ui.tensionlabel.text().strip("-"))
+        timer = float(self.ui.strawtimelabel.text())
+        calib = float(self.ui.calibfactor.text())
+        cont = "N/A"
+        # wire_pos = self.ui.selectWirePosition.currentText()
+        print(position, tension, timer, calib, cont)
 
         try:
             # Extract data from widgets
@@ -163,7 +172,7 @@ class WireTensionWindow(QMainWindow):
             timer = float(self.ui.strawtimelabel.text())
             calib = float(self.ui.calibfactor.text())
             cont = "N/A"
-            wire_pos = self.ui.selectWirePosition.currentText()
+            print(position, tension, timer, calib, cont)
             got_data = True
         except ValueError:
             pass
@@ -174,7 +183,10 @@ class WireTensionWindow(QMainWindow):
             # Call save method with data
             self.saveMethod(
                 # Tension measurement
-                (position, tension, timer, calib),
+                position,
+                tension,
+                timer,
+                calib,
                 ## Continuity measurement
                 # (position, cont, wire_pos),
             )
@@ -318,9 +330,10 @@ class GetDataThread(threading.Thread):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ctr = WireTensionWindow(
-        lambda tension, continuity: print(
-            f"\nSaving!\nTension:\t{tension}\nContinuity:\t{continuity}"
-        )
+        lambda position, tension, timer, calib: print(
+            f"\nPosition:\t{position}\nTension:\t{tension}\nTimer:\t{timer}\nCalibration:\t{calib}",
+        ),
+        None,
     )
     ctr.show()
     app.exec_()
