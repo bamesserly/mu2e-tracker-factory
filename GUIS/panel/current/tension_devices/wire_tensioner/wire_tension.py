@@ -33,7 +33,7 @@ from wire_tensioner_window import Ui_Dialog  ## edit via QTDesigner
 class WireTensionWindow(QMainWindow):
     """ GUI to interface with load cell / stepper motor wire tensioner  """
 
-    def __init__(self, saveMethod, loadContinuityMethod, wait=10.0, parent=None):
+    def __init__(self, saveMethod, loadContinuityMethod=None, wait=10.0, parent=None):
         super(WireTensionWindow, self).__init__(parent)
         self.saveMethod = saveMethod
         self.loadContinuityMethod = loadContinuityMethod
@@ -49,22 +49,25 @@ class WireTensionWindow(QMainWindow):
         ## Widgets
         self.interval = QTimer()  ## wait interval between data points
         self.interval.timeout.connect(self.next)
+        self.ui.next_straw.clicked.connect(self.increment_straw)
+        self.ui.recordtension.clicked.connect(self.record)
+        self.ui.resetmotor.clicked.connect(self.reset)
+        self.ui.setcalbutton.clicked.connect(self.setcalibration)
+        self.ui.strawnumbox.valueChanged.connect(
+            lambda i: self.loadContinuity(position=i)
+        )
+        self.ui.tarebutton.clicked.connect(lambda: self.tareloadcell(tare=50))
         self.ui.tension_harden.clicked.connect(
             lambda: self.tension_wire(pretension=True)
         )
         self.ui.tension_only.clicked.connect(
             lambda: self.tension_wire(pretension=False)
         )
-        self.ui.resetmotor.clicked.connect(self.reset)
-        self.ui.next_straw.clicked.connect(self.increment_straw)
-        self.ui.recordtension.clicked.connect(self.record)
-        self.ui.tarebutton.clicked.connect(lambda: self.tareloadcell(tare=50))
-        self.ui.tarebutton2.clicked.connect(lambda: self.tareloadcell(tare=0))
-        self.ui.setcalbutton.clicked.connect(self.setcalibration)
-        self.ui.strawnumbox.valueChanged.connect(self.clearlabel)
         # replaced wire with higher installation tension to compensate for friction on solder
         self.ui.tension_replaced.clicked.connect(
-            lambda: self.tension_wire(pretension=True, replaced=True)
+            lambda: self.tension_wire(
+                pretension=False, set_tension=int(self.ui.retension_val.text())
+            )
         )
 
         ## Load calibration factor
@@ -82,14 +85,14 @@ class WireTensionWindow(QMainWindow):
             "Initialized. Ready to work harden and tension wire."
         )
 
-        ## Try to load and display the continuity measurement for the default position
-        # self.loadContinuity()
+        # Try to load and display the continuity measurement for the default position
+        self.loadContinuity()
 
         # Start data
         self.start_data()
 
     def clearlabel(self):
-        self.ui.recordlabel.setText("")
+        pass
 
     def start_data(self):
         """ Monitor data continuously through GUI """
@@ -155,16 +158,14 @@ class WireTensionWindow(QMainWindow):
     ## METHOD THAT WRITES DATA TO TEXT FILE ###################################
     def record(self):
         got_data = False
-        cont = "N/A"
-        # wire_alignment = self.ui.selectWireAlignment.currentText()
         try:
             # Extract data from widgets
             position = int(self.ui.strawnumbox.value())
             tension = float(self.ui.tensionlabel.text().strip("-"))
             timer = float(self.ui.strawtimelabel.text())
             calibration = float(self.ui.calibfactor.text())
-            cont = "N/A"
-            print(position, tension, timer, calibration, cont)
+            continuity = self.ui.selectContinuity.currentText()
+            wire_alignment = self.ui.selectWireAlignment.currentText()
             got_data = True
         except ValueError:
             pass
@@ -182,11 +183,14 @@ class WireTensionWindow(QMainWindow):
                     calibration,
                 ),
                 # Continuity measurement
-                (-1, "", "")
-                # (position, continuity, wire alignment,),
+                (
+                    position,
+                    continuity,
+                    wire_alignment,
+                ),
             )
 
-    def tension_wire(self, pretension=True, replaced=False):
+    def tension_wire(self, pretension=True, set_tension=None):
         self.thdl.join()
         self.wirestarttime = int(time.time())
         self.ui.statuslabel.setText("Tensioning wire")
@@ -195,8 +199,10 @@ class WireTensionWindow(QMainWindow):
         if pretension:
             self.micro.write(b"p")
             self.micro.write(b"\n")
-        if replaced:
-            self.micro.write(b"t85")
+        if set_tension:
+            print("custom tension set is", set_tension)
+            msg = str("t" + str(set_tension)).encode("utf8")
+            self.micro.write(msg)  # not sure if this'll work
         else:
             self.micro.write(b"t")
         self.micro.write(b"\n")
@@ -221,7 +227,6 @@ class WireTensionWindow(QMainWindow):
         else:
             self.ui.strawnumbox.setValue(self.ui.strawnumbox.value() + 1)
         self.reset()  # rest motor and start data
-        self.ui.recordlabel.setText("")
 
     def reset(self):
         """ reset stepper motor to fully extended postion """
@@ -243,21 +248,23 @@ class WireTensionWindow(QMainWindow):
         self.thdl.join()
 
     def loadContinuity(self, position=None):
+        if not self.loadContinuityMethod:
+            return
         # If no position is given, use current position
         if position is None:
             position = self.ui.strawnumbox.value()
         # Load data using method given in initialization
-        cont, wire_align = self.loadContinuityMethod(position)
+        continuity, wire_align = self.loadContinuityMethod(position)
         # If nothing is loaded, use default measurement
-        if not all(meas is not None for meas in [cont, wire_align]):
-            cont = "Pass: No Continuity"
-            wire_align = "Middle 1/3"
+        if not all(meas is not None for meas in [continuity, wire_align]):
+            continuity = "Pass: No Continuity"
+            wire_align = "True Middle"
         # Finds index of string, then sets index to that number
         setText = lambda combo_box, text: combo_box.setCurrentIndex(
             combo_box.findText(text)
         )
         # Call method on both continuity drop-downs with loaded data
-        setText(self.ui.selectContinuity, cont)
+        setText(self.ui.selectContinuity, continuity)
         setText(self.ui.selectWireAlignment, wire_align)
 
     @staticmethod
@@ -323,10 +330,15 @@ class GetDataThread(threading.Thread):
 
 
 if __name__ == "__main__":
+    print("***********************")
+    print("*** STANDALONE MODE ***")
+    print("***********************")
+    print("Data is not being saved, but the tensioner still works.")
+    print("***********************")
     app = QApplication(sys.argv)
     ctr = WireTensionWindow(
         lambda tension_tpl, continuity_tpl: print(
-            f"\nPosition:\t{tension_tpl[0]}\nTension:\t{tension_tpl[1]}\nTimer:\t{tension_tpl[2]}\nCalibration:\t{tension_tpl[3]}",
+            f"\nPosition:\t{tension_tpl[0]}\nTension:\t{tension_tpl[1]}\nTimer:\t{tension_tpl[2]}\nCalibration:\t{tension_tpl[3]}\nContinuity:\t{continuity_tpl[1]}\nAlignment:\t{continuity_tpl[2]}",
         ),
         None,
     )
