@@ -50,7 +50,7 @@ def make_graph(filename, panelid, logfilename):
 
     fig, ax = plt.subplots()
     x = [0, 20, 40, 60, 80, 100]
-    y = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+    y = [0, 50, 100, 150, 200, 250]
     # Get x and y values for wires and straws
     X_wires, Y_wires = zip(*sorted_idx_wires)
     X_straws, Y_strws = zip(*sorted_idx_straws)
@@ -67,7 +67,7 @@ def make_graph(filename, panelid, logfilename):
     plt.xticks(x)
     ax.set_yticks(y)
     ax.set_yticklabels(
-        ["0", "50", "100", "150", "200", "250", "300", "350", "400", "450", "500"]
+        ["0", "50", "100", "150", "200", "250"]
     )
     plt.ylabel("Resistance")
     plt.yticks(y)
