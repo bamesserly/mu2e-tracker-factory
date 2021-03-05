@@ -201,8 +201,19 @@ class WireTensionWindow(QMainWindow):
             self.micro.write(b"\n")
         if set_tension:
             print("custom tension set is", set_tension)
+            if set_tension > 100:
+                QMessageBox.critical(
+                    self,
+                    "Tensioning Error",
+                    "Set tension is too high! Choose a lower value.",
+                )
+                self.micro.write(b"\n")
+                self.micro.close()
+                self.start_data()
+                self.ui.statuslabel.setText("Wire not tensioned")
+                return
             msg = str("t" + str(set_tension)).encode("utf8")
-            self.micro.write(msg)  # not sure if this'll work
+            self.micro.write(msg)
         else:
             self.micro.write(b"t")
         self.micro.write(b"\n")
