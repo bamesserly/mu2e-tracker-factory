@@ -67,7 +67,10 @@ def FindCPAL(strawname):
     # e.g. max([('CPAL01', 'CPAL0123'), ('CPAL01, 'CPAL6798')]), the max
     # function is performed on 'CPAL0123' vs 'CPAL6789', and 'CPAL6789' wins.
     if cpal_return_pairs:
-        return max(cpal_return_pairs, key=lambda pair: pair[1])
+        cpal_return_pairs = [i for i in cpal_return_pairs if i[1] != "CPAL9999"]
+        ret = max(cpal_return_pairs, key=lambda pair: pair[1])
+        # print("CPAL", ret[1],"for straw", strawname, "found")
+        return ret
 
     raise StrawNotFoundError
 
@@ -242,6 +245,8 @@ def checkStraw(strawname, expected_previous_test, current_test):
 
     path = os.path.join(database_path, os.path.join(cpalid, cpal + ".csv"))
 
+    print(cpal, "found for straw", strawname, "with file", path)
+
     straw_list = ExtractPreviousStrawData(path)[1]
 
     previous_test = findPreviousStep(path, expected_previous_test)
@@ -257,6 +262,8 @@ def checkStraw(strawname, expected_previous_test, current_test):
     for straw in straw_list:
         if straw == strawname:
             return
+
+    print("CPAL file", path)
 
     raise StrawRemovedError
 
