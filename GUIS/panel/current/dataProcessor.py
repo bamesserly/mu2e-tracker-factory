@@ -1045,9 +1045,6 @@ class TxtDataProcessor(DataProcessor):
     # update all continuity measurements for panel
     # parameters are lists of data
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
-        # The original author didn't comment this function so:
-        # REFER TO saveHVMeasurement() FOR INFO ON HOW THIS WORKS
-        # They're pretty much the same thing, just different data
         con_header = "Panel,Position,Continuity,WireAlignment,TimeStamp"
         if not self.getPanelLongContinuityDataPath().exists():
             with self.getPanelLongContinuityDataPath().open("w") as con_data:
@@ -1077,63 +1074,34 @@ class TxtDataProcessor(DataProcessor):
     # update all HV measurements for panel
     # parameters are lists of data
     def saveHVMeasurement(self, position, side, current, voltage, is_tripped):
-        # only works to a certain degree right now...
+        headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
 
-        # make header for file (the first line)
-        header = "Position,CurrentLeft,CurrentRight,Voltage,IsTripped,Timestamp"
-
-        # make a new file if one doesn't already exist
-        if not self.getPanelLongHVDataPath().exists():
-            with self.getPanelLongHVDataPath().open(
-                "w"
-            ) as hvData:  # with path as hvData...
-                hvData.write(header)  # ...write the header, and boom! new file.
-        # next read from the existing file.  If we don't make sure a file already
-        # exists, then python will cry when we try to read a file that isn't there
-        with self.getPanelLongHVDataPath().open("r") as hvData:
-            reader = DictReader(hvData)  # read the rows of the file into a dictionary
-            rows = sorted([row for row in reader], key=lambda row: int(row["Position"]))
-
-        with self.getPanelLongHVDataPath().open("w", newline="\n") as hvData:
-            # fieldnames are the first row of what reader read - the header
-            # or at least that's what they should be
-            writer = DictWriter(
-                hvData,
-                fieldnames=[
-                    "Position",
-                    "CurrentLeft",
-                    "CurrentRight",
-                    "Voltage",
-                    "IsTripped",
-                    "Timestamp",
-                ],
+        file_exists = os.path.isfile(self.getPanelLongHVDataPath())
+        logger.info(
+            "Saving HV current data to {0}".format(self.getPanelLongHVDataPath())
+        )
+        try:
+            with open(self.getPanelLongHVDataPath(), "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Current": current,
+                        "Side": side,
+                        "Voltage": voltage,
+                        "IsTripped": str(is_tripped),
+                        "Timestamp": datetime.now().isoformat(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "HV data CSV file is locked. Probably open somewhere. Close and try again."
             )
-            # DictWriters treat every row as a dictionary
-            newRow = {
-                "Position": position,
-                "CurrentLeft": current if side == "Left" else "",
-                "CurrentRight": current if side == "Right" else "",
-                "Voltage": voltage,
-                "IsTripped": str(is_tripped),
-                "Timestamp": datetime.now(),
-            }
-            written = False  # has the new row been written yet?
-
-            # recall that rows is a sorted list of row dictionaries we got from reader
-            # now we're going to re-write the whole file which is super inefficient, but
-            # it's the best we have (for now... )
-            hvData.write(header)
-            hvData.write("\n")
-            for row in rows:  # for all existing rows...
-                if row["Position"] == str(
-                    position
-                ):  # if the row is for the straw we're updating, then update it!
-                    row = newRow
-                    written = True  # the new row already existed, so we updated it
-                writer.writerow(row)  # write the row
-
-            if not written:  # if the new row is actually new and not an update...
-                writer.writerow(newRow)  # write it!
+            logger.warning("HV data is not being saved to CSV files.")
 
     # save tension measurement
     def saveTensionboxMeasurement(
@@ -1166,10 +1134,36 @@ class TxtDataProcessor(DataProcessor):
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
         pass
 
-    # update all wire tension measurements for panel (DEFUNCT)
+    # update all wire tension measurements for panel
     # parameters are lists of data
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
-        pass
+        headers = ["Position", "Tension", "WireTimer", "CalibrationFactor", "Timestamp"]
+
+        outfile = self.getWireTensionerPath()
+        file_exists = os.path.isfile(outfile)
+        logger.info("Saving wire tension data to {0}".format(outfile))
+        try:
+            with open(outfile, "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Tension": tension,
+                        "WireTimer": wire_timer,
+                        "CalibrationFactor": calib_factor,
+                        "Timestamp": datetime.now().isoformat(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "Wire tension data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            logger.warning("Wire tension data is not being saved to CSV files.")
+        return
 
     # update all straw tension measurements for panel (DEFUNCT)
     # parameters are lists of data
