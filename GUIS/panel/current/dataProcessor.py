@@ -2187,12 +2187,20 @@ class SQLDataProcessor(DataProcessor):
         # ret = [(current_left0, current_right0, voltage0, is_tripped0), (current_left1, current_right1, voltage1, is_tripped1), ...]
         ret = list()
         measurements = self.procedure.getHVMeasurements()
-        print(self.procedure)
         for m in measurements:
             if m == None:
-                ret.append((None, None, None, None))
+                ret.append((None, None, None, None, None, None))
             else:
-                ret.append((m.current_left, m.current_right, m.voltage, m.is_tripped))
+                ret.append(
+                    (
+                        m.current_left,
+                        m.current_right,
+                        m.voltage,
+                        m.is_tripped,
+                        m.position,
+                        m.timestamp,
+                    )
+                )
         return ret
 
     # def loadHVwithTimestamp(self):
