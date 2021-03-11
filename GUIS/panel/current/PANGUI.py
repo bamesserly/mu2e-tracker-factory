@@ -421,10 +421,17 @@ class panelGUI(QMainWindow):
             "Fail: Left Continuity",
             "Fail: Both Continuity",
         ]
-        lcItems = ["Select", 
-            "Short, Top", "Short, Middle", "Short, Bottom",
-            "Middle, Top", "True Middle", "Middle, Bottom",
-            "Long, Top", "Long, Middle", "Long, Bottom",
+        lcItems = [
+            "Select",
+            "Short, Top",
+            "Short, Middle",
+            "Short, Bottom",
+            "Middle, Top",
+            "True Middle",
+            "Middle, Bottom",
+            "Long, Top",
+            "Long, Middle",
+            "Long, Bottom",
         ]
 
         """
@@ -459,7 +466,7 @@ class panelGUI(QMainWindow):
 
             menu2 = QComboBox(self.ui.scrollAreaWidgetContents)
             menu2.addItems(lcItems)
-            menu2.setObjectName(f"wire_position_{str(i).zfill(2)}")
+            menu2.setObjectName(f"wire_alignment_{str(i).zfill(2)}")
             menu2.setFixedWidth(184)
             menu2.setCurrentIndex(0)
             menu2.currentIndexChanged.connect(
@@ -486,37 +493,38 @@ class panelGUI(QMainWindow):
         ]
         self.cont_pos = findWidgets("position")  # label
         self.continuity = findWidgets("continuity")  # continuity
-        self.wire_pos = findWidgets("wire_position")  # wire position
+        self.wire_align = findWidgets("wire_alignment")  # wire alignment
 
         # Connect drop downs to save continuity when changed:
         # Define the method
         def checkSaveContinuity(index):
             if (
                 self.continuity[index].currentIndex() != 0
-                and self.wire_pos[index].currentIndex() != 0
+                and self.wire_align[index].currentIndex() != 0
             ):
                 self.saveContinuityMeasurement(
                     position=index,
                     continuity_str=self.continuity[index].currentText(),
-                    wire_pos_str=self.wire_pos[index].currentText(),
+                    wire_align_str=self.wire_align[index].currentText(),
                 )
 
         # Connect all widgets to this method using the proper index
-        for i, widgets in enumerate(zip(self.continuity, self.wire_pos)):
+        for i, widgets in enumerate(zip(self.continuity, self.wire_align)):
             for widg in widgets:
                 widg.currentIndexChanged.connect(
                     lambda changed, index=i: checkSaveContinuity(index)
                 )
 
         # Disable all
-        self.setWidgetsDisabled(self.continuity + self.wire_pos)
+        self.setWidgetsDisabled(self.continuity + self.wire_align)
         self.ui.launch_wire_tensioner.setDisabled(True)
         # bind launch hv w/ corresponding function
         self.ui.launchHVpro3.clicked.connect(self.hvMeasurementsPopup)
         self.ui.launchHVpro3.setDisabled(True)
 
         [
-            combo.installEventFilter(self) for combo in self.continuity + self.wire_pos
+            combo.installEventFilter(self)
+            for combo in self.continuity + self.wire_align
         ]  ## prevent value change from scroll
 
     def _init_pro4_setup(self):
@@ -686,11 +694,19 @@ class panelGUI(QMainWindow):
         for i, lineEdits in enumerate(zip(self.currentLeft, self.currentRight)):
             if i < 95:
                 # covers return pressed
-                lineEdits[0].returnPressed.connect(lambda index=i: self.currentLeft[index+1].setFocus())
-                lineEdits[1].returnPressed.connect(lambda index=i: self.currentRight[index+1].setFocus())
+                lineEdits[0].returnPressed.connect(
+                    lambda index=i: self.currentLeft[index + 1].setFocus()
+                )
+                lineEdits[1].returnPressed.connect(
+                    lambda index=i: self.currentRight[index + 1].setFocus()
+                )
                 # covers tab pressed
-                lineEdits[0].editingFinished.connect(lambda index=i: self.currentLeft[index+1].setFocus())
-                lineEdits[1].editingFinished.connect(lambda index=i: self.currentLeft[index+1].setFocus())
+                lineEdits[0].editingFinished.connect(
+                    lambda index=i: self.currentLeft[index + 1].setFocus()
+                )
+                lineEdits[1].editingFinished.connect(
+                    lambda index=i: self.currentLeft[index + 1].setFocus()
+                )
                 # bind to save
                 lineEdits[0].editingFinished.connect(lambda index=i: lineSaveHV(index))
                 lineEdits[1].editingFinished.connect(lambda index=i: lineSaveHV(index))
@@ -698,7 +714,6 @@ class panelGUI(QMainWindow):
                 # i = 95 would cause index out of bounds
                 lineEdits[0].editingFinished.connect(lambda index=i: lineSaveHV(index))
                 lineEdits[1].editingFinished.connect(lambda index=i: lineSaveHV(index))
-
 
         # Enumerate turns the list of checkBox widgets into a list of tuples of the form (<int>, <checkBox>)
         # where the int is the index/straw position and checkBox is the checkBox widget (really a pointer to it)
@@ -737,7 +752,7 @@ class panelGUI(QMainWindow):
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
             self.ui.heat_start,
-            self.ui.launchHVpro6
+            self.ui.launchHVpro6,
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -1334,13 +1349,13 @@ class panelGUI(QMainWindow):
                 "Plug device into any USB port and try again.",
             )
 
-        if len(arduino_ports) > 1:
-            error = True
-            self.generateBox(
-                "critical",
-                "More than one Arduino found",
-                "Disconnect the ones not in use and try again.",
-            )
+        # if len(arduino_ports) > 1:
+        #    error = True
+        #    self.generateBox(
+        #        "critical",
+        #        "More than one Arduino found",
+        #        "Disconnect the ones not in use and try again.",
+        #    )
         return error
 
     # fmt: off
@@ -2189,46 +2204,59 @@ class panelGUI(QMainWindow):
             )
 
     """
-    saveContinuityMeasurement(self,position,continuity_str,wire_pos_str)
+    saveContinuityMeasurement(self,position,continuity_str,wire_align_str)
 
-        Description:    Saves a continuity measurement as specified by the input arguments
-                        After saving, ensures that the drop downs for this position's continuity
-                        measurement on the main GUI screen match the data that is saved. 
-                        This method is called both when the drop downs on the main screen have their 
-                        index changed, and when continuity data is sent from the wire tension popup.
+        Description:    Saves a continuity measurement as specified by the
+                        input arguments After saving, ensures that the drop
+                        downs for this position's continuity measurement on the
+                        main GUI screen match the data that is saved.  This
+                        method is called both when the drop downs on the main
+                        screen have their index changed, and when continuity
+                        data is sent from the wire tension popup.
 
         Input:
-            - position          (int)   The position of the wire that this measurement is for.
-            - continuity_str    (str)   One of the following: ['Pass: No Continuity', 'Fail: Right Continuity', 'Fail: Left Continuity', 'Fail: Both Continuity']
-            - wire_position     (str)   One of the following : ["Select", 
-                                                                "Short, Top", "Short, Middle", "Short, Bottom",
-                                                                "Middle, Top", "True Middle", "Middle, Bottom",
-                                                                "Long, Top", "Long, Middle", "Long, Bottom",
-                                                            ]
+            - position          (int)   The position of the wire that this
+                                        measurement is for.
+            - continuity_str    (str)   One of the following: [
+                                            'Pass: No Continuity', 
+                                            'Fail: Right Continuity',
+                                            'Fail: Left Continuity',
+                                            'Fail: Both Continuity'
+                                            ]
+            - wire_alignment     (str)   One of the following : [
+                                            "Select",
+                                            "Short, Top", "Short, Middle",
+                                            "Short, Bottom", "Middle, Top",
+                                            "True Middle", "Middle, Bottom",
+                                            "Long, Top", "Long, Middle", 
+                                            "Long, Bottom",
+                                            ]
     """
 
-    def saveContinuityMeasurement(self, position, continuity_str, wire_pos_str):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_align_str):
         # First, save the data with the data processor
-        self.DP.saveContinuityMeasurement(position, continuity_str, wire_pos_str)
+        self.DP.saveContinuityMeasurement(position, continuity_str, wire_align_str)
 
         # TODO: Do we need this stuff?
         # Next, ensure that the display on the main screen matches this measurement
         if (
             self.continuity[position].currentText() != continuity_str
-            or self.wire_pos[position].currentText() != wire_pos_str
+            or self.wire_align[position].currentText() != wire_align_str
         ):
-            self.displayContinuityMeasurement(position, continuity_str, wire_pos_str)
+            self.displayContinuityMeasurement(position, continuity_str, wire_align_str)
 
     def saveHVMeasurement(self, position, current_left, current_right, is_tripped):
         if current_left is not None:
             self.DP.saveHVMeasurement(position, "Left", current_left, None, is_tripped)
-        
-        if current_right is not None:
-            self.DP.saveHVMeasurement(position, "Right", current_right, None, is_tripped)
 
-        #if self.currentLeft[position].text() != current_left:
+        if current_right is not None:
+            self.DP.saveHVMeasurement(
+                position, "Right", current_right, None, is_tripped
+            )
+
+        # if self.currentLeft[position].text() != current_left:
         #    self.displayHVMeasurement(position, current_left, current_right)
-        #if self.currentRight[position].text() != current_right:
+        # if self.currentRight[position].text() != current_right:
         #    self.displayHVMeasurement(position, current_left, current_right)
 
     """
@@ -2559,7 +2587,7 @@ class panelGUI(QMainWindow):
             measurements = self.loadContinuityMeasurements()
             # Possibilities:
             #   - None: No measurements saved at all
-            #   - List of (cont,wire_pos) tuples where index matches wire position
+            #   - List of (cont,wire_align) tuples where index matches wire alignment
             #       Note, could be (None,None) if no measurement is recorded at that position.
 
             # If any measurements are found, display them
@@ -2672,34 +2700,34 @@ class panelGUI(QMainWindow):
     def parseContinuityMeasurements(self, data):
         # Display the given data
         for index, measurements in enumerate(data):
-            cont_str, wire_pos_str = measurements
-            if cont_str is not None and wire_pos_str is not None:
-                self.displayContinuityMeasurement(index, cont_str, wire_pos_str)
+            cont_str, wire_align_str = measurements
+            if cont_str is not None and wire_align_str is not None:
+                self.displayContinuityMeasurement(index, cont_str, wire_align_str)
 
-    def displayContinuityMeasurement(self, index, continuity_str, wire_pos_str):
+    def displayContinuityMeasurement(self, index, continuity_str, wire_align_str):
 
         # older panels will have three position options instead of nine
         # this if statement checks if old data needs to be displayed and if it does
         # it adds that old data as another selection option to allow it to be displayed
         # and to allow it to be updated to something more specific
         # check if trying to load an old option
-        if wire_pos_str in ["Lower 1/3", "Middle 1/3", "Top 1/3"]:
+        if wire_align_str in ["Lower 1/3", "Middle 1/3", "Top 1/3"]:
             # change the tenth item's text to the old data to allow it to be displayed
             try:
-                self.wire_pos[index][9].setItemText(wire_pos_str)
+                self.wire_align[index][9].setItemText(wire_align_str)
             # an out of bounds exception will be thrown if it doesn't exist, in that case
             # add a new item with the old data as it's text
             except:
-                self.wire_pos[index].addItem(wire_pos_str)
+                self.wire_align[index].addItem(wire_align_str)
 
         # Finds index of string, then sets index to that number
         setText = lambda combo_box, text: combo_box.setCurrentIndex(
             combo_box.findText(text if text != "" else "Select")
         )
 
-        # Call method to update both continuity and wire position displays at this index
+        # Call method to update both continuity and wire alignment displays at this index
         setText(self.continuity[index], continuity_str)
-        setText(self.wire_pos[index], wire_pos_str)
+        setText(self.wire_align[index], wire_align_str)
 
     def displayAllHVMeasurements(self, data):
         for index, measurements in enumerate(data):
@@ -2995,7 +3023,7 @@ class panelGUI(QMainWindow):
             self.ui.launch_tension_box.setDisabled(False)
             self.ui.launchHVpro3.setEnabled(True)
             # enable all continuity widgets
-            self.setWidgetsEnabled(self.continuity + self.wire_pos)
+            self.setWidgetsEnabled(self.continuity + self.wire_align)
         # if wire spool id doesn't exist
         else:
             # ensure wire input line edit is enabled
@@ -3016,7 +3044,7 @@ class panelGUI(QMainWindow):
             self.startTimer(5)
 
         # enable, tensioner, tension box, input widgets
-        self.setWidgetsEnabled(self.continuity + self.wire_pos)
+        self.setWidgetsEnabled(self.continuity + self.wire_align)
         self.ui.launch_wire_tensioner.setEnabled(True)
         self.ui.launchHVpro3.setEnabled(True)
         self.ui.launch_tension_box.setEnabled(True)
@@ -3967,10 +3995,10 @@ class panelGUI(QMainWindow):
         )
 
         # Enable wire tensioner button
-        self.setWidgetsEnabled([self.ui.launch_wire_tensioner,self.ui.launchHVpro3])
+        self.setWidgetsEnabled([self.ui.launch_wire_tensioner, self.ui.launchHVpro3])
 
         # Enable all widgets in the continuity table
-        self.setWidgetsEnabled(self.continuity + self.wire_pos)
+        self.setWidgetsEnabled(self.continuity + self.wire_align)
 
         # Start timers
         self.startRunning()
@@ -4000,10 +4028,10 @@ class panelGUI(QMainWindow):
         self.timers[5].reset()
         for i in range(len(self.continuity)):
             self.continuity[i].setCurrentIndex(0)
-            self.wire_pos[i].setCurrentIndex(0)
+            self.wire_align[i].setCurrentIndex(0)
 
         list(map(lambda obj: obj.setDisabled(True), self.continuity))
-        list(map(lambda obj: obj.setDisabled(True), self.wire_pos))
+        list(map(lambda obj: obj.setDisabled(True), self.wire_align))
 
     # fmt: off
     # ██████╗ ██████╗  ██████╗     ██╗  ██╗
@@ -4250,7 +4278,7 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_mixed41,
                 self.ui.bpmirgapL,
                 self.ui.bpmirgapR,
-                self.ui.launchHVpro6
+                self.ui.launchHVpro6,
             ]
         )
 
@@ -4737,9 +4765,9 @@ class panelGUI(QMainWindow):
     # uses wireTensionWindow from GUIs/current/tension_devices/wire_tensioner/wire_tensioner.py
     def wireTensionPopup(self):
         # Method to save the wire tension measurements
-        def saveWireTensionMeasurement(pos, tension, timer, calibration):
+        def saveWireTensionMeasurement(position, tension, timer, calibration):
             self.ui.panelInput3_2.setText(str(calibration))
-            self.DP.saveWireTensionMeasurement(pos, tension, timer, calibration)
+            self.DP.saveWireTensionMeasurement(position, tension, timer, calibration)
 
         if self.checkDevice() == False:
             if self.wireTensionWindow is None:
@@ -4832,15 +4860,19 @@ class panelGUI(QMainWindow):
             self.hvMeasurementsWindow = highVoltageGUI(
                 saveMethod=(
                     lambda position, side, current, volts, isTrip: (
-                        self.DP.saveHVMeasurement(position, side, current, volts, isTrip)
+                        self.DP.saveHVMeasurement(
+                            position, side, current, volts, isTrip
+                        )
                     )
                 ),
                 loadMethod=(lambda: self.DP.loadHVMeasurements),
-                panel=self.getCurrentPanel()
+                panel=self.getCurrentPanel(),
             )
             self.hvMeasurementsWindow.show()
             self.hvMeasurementsWindow.setWindowTitle("High Voltage Data Recording")
-            self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet("background-color: rgb(122, 0, 25);")
+            self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet(
+                "background-color: rgb(122, 0, 25);"
+            )
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

@@ -42,6 +42,7 @@ void loop() {
     cmd = *pKbd;  // command character
     pKbd++;
     short val = atoi(pKbd);
+    float set_tension = tension1;
     
     switch (cmd){
       case 'p':   // work harden wire with pretension cycle(s)
@@ -67,8 +68,8 @@ void loop() {
         }
         break;
       case 't':  // push or pull to set tension
-        if (val != 0)tension1=val; // override default tension if value is specified
-        tensionwire(tension1);
+        if (val != 0)set_tension=val; // override default tension if value is specified
+        tensionwire(set_tension);
         set_motor = motor.Position();  // save motor position
         break;
       case 'm':  // push or pull to specified motor position

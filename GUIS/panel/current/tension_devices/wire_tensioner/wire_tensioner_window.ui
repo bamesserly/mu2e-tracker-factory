@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>414</height>
+    <width>513</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>380</y>
+     <y>470</y>
      <width>55</width>
      <height>21</height>
     </rect>
@@ -38,7 +38,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>380</y>
+     <y>470</y>
      <width>421</width>
      <height>21</height>
     </rect>
@@ -71,8 +71,8 @@
     <widget class="QPushButton" name="tension_harden">
      <property name="geometry">
       <rect>
-       <x>1</x>
-       <y>102</y>
+       <x>0</x>
+       <y>100</y>
        <width>151</width>
        <height>51</height>
       </rect>
@@ -90,13 +90,55 @@ Tension Wire</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="tensionlabel">
+    <widget class="QPushButton" name="recordtension">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>40</y>
-       <width>101</width>
-       <height>31</height>
+       <x>0</x>
+       <y>160</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="next_straw">
+     <property name="geometry">
+      <rect>
+       <x>1</x>
+       <y>210</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Next Straw</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="topcheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>23</y>
+       <width>121</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -105,172 +147,129 @@ Tension Wire</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Shadow">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="AlternateBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Shadow">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="AlternateBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Shadow">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="AlternateBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Top Row</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="bottomcheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
      <property name="text">
-      <string>zero</string>
+      <string>Bottom Row</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label">
+    <widget class="QPushButton" name="resetmotor">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>12</y>
-       <width>97</width>
+       <x>160</x>
+       <y>150</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Reset Motor</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="tension_only">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>100</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Tension Wire</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="tarebutton">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>100</y>
+       <width>171</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Tare Load Cell (50g)</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="setcalbutton">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>150</y>
+       <width>171</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Set Calibration (100g)</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="recordlabel">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>260</y>
+       <width>251</width>
        <height>21</height>
       </rect>
      </property>
@@ -280,23 +279,17 @@ Tension Wire</string>
       </font>
      </property>
      <property name="text">
-      <string>Wire Tension</string>
+      <string/>
      </property>
     </widget>
-    <widget class="QLabel" name="strawtimelabel">
+    <widget class="QLabel" name="calibfactor_2">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>40</y>
-       <width>91</width>
+       <x>300</x>
+       <y>290</y>
+       <width>131</width>
        <height>31</height>
       </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
      </property>
      <property name="palette">
       <palette>
@@ -458,97 +451,13 @@ Tension Wire</string>
       <string>0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_9">
+    <widget class="QLabel" name="tensionlabel">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>12</y>
-       <width>91</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Wire Timer</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="recordtension">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>160</y>
-       <width>151</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Record Tension</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="next_straw">
-     <property name="geometry">
-      <rect>
-       <x>1</x>
-       <y>210</y>
-       <width>151</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Next Straw</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="topcheck">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>23</y>
-       <width>121</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Top Row</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="bottomcheck">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
+       <x>170</x>
        <y>50</y>
-       <width>121</width>
-       <height>20</height>
+       <width>101</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -557,105 +466,172 @@ Tension Wire</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Shadow">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="AlternateBase">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Shadow">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="AlternateBase">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Shadow">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="AlternateBase">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
+       <pointsize>14</pointsize>
       </font>
      </property>
-     <property name="text">
-      <string>Bottom Row</string>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
-    </widget>
-    <widget class="QPushButton" name="resetmotor">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>210</y>
-       <width>121</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Reset Motor</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
+      <string>0</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="tension_only">
+    <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>160</y>
-       <width>121</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Tension Wire</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="tarebutton">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>160</y>
-       <width>171</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Tare Load Cell (50g)</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="setcalbutton">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>210</y>
-       <width>171</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Set Calibration (100g)</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="recordlabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>260</y>
-       <width>251</width>
+       <x>170</x>
+       <y>22</y>
+       <width>97</width>
        <height>21</height>
       </rect>
      </property>
@@ -665,30 +641,91 @@ Tension Wire</string>
       </font>
      </property>
      <property name="text">
-      <string/>
+      <string>Wire Tension</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="tarebutton2">
+    <widget class="QFrame" name="frame">
      <property name="geometry">
       <rect>
-       <x>290</x>
-       <y>110</y>
-       <width>171</width>
-       <height>41</height>
+       <x>160</x>
+       <y>200</y>
+       <width>301</width>
+       <height>61</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
-     <property name="text">
-      <string>Tare Load Cell (0g)</string>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
      </property>
-     <property name="checkable">
-      <bool>true</bool>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <property name="midLineWidth">
+      <number>1</number>
+     </property>
+     <widget class="QPushButton" name="tension_replaced">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>221</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Tension Replaced Wire (g)</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="retension_val">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>10</y>
+        <width>51</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>85</string>
+      </property>
+     </widget>
     </widget>
+    <zorder>frame</zorder>
+    <zorder>tension_harden</zorder>
+    <zorder>recordtension</zorder>
+    <zorder>next_straw</zorder>
+    <zorder>topcheck</zorder>
+    <zorder>bottomcheck</zorder>
+    <zorder>resetmotor</zorder>
+    <zorder>tension_only</zorder>
+    <zorder>tarebutton</zorder>
+    <zorder>setcalbutton</zorder>
+    <zorder>recordlabel</zorder>
+    <zorder>calibfactor_2</zorder>
+    <zorder>tensionlabel</zorder>
+    <zorder>label</zorder>
    </widget>
    <widget class="QWidget" name="page_2">
     <widget class="QWidget" name="layoutWidget_2">
@@ -1180,7 +1217,7 @@ Tension Wire</string>
   <widget class="QLabel" name="caliblabel_2">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>190</x>
      <y>20</y>
      <width>137</width>
      <height>27</height>
@@ -1198,7 +1235,7 @@ Tension Wire</string>
   <widget class="QLabel" name="calibfactor">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>190</x>
      <y>50</y>
      <width>131</width>
      <height>31</height>
@@ -1355,7 +1392,7 @@ Tension Wire</string>
     </font>
    </property>
    <property name="autoFillBackground">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
@@ -1364,13 +1401,13 @@ Tension Wire</string>
     <string>0</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
+  <widget class="QLabel" name="caliblabel_4">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>20</y>
-     <width>101</width>
-     <height>31</height>
+     <x>20</x>
+     <y>370</y>
+     <width>137</width>
+     <height>27</height>
     </rect>
    </property>
    <property name="font">
@@ -1379,30 +1416,319 @@ Tension Wire</string>
     </font>
    </property>
    <property name="text">
-    <string>Panel ID</string>
+    <string>Continuity</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="panelID">
+  <widget class="QComboBox" name="selectWireAlignment">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>50</y>
-     <width>113</width>
+     <x>250</x>
+     <y>400</y>
+     <width>221</width>
      <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <item>
+    <property name="text">
+     <string>Select</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Short, Top</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Short, Middle</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Short, Bottom</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Middle, Top</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>True Middle</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Middle, Bottom</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Long, Top</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Long, Middle</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Long, Bottom</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QComboBox" name="selectContinuity">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>400</y>
+     <width>221</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <item>
+    <property name="text">
+     <string>Select</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Pass: No Continuity</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Fail: Right Continuity</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Fail: Left Continuity</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Fail: Both Continuity</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="strawtimelabel">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>50</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="Button">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Window">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Shadow">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="AlternateBase">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="Button">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Window">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Shadow">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="AlternateBase">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="Button">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Window">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Shadow">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="AlternateBase">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
    </property>
    <property name="font">
     <font>
      <pointsize>14</pointsize>
     </font>
    </property>
-   <property name="text">
-    <string/>
+   <property name="autoFillBackground">
+    <bool>false</bool>
    </property>
-   <property name="placeholderText">
-    <string>MN000</string>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="text">
+    <string>0</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>22</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Wire Timer</string>
+   </property>
+  </widget>
+  <zorder>stackedWidget</zorder>
+  <zorder>label_4</zorder>
+  <zorder>statuslabel</zorder>
+  <zorder>label_2</zorder>
+  <zorder>strawnumbox</zorder>
+  <zorder>caliblabel_2</zorder>
+  <zorder>calibfactor</zorder>
+  <zorder>caliblabel_4</zorder>
+  <zorder>selectWireAlignment</zorder>
+  <zorder>selectContinuity</zorder>
+  <zorder>strawtimelabel</zorder>
+  <zorder>label_9</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

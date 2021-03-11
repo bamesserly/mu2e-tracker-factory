@@ -331,12 +331,12 @@ class DataProcessor(ABC):
             continuity_str  (str)   Will be one of the following :
                 ['Pass: No Continuity', 'Fail: Right Continuity', 'Fail: Left Continuity', 'Fail: Both Continuity']
 
-            wire_position   (str)   Will be one of the following :
+            wire_alignment   (str)   Will be one of the following :
                 ['Top 1/3', 'Middle 1/3', 'Lower 1/3']
     """
 
     @abstractmethod
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         pass
 
     @abstractmethod
@@ -393,7 +393,7 @@ class DataProcessor(ABC):
                             - corresponding timestamps
                             - steps completed
                             (if pro 3)
-                            - continuity, wire position, resistance, and corresponding timestamps (if 6 more lists)
+                            - continuity, wire alignment, resistance, and corresponding timestamps (if 6 more lists)
 
         Returns: List of lists
             [
@@ -403,8 +403,8 @@ class DataProcessor(ABC):
             steps completed,
             continuity,
             continuity timestamp,
-            wire position,
-            wire position timestamp,
+            wire alignment,
+            wire alignment timestamp,
             resistance,
             resistance timestamp
             ]
@@ -468,7 +468,7 @@ class DataProcessor(ABC):
         Input:  position (int)  Position of wire to load continuity for. If None, this
                                 method should return all the continuity measurements for the panel.
 
-        Returns:    Tuples of (continuity, wire_pos) for each measurement loaded.
+        Returns:    Tuples of (continuity, wire_align) for each measurement loaded.
     """
 
     @abstractmethod
@@ -599,9 +599,9 @@ class MultipleDataProcessor(DataProcessor):
         for dp in self.processors:
             dp.saveWireTensionMeasurement(position, tension, wire_timer, calib_factor)
 
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         for dp in self.processors:
-            dp.saveContinuityMeasurement(position, continuity_str, wire_position)
+            dp.saveContinuityMeasurement(position, continuity_str, wire_alignment)
 
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
         for dp in self.processors:
@@ -1044,11 +1044,8 @@ class TxtDataProcessor(DataProcessor):
 
     # update all continuity measurements for panel
     # parameters are lists of data
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
-        # The original author didn't comment this function so:
-        # REFER TO saveHVMeasurement() FOR INFO ON HOW THIS WORKS
-        # They're pretty much the same thing, just different data
-        con_header = "Panel,Position,Continuity,WirePosition,TimeStamp"
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
+        con_header = "Panel,Position,Continuity,WireAlignment,TimeStamp"
         if not self.getPanelLongContinuityDataPath().exists():
             with self.getPanelLongContinuityDataPath().open("w") as con_data:
                 con_data.write(con_header)
@@ -1061,7 +1058,7 @@ class TxtDataProcessor(DataProcessor):
                 "Panel": self.getPanel(),
                 "Position": str(position),
                 "Continuity": str(continuity_str),
-                "WirePosition": str(wire_position),
+                "WireAlignment": str(wire_alignment),
                 "TimeStamp": self.timestamp(),
             }
             written = False
@@ -1137,10 +1134,36 @@ class TxtDataProcessor(DataProcessor):
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
         pass
 
-    # update all wire tension measurements for panel (DEFUNCT)
+    # update all wire tension measurements for panel
     # parameters are lists of data
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
-        pass
+        headers = ["Position", "Tension", "WireTimer", "CalibrationFactor", "Timestamp"]
+
+        outfile = self.getWireTensionerPath()
+        file_exists = os.path.isfile(outfile)
+        logger.info("Saving wire tension data to {0}".format(outfile))
+        try:
+            with open(outfile, "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Tension": tension,
+                        "WireTimer": wire_timer,
+                        "CalibrationFactor": calib_factor,
+                        "Timestamp": datetime.now().isoformat(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "Wire tension data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            logger.warning("Wire tension data is not being saved to CSV files.")
+        return
 
     # update all straw tension measurements for panel (DEFUNCT)
     # parameters are lists of data
@@ -1937,11 +1960,11 @@ class SQLDataProcessor(DataProcessor):
                 tension=tension,
             ).commit()
 
-    def saveContinuityMeasurement(self, position, continuity_str, wire_position):
+    def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         # Make sure all data is defined
-        if not all(el is not None for el in [position, continuity_str, wire_position]):
+        if not all(el is not None for el in [position, continuity_str, wire_alignment]):
             return
-        if wire_position == "":
+        if wire_alignment is "":
             return
         # Save a continuity measurement
 
@@ -1953,7 +1976,7 @@ class SQLDataProcessor(DataProcessor):
             right_continuity=(
                 continuity_str in ["Pass: No Continuity", "Fail: Left Continuity"]
             ),
-            wire_position={
+            wire_alignment={
                 "Lower 1/3": "lower",
                 "Middle 1/3": "middle",
                 "Top 1/3": "top",
@@ -1966,7 +1989,7 @@ class SQLDataProcessor(DataProcessor):
                 "Long, Top": "long top",
                 "Long, Middle": "long middle",
                 "Long, Bottom": "long lower",
-            }[wire_position],
+            }[wire_alignment],
         )
 
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
@@ -2148,7 +2171,7 @@ class SQLDataProcessor(DataProcessor):
         return lst
 
     def loadContinuityMeasurements(self, position=None):
-        # If position is None, return all in list of tuples Ex: [(cont, wire_pos,), (con, wire_pos), ...]
+        # If position is None, return all in list of tuples Ex: [(cont, wire_align,), (con, wire_align), ...]
         if position is None:
             ret = list()
             measurements = self.procedure.getContinuityMeasurements()
@@ -2251,7 +2274,7 @@ class SQLDataProcessor(DataProcessor):
     @staticmethod
     def parseContinuityMeasurement(meas):
         continuity = None
-        wire_pos = None
+        wire_align = None
 
         if meas is not None:
             # Continuity
@@ -2264,7 +2287,7 @@ class SQLDataProcessor(DataProcessor):
             }[meas.left_continuity, meas.right_continuity]
 
             # Wire Position
-            wire_pos = {
+            wire_align = {
                 None: None,
                 # old panels
                 "lower": "Lower 1/3",
@@ -2280,10 +2303,10 @@ class SQLDataProcessor(DataProcessor):
                 "long top": "Long, Top",
                 "long middle": "Long, Middle",
                 "long lower": "Long, Bottom",
-            }[meas.wire_position]
+            }[meas.wire_alignment]
 
         # Return data as list
-        return continuity, wire_pos
+        return continuity, wire_align
 
     @staticmethod
     def getBarcode(obj):

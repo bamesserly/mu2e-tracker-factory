@@ -1097,26 +1097,26 @@ class Pan3Procedure(PanelProcedure):
         position = Column(Integer)
         left_continuity = Column(BOOLEAN)
         right_continuity = Column(BOOLEAN)
-        wire_position = Column(VARCHAR)
+        wire_alignment = Column("wire_position", VARCHAR)
 
         def __init__(
-            self, procedure, position, left_continuity, right_continuity, wire_position
+            self, procedure, position, left_continuity, right_continuity, wire_alignment
         ):
             self.id = self.ID()
             self.procedure = procedure
             self.position = position
             self.left_continuity = left_continuity
             self.right_continuity = right_continuity
-            self.wire_position = wire_position
+            self.wire_alignment = wire_alignment
 
         def __repr__(self):
-            return "<MeasurementPan3(id='%s', procedure='%s', position='%s', left_continuity='%s', right_continuity='%s', wire_position='%s')>" % (
+            return "<MeasurementPan3(id='%s', procedure='%s', position='%s', left_continuity='%s', right_continuity='%s', wire_alignment='%s')>" % (
                 self.id,
                 self.procedure,
                 self.position,
                 self.left_continuity,
                 self.right_continuity,
-                self.wire_position,
+                self.wire_alignment,
             )
 
         def isCompletelyDefined(self):
@@ -1125,7 +1125,7 @@ class Pan3Procedure(PanelProcedure):
                 self.position,
                 self.left_continuity,
                 self.right_continuity,
-                self.wire_position,
+                self.wire_alignment,
             ]
             return all([x is not None for x in data])
 
@@ -1139,8 +1139,8 @@ class Pan3Procedure(PanelProcedure):
             self.recordLeftContinuity(left_continuity)
             self.recordRightContinuity(right_continuity)
 
-        def recordWirePosition(self, position):
-            self.wire_position = position
+        def recordWireAlignment(self, alignment):
+            self.wire_alignment = alignment
 
         def getPosition(self):
             return self.position
@@ -1151,11 +1151,11 @@ class Pan3Procedure(PanelProcedure):
         def getRightContinuity(self):
             return self.right_continuity
 
-        def getWirePosition(self):
-            return self.wire_position
+        def getWireAlignment(self):
+            return self.wire_alignment
 
     def recordContinuityMeasurement(
-        self, position, left_continuity, right_continuity, wire_position
+        self, position, left_continuity, right_continuity, wire_alignment
     ):
         # Check if a measurement has alread been made at this position
         meas = self._queryMeasurement(position).one_or_none()
@@ -1163,7 +1163,7 @@ class Pan3Procedure(PanelProcedure):
         # If so, update continuity and resistance
         if meas:
             meas.recordContinuity(left_continuity, right_continuity)
-            meas.recordWirePosition(wire_position)
+            meas.recordWireAlignment(wire_alignment)
 
         # If not, construct a new one with all data defined
         else:
@@ -1172,7 +1172,7 @@ class Pan3Procedure(PanelProcedure):
                 position=position,
                 left_continuity=left_continuity,
                 right_continuity=right_continuity,
-                wire_position=wire_position,
+                wire_alignment=wire_alignment,
             )
 
         # If all data is defined, commit (updated) measurement
@@ -1222,9 +1222,7 @@ class Pan3Procedure(PanelProcedure):
         return lst
 
     def _queryMeasurementHV(self, position):
-        return self._queryMeasurementsHV().filter(
-            MeasurementPan5.position == position
-        )
+        return self._queryMeasurementsHV().filter(MeasurementPan5.position == position)
 
     def _queryMeasurementsHV(self):
         return (
@@ -1242,6 +1240,7 @@ class Pan3Procedure(PanelProcedure):
             voltage=voltage,
             is_tripped=is_tripped
         ).commit()
+
 
 # Pin Protectors
 class Pan4Procedure(PanelProcedure):
@@ -1434,16 +1433,15 @@ class Pan5Procedure(PanelProcedure):
 
         return Details
 
-
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
         record = MeasurementPan5(
-                procedure=self.id,
-                position=position,
-                current_left=current if side == "Left" else None,
-                current_right=current if side == "Right" else None,
-                voltage=voltage,
-                is_tripped=is_tripped,
-            )
+            procedure=self.id,
+            position=position,
+            current_left=current if side == "Left" else None,
+            current_right=current if side == "Right" else None,
+            voltage=voltage,
+            is_tripped=is_tripped,
+        )
         return record.commit()
 
     def getHVMeasurements(self):
@@ -1457,9 +1455,7 @@ class Pan5Procedure(PanelProcedure):
         return self._queryMeasurement(position).one_or_none()
 
     def _queryMeasurement(self, position):
-        return self._queryMeasurements().filter(
-            MeasurementPan5.position == position
-        )
+        return self._queryMeasurements().filter(MeasurementPan5.position == position)
 
     def _queryMeasurements(self):
         return (
@@ -1592,9 +1588,7 @@ class Pan6Procedure(PanelProcedure):
         return lst
 
     def _queryMeasurementHV(self, position):
-        return self._queryMeasurementsHV().filter(
-            MeasurementPan5.position == position
-        )
+        return self._queryMeasurementsHV().filter(MeasurementPan5.position == position)
 
     def _queryMeasurementsHV(self):
         return (
@@ -1602,7 +1596,7 @@ class Pan6Procedure(PanelProcedure):
             .filter(MeasurementPan5.procedure == self.id)
             .order_by(MeasurementPan5.position.asc())
         )
-    
+
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
         MeasurementPan5(
             procedure=self.id,
