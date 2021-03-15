@@ -77,8 +77,10 @@ CSV_FILE_26 = 'LaserInfo2,6.csv'
 LASERCUT_FILE_26 = 'Cut 2 for 2,6 - version 3.ecp'"""
 
 
-# MAIN_DIR = 'C:\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw Lab GUIs\\Laser GUI\\' #CSV in CSV_Files, LASERCUT in Original_Lazer_Files
-MAIN_DIR = os.path.dirname(__file__) + "..\\"
+MAIN_DIR = (
+    "C:\\Users\\Mu2e\\Desktop\\"  # CSV in CSV_Files, LASERCUT in Original_Lazer_Files
+)
+# MAIN_DIR = os.path.dirname(__file__) + "..\\"
 
 X_SIZE = 3  # set pixel amount to adjust to right and down
 Y_SIZE = 7
@@ -283,19 +285,21 @@ class cutMenu(QMainWindow):
             if ("file" in title.lower()):
                 win32gui.ShowWindow(num, win32con.SW_MINIMIZE)
         print("check2")"""
-        # os.system('start C:\\LaserCut53\\LaserCut53.exe')
-        time.sleep(1)
+        os.system("start C:\\LaserCut53\\LaserCut53.exe")
+        time.sleep(2)
+        pyautogui.click(948, 595)
         pyautogui.click(1058, 482)
         time.sleep(0.5)
         pyautogui.hotkey("ctrl", "o")
         time.sleep(1)
+        print("Trying to open '{}' from directory: '{}'".format(filename, directory))
         pyautogui.typewrite(MAIN_DIR + directory + filename)
-        time.sleep(0.5)
+        time.sleep(1)
         pyautogui.press("enter")
         time.sleep(1)
         pyautogui.hotkey("shift", "f4")  # zoom to table
         time.sleep(0.5)
-        print("1")
+        print("File was successfully opened")
 
     # Obtain current temperature and humidy
     def getTempHumid(self):
@@ -317,6 +321,16 @@ class cutMenu(QMainWindow):
                 "No Temperature and Humidity Data",
                 "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
             )
+            temperature, ok = QInputDialog.getText(
+                self, "Temperature", "Enter room temperature"
+            )
+            if not ok:
+                return
+            humidity, ok = QInputDialog.getText(self, "Humidity", "Enter room humidity")
+            if not ok:
+                return
+            self.temperature = float(temperature)
+            self.humidity = float(humidity)
             return
 
         with open(directory + filename) as f:
@@ -326,12 +340,19 @@ class cutMenu(QMainWindow):
             humidity = float(rows[-1][2])
 
         if temperature == float("nan") or humidity == float("nan"):
-            QMessageBox.critical(
-                self,
-                "No Temperature and Humidity Data",
-                "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
+            # QMessageBox.critical(
+            #     self,
+            #     "No Temperature and Humidity Data",
+            #     "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
+            # )
+            temperature, ok = QInputDialog.getText(
+                self, "Temperature", "Enter room temperature"
             )
-            return
+            if not ok:
+                return
+            humidity, ok = QInputDialog.getText(self, "Humidity", "Enter room humidity")
+            if not ok:
+                return
 
         self.temperature = temperature
         self.humidity = humidity
@@ -361,17 +382,17 @@ class cutMenu(QMainWindow):
 
         return str(y_length_final)"""
 
-    def saveDummy(self):
-        pyautogui.hotkey("ctrl", "shift", "s")
-        time.sleep(1)
-        # print(MAIN_DIR)
-        pyautogui.typewrite(
-            MAIN_DIR + "Dummy Files\\" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-        )
-        time.sleep(0.5)
-        pyautogui.press("enter")
-        time.sleep(0.5)
-        print("2")
+    # def saveDummy(self):
+    #     pyautogui.hotkey("ctrl", "shift", "s")
+    #     time.sleep(1)
+    #     # print(MAIN_DIR)
+    #     pyautogui.typewrite(
+    #         MAIN_DIR + "Dummy Files\\" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+    #     )
+    #     time.sleep(0.5)
+    #     pyautogui.press("enter")
+    #     time.sleep(0.5)
+    #     print("2")
 
     def loadLaser(self):
         pyautogui.click(1868, 582)
@@ -382,6 +403,8 @@ class cutMenu(QMainWindow):
         time.sleep(2)
         pyautogui.click(1110, 382)
         time.sleep(1)
+        pyautogui.click(1761, 322)
+        time.sleep(4)
         pyautogui.click(1712, 494)
         time.sleep(0.5)
 
@@ -506,7 +529,7 @@ class cutMenu(QMainWindow):
 
     def firstCut(self):
         self.openFile("Cut 1.ecp", "Cut Files\\Cut 1\\")
-        self.saveDummy()
+        # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.step = 1
@@ -547,7 +570,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "..\\Cut Files\\Cut 2 - RH" + humidString + "\\"
         filename = "Cut 2 for 0,4 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -557,7 +580,8 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
-        self.openFile(filename, directory)
+        print("Second cut opening from", directory[3:])
+        self.openFile(filename, directory[3:])
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
         # this avoids autogui from accidentally selecting the wrong cut or multiple cuts
@@ -571,7 +595,7 @@ class cutMenu(QMainWindow):
                 length = self.changeLoc(x_start[i], y_start[i], x_i[i], y_i[i], lengths[i],TEMP,HUMID)
                 self.cutLengths.append(length)
             self.cutLengths = list(reversed(self.cutLengths))"""
-        self.saveDummy()
+        # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.ui.instructions.setText(
@@ -591,7 +615,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "..\\Cut Files\\Cut 2 - RH" + humidString + "\\"
         filename = "Cut 2 for 2,6 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -601,7 +625,8 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
-        self.openFile(filename, directory)
+        print("Second cut opening from", directory[3:])
+        self.openFile(filename, directory[3:])
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
         # this avoids autogui from accidentally selecting the wrong cut or multiple cuts
@@ -615,7 +640,7 @@ class cutMenu(QMainWindow):
                 self.cutLengths.append(length)
             self.cutLengths = list(reversed(self.cutLengths))"""
 
-        self.saveDummy()
+        # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.ui.instructions.setText(
@@ -635,7 +660,7 @@ class cutMenu(QMainWindow):
         time.sleep(0.5)
         pyautogui.click(912, 574)
         time.sleep(0.5)
-        print("3")
+        print("Settings have been changed")
 
     def Change_worker_ID(self, btn):
         label = btn.text()
