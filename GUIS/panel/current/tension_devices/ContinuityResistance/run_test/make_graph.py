@@ -93,12 +93,22 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         correct_argv = False
         print("Please specify the csv file to be used and the panel ID.\n")
+        print(
+            "Example: D:\Personal\Software\GitHub\mu2e-tracker-factory\Data\Panel data\FinalQC\Resistance\RawData\name_of_file.csv"
+        )
+        print(
+            "If you don't want to type all this, you can do right click -> Properties and copy the field location.\n"
+        )
+        print(
+            "You will need to add '\ and the name of the file at the end of the path\n"
+        )
         file_path = input("Paths of the csv file: ")
+        print("Example: 10")
         panelid = input("Panel id: ")
 
         # if the path does not exist, prompt user again
         # Set correct_argv to True to enter the while loop
-        if not os.path.exists(path):
+        if not os.path.exists(file_path):
             correct_argv = True
 
     while correct_argv:
