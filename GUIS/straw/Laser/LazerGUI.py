@@ -77,9 +77,7 @@ CSV_FILE_26 = 'LaserInfo2,6.csv'
 LASERCUT_FILE_26 = 'Cut 2 for 2,6 - version 3.ecp'"""
 
 
-MAIN_DIR = (
-    "C:\\Users\\Mu2e\\Desktop\\"  # CSV in CSV_Files, LASERCUT in Original_Lazer_Files
-)
+MAIN_DIR = "C:\\Users\\Mu2e\\Desktop\\Production\\GUIS\\straw\\Laser\\"  # CSV in CSV_Files, LASERCUT in Original_Lazer_Files
 # MAIN_DIR = os.path.dirname(__file__) + "..\\"
 
 X_SIZE = 3  # set pixel amount to adjust to right and down
@@ -528,7 +526,7 @@ class cutMenu(QMainWindow):
                 self.editPallet()
 
     def firstCut(self):
-        self.openFile("Cut 1.ecp", "Cut Files\\Cut 1\\")
+        self.openFile("Cut 1.ecp", "Cut_Files\\Cut_1\\")
         # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
@@ -570,7 +568,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "..\\Cut Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "Cut_Files\\Cut 2 - RH" + humidString + "\\"
         filename = "Cut 2 for 0,4 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -580,8 +578,8 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
-        print("Second cut opening from", directory[3:])
-        self.openFile(filename, directory[3:])
+        print("Second cut opening from", directory)
+        self.openFile(filename, directory)
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
         # this avoids autogui from accidentally selecting the wrong cut or multiple cuts
@@ -615,7 +613,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "..\\Cut Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "Cut_Files\\Cut 2 - RH" + humidString + "\\"
         filename = "Cut 2 for 2,6 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -625,8 +623,8 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
-        print("Second cut opening from", directory[3:])
-        self.openFile(filename, directory[3:])
+        print("Second cut opening from", directory)
+        self.openFile(filename, directory)
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
         # this avoids autogui from accidentally selecting the wrong cut or multiple cuts
