@@ -55,7 +55,6 @@ from panelData import PanelData  # import class for data organization
 # Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
 # Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
 ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
-ISLAB = False
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
 # fmt: on
 
