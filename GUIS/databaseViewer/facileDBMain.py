@@ -132,7 +132,8 @@ class facileDBGUI(QMainWindow):
 
         # Test RO mode. This SHOULD throw an exception.
         try:
-            bad_query = "create table bar (id integer)"
+            # although a write command, I think it does NOTHING
+            bad_query = "PRAGMA user_version=0"
             self.connection.execute(bad_query)
         except sqla.exc.OperationalError:  # "attempt to write a readonly database"
             # RO mode working as expected
