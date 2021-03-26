@@ -99,35 +99,8 @@ class facileDBGUI(QMainWindow):
         # would it be more efficient to store data in the widgets?
         self.data = PanelData()
 
-    # make engine, connection, and metadata objects to interact with NETWORK database
-    def connectToNetwork(self):
-        # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
-        # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
-        # this function returns a read only connection to the .db file at the secified location
-        def connectSpecial():
-            return sqlite3.connect("file:X:\Data\database.db?mode=ro", uri=True)
-
-        # this create_engine call uses connectSpecial to open the sqlite database in read only
-        self.engine = sqla.create_engine(
-            "sqlite:///../../Data/database.db/", creator=connectSpecial
-        )  # create engine
-
-        # try to use read only mode
-        # give error message to allow for quick debugging if it fails
-        try:
-            self.connection = self.engine.connect()  # connect engine with DB
-        except:
-            tkinter.messagebox.showerror(
-                title="Error",
-                message=f"Network read-only mode failed.  Contact a member of the software team for help.",
-            )  # show error message
-            sys.exit()
-
-        self.metadata = sqla.MetaData()  # create metadata
-        self.initSQLTables()  # create important tables
-
-    # make engine, connection, and metadata objects to interact with LOCAL database
-    def connectToLocal(self):
+    # make engine, connection, and metadata objects to interact with database
+    def connectToDatabaseRO(self, database):
 
         # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
         # more on this: https://github.com/sqlalchemy/sqlalchemy/issues/4863
@@ -135,21 +108,37 @@ class facileDBGUI(QMainWindow):
         # getpass.getuser() fetches the current username
         # double backslashes are necessary because \U is a unicode escape, but \\U is not
         def connectSpecial(dbPath):
+            print("Attempting connection to database:", database)
+            ro_sql3_connection_uri = "file:" + database + "?mode=ro"
             return sqlite3.connect(
-                f"file:C:\\Users\\{getpass.getuser()}\\Desktop\\production\\Data\\database.db?mode=ro",
+                ro_sql3_connection_uri,
                 uri=True,
             )
 
-        # this create_engine call uses connectSpecial to open the sqlite database in read only
+        # The first argument of create_engine is usually
+        # dialect:pathtodatabase. Ultimately, pathtodatabase gets passed
+        # through os.path.abspath(), so you're not allowed to add URI
+        # ("?mode=ro") to the end of pathtodatabase.
+        #
+        # We get around this through the creator arg, to which we can pass an
+        # arbitrary (function that returns an) connection, which will bipass
+        # that abspath call. Note: you must still specify the dialect (sqlite)
+        # in the first arg.
         self.engine = sqla.create_engine(
-            "sqlite:///../../Data/database.db/", creator=connectSpecial
+            "sqlite:///", creator=connectSpecial
         )  # create engine
 
-        # try to use read only mode
-        # give error message to allow for quick debugging if it fails
+        self.connection = self.engine.connect()  # connect engine with DB
+
+        # Test RO mode. This SHOULD throw an exception.
         try:
-            self.connection = self.engine.connect()  # connect engine with DB
-        except:
+            # although a write command, I think it does NOTHING
+            bad_query = "PRAGMA user_version=0"
+            self.connection.execute(bad_query)
+        except sqla.exc.OperationalError:  # "attempt to write a readonly database"
+            # RO mode working as expected
+            pass
+        else:
             tkinter.messagebox.showerror(
                 title="Local Error",
                 message=f"Local read-only mode failed.  Contact a member of the software team for help.",
@@ -1603,17 +1592,18 @@ class facileDBGUI(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)  # make an app
-    # app.setStyleSheet(qdarkstyle.load_stylesheet())    # darkmodebestmode
+    # app.setStyleSheet(qdarkstyle.load_stylesheet()) # darkmodebestmode
     window = facileDBGUI(Ui_MainWindow())  # make a window
+    database = ""
+    # Access network DB
     if ISLAB:
-        window.connectToNetwork()  # link to database
-        window.setWindowTitle(
-            "Database Viewer, Network Connection"
-        )  # change from default window title
+        database = open("../../Database/networkDatabasePath.txt", "r").read()
+    # Access local DB
     else:
-        window.connectToLocal()  # link to database
-        window.setWindowTitle("Database Viewer, Local Connection")
-        # make sure you can tell the difference between local and network connections
+        database = open("../../Database/localDatabasePath.txt", "r").read()
+        database += "\database.db"
+    window.connectToDatabaseRO(database)  # link to database
+    window.setWindowTitle("Database Viewer, Connected to " + database)
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
     app.exec_()  # run the app!
