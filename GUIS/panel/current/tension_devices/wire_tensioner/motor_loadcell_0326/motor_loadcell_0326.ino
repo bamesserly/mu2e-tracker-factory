@@ -51,12 +51,12 @@ void loop() {
           motor.Power(1);
           motor.SetDir("PULL");
           motor.SetStep(1);
-          while ((load_cell.get_units()+tare50*ref_mass_50)<(pretension-2.0) && motor.Position()<motor_maximum){
-            motor.Step((pretension-(load_cell.get_units()+tare50*ref_mass_50))/4); // four steps to get to approx. tension
+          while ((load_cell.get_units()+tare50*ref_mass_50)<(pretension-4.0) && motor.Position()<motor_maximum){
+            motor.Step((pretension-(load_cell.get_units()+tare50*ref_mass_50))/4); // steps to get to approx. tension
           }
           //display_status(); // custom display status so GUI can record pretension value - see below
           while ((load_cell.get_units()+tare50*ref_mass_50)<pretension && motor.Position()<motor_maximum){
-            motor.SetStep(4);
+            motor.SetStep(1);
             motor.Step(1);
           }
           //display_status(); // custom display status so GUI can record pretension value
@@ -134,27 +134,28 @@ void tensionwire(float set_tension){
       motor.Power(1);
       motor.SetDir("PULL");
       motor.SetStep(1);
-      while ((load_cell.get_units()+tare50*ref_mass_50)<(set_tension-2.0) && motor.Position()<motor_maximum){
+      while ((load_cell.get_units()+tare50*ref_mass_50)<(set_tension-6.0) && motor.Position()<motor_maximum){
         motor.Step((set_tension-(load_cell.get_units()+tare50*ref_mass_50))/4); // steps to get to approx. tension
       }
       display_status();
       while ((load_cell.get_units()+tare50*ref_mass_50)<set_tension && motor.Position()<motor_maximum){
         motor.SetStep(8);   // get last 2 grams of tension with 1/8th motor steps
         motor.Step(1);
+        //display_status();
       }
-      display_status();
     } 
     else if ((load_cell.get_units()+tare50*ref_mass_50)>set_tension){
       motor.Power(1);
       motor.SetDir("PUSH");
       motor.SetStep(1);
-      while ((load_cell.get_units()+tare50*ref_mass_50)>(set_tension+2.0) && motor.Position()>motor_minimum){
+      while ((load_cell.get_units()+tare50*ref_mass_50)>(set_tension+6.0) && motor.Position()>motor_minimum){
         motor.Step(((load_cell.get_units()+tare50*ref_mass_50)-set_tension)/4);
       } 
       display_status();
       while ((load_cell.get_units()+tare50*ref_mass_50)>set_tension && motor.Position()>motor_minimum){
         motor.SetStep(8);
         motor.Step(1);
+        //display_status();
       }
       display_status();
     }
