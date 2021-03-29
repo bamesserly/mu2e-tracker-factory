@@ -568,7 +568,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut_Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "Cut_Files\\Cut2-RH" + humidString + "\\"
         filename = "Cut 2 for 0,4 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -613,7 +613,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut_Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "Cut_Files\\Cut2-RH" + humidString + "\\"
         filename = "Cut 2 for 2,6 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -714,7 +714,8 @@ class cutMenu(QMainWindow):
                 if prev != self.justLogOut:
                     activeWorkers.append(prev)
         with open(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv", "a+",
+            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
+            "a+",
         ) as workers:
             if exists:
                 workers.write("\n")
