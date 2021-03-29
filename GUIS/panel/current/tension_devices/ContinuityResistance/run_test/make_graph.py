@@ -94,13 +94,13 @@ if __name__ == "__main__":
         correct_argv = False
         print("Please specify the csv file to be used and the panel ID.\n")
         print(
-            "Example: D:\Personal\Software\GitHub\mu2e-tracker-factory\Data\Panel data\FinalQC\Resistance\RawData\name_of_file.csv"
+            "Example: C:\User\Desktop\Production\Data\Panel data\FinalQC\Resistance\RawData\\name_of_file.csv"
         )
         print(
             "If you don't want to type all this, you can do right click -> Properties and copy the field location.\n"
         )
         print(
-            "You will need to add '\ and the name of the file at the end of the path\n"
+            "You will need to add \ and the name of the file + .csv (ex: log_file.csv) at the end of the path\n"
         )
         file_path = input("Paths of the csv file: ")
         print("Example: 10")
