@@ -248,6 +248,10 @@ class panelGUI(QMainWindow):
         self._init_pro7_setup()
         self._init_failure_setup()
 
+        # Pro 5 "re-enable"
+        # Pressing pro 5 over ten times will open it anyways.  Maybe only tell full time staff?  Maybe this is useless?
+        self.pro5Presses = 0
+
         # Grouping common elements by pro to make accessing more general
         self._init_widget_lists()
 
@@ -1381,6 +1385,18 @@ class panelGUI(QMainWindow):
     """
 
     def openGUI(self, btn):
+
+        # pro 5 now disabled
+        # Pressing pro 5 over ten times will open it anyways.  Maybe only tell full time staff?  Maybe this is useless?
+        if btn.text() == "Process 5 - High Voltage" and (self.pro5Presses < 10):
+            self.pro5Presses += 1
+            self.generateBox(
+                "warning",
+                "Process 5 Disabled",
+                "Process 5 has been replaced by the HV popup GUI.  Please use the \"Launch HV GUI\" button in process 3 or 6 instead.",
+                )
+            return
+
         # Get pro Information
         self.pro = int(btn.objectName()[3:-6])
         logger.info("pro selected: %s" % self.pro)
