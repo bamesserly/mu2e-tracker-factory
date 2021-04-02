@@ -30,7 +30,6 @@ import threading
 import win32gui
 import win32con
 
-# import pyperclip
 from datetime import datetime
 from pathlib import Path
 from PyQt5.QtCore import *
@@ -38,12 +37,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Laser import Ui_MainWindow  ## edit via Qt Designer
 
-# pyautogui.PAUSE = 2 #Might remove after debugging and testing
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
-# OLD CODE. Get credentials
-# sys.path.insert(0, '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\workers\\credentials')
-# NEW CODE. Updated 9/21/2020
 # Get modules from current directories
 sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
@@ -53,11 +48,9 @@ from workers.credentials.credentials import Credentials
 dummyPath = "\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw lab GUIs\\"
 removeP = dummyPath + "Remove"
 checkP = dummyPath + "Check Straw"
-# os.chdir(os.path.dirname(__file__))
 sys.path.insert(0, removeP)
 sys.path.insert(0, checkP)
 # move up one directory
-# sys.path.insert(0, os.path.dirname(__file__) + "..\\")
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent)))
 from removeStraw import *
 from checkstraw import *
@@ -78,7 +71,6 @@ LASERCUT_FILE_26 = 'Cut 2 for 2,6 - version 3.ecp'"""
 
 
 MAIN_DIR = "C:\\Users\\Mu2e\\Desktop\\Production\\GUIS\\straw\\Laser\\"  # CSV in CSV_Files, LASERCUT in Original_Lazer_Files
-# MAIN_DIR = os.path.dirname(__file__) + "..\\"
 
 X_SIZE = 3  # set pixel amount to adjust to right and down
 Y_SIZE = 7
@@ -149,7 +141,6 @@ class cutMenu(QMainWindow):
         thread = threading.Thread(target=self.main, args=())
         thread.daemon = True
         thread.start()
-        # os.system('taskkill /im AcroRd32.exe')
 
     """def checkPreviousStep(self, CPAL, previousStep):
         for palletid in os.listdir(self.palletDirectory):
@@ -179,19 +170,14 @@ class cutMenu(QMainWindow):
     def keyPressEvent(self, qKeyEvent):
         if qKeyEvent.key() == Qt.Key_F:
             self.scanEntry = "F"
-            # print('f')
         if qKeyEvent.key() == Qt.Key_I and self.scanEntry == "F":
             self.scanEntry = self.scanEntry + "I"
-            # print('i')
         if qKeyEvent.key() == Qt.Key_R and self.scanEntry == "FI":
             self.scanEntry = self.scanEntry + "R"
-            # print('r')
         if qKeyEvent.key() == Qt.Key_S and self.scanEntry == "FIR":
             self.scanEntry = self.scanEntry + "S"
-            # print('s')
         if qKeyEvent.key() == Qt.Key_T and self.scanEntry == "FIRS":
             self.scanEntry = self.scanEntry + "T"
-            # print('t')
         if qKeyEvent.key() == Qt.Key_Return and self.scanEntry == "FIRST":
             self.firstCut()
         if (
@@ -201,42 +187,31 @@ class cutMenu(QMainWindow):
             and self.scanEntry != "FINI"
         ):
             self.scanEntry = "S"
-            # print('s')
         if qKeyEvent.key() == Qt.Key_E and self.scanEntry == "S":
             self.scanEntry = self.scanEntry + "E"
-            # print('e')
         if qKeyEvent.key() == Qt.Key_C and self.scanEntry == "SE":
             self.scanEntry = self.scanEntry + "C"
-            # print('c')
         if qKeyEvent.key() == Qt.Key_O and self.scanEntry == "SEC":
             self.scanEntry = self.scanEntry + "O"
-            # print('o')
         if qKeyEvent.key() == Qt.Key_N and self.scanEntry == "SECO":
             self.scanEntry = self.scanEntry + "N"
-            # print('n')
         if qKeyEvent.key() == Qt.Key_D and self.scanEntry == "SECON":
             self.scanEntry = self.scanEntry + "D"
-            # print('d')
         if qKeyEvent.key() == Qt.Key_Return and self.scanEntry == "SECOND":
             self.scanEntry = ""
             self.chooseCut()
         if qKeyEvent.key() == Qt.Key_N and self.scanEntry == "FI":
             self.scanEntry = self.scanEntry + "N"
-            # print('n')
         if qKeyEvent.key() == Qt.Key_I and self.scanEntry == "FIN":
             self.scanEntry = self.scanEntry + "I"
-            # print('i')
         if qKeyEvent.key() == Qt.Key_S and self.scanEntry == "FINI":
             self.scanEntry = self.scanEntry + "S"
-            # print('s')
         if qKeyEvent.key() == Qt.Key_H and self.scanEntry == "FINIS":
             self.scanEntry = self.scanEntry + "H"
-            # print('h')
         if qKeyEvent.key() == Qt.Key_Return and self.scanEntry == "FINISH":
             self.scanEntry = ""
             self.saveData()
 
-        # if qKeyEvent.key() ==
 
     ##**FUNCTIONS**##
     # Load Data from .csv file into 2d list
@@ -354,43 +329,6 @@ class cutMenu(QMainWindow):
 
         self.temperature = temperature
         self.humidity = humidity
-
-    """def changeLoc (self, xStartClick, yStartClick, xInit, yInit, stLength, TEMP, HUMID):
-    #Determining new value of X (will add functionality for changing pallets later)
-    #x_new_setting = xInit
-    
-    #Determining new value of Y
-        y_length_init = stLength * (1 + (TEMP_INIT - 68) * C1 + (HUMID_INIT - 0) * C2 )
-        y_length_final = stLength * (1 + (TEMP - 68) * C1 + (HUMID - 0) * C2 )
-        y_diff = y_length_final - y_length_init
-        y_final = yInit - y_diff
-    
-    # pyautogui.click(###, ###) #click select tool (check location)
-        pyautogui.moveTo(xStartClick, yStartClick)
-        pyautogui.dragRel(X_SIZE, Y_SIZE)
-        pyautogui.press('space')
-    #pyautogui.click(619, 416) #click x location
-    #pyautogui.typewrite(['backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace'])
-    #pyautogui.typewrite(str(x_
-        pyautogui.click(946, 568) #click y location
-        pyautogui.typewrite(['backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace'])
-        pyautogui.typewrite(str(y_final))
-        pyautogui.click(918, 616)   # Apply
-        pyautogui.click(990, 616)   # Close
-
-        return str(y_length_final)"""
-
-    # def saveDummy(self):
-    #     pyautogui.hotkey("ctrl", "shift", "s")
-    #     time.sleep(1)
-    #     # print(MAIN_DIR)
-    #     pyautogui.typewrite(
-    #         MAIN_DIR + "Dummy Files\\" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-    #     )
-    #     time.sleep(0.5)
-    #     pyautogui.press("enter")
-    #     time.sleep(0.5)
-    #     print("2")
 
     def loadLaser(self):
         pyautogui.click(1868, 582)
@@ -527,7 +465,6 @@ class cutMenu(QMainWindow):
 
     def firstCut(self):
         self.openFile("Cut 1.ecp", "Cut_Files\\Cut_1\\")
-        # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.step = 1
@@ -593,7 +530,6 @@ class cutMenu(QMainWindow):
                 length = self.changeLoc(x_start[i], y_start[i], x_i[i], y_i[i], lengths[i],TEMP,HUMID)
                 self.cutLengths.append(length)
             self.cutLengths = list(reversed(self.cutLengths))"""
-        # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.ui.instructions.setText(
@@ -638,7 +574,6 @@ class cutMenu(QMainWindow):
                 self.cutLengths.append(length)
             self.cutLengths = list(reversed(self.cutLengths))"""
 
-        # self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.ui.instructions.setText(
@@ -876,10 +811,6 @@ class cutMenu(QMainWindow):
         )
         self.ui.instructions.setFocus()
         self.initializePallet()
-
-    ##        for i in range(len(self.Current_workers)):
-    ##            if self.Current_workers[i].text() != '':
-    ##                self.Change_worker_ID(self.portals[i])
 
     def main(self):
         changed = False
