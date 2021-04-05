@@ -50,21 +50,19 @@ void loop() {
     Serial.println("Enter second PAAS type (B or C) or enter 0 if heating PAAS-A only");
     char usrkey[5];  // user choice of 2nd PAAS type and temperature setpoint
     byte len = Serial.readBytesUntil('\n',usrkey,sizeof(usrkey));  // read bytes into usrkey until newline
-//    paas2=usrkey[0];   
-//    usrsp=usrkey[1:];  ...
+    // paas2=usrkey[0];
+    // usrsp=usrkey[1:];  ...
     usrkey[len]=0; 
     char *pKbd = usrkey; 
     paas2 = *pKbd;  
     pKbd++; 
     usrsp = atof(pKbd); 
-    if (abs(usrsp-setpointA)>5){  // new setpoint from python interface either 34C or 55C / software timer fixed
-        state=0;            // resets holdstart to get full holdtime at new setpoint
+    if (abs(usrsp-setpointA)>5){ // new setpoint from python interface either 34C or 55C / software timer fixed
+        state=0; // resets holdstart to get full holdtime at new setpoint
         setpointA = min(usrsp,52); 
-        // setpointB based on PAAS-B correction for temperature difference at RTD location vs. bulk surface 
-        //setpointB = min(setpointA,50); // with cube foam. experimental
+        // setpointB based on PAAS-B correction for temperature difference at RTD location vs. bulk surface
         if (setpointA>34){ setpointB=50; }
-        else { setpointB=29; }
-        //setpointB = min(setpointA,45); // no cube foam.
+        else { setpointB=33.9; }
         // setpointC based on PAAS-C correction for temperature difference at RTD location vs. under baseplate
         setpointC = min(setpointA,50); 
     }
@@ -122,15 +120,13 @@ void temp_control(){
     }
     if (paas2=='b') {
       // PAAS-B correction: RTD placed in corner measures lower temperature than bulk surface at 55C
-      //dT = tempA - temp2 - 8.0*(max(0,temp2-34)/10);  // experimental: no cube foam
       dT = tempA - temp2 - 4.5*(max(0,temp2-34)/16);  // experimental: with cube foam
-      //if (setpointB<34){ dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);  } //previous. too slow rise to 34C 
-      if (setpointB<34){      // new 0125. try to get faster rise to 34C by altering where feedback constraint applies
+      if (setpointB<34){ // try to get faster rise to 34C by altering where feedback constraint applies
         // 0130. adding condition on temp2 to prevent heating if B not plugged in
         if (tempA<31 && temp2>initial_temp2+2){dT=0;}
         else {dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);}
       }
-      if (setpointA>50 && tempA<40){ // new 0130. speed up start of transition (34->55) by relaxing feedback constraint 
+      if (setpointA>50 && tempA<46){ // speed up start of transition (34->55) by relaxing feedback constraint
         dT=0;
       }
     }
