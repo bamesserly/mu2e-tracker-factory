@@ -63,7 +63,7 @@ class ser_wrapper:
         self.logfile.close()
 
 
-def main():
+def main(ser):
     # This section gathers the worker and panel IDs.
     # The workers can use the bar-code scanner or the keyboard for this.
     print("Welcome to the Resistance and Continuity Test")
@@ -226,4 +226,4 @@ if __name__ == "__main__":
     ser = ser_wrapper(serialport)
     ser.logfile.write("# datetime: " + timestamp + "\n")
 
-    main()
+    main(ser)
