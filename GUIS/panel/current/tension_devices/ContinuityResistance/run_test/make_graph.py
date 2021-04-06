@@ -94,7 +94,7 @@ if __name__ == "__main__":
         correct_argv = False
         print("Please specify the csv file to be used and the panel ID.\n")
         print(
-            "Example: C:\User\Desktop\Production\Data\Panel data\FinalQC\Resistance\RawData\\name_of_file.csv"
+            "Example: C:\\User\\Desktop\\Production\\Data\\Panel data\\FinalQC\\Resistance\\RawData\\name_of_file.csv"
         )
         print(
             "If you don't want to type all this, you can do right click -> Properties and copy the field location.\n"
