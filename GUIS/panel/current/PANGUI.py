@@ -298,7 +298,7 @@ class panelGUI(QMainWindow):
 
         # Specify number of data values collected for each pro
         # TODO: add data_count for proc8. Current 0
-        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5, 8: 0}
+        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5, 8: 7}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -1146,6 +1146,12 @@ class panelGUI(QMainWindow):
             # pro 8 Widgets
             [
                 self.ui.panelInput8,
+                self.ui.left_cover,
+                self.ui.right_cover,
+                self.ui.center_ring,
+                self.ui.center_cover,
+                self.ui.left_ring,
+                self.ui.right_ring,
             ],
         ]
 
@@ -2478,7 +2484,13 @@ class panelGUI(QMainWindow):
 
     # TODO: proc8
     def updateDataProcess8(self):
-        pass
+        self.data[self.pro_index][0] = self.ui.panelInput8.text()
+        self.data[self.pro_index][1] = self.ui.left_cover.text()
+        self.data[self.pro_index][2] = self.ui.right_cover.text()
+        self.data[self.pro_index][3] = self.ui.center_ring.text()
+        self.data[self.pro_index][4] = self.ui.center_cover.text()
+        self.data[self.pro_index][5] = self.ui.left_ring.text()
+        self.data[self.pro_index][6] = self.ui.right_ring.text()
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -4624,6 +4636,17 @@ class panelGUI(QMainWindow):
     def pro8part1(self):
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
+            return
+
+        # Check that inputs are not empty
+        inputs = []
+        inputs.append(self.ui.left_cover.text())
+        inputs.append(self.ui.right_cover.text())
+        inputs.append(self.ui.center_ring.text())
+        inputs.append(self.ui.center_cover.text())
+        inputs.append(self.ui.left_ring.text())
+        inputs.append(self.ui.right_ring.text())
+        if "" in inputs:
             return
 
         # Disable
