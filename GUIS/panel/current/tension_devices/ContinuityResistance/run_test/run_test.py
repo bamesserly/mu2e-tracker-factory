@@ -4,43 +4,40 @@
 
 import datetime
 import serial
+import serial.tools.list_ports
 import uncertainties  # module for propagating uncertainties.
 import colorama  # used to colour the terminal output
 import numpy
 import os
 
+def GetSerialPort():
+    baudrate = 115200
+    timeout = None
+
+    # Linux ports look like this: "/dev/ttyACM0" or "/dev/cu.usbmodemFD1231"
+    # Windows ports look like this: "COM6"
+    # from command line, try: python -m serial.tools.list_ports
+    serialport = None
+    avail_ports = serial.tools.list_ports.comports()
+    for port, desc, hwid in sorted(avail_ports):
+        #print("{}: {} [{}]".format(port, desc, hwid))
+        if "USB" in desc:
+            try:
+                serialport = serial.Serial(port=port, baudrate=baudrate, timeout=timeout)
+                print("Using port", port)
+                return serialport 
+            except:
+                continue
+    print("Can't find working port. Is arduino plugged in?")
+
 # Initialize colorama.  autoreset = True makes it return to
 # normal output after each print statement.
 colorama.init(autoreset=True)
-
-# Serial port parameters.  You may need to change "port" if you change computers.
-# LINUX
-# port = "/dev/ttyACM0"
-
-# Windows
-# run: python -m serial.tools.list_ports to see available ports
-port = "COM6"
-# port = "COM3"
-
-# testing switched from /ttyAMC1
-# port = "/dev/cu.usbmodemFA131"
-# port = "/dev/cu.usbmodemFA1331"
-# port = "/dev/cu.usbmodemFD1231"
-baudrate = 115200
-timeout = None
-
-serialport = serial.Serial(port=port, baudrate=baudrate, timeout=timeout)
 
 # This was measured with a Fluke multimeter.
 calibration_resistor = uncertainties.ufloat(149.8, 0.3)
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-
-logfilename = "\\resistancetest_" + timestamp + ".log"
-dir_path = os.path.dirname(os.path.realpath(__file__))
-suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
-dir_path = dir_path[: -len(suffix)]
-dir_path += "\Data\Panel data\\FinalQC\\Resistance\\RawData\\"
 
 # Lists to keep track of OK vs bad measurements.
 wires_ok = [False] * 96
@@ -50,8 +47,8 @@ oks = [wires_ok, straws_ok]
 # ser_wrapper is a simple wrapper around the serial port that writes
 # all written/read lines to a logfile.
 class ser_wrapper:
-    def __init__(self, ser):
-        self.logfile = open(dir_path + logfilename, "w", buffering=1)
+    def __init__(self, ser, logfile):
+        self.logfile = open(logfile, "w", buffering=1)
         self.ser = ser
 
     def readline(self):
@@ -64,8 +61,9 @@ class ser_wrapper:
 
 
 def main():
-    # This section gathers the worker and panel IDs.
-    # The workers can use the bar-code scanner or the keyboard for this.
+    ############################################################################
+    # Get workers from input()
+    ############################################################################
     print("Welcome to the Resistance and Continuity Test")
     print(
         "Type or scan your worker IDs, pressing enter after each one.  Enter a blank line when done"
@@ -77,20 +75,42 @@ def main():
             break
         workers.append(worker)
     wstr = ", ".join(workers)
-    ser.logfile.write("# workerids: " + wstr + "\n")
 
+    ############################################################################
+    # Get panel number from input()
+    ############################################################################
     print("Type or scan the panel ID number")
     panelid = input("panel ID> ")
     panelid = str(panelid)
+
+    ############################################################################
+    # wrap the serial port.  From here on, use "ser" for any serial port communication.
+    # Additional lines can be "manually" added to the logfile, but these should all start with
+    # "#" to avoid confusing the parse_log script that runs later.
+    ############################################################################
+    logfilename = "\\resistancetest_MN" + panelid + "_" + timestamp + ".log"
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
+    dir_path = dir_path[: -len(suffix)]
+    dir_path += "\Data\Panel data\\FinalQC\\Resistance\\RawData\\"
+    dir_path += "\MN" + panelid
+
+    # Put the raw_data in its own folder
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+    logfile = dir_path + logfilename
+
+    print("raw data going to", logfile)
+
+    serialport = GetSerialPort()
+
+    ser = ser_wrapper(serialport, logfile)
+
+    ser.logfile.write("# datetime: " + timestamp + "\n")
+    ser.logfile.write("# workerids: " + wstr + "\n")
     ser.logfile.write("# panelid:" + panelid + "\n")
     # ser.readline()
-
-    # check if a folder for this panel already exists
-    if os.path.exists(dir_path + "\MN" + panelid):
-        dir_path = dir_path + "\MN" + panelid + "\\"
-    else:
-        os.makedirs(dir_path + "\MN" + panelid)
-        dir_path = dir_path + "\MN" + panelid + "\\"
 
     # Here begins the main loop to measure every straw and wire.
     print("Begin testing!  Press Ctrl+C when the panel is finished.")
@@ -212,7 +232,7 @@ def main():
     # we can rerun parse_log or make_graph.
     import parse_log
 
-    datafilename = parse_log.parse_log(dir_path + logfilename)
+    datafilename = parse_log.parse_log(logfile)
     print("Data file and plots are at", datafilename)
     import make_graph
 
@@ -220,10 +240,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # wrap the serial port.  From here on, use "ser" for any serial port communication.
-    # Additional lines can be "manually" added to the logfile, but these should all start with
-    # "#" to avoid confusing the parse_log script that runs later.
-    ser = ser_wrapper(serialport)
-    ser.logfile.write("# datetime: " + timestamp + "\n")
-
     main()

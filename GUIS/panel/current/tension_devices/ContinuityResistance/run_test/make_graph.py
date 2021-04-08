@@ -50,7 +50,7 @@ def make_graph(filename, panelid, logfilename):
 
     fig, ax = plt.subplots()
     x = [0, 20, 40, 60, 80, 100]
-    y = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+    y = [0, 50, 100, 150, 200, 250]
     # Get x and y values for wires and straws
     X_wires, Y_wires = zip(*sorted_idx_wires)
     X_straws, Y_strws = zip(*sorted_idx_straws)
@@ -67,7 +67,7 @@ def make_graph(filename, panelid, logfilename):
     plt.xticks(x)
     ax.set_yticks(y)
     ax.set_yticklabels(
-        ["0", "50", "100", "150", "200", "250", "300", "350", "400", "450", "500"]
+        ["0", "50", "100", "150", "200", "250"]
     )
     plt.ylabel("Resistance")
     plt.yticks(y)
@@ -93,12 +93,22 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         correct_argv = False
         print("Please specify the csv file to be used and the panel ID.\n")
+        print(
+            "Example: C:\\User\\Desktop\\Production\\Data\\Panel data\\FinalQC\\Resistance\\RawData\\name_of_file.csv"
+        )
+        print(
+            "If you don't want to type all this, you can do right click -> Properties and copy the field location.\n"
+        )
+        print(
+            "You will need to add \ and the name of the file + .csv (ex: log_file.csv) at the end of the path\n"
+        )
         file_path = input("Paths of the csv file: ")
+        print("Example: 10")
         panelid = input("Panel id: ")
 
         # if the path does not exist, prompt user again
         # Set correct_argv to True to enter the while loop
-        if not os.path.exists(path):
+        if not os.path.exists(file_path):
             correct_argv = True
 
     while correct_argv:
