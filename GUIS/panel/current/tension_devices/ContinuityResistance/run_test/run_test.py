@@ -4,32 +4,35 @@
 
 import datetime
 import serial
+import serial.tools.list_ports
 import uncertainties  # module for propagating uncertainties.
 import colorama  # used to colour the terminal output
 import numpy
 import os
 
+def GetSerialPort():
+    baudrate = 115200
+    timeout = None
+
+    # Linux ports look like this: "/dev/ttyACM0" or "/dev/cu.usbmodemFD1231"
+    # Windows ports look like this: "COM6"
+    # from command line, try: python -m serial.tools.list_ports
+    serialport = None
+    avail_ports = serial.tools.list_ports.comports()
+    for port, desc, hwid in sorted(avail_ports):
+        #print("{}: {} [{}]".format(port, desc, hwid))
+        if "USB" in desc:
+            try:
+                serialport = serial.Serial(port=port, baudrate=baudrate, timeout=timeout)
+                print("Using port", port)
+                return serialport 
+            except:
+                continue
+    print("Can't find working port. Is arduino plugged in?")
+
 # Initialize colorama.  autoreset = True makes it return to
 # normal output after each print statement.
 colorama.init(autoreset=True)
-
-# Serial port parameters.  You may need to change "port" if you change computers.
-# LINUX
-# port = "/dev/ttyACM0"
-
-# Windows
-# run: python -m serial.tools.list_ports to see available ports
-port = "COM6"
-# port = "COM3"
-
-# testing switched from /ttyAMC1
-# port = "/dev/cu.usbmodemFA131"
-# port = "/dev/cu.usbmodemFA1331"
-# port = "/dev/cu.usbmodemFD1231"
-baudrate = 115200
-timeout = None
-
-serialport = serial.Serial(port=port, baudrate=baudrate, timeout=timeout)
 
 # This was measured with a Fluke multimeter.
 calibration_resistor = uncertainties.ufloat(149.8, 0.3)
@@ -99,6 +102,8 @@ def main():
     logfile = dir_path + logfilename
 
     print("raw data going to", logfile)
+
+    serialport = GetSerialPort()
 
     ser = ser_wrapper(serialport, logfile)
 
