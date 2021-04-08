@@ -1743,6 +1743,62 @@ class Pan8Procedure(PanelProcedure):
         ), f"Error. Tried to construct Pan8Procedure for a station '{station.id}' not 'pan8'."
         super().__init__(station, straw_location, create_key)
 
+    def _getDetailsClass(self):
+        class Details(BASE, OBJECT):
+            __tablename__ = "procedure_details_pan8"
+            id = Column(Integer, primary_key=True)
+            procedure = Column(Integer, ForeignKey("procedure.id"))
+            left_cover = Column(Integer)
+            right_cover = Column(Integer)
+            center_ring = Column(Integer)
+            center_cover = Column(Integer)
+            left_ring = Column(Integer)
+            right_ring = Column(Integer)
+
+        return Details
+
+    def getLeftCover(self):
+        return self.details.left_cover
+
+    def recordLeftCover(self, left_cover):
+        self.details.left_cover = left_cover
+        self.commit()
+
+    def getRightCover(self):
+        return self.details.left_cover
+
+    def recordRightCover(self, right_cover):
+        self.details.right_cover = right_cover
+        self.commit()
+
+    def getCenterRing(self):
+        return self.details.left_cover
+
+    def recordCenterRing(self, center_ring):
+        self.details.center_ring = center_ring
+        self.commit()
+
+    def getCenterCover(self):
+        return self.details.left_cover
+
+    def recordCenterCover(self, center_cover):
+        self.details.center_cover = center_cover
+        self.commit()
+
+    def getLeftRing(self):
+        return self.details.left_cover
+
+    def recordLeftRing(self, left_ring):
+        self.details.left_ring = left_ring
+        self.commit()
+
+    def getRightRing(self):
+        return self.details.left_cover
+
+    def recordRightRing(self, right_ring):
+        self.details.right_ring = right_ring
+        self.commit()
+
 
 """
 class Co2Procedure(Procedure):

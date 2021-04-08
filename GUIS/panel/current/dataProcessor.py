@@ -28,6 +28,10 @@ from databaseClasses import (
     TensionboxMeasurement,
 )
 
+import logging
+
+logger = logging.getLogger("root")
+
 # MkI saves DB friendly CSV files
 # MkII saves human friendly CSV files
 # MkI can be on, but no data will be lost if it's off.
@@ -1430,8 +1434,14 @@ class TxtDataProcessor(DataProcessor):
     # TODO: implement for proc8
     def _pro8header(self):
         return [
-            1,
+            7,
             "Panel ID",
+            "Left Cover",
+            "Right Cover",
+            "Center Ring",
+            "Center Cover",
+            "Left Ring",
+            "Right Ring",
         ]
 
     # ___  ____            _   _      _
@@ -1790,6 +1800,28 @@ class SQLDataProcessor(DataProcessor):
     # TODO: proc8 save data method
     def saveDataProcess8(self):
         data = self.getProData()
+
+        logger.info("DATA")
+        logger.info(data)
+
+        self.callMethod(
+            self.procedure.recordLeftCover, self.stripNumber(data[1])
+        )  # Left Cover
+        self.callMethod(
+            self.procedure.recordRightCover, self.stripNumber(data[2])
+        )  # Right Cover
+        self.callMethod(
+            self.procedure.recordCenterRing, self.stripNumber(data[3])
+        )  # Center Ring
+        self.callMethod(
+            self.procedure.recordCenterCover, self.stripNumber(data[4])
+        )  # Center Cover
+        self.callMethod(
+            self.procedure.recordLeftRing, self.stripNumber(data[5])
+        )  # Left Ring
+        self.callMethod(
+            self.procedure.recordRightRing, self.stripNumber(data[6])
+        )  # Right Ring
 
     ## TIME EVENTS ##
 
