@@ -1,4 +1,4 @@
-import shutil, os, sys
+import shutil, os, sys, platform
 from os import path, listdir
 from pathlib import Path
 from subprocess import Popen
@@ -59,13 +59,14 @@ if is_official_lab_production:
         print("... Data dir already exists here!")
         print("    If things aren't working, you might need to refresh this directory.")
 else:
-    print("... Checking if Data/ dir exists.")
-    data_dir = "Data"
-    data_exists = os.path.isdir(data_dir)
-    if data_exists:
-        print("... Data/ dir found.")
+    print("... Local environment detected.")
+    print("... Checking if Data directory exists")
+    if os.path.isdir("Data"):
+        print("    Data directory was found.")
+        print("    Setup scrip will continue running.")
     else:
-        print("... Please download the Data/ dir and try again.")
+        print("    Data directory was not found.")
+        print("    Please, download the Data directory and add it to this folder.")
         exit()
 # TODO add exception(s) for when we're (a) not connected to the internet, (b)
 # not connected to network_data_dir, and (c) other.
@@ -94,7 +95,8 @@ merge_destination_db = (
 with open(merge_destination_db_location_file, "w") as f:
     f.write(merge_destination_db)
 
-with open("pangui/paths.csv", "w") as file:
+# TODO: csv file with relevant paths. Needed for project restructure
+with open("paths.csv", "w") as file:
     file.write("local," + str(local_top_dir) + ",\n")
     file.write("network," + network_top_dir + ",\n")
     file.write("merge_destination," + merge_destination_db + ",\n")
@@ -103,7 +105,6 @@ with open("pangui/paths.csv", "w") as file:
     file.write("diagrams," + str(local_top_dir) + "\Data\Panel data\diagrams" + ",\n")
     file.write("workers," + str(local_top_dir) + "\Data\workers\panel workers" + ",\n")
     file.write("panel," + str(local_top_dir) + "\Data\Panel data" + ",\n")
-
 
 # ===============================================================================
 # 4. Finally, if this is software development, we need to make the dummy.db
@@ -118,9 +119,18 @@ if not is_official_lab_production:
         shutil.copyfile(local_db, merge_destination_db)
 
     print("... Finally, setting up autoformatter.")
+    system = platform.system()
     cmd = 'cd "{0}"; pre-commit install'.format(local_top_dir)
-    p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
-    p.communicate()
+    if system == "Windows":
+        p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
+        p.communicate()
+    elif system == "Darwin" or system == "Linux":
+        p = Popen(cmd, stdout=sys.stdout, shell=True)
+        p.communicate()
+    else:
+        print("    Unknown operating system.")
+        print("    Please, contact a GUI developer if you see this message.")
+        exit()
     print("    Done setting up autoformatter.")
 
 # ===============================================================================
