@@ -212,7 +212,6 @@ class cutMenu(QMainWindow):
             self.scanEntry = ""
             self.saveData()
 
-
     ##**FUNCTIONS**##
     # Load Data from .csv file into 2d list
     def loadData(self, filename, directory):
@@ -274,61 +273,66 @@ class cutMenu(QMainWindow):
         time.sleep(0.5)
         print("File was successfully opened")
 
-    # Obtain current temperature and humidy
+    # Obtain current temperature and humidity
+    # First try to get from file, else manual entry
     def getTempHumid(self):
-        directory = (
-            os.path.dirname(__file__)
-            + "\\..\\..\\..\\Data\\temp_humid_data\\464_main\\"
-        )
-        D = os.listdir(directory)
-        found = False
-        filename = ""
-        for entry in D:
-            if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
-                filename = entry
-                found = True
+        temperature = humidity = None
+        temp_ok = humid_ok = True
+        # First, search local data dir for today's temp/humidity file.
+        # If that doesn't work get it manually.
+        try:
+            directory = (
+                os.path.dirname(__file__)
+                + "\\..\\..\\..\\Data\\temp_humid_data\\464_main\\"
+            )
+            D = os.listdir(directory)
+            filename = ""
+            for entry in D:
+                if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
+                    filename = entry
 
-        if not found:
+            print("Attempting to read temp/humid from", directory + filename)
+            with open(directory + filename) as f:
+                # skip null bytes, which often appear if we seized the file
+                # while it was still open.
+                data = csv.reader(x.replace("\0", "") for x in f)
+                rows = list(data)
+                temperature = float(rows[-1][1])
+                humidity = float(rows[-1][2])
+        except FileNotFoundError:
             QMessageBox.critical(
                 self,
-                "No Temperature and Humidity Data",
-                "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
+                "Temperature and Humidity File Not Found",
+                "Merge down to get the latest file. If you did that and are "
+                "still receiving this message, the sensor may not be working "
+                "properly. In any case, just enter the temp/humid manually "
+                "now.",
             )
-            temperature, ok = QInputDialog.getText(
+            temperature, temp_ok = QInputDialog.getText(
                 self, "Temperature", "Enter room temperature"
             )
-            if not ok:
-                return
-            humidity, ok = QInputDialog.getText(self, "Humidity", "Enter room humidity")
-            if not ok:
-                return
-            self.temperature = float(temperature)
-            self.humidity = float(humidity)
-            return
-
-        with open(directory + filename) as f:
-            data = csv.reader(f)
-            rows = list(data)
-            temperature = float(rows[-1][1])
-            humidity = float(rows[-1][2])
-
-        if temperature == float("nan") or humidity == float("nan"):
-            # QMessageBox.critical(
-            #     self,
-            #     "No Temperature and Humidity Data",
-            #     "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
-            # )
-            temperature, ok = QInputDialog.getText(
-                self, "Temperature", "Enter room temperature"
+            humidity, humid_ok = QInputDialog.getText(
+                self, "Humidity", "Enter room humidity"
             )
-            if not ok:
-                return
-            humidity, ok = QInputDialog.getText(self, "Humidity", "Enter room humidity")
-            if not ok:
-                return
 
-        self.temperature = temperature
-        self.humidity = humidity
+        print("Using Temperature:", temperature)
+        print("Using Humidity:", humidity)
+
+        # Check for valid temp and humidity
+        try:
+            int(temperature)
+            int(humidity)
+            assert temp_ok
+            assert humid_ok
+        except:
+            QMessageBox.critical(
+                self,
+                "Bad Temperature and/or Humidity.",
+                "Continuing without temp and humidity.",
+            )
+
+        self.temperature = float(temperature)
+        self.humidity = float(humidity)
 
     def loadLaser(self):
         pyautogui.click(1868, 582)
@@ -807,7 +811,13 @@ class cutMenu(QMainWindow):
         self.ui.commentBox.document().setPlainText("")
         self.step = 0
         self.ui.instructions.setText(
-            "Once the pallet is properly alligned on the cutting table, scan the pallet number with format CPAL####.\n\nNext scan the FIRST barcode to initiate the first cut. If this information is correct, the first cut will begin immediately.\n\nDo not touch the mouse or keyboard for 60 seconds after scanning FIRST."
+            "Once the pallet is properly alligned on the cutting table, "
+            "scan the pallet number with format CPAL####."
+            "\n\nNext scan the FIRST barcode to initiate the first cut. "
+            "If this information is correct, the first cut will begin "
+            "immediately."
+            "\n\nDo not touch the mouse or keyboard for 60 seconds after "
+            "scanning FIRST."
         )
         self.ui.instructions.setFocus()
         self.initializePallet()
