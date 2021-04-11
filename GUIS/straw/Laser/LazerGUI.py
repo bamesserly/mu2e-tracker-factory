@@ -30,7 +30,6 @@ import threading
 import win32gui
 import win32con
 
-# import pyperclip
 from datetime import datetime
 from pathlib import Path
 from PyQt5.QtCore import *
@@ -38,12 +37,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Laser import Ui_MainWindow  ## edit via Qt Designer
 
-# pyautogui.PAUSE = 2 #Might remove after debugging and testing
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
-# OLD CODE. Get credentials
-# sys.path.insert(0, '\\\\MU2E-CART1\\Users\\Public\\Database Backup\\workers\\credentials')
-# NEW CODE. Updated 9/21/2020
 # Get modules from current directories
 sys.path.insert(
     0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
@@ -53,11 +48,10 @@ from workers.credentials.credentials import Credentials
 dummyPath = "\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw lab GUIs\\"
 removeP = dummyPath + "Remove"
 checkP = dummyPath + "Check Straw"
-# os.chdir(os.path.dirname(__file__))
 sys.path.insert(0, removeP)
 sys.path.insert(0, checkP)
 # move up one directory
-sys.path.insert(0, os.path.dirname(__file__) + "..\\")
+sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent)))
 from removeStraw import *
 from checkstraw import *
 
@@ -76,8 +70,7 @@ CSV_FILE_26 = 'LaserInfo2,6.csv'
 LASERCUT_FILE_26 = 'Cut 2 for 2,6 - version 3.ecp'"""
 
 
-# MAIN_DIR = 'C:\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw Lab GUIs\\Laser GUI\\' #CSV in CSV_Files, LASERCUT in Original_Lazer_Files
-MAIN_DIR = os.path.dirname(__file__) + "..\\"
+MAIN_DIR = "C:\\Users\\Mu2e\\Desktop\\Production\\GUIS\\straw\\Laser\\"  # CSV in CSV_Files, LASERCUT in Original_Lazer_Files
 
 X_SIZE = 3  # set pixel amount to adjust to right and down
 Y_SIZE = 7
@@ -97,14 +90,16 @@ class cutMenu(QMainWindow):
         self.ui.viewButton.clicked.connect(self.editPallet)
         self.workerDirectory = (
             os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\laser cutting\\"
+            + "\\..\\..\\..\\Data\\workers\\straw workers\\laser cutting\\"
         )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
+        self.palletDirectory = (
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data/Pallets\\"
+        )
         self.laserDirectory = boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Laser cut data\\"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Laser cut data\\"
         )
         self.boardPath = boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
+            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Status Board 464\\"
         )
         self.palletID = ""
         self.palletNum = ""
@@ -146,7 +141,6 @@ class cutMenu(QMainWindow):
         thread = threading.Thread(target=self.main, args=())
         thread.daemon = True
         thread.start()
-        # os.system('taskkill /im AcroRd32.exe')
 
     """def checkPreviousStep(self, CPAL, previousStep):
         for palletid in os.listdir(self.palletDirectory):
@@ -176,19 +170,14 @@ class cutMenu(QMainWindow):
     def keyPressEvent(self, qKeyEvent):
         if qKeyEvent.key() == Qt.Key_F:
             self.scanEntry = "F"
-            # print('f')
         if qKeyEvent.key() == Qt.Key_I and self.scanEntry == "F":
             self.scanEntry = self.scanEntry + "I"
-            # print('i')
         if qKeyEvent.key() == Qt.Key_R and self.scanEntry == "FI":
             self.scanEntry = self.scanEntry + "R"
-            # print('r')
         if qKeyEvent.key() == Qt.Key_S and self.scanEntry == "FIR":
             self.scanEntry = self.scanEntry + "S"
-            # print('s')
         if qKeyEvent.key() == Qt.Key_T and self.scanEntry == "FIRS":
             self.scanEntry = self.scanEntry + "T"
-            # print('t')
         if qKeyEvent.key() == Qt.Key_Return and self.scanEntry == "FIRST":
             self.firstCut()
         if (
@@ -198,42 +187,30 @@ class cutMenu(QMainWindow):
             and self.scanEntry != "FINI"
         ):
             self.scanEntry = "S"
-            # print('s')
         if qKeyEvent.key() == Qt.Key_E and self.scanEntry == "S":
             self.scanEntry = self.scanEntry + "E"
-            # print('e')
         if qKeyEvent.key() == Qt.Key_C and self.scanEntry == "SE":
             self.scanEntry = self.scanEntry + "C"
-            # print('c')
         if qKeyEvent.key() == Qt.Key_O and self.scanEntry == "SEC":
             self.scanEntry = self.scanEntry + "O"
-            # print('o')
         if qKeyEvent.key() == Qt.Key_N and self.scanEntry == "SECO":
             self.scanEntry = self.scanEntry + "N"
-            # print('n')
         if qKeyEvent.key() == Qt.Key_D and self.scanEntry == "SECON":
             self.scanEntry = self.scanEntry + "D"
-            # print('d')
         if qKeyEvent.key() == Qt.Key_Return and self.scanEntry == "SECOND":
             self.scanEntry = ""
             self.chooseCut()
         if qKeyEvent.key() == Qt.Key_N and self.scanEntry == "FI":
             self.scanEntry = self.scanEntry + "N"
-            # print('n')
         if qKeyEvent.key() == Qt.Key_I and self.scanEntry == "FIN":
             self.scanEntry = self.scanEntry + "I"
-            # print('i')
         if qKeyEvent.key() == Qt.Key_S and self.scanEntry == "FINI":
             self.scanEntry = self.scanEntry + "S"
-            # print('s')
         if qKeyEvent.key() == Qt.Key_H and self.scanEntry == "FINIS":
             self.scanEntry = self.scanEntry + "H"
-            # print('h')
         if qKeyEvent.key() == Qt.Key_Return and self.scanEntry == "FINISH":
             self.scanEntry = ""
             self.saveData()
-
-        # if qKeyEvent.key() ==
 
     ##**FUNCTIONS**##
     # Load Data from .csv file into 2d list
@@ -280,94 +257,82 @@ class cutMenu(QMainWindow):
             if ("file" in title.lower()):
                 win32gui.ShowWindow(num, win32con.SW_MINIMIZE)
         print("check2")"""
-        # os.system('start C:\\LaserCut53\\LaserCut53.exe')
-        time.sleep(1)
+        os.system("start C:\\LaserCut53\\LaserCut53.exe")
+        time.sleep(2)
+        pyautogui.click(948, 595)
         pyautogui.click(1058, 482)
         time.sleep(0.5)
         pyautogui.hotkey("ctrl", "o")
         time.sleep(1)
+        print("Trying to open '{}' from directory: '{}'".format(filename, directory))
         pyautogui.typewrite(MAIN_DIR + directory + filename)
-        time.sleep(0.5)
+        time.sleep(1)
         pyautogui.press("enter")
         time.sleep(1)
         pyautogui.hotkey("shift", "f4")  # zoom to table
         time.sleep(0.5)
-        print("1")
+        print("File was successfully opened")
 
-    # Obtain current temperature and humidy
+    # Obtain current temperature and humidity
+    # First try to get from file, else manual entry
     def getTempHumid(self):
-        directory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\temp_humid_data\\464_main\\"
-        )
-        D = os.listdir(directory)
-        found = False
-        filename = ""
-        for entry in D:
-            if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
-                filename = entry
-                found = True
+        temperature = humidity = None
+        temp_ok = humid_ok = True
+        # First, search local data dir for today's temp/humidity file.
+        # If that doesn't work get it manually.
+        try:
+            directory = (
+                os.path.dirname(__file__)
+                + "\\..\\..\\..\\Data\\temp_humid_data\\464_main\\"
+            )
+            D = os.listdir(directory)
+            filename = ""
+            for entry in D:
+                if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
+                    filename = entry
 
-        if not found:
+            print("Attempting to read temp/humid from", directory + filename)
+            with open(directory + filename) as f:
+                # skip null bytes, which often appear if we seized the file
+                # while it was still open.
+                data = csv.reader(x.replace("\0", "") for x in f)
+                rows = list(data)
+                temperature = float(rows[-1][1])
+                humidity = float(rows[-1][2])
+        except FileNotFoundError:
             QMessageBox.critical(
                 self,
-                "No Temperature and Humidity Data",
-                "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
+                "Temperature and Humidity File Not Found",
+                "Merge down to get the latest file. If you did that and are "
+                "still receiving this message, the sensor may not be working "
+                "properly. In any case, just enter the temp/humid manually "
+                "now.",
             )
-            return
+            temperature, temp_ok = QInputDialog.getText(
+                self, "Temperature", "Enter room temperature"
+            )
+            humidity, humid_ok = QInputDialog.getText(
+                self, "Humidity", "Enter room humidity"
+            )
 
-        with open(directory + filename) as file:
-            data = csv.reader(file)
-            rows = list(data)
-            temperature = float(rows[-1][1])
-            humidity = float(rows[-1][2])
+        print("Using Temperature:", temperature)
+        print("Using Humidity:", humidity)
 
-        if temperature == float("nan") or humidity == float("nan"):
+        # Check for valid temp and humidity
+        try:
+            int(temperature)
+            int(humidity)
+            assert temp_ok
+            assert humid_ok
+        except:
             QMessageBox.critical(
                 self,
-                "No Temperature and Humidity Data",
-                "Unable to get current temperature and humidity data. Make sure the temperature and humidity sensors are working, and try again",
+                "Bad Temperature and/or Humidity.",
+                "Continuing without temp and humidity.",
             )
-            return
 
-        self.temperature = temperature
-        self.humidity = humidity
-
-    """def changeLoc (self, xStartClick, yStartClick, xInit, yInit, stLength, TEMP, HUMID):
-    #Determining new value of X (will add functionality for changing pallets later)
-    #x_new_setting = xInit
-    
-    #Determining new value of Y
-        y_length_init = stLength * (1 + (TEMP_INIT - 68) * C1 + (HUMID_INIT - 0) * C2 )
-        y_length_final = stLength * (1 + (TEMP - 68) * C1 + (HUMID - 0) * C2 )
-        y_diff = y_length_final - y_length_init
-        y_final = yInit - y_diff
-    
-    # pyautogui.click(###, ###) #click select tool (check location)
-        pyautogui.moveTo(xStartClick, yStartClick)
-        pyautogui.dragRel(X_SIZE, Y_SIZE)
-        pyautogui.press('space')
-    #pyautogui.click(619, 416) #click x location
-    #pyautogui.typewrite(['backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace'])
-    #pyautogui.typewrite(str(x_
-        pyautogui.click(946, 568) #click y location
-        pyautogui.typewrite(['backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace', 'backspace'])
-        pyautogui.typewrite(str(y_final))
-        pyautogui.click(918, 616)   # Apply
-        pyautogui.click(990, 616)   # Close
-
-        return str(y_length_final)"""
-
-    def saveDummy(self):
-        pyautogui.hotkey("ctrl", "shift", "s")
-        time.sleep(1)
-        # print(MAIN_DIR)
-        pyautogui.typewrite(
-            MAIN_DIR + "Dummy Files\\" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-        )
-        time.sleep(0.5)
-        pyautogui.press("enter")
-        time.sleep(0.5)
-        print("2")
+        self.temperature = float(temperature)
+        self.humidity = float(humidity)
 
     def loadLaser(self):
         pyautogui.click(1868, 582)
@@ -378,6 +343,8 @@ class cutMenu(QMainWindow):
         time.sleep(2)
         pyautogui.click(1110, 382)
         time.sleep(1)
+        pyautogui.click(1761, 322)
+        time.sleep(4)
         pyautogui.click(1712, 494)
         time.sleep(0.5)
 
@@ -501,8 +468,7 @@ class cutMenu(QMainWindow):
                 self.editPallet()
 
     def firstCut(self):
-        self.openFile("Cut 1.ecp", "Cut Files\\Cut 1\\")
-        self.saveDummy()
+        self.openFile("Cut 1.ecp", "Cut_Files\\Cut_1\\")
         self.changeSettings()
         self.loadLaser()
         self.step = 1
@@ -543,7 +509,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "Cut_Files\\Cut2-RH" + humidString + "\\"
         filename = "Cut 2 for 0,4 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -553,6 +519,7 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
+        print("Second cut opening from", directory)
         self.openFile(filename, directory)
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
@@ -567,7 +534,6 @@ class cutMenu(QMainWindow):
                 length = self.changeLoc(x_start[i], y_start[i], x_i[i], y_i[i], lengths[i],TEMP,HUMID)
                 self.cutLengths.append(length)
             self.cutLengths = list(reversed(self.cutLengths))"""
-        self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.ui.instructions.setText(
@@ -587,7 +553,7 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut Files\\Cut 2 - RH" + humidString + "\\"
+        directory = "Cut_Files\\Cut2-RH" + humidString + "\\"
         filename = "Cut 2 for 2,6 - RH" + humidString + ".ecp"
         print(filename)
 
@@ -597,6 +563,7 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
+        print("Second cut opening from", directory)
         self.openFile(filename, directory)
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
@@ -611,7 +578,6 @@ class cutMenu(QMainWindow):
                 self.cutLengths.append(length)
             self.cutLengths = list(reversed(self.cutLengths))"""
 
-        self.saveDummy()
         self.changeSettings()
         self.loadLaser()
         self.ui.instructions.setText(
@@ -631,7 +597,7 @@ class cutMenu(QMainWindow):
         time.sleep(0.5)
         pyautogui.click(912, 574)
         time.sleep(0.5)
-        print("3")
+        print("Settings have been changed")
 
     def Change_worker_ID(self, btn):
         label = btn.text()
@@ -845,17 +811,16 @@ class cutMenu(QMainWindow):
         self.ui.commentBox.document().setPlainText("")
         self.step = 0
         self.ui.instructions.setText(
-            "Once the pallet is properly alligned on the cutting table, scan the pallet number with format CPAL####.\
- \n\nNext scan the FIRST barcode to initiate the first cut. If this information is \
-correct, the first cut will begin immediately.\n\nDo not touch the mouse or keyboard for 60 seconds after scanning \
-FIRST."
+            "Once the pallet is properly alligned on the cutting table, "
+            "scan the pallet number with format CPAL####."
+            "\n\nNext scan the FIRST barcode to initiate the first cut. "
+            "If this information is correct, the first cut will begin "
+            "immediately."
+            "\n\nDo not touch the mouse or keyboard for 60 seconds after "
+            "scanning FIRST."
         )
         self.ui.instructions.setFocus()
         self.initializePallet()
-
-    ##        for i in range(len(self.Current_workers)):
-    ##            if self.Current_workers[i].text() != '':
-    ##                self.Change_worker_ID(self.portals[i])
 
     def main(self):
         changed = False
