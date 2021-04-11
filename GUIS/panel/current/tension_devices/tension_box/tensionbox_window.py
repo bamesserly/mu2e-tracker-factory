@@ -255,7 +255,11 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             # Write out the desired pulse width
             # Arduino code must be updated to know to accept this
 
-            self.ser.write(bytes(str(int(pulse_width)) + "\n", "UTF-8"))
+            try:
+                self.ser.write(bytes(str(int(pulse_width)) + "\n", "UTF-8"))
+            except ValueError:
+                print("NaN Pulse Width! In the past, this has been caused by "
+                      "a power issue -- not enough power, broken barrel jack.")
             self.ser.readline()  # Read in the line where Arduino echos trigger
 
             # Read in the line where Arduino prints the pulse width, and print it out once per iteration

@@ -1,12 +1,6 @@
-   /*
- * vibrator
- *
- * Arduino code used for vibrating the string or straw for tension measurements.
- * 
- * created by Vadim Rusu (vrusu@fnal.gov)
- * edited 09 February 2016
- * by Lauren Yates (yatesla@fnal.gov)
- */
+
+// based on:
+// Arduino code to vibrate the string/straw. vrusu@fnal.gov
 
 #include <Wire.h>
 #include <stdint.h>
@@ -15,9 +9,6 @@
 
 const int enable = 8;
 const int enabledigi = 9;
-//try reversing:
-//const int enable = 9;
-//const int enabledigi = 8;
 
 const int convst = 10;
 const int busy = 5;
@@ -173,7 +164,7 @@ void loop()
     {
       unsigned int tNow;
       while ((tNow = micros())<tNext) ;
-      tNext = tNow + 120;
+      tNext = tNow + 10; // noise 56Hz
       *pReading = readADC();
     }
     digitalWrite(dbgPin,LOW);
