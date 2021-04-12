@@ -16,11 +16,7 @@ import logging
 
 logger = logging.getLogger("root")
 
-# Insert path to this Modules
-sys.path.insert(
-    0, str(Path(__file__).resolve().parent.parent / "Modules")
-)  # Insert path to this directory
-from merger import AutoMerger
+from guis.common.merger import AutoMerger
 
 
 class DatabaseManager:

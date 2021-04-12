@@ -37,7 +37,7 @@ from PyQt5.QtCore import Qt, QRect, QRegExp
 # Add GUIS/panel/current to sys.path
 sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
 # import UI
-from tension_devices.hv_gui.hvGUI import (
+from guis.panel.hv.hvGUI import (
     Ui_MainWindow,
 )
 

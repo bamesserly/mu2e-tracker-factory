@@ -31,13 +31,8 @@ Date of Last Update: 10/9/2020
 import sys, time, os, tkinter, traceback, serial, platform
 from pathlib import Path, PurePath
 
-# Add Modules to sys.path
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
-)
-
 # Import logger from Modules (only do this once)
-from PANGUILogger import SetupPANGUILogger
+from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root")
 
@@ -85,18 +80,18 @@ from PyQt5.QtWidgets import (
 # edit it via Qt Designer
 # changing the gui color is easy using panelGUI.changeColor in the panelGUI init function
 # when making changes to this file make sure that the button names and stuff match up
-from panel import Ui_MainWindow
+from guis.panel.pangui.panel import Ui_MainWindow
 
-from suppliesList import SuppliesList
-from dialogBox import DialogBox
-from stepsList import StepList
+from guis.panel.pangui.suppliesList import SuppliesList
+from guis.panel.pangui.dialogBox import DialogBox
+from guis.panel.pangui.stepsList import StepList
 import serial.tools.list_ports
-from dataProcessor import MultipleDataProcessor as DataProcessor
-from tension_devices.straw_tensioner.run_straw_tensioner import StrawTension
-from tension_devices.wire_tensioner.wire_tension import WireTensionWindow
-from tension_devices.tension_box.tensionbox_window import TensionBox
-from tension_devices.panel_heater.PanelHeater import HeatControl
-from tension_devices.hv_gui.hvGUImain import highVoltageGUI
+from guis.common.dataProcessor import MultipleDataProcessor as DataProcessor
+from guis.panel.strawtensioner.run_straw_tensioner import StrawTension
+from guis.panel.wiretensioner.wire_tension import WireTensionWindow
+from guis.panel.tensionbox.tensionbox_window import TensionBox
+from guis.panel.heater.PanelHeater import HeatControl
+from guis.panel.hv.hvGUImain import highVoltageGUI
 
 # Import QLCDTimer from Modules
 from timer import QLCDTimer
@@ -4965,7 +4960,29 @@ def checkPackages():
         tkinter.messagebox.showerror(title="Version Error", message=message)
 
 def run():
-    print("Cat")
+    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
+    checkPackages()  # check package versions
+    app = QApplication(sys.argv)  # create new app to run
+    app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
+    app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
+
+    # Load various location paths from the txt file paths-lab.txt
+    # Assume that PANGUI lives in GUIS/panel/current
+    current_dir = os.path.dirname(__file__)
+    top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+    paths_file_location = os.path.abspath(
+        os.path.join(current_dir, "paths-lab.txt")
+    )  # absolute location of the txt file
+    paths = dict(
+        np.loadtxt(paths_file_location, delimiter=",", dtype=str)
+    )  # load the paths
+    paths.update(
+        (k, top_dir + "/" + v) for k, v in paths.items()
+    )  # make paths absolute
+
+    ctr = panelGUI(paths)  # create gui window
+    ctr.show()  # show gui window
+    app.exec_()  # go!
 
 
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
@@ -4975,7 +4992,6 @@ def run():
 # ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
 # ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
-'''
 if __name__ == "__main__":
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
@@ -5000,4 +5016,3 @@ if __name__ == "__main__":
     ctr = panelGUI(paths)  # create gui window
     ctr.show()  # show gui window
     app.exec_()  # go!
-'''
