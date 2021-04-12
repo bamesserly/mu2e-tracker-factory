@@ -2079,6 +2079,7 @@ class panelGUI(QMainWindow):
                 Current_worker == "DARK MODE"
                 or Current_worker == "WK-AARNETT01"
                 or Current_worker == "WK-KBOEDIGH01"
+                or Current_worker == "WK-NDOMAH01"
             ):  # enter dark mode to change to dark mode, Adam and Kaitlin like it too
                 self.changeColor(
                     (26, 26, 26), (255, 255, 255)
