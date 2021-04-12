@@ -4964,6 +4964,9 @@ def checkPackages():
         pythonErrorRoot.withdraw()
         tkinter.messagebox.showerror(title="Version Error", message=message)
 
+def run():
+    print("Cat")
+
 
 # ███╗   ███╗ █████╗ ██╗███╗   ██╗
 # ████╗ ████║██╔══██╗██║████╗  ██║
@@ -4972,6 +4975,7 @@ def checkPackages():
 # ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
 # ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
+'''
 if __name__ == "__main__":
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
@@ -4996,3 +5000,4 @@ if __name__ == "__main__":
     ctr = panelGUI(paths)  # create gui window
     ctr.show()  # show gui window
     app.exec_()  # go!
+'''
