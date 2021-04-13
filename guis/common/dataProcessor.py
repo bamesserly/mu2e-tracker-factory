@@ -717,7 +717,7 @@ class TxtDataProcessor(DataProcessor):
         self.paths = dict(np.loadtxt(path, delimiter=",", dtype=str))
 
         current_dir = os.path.dirname(__file__)
-        top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+        top_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
         self.paths.update(
             (k, top_dir + "/" + v) for k, v in self.paths.items()
         )  # make paths absolute
