@@ -123,7 +123,7 @@ PRIMARY_DP = "SQL"
 # LAB_VERSION = False
 LAB_VERSION = True
 
-
+# new comment
 class panelGUI(QMainWindow):
     """
     class panelGUI5
