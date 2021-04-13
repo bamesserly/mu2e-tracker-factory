@@ -2980,8 +2980,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>61</width>
-                       <height>18</height>
+                       <width>81</width>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4128,7 +4128,7 @@ Tensioner</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -5638,7 +5638,7 @@ Tension Box</string>
                         <string>Tap ID</string>
                        </property>
                       </widget>
-                      <widget class="QLineEdit" name="lineEdit_9">
+                      <widget class="QLineEdit" name="tap_id_text">
                        <property name="geometry">
                         <rect>
                          <x>60</x>
@@ -5661,7 +5661,7 @@ Tension Box</string>
                         <string>Submit</string>
                        </property>
                       </widget>
-                      <widget class="QPushButton" name="pushButton_4">
+                      <widget class="QPushButton" name="broken_tap">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -5690,7 +5690,7 @@ Tension Box</string>
                         </widget>
                        </item>
                        <item row="0" column="1">
-                        <widget class="QLineEdit" name="lineEdit_10"/>
+                        <widget class="QLineEdit" name="bad_wire_number"/>
                        </item>
                        <item row="1" column="0">
                         <widget class="QLabel" name="label_57">
@@ -5700,7 +5700,7 @@ Tension Box</string>
                         </widget>
                        </item>
                        <item row="1" column="1">
-                        <widget class="QLineEdit" name="lineEdit_11"/>
+                        <widget class="QLineEdit" name="bad_wire_failure"/>
                        </item>
                        <item row="2" column="0">
                         <widget class="QLabel" name="label_58">
@@ -5710,7 +5710,7 @@ Tension Box</string>
                         </widget>
                        </item>
                        <item row="2" column="1">
-                        <widget class="QComboBox" name="comboBox_3">
+                        <widget class="QComboBox" name="bad_wire_process">
                          <item>
                           <property name="text">
                            <string>Process 1</string>
@@ -5749,7 +5749,7 @@ Tension Box</string>
                         </widget>
                        </item>
                        <item row="3" column="1">
-                        <widget class="QPushButton" name="pushButton_3">
+                        <widget class="QPushButton" name="bad_wire">
                          <property name="text">
                           <string>Submit</string>
                          </property>
@@ -7300,8 +7300,8 @@ Tension Box</string>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
-  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>

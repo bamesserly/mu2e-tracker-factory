@@ -26,6 +26,8 @@ from databaseClasses import (
     MoldReleaseItemsChecked,
     MoldReleaseItems,
     TensionboxMeasurement,
+    BrokenTap,
+    BadWire,
 )
 
 import logging
@@ -619,6 +621,14 @@ class MultipleDataProcessor(DataProcessor):
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
 
+    def saveBadWire(self, number, failure, process):
+        for dp in self.processors:
+            dp.saveBadWire(number, failure, process)
+
+    def saveTapForm(self, tap_id):
+        for dp in self.processors:
+            dp.saveTapForm(tap_id)
+
     def handleClose(self):
         for dp in self.processors:
             dp.handleClose()
@@ -1183,6 +1193,12 @@ class TxtDataProcessor(DataProcessor):
     # save mold release (DEFUNCT)
     def saveMoldRelease(self, item, state):
         return "", 0
+
+    def saveTapForm(self, tap_id):
+        pass
+
+    def saveBadWire(self, number, failure, process):
+        pass
 
     #  _                     _  ___  ___     _   _               _
     # | |                   | | |  \/  |    | | | |             | |
@@ -1801,9 +1817,6 @@ class SQLDataProcessor(DataProcessor):
     def saveDataProcess8(self):
         data = self.getProData()
 
-        logger.info("DATA")
-        logger.info(data)
-
         self.callMethod(
             self.procedure.recordLeftCover, self.stripNumber(data[1])
         )  # Left Cover
@@ -2038,6 +2051,14 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordHVMeasurement(
                 position, current_left, current_right, is_tripped
             )
+
+    def saveTapForm(self, tap_id):
+        if self.ensureProcedure():
+            BrokenTap(tap_id=tap_id)
+
+    def saveBadWire(self, number, failure, process):
+        if self.ensureProcedure():
+            BadWire(number=number, failure=failure, process=process)
 
     def wireQCd(self, wire):
         id = self.stripNumber(wire)

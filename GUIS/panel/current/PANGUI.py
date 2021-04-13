@@ -727,6 +727,8 @@ class panelGUI(QMainWindow):
     def _init_pro8_setup(self):
         self.ui.panelInput8.installEventFilter(self)
         self.ui.rest_test.clicked.connect(self.run_test)
+        self.ui.broken_tap.clicked.connect(self.broken_tap_form)
+        self.ui.bad_wire.clicked.connect(self.bad_wire_form)
 
     def _init_timers(self):
         self.timers = [
@@ -3449,6 +3451,7 @@ class panelGUI(QMainWindow):
 
     # TODO: proc8
     def parsepro8Data(self, data):
+        print("data")
         self.displayComments()
 
     # fmt: off
@@ -4840,12 +4843,32 @@ class panelGUI(QMainWindow):
             )
             self.panelHeaterWindow.show()
 
-    # TODO: run_test from modules method
+    # run_test from modules
     def run_test(self):
         if self.checkDevice() == True:  # if no device connected,
             return  # return from this function
 
         run_test.main()
+
+    # record broken tap from the broken tap form in pro8
+    def broken_tap_form(self):
+        tap_id = int(self.ui.tap_id_text.text())
+        self.DP.saveTapForm(tap_id)
+
+        # clear form data
+        self.ui.tap_id_text.setText("")
+
+    # record bad wire/straw from the bad straw/wire form in pro8
+    def bad_wire_form(self):
+        number = int(self.ui.bad_wire_number.text())
+        failure = self.ui.bad_wire_failure.text()
+        process = str(self.ui.bad_wire_process.currentText())
+        self.DP.saveBadWire(number, failure, int(process[-1]))
+
+        # clear form data
+        self.ui.bad_wire_number.setText("")
+        self.ui.bad_wire_failure.setText("")
+        self.ui.bad_wire_process.setCurrentIndex(0)
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
