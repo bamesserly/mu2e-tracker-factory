@@ -48,15 +48,25 @@ if not is_official_lab_production:
 # ===============================================================================
 # 2. Copy Data from network to work area
 # ===============================================================================
-print("... Copying the Data/ dir from the network.")
-print("    This can take several minutes so grab a cup of coffee.")
-print("    Beginning copy of Data dir...")
-try:
-    shutil.copytree(network_data_dir, local_data_dir)
-    print("... Done copying Data dir.")
-except FileExistsError as e:
-    print("... Data dir already exists here!")
-    print("    If things aren't working, you might need to refresh this directory.")
+if is_official_lab_production:
+    print("... Copying the Data/ dir from the network.")
+    print("    This can take several minutes so grab a cup of coffee.")
+    print("    Beginning copy of Data dir...")
+    try:
+        shutil.copytree(network_data_dir, local_data_dir)
+        print("... Done copying Data dir.")
+    except FileExistsError as e:
+        print("... Data dir already exists here!")
+        print("    If things aren't working, you might need to refresh this directory.")
+else:
+    print("... Checking if Data/ dir exists.")
+    data_dir = "Data"
+    data_exists = os.path.isdir(data_dir)
+    if data_exists:
+        print("... Data/ dir found.")
+    else:
+        print("... Please download the Data/ dir and try again.")
+        exit()
 # TODO add exception(s) for when we're (a) not connected to the internet, (b)
 # not connected to network_data_dir, and (c) other.
 
@@ -83,6 +93,17 @@ merge_destination_db = (
 )
 with open(merge_destination_db_location_file, "w") as f:
     f.write(merge_destination_db)
+
+with open("pangui/paths.csv", "w") as file:
+    file.write("local," + str(local_top_dir) + ",\n")
+    file.write("network," + network_top_dir + ",\n")
+    file.write("merge_destination," + merge_destination_db + ",\n")
+    file.write("data," + str(local_top_dir) + "\Data" + ",\n")
+    file.write("root," + str(local_top_dir) + "\mu2e" + ",\n")
+    file.write("diagrams," + str(local_top_dir) + "\Data\Panel data\diagrams" + ",\n")
+    file.write("workers," + str(local_top_dir) + "\Data\workers\panel workers" + ",\n")
+    file.write("panel," + str(local_top_dir) + "\Data\Panel data" + ",\n")
+
 
 # ===============================================================================
 # 4. Finally, if this is software development, we need to make the dummy.db
