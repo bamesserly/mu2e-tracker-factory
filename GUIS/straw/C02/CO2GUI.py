@@ -316,7 +316,7 @@ class CO2(QMainWindow):
                 return False
             # Year
             if not int(eb[8:10]) in range(
-                17, (datetime.datetime.now().year - 2000) + 1
+                17, (datetime.now().year - 2000) + 1
             ):  # Max: current year
                 return False
         if not eb[10] == ".":
