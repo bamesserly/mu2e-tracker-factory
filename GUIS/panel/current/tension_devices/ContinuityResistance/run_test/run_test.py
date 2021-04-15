@@ -10,6 +10,7 @@ import colorama  # used to colour the terminal output
 import numpy
 import os
 
+
 def GetSerialPort():
     baudrate = 115200
     timeout = None
@@ -20,15 +21,18 @@ def GetSerialPort():
     serialport = None
     avail_ports = serial.tools.list_ports.comports()
     for port, desc, hwid in sorted(avail_ports):
-        #print("{}: {} [{}]".format(port, desc, hwid))
+        # print("{}: {} [{}]".format(port, desc, hwid))
         if "USB" in desc:
             try:
-                serialport = serial.Serial(port=port, baudrate=baudrate, timeout=timeout)
+                serialport = serial.Serial(
+                    port=port, baudrate=baudrate, timeout=timeout
+                )
                 print("Using port", port)
-                return serialport 
+                return serialport
             except:
                 continue
     print("Can't find working port. Is arduino plugged in?")
+
 
 # Initialize colorama.  autoreset = True makes it return to
 # normal output after each print statement.
@@ -79,16 +83,44 @@ def main():
     ############################################################################
     # Get panel number from input()
     ############################################################################
-    print("Type or scan the panel ID number")
+    print(
+        'Type or scan the panel ID number. Just the 3-digit number "109",'
+        'skip the "MN" part.'
+    )
     panelid = input("panel ID> ")
     panelid = str(panelid)
+
+    ############################################################################
+    # Specify when this measurement is being done, straw room (1), process 3
+    # (2), or final QC (3)
+    ############################################################################
+    when = -1
+    while True:
+        try:
+            print("Specify stage when this measurement is being performed.")
+            when = int(input("[1] Process 2\n[2] Process 3\n[3] Final QC\n>"))
+            assert when in [1, 2, 3]
+            break
+        except AssertionError:
+            print("Invalid stage. Must be 1, 2, or 3.")
+        except ValueError:
+            print("Invalid stage. Must be integer 1, 2, or 3.")
 
     ############################################################################
     # wrap the serial port.  From here on, use "ser" for any serial port communication.
     # Additional lines can be "manually" added to the logfile, but these should all start with
     # "#" to avoid confusing the parse_log script that runs later.
     ############################################################################
-    logfilename = "\\resistancetest_MN" + panelid + "_" + timestamp + ".log"
+    stage_tag = {1: "proc2", 2: "proc3", 3: "finalQC"}
+    logfilename = (
+        "\\resistancetest_MN"
+        + panelid
+        + "_"
+        + timestamp
+        + "_"
+        + stage_tag[when]
+        + ".log"
+    )
     dir_path = os.path.dirname(os.path.realpath(__file__))
     suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
     dir_path = dir_path[: -len(suffix)]
@@ -110,6 +142,7 @@ def main():
     ser.logfile.write("# datetime: " + timestamp + "\n")
     ser.logfile.write("# workerids: " + wstr + "\n")
     ser.logfile.write("# panelid:" + panelid + "\n")
+    ser.logfile.write("# measurement stage:" + stage_tag[when] + "\n")
     # ser.readline()
 
     # Here begins the main loop to measure every straw and wire.
@@ -236,7 +269,7 @@ def main():
     print("Data file and plots are at", datafilename)
     import make_graph
 
-    make_graph.make_graph(datafilename, panelid, logfilename)
+    make_graph.make_graph(datafilename, panelid, logfilename, stage_tag[when])
 
 
 if __name__ == "__main__":
