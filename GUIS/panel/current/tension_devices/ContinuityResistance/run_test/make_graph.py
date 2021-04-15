@@ -11,7 +11,7 @@ dir_path += "\Data\Panel data\\FinalQC\\Resistance\\Plots\\"
 
 # Function that makes and saves a graph for visually summarizing
 # the continuity test results.
-def make_graph(filename, panelid, logfilename):
+def make_graph(filename, panelid, logfilename, stage_tag=""):
     idx_wires = []
     idx_straws = []
     resistances_wires = []
@@ -62,13 +62,11 @@ def make_graph(filename, panelid, logfilename):
     straws = plt.scatter(X_s, Y_s, marker="s", s=50, facecolor="none", edgecolors="b")
     fig.savefig(filename[:-3] + "png")
     ax.legend([wires, straws], ["wires", "straws"], loc="upper right")
-    plt.title("Panel ID " + panelid + " Resistance Test")
+    plt.title("Panel ID " + panelid + " Resistance Test " + stage_tag)
     plt.xlabel("Straw number")
     plt.xticks(x)
     ax.set_yticks(y)
-    ax.set_yticklabels(
-        ["0", "50", "100", "150", "200", "250"]
-    )
+    ax.set_yticklabels(["0", "50", "100", "150", "200", "250"])
     plt.ylabel("Resistance")
     plt.yticks(y)
     maxy_s = Y_s[np.isfinite(Y_s)].max() + 20
