@@ -98,9 +98,7 @@ def main():
     while True:
         try:
             print("Specify stage when this measurement is being performed.")
-            when = int(
-                input("[1] Straw room\n[2] Before wire install\n[3] Final QC\n>")
-            )
+            when = int(input("[1] Process 2\n[2] Process 3\n[3] Final QC\n>"))
             assert when in [1, 2, 3]
             break
         except AssertionError:
@@ -113,7 +111,7 @@ def main():
     # Additional lines can be "manually" added to the logfile, but these should all start with
     # "#" to avoid confusing the parse_log script that runs later.
     ############################################################################
-    stage_tag = {1: "strawroom", 2: "proc3", 3: "finalQC"}
+    stage_tag = {1: "proc2", 2: "proc3", 3: "finalQC"}
     logfilename = (
         "\\resistancetest_MN"
         + panelid
