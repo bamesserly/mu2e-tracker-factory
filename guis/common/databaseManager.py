@@ -8,9 +8,6 @@
 
 from sqlalchemy.orm import sessionmaker as dbconnection
 from sqlalchemy import create_engine
-from os import listdir, path
-import sys
-from pathlib import Path
 
 import logging
 
@@ -18,28 +15,32 @@ logger = logging.getLogger("root")
 
 from guis.common.merger import AutoMerger
 
+# Load resources manager
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+import data, resources
 
 class DatabaseManager:
-    def __init__(self, db_dir=None, db_file="database.db", merge=True):
+    def __init__(self, local_db=None, merge=True):
 
-        ## Database File information
-        self._dir = self._loadLocalDatabasePath() if db_dir is None else db_dir
-        self._db_file = db_file
-        self._db_path = path.join(self._dir, self._db_file)
+        ## Local Database File information
+        self._local_db = self._loadLocalDatabasePath() if local_db is None else local_db 
+        logger.info("Reading and writing from database %s" % self._local_db)
 
-        logger.info("Reading and writing from database %s" % self._db_path)
-
-        ## Connect to SQL database
+        ## Connect to Local SQL database
         self._Connection = dbconnection()
-        self._engine = create_engine(f"sqlite:///{self._db_path}")
+        self._engine = create_engine(f"sqlite:///{self._local_db}")
         self._Connection.configure(bind=self._engine)
         self._init_connection()
 
-        ## Start Merger
+        ## Start Merger of Local DB with Network/Destination DB
         if merge:
             self.__merger = AutoMerger(
-                src_db=self._db_path,
-                dst_db=self._loadNetworkDatabasePath(),
+                src_db=self._local_db,
+                dst_db=self._loadDestinationDatabasePath(),
                 name="AutoMerger",
                 daemon=True,
                 merge_frequency=600,
@@ -49,16 +50,18 @@ class DatabaseManager:
     def merge(self):
         self.__merger.main()
 
+    # The local DB shalt always be located in data/database.db
     def _loadLocalDatabasePath(self):
-        current_dir = path.dirname(__file__)
-        return open(path.join(current_dir, "localDatabasePath.txt"), "r").read()
+        with pkg_resources.path(data, 'database.db') as p:
+            return p.resolve()
 
-    def _loadNetworkDatabasePath(self):
-        current_dir = path.dirname(__file__)
-        return open(path.join(current_dir, "networkDatabasePath.txt"), "r").read()
+    # The merge-destination DB is set in resources/destinationDatabasePath.txt,
+    # which is created by setup.py
+    def _loadDestinationDatabasePath(self):
+        return pkg_resources.read_text(resources, 'destinationDatabasePath.txt')
 
-    def getDatabasePath(self):
-        return self._db_path
+    def getLocalDatabasePath(self):
+        return self._local_db
 
     def _init_connection(self):
         self._connection = self._Connection()

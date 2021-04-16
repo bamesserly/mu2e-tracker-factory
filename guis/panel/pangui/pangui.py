@@ -101,6 +101,15 @@ from timer import QLCDTimer
 # also allows for checking the packages right off the bat
 import cycler, kiwisolver, matplotlib, pyparsing, pyrect, pyscreeze, pytweening, scipy, setuptools, six, sqlalchemy
 
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
+
 # ██████╗ ██████╗ ███╗   ██╗███████╗████████╗ █████╗ ███╗   ██╗████████╗███████╗
 # ██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗████╗  ██║╚══██╔══╝██╔════╝
 # ██║     ██║   ██║██╔██╗ ██║███████╗   ██║   ███████║██╔██╗ ██║   ██║   ███████╗
@@ -4959,6 +4968,7 @@ def checkPackages():
         pythonErrorRoot.withdraw()
         tkinter.messagebox.showerror(title="Version Error", message=message)
 
+
 def run():
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
@@ -4966,20 +4976,27 @@ def run():
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
 
-    # Load various location paths from the txt file paths-lab.txt
-    # Assume that PANGUI lives in GUIS/panel/current
-    current_dir = os.path.dirname(__file__)
-    top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-    paths_file_location = os.path.abspath(
-        os.path.join(current_dir, "paths-lab.txt")
-    )  # absolute location of the txt file
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file =  ""
+    with pkg_resources.path(resources, 'paths.csv') as p:
+        paths_file = p.resolve()
     paths = dict(
-        np.loadtxt(paths_file_location, delimiter=",", dtype=str)
-    )  # load the paths
+        np.loadtxt(paths_file, delimiter=",", dtype=str)
+    )
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectoryLocation.txt")
     paths.update(
-        (k, top_dir + "/" + v) for k, v in paths.items()
-    )  # make paths absolute
+        (k, root + "/" + v) for k, v in paths.items()
+    )  
 
+    ############################################################################
+    # Make an instance of the GUI and run it
+    ############################################################################
     ctr = panelGUI(paths)  # create gui window
     ctr.show()  # show gui window
     app.exec_()  # go!
@@ -4993,26 +5010,4 @@ def run():
 # ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
 if __name__ == "__main__":
-    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
-    checkPackages()  # check package versions
-    app = QApplication(sys.argv)  # create new app to run
-    app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
-    app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
-
-    # Load various location paths from the txt file paths-lab.txt
-    # Assume that PANGUI lives in GUIS/panel/current
-    current_dir = os.path.dirname(__file__)
-    top_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
-    paths_file_location = os.path.abspath(
-        os.path.join(current_dir, "paths-lab.txt")
-    )  # absolute location of the txt file
-    paths = dict(
-        np.loadtxt(paths_file_location, delimiter=",", dtype=str)
-    )  # load the paths
-    paths.update(
-        (k, top_dir + "/" + v) for k, v in paths.items()
-    )  # make paths absolute
-
-    ctr = panelGUI(paths)  # create gui window
-    ctr.show()  # show gui window
-    app.exec_()  # go!
+    run()
