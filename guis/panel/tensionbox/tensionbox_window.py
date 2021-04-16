@@ -258,8 +258,10 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             try:
                 self.ser.write(bytes(str(int(pulse_width)) + "\n", "UTF-8"))
             except ValueError:
-                print("NaN Pulse Width! In the past, this has been caused by "
-                      "a power issue -- not enough power, broken barrel jack.")
+                print(
+                    "NaN Pulse Width! In the past, this has been caused by "
+                    "a power issue -- not enough power, broken barrel jack."
+                )
             self.ser.readline()  # Read in the line where Arduino echos trigger
 
             # Read in the line where Arduino prints the pulse width, and print it out once per iteration
@@ -482,7 +484,8 @@ def clean(item):
 
 # end cleanUp
 
-if __name__ == "__main__":
+
+def run():
     app = QApplication(sys.argv)
     hwl1 = TensionBox(
         saveMethod=lambda *args: print(f"\nMeasurement: {args}"),
@@ -491,3 +494,7 @@ if __name__ == "__main__":
     hwl1.main()
     app.aboutToQuit.connect(hwl1.cleanUp)
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    run()

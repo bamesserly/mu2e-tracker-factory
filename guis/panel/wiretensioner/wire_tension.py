@@ -340,7 +340,7 @@ class GetDataThread(threading.Thread):
         print("thread joined")
 
 
-if __name__ == "__main__":
+def run():
     print("***********************")
     print("*** STANDALONE MODE ***")
     print("***********************")
@@ -355,3 +355,7 @@ if __name__ == "__main__":
     )
     ctr.show()
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()

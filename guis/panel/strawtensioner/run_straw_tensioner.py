@@ -985,7 +985,7 @@ class Ui_MainWindow(object):
         self.hmd_label.setPlaceholderText(_translate("MainWindow", "26"))
 
 
-if __name__ == "__main__":
+def run():
     """
     arduino_ports = [p.device for p in serial.tools.list_ports.comports()
                      if 'Arduino' in p.description]
@@ -1008,4 +1008,8 @@ if __name__ == "__main__":
     ctr.show()
     ctr.resize(1600, 1200)  # set to a comfy size
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()
 #### Test conditions: Python 3.7 32bit on Windows 64bit

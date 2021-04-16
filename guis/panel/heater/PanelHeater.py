@@ -369,7 +369,7 @@ def getport(hardwareID):
     return ports[0]
 
 
-if __name__ == "__main__":
+def run():
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
     logger.info("Arduino Micro at {}".format(port))
@@ -382,3 +382,7 @@ if __name__ == "__main__":
     ctr = HeatControl(port, panel="MN000")
     ctr.show()
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()

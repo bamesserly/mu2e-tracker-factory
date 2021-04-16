@@ -454,8 +454,7 @@ class highVoltageGUI(QMainWindow):
         self.pop.show()
 
 
-# main
-if __name__ == "__main__":
+def run():
 
     # make app
     app = QApplication(sys.argv)
@@ -468,3 +467,8 @@ if __name__ == "__main__":
 
     # run it!
     app.exec()
+
+
+# main
+if __name__ == "__main__":
+    run()
