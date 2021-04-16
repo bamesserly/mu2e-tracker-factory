@@ -2,7 +2,7 @@
 # Master upload file to upload all data that failed initial data upload
 # Each class corresponds to a mechanism for uploading data for each test
 
-from DataLoader import DataLoader, DataQuery
+from dataloader import DataLoader, DataQuery
 import csv, datetime, os
 
 master_worker = "wk-bhiltbra01"

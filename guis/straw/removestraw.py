@@ -6,7 +6,7 @@ from datetime import datetime
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from remove import *
+from guis.straw.remove import *
 
 
 class removeStraw(QDialog):

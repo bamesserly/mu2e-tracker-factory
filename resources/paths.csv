@@ -16,3 +16,7 @@ continuity_data,Data/Panel data/wire_stringing_continuity_data
 straw_tension_location,GUIS/panel/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
 wire_tension_location,GUIS/panel/current/tension_devices/wire_tensioner/wire_tension.py
 tensionbox_location,GUIS/panel/current/tension_devices/tension_box/tensionbox_window.py
+co2workers,Data/workers/straw workers/CO2 endpiece insertion
+pallets,Data/Pallets
+co2epoxy,Data/CO2 endpiece data
+co2board,Data/Status Board 464

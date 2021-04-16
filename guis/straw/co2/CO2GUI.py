@@ -15,42 +15,40 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from pynput.keyboard import Key, Controller
 from pathlib import Path
-from co2 import Ui_MainWindow  ## edit via Qt Designer
-
-# move up one directory
-sys.path.insert(0, os.path.dirname(__file__) + "..\\")
+from guis.straw.co2.co2 import Ui_MainWindow  ## edit via Qt Designer
+import numpy as np
 
 # import modules
-from removeStraw import *
-from checkstraw import *
-
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
-)
-from workers.credentials.credentials import Credentials
+from guis.straw.removestraw import *
+from guis.straw.checkstraw import *
+from data.workers.credentials.credentials import Credentials
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
 
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
+
 
 class CO2(QMainWindow):
-    def __init__(self, webapp=None, parent=None):
+    def __init__(self, paths, webapp=None, parent=None):
         super(CO2, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\CO2 endpiece insertion\\"
-        )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
-        self.epoxyDirectory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\CO2 endpiece data\\"
-        )
-        self.boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
-        )
+        self.workerDirectory = paths[
+            "co2workers"
+        ]  # \\Data\\workers\\straw workers\\CO2 endpiece insertion\\"
+        self.palletDirectory = paths["pallets"]  # \Data/Pallets\\"
+        self.epoxyDirectory = paths["co2epoxy"]  # \Data\\CO2 endpiece data\\"
+        self.boardPath = paths["co2board"]  # \Data\\Status Board 464\\"
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.stationID = "C-O2"
         self.credentialChecker = Credentials(self.stationID)
@@ -472,10 +470,29 @@ def except_hook(cls, exception, traceback):
     sys.exit()
 
 
-if __name__ == "__main__":
+def run():
+
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
+        paths_file = p.resolve()
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    paths.update((k, root + "/" + v) for k, v in paths.items())
+
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
-    ctr = CO2()
+    ctr = CO2(paths)
     ctr.show()
     ctr.main()
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()
