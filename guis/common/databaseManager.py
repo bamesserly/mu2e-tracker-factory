@@ -41,7 +41,7 @@ class DatabaseManager:
         if merge:
             self.__merger = AutoMerger(
                 src_db=self._local_db,
-                dst_db=self._loadDestinationDatabasePath(),
+                dst_db=self._loadNetworkDatabasePath(),
                 name="AutoMerger",
                 daemon=True,
                 merge_frequency=600,
@@ -56,10 +56,10 @@ class DatabaseManager:
         with pkg_resources.path(data, "database.db") as p:
             return p.resolve()
 
-    # The merge-destination DB is set in resources/destinationDatabasePath.txt,
+    # The merge-destination DB is set in resources/networkDatabasePath.txt,
     # which is created by setup.py
-    def _loadDestinationDatabasePath(self):
-        return pkg_resources.read_text(resources, "destinationDatabasePath.txt")
+    def _loadNetworkDatabasePath(self):
+        return pkg_resources.read_text(resources, "networkDatabasePath.txt")
 
     def getLocalDatabasePath(self):
         return self._local_db

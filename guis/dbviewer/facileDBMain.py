@@ -47,8 +47,16 @@ import sip
 import numpy as np
 import qwt
 
-from facileDB import Ui_MainWindow  # import raw UI
-from panelData import PanelData  # import class for data organization
+from guis.dbviewer.facileDB import Ui_MainWindow  # import raw UI
+from guis.dbviewer.panelData import PanelData  # import class for data organization
+
+# Load resources manager
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+import data, resources
 
 # for plotting heat data, qwt doesn't come with a convinient way to
 # use time as the x-axis label (unless you want to use epoch time)
@@ -1723,20 +1731,25 @@ class facileDBGUI(QMainWindow):
 # DEFINITELY NOT the thing that starts up the program
 # fmt: on
 
-if __name__ == "__main__":
+
+def run():
     app = QApplication(sys.argv)  # make an app
     # app.setStyleSheet(qdarkstyle.load_stylesheet()) # darkmodebestmode
     window = facileDBGUI(Ui_MainWindow())  # make a window
     database = ""
     # Access network DB
     if ISLAB:
-        database = open("../../Database/networkDatabasePath.txt", "r").read()
+        database = pkg_resources.read_text(resources, "networkDatabasePath.txt")
     # Access local DB
     else:
-        database = open("../../Database/localDatabasePath.txt", "r").read()
-        database += "\database.db"
+        with pkg_resources.path(data, "database.db") as p:
+            database = p.resolve()
     window.connectToDatabaseRO(database)  # link to database
     window.setWindowTitle("Database Viewer, Connected to " + database)
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
     app.exec_()  # run the app!
+
+
+if __name__ == "__main__":
+    run()

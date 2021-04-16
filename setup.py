@@ -27,7 +27,7 @@ local_db = local_data_dir / "database.db"
 
 # PANGUI looks in this file (which we will actually create later on) to find
 # the location of the merge destination databases.
-merge_destination_db_path_file = root_dir / "resources" / "destinationDatabasePath.txt"
+merge_destination_db_path_file = root_dir / "resources" / "networkDatabasePath.txt"
 
 # is_official_lab_production means attempt to sync local db with THE network db.
 # Alternatively, just sync ("merge") with a local dummy db. TODO: just turn off
