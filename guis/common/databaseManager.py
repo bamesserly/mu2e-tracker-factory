@@ -23,11 +23,12 @@ except ImportError:
     import importlib_resources as pkg_resources
 import data, resources
 
+
 class DatabaseManager:
     def __init__(self, local_db=None, merge=True):
 
         ## Local Database File information
-        self._local_db = self._loadLocalDatabasePath() if local_db is None else local_db 
+        self._local_db = self._loadLocalDatabasePath() if local_db is None else local_db
         logger.info("Reading and writing from database %s" % self._local_db)
 
         ## Connect to Local SQL database
@@ -52,13 +53,13 @@ class DatabaseManager:
 
     # The local DB shalt always be located in data/database.db
     def _loadLocalDatabasePath(self):
-        with pkg_resources.path(data, 'database.db') as p:
+        with pkg_resources.path(data, "database.db") as p:
             return p.resolve()
 
     # The merge-destination DB is set in resources/destinationDatabasePath.txt,
     # which is created by setup.py
     def _loadDestinationDatabasePath(self):
-        return pkg_resources.read_text(resources, 'destinationDatabasePath.txt')
+        return pkg_resources.read_text(resources, "destinationDatabasePath.txt")
 
     def getLocalDatabasePath(self):
         return self._local_db

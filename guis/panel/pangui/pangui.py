@@ -1397,8 +1397,8 @@ class panelGUI(QMainWindow):
             self.generateBox(
                 "warning",
                 "Process 5 Disabled",
-                "Process 5 has been replaced by the HV popup GUI.  Please use the \"Launch HV GUI\" button in process 3 or 6 instead.",
-                )
+                'Process 5 has been replaced by the HV popup GUI.  Please use the "Launch HV GUI" button in process 3 or 6 instead.',
+            )
             return
 
         # Get pro Information
@@ -4981,18 +4981,14 @@ def run():
     ############################################################################
     # Read in the csv file containing the directory locations.
     # Save them into a dictionary {tag, path}
-    paths_file =  ""
-    with pkg_resources.path(resources, 'paths.csv') as p:
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
         paths_file = p.resolve()
-    paths = dict(
-        np.loadtxt(paths_file, delimiter=",", dtype=str)
-    )
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
     # Make paths absolute. This txt file that holds the root/top dir of this
     # installation is created during setup.py.
     root = pkg_resources.read_text(resources, "rootDirectoryLocation.txt")
-    paths.update(
-        (k, root + "/" + v) for k, v in paths.items()
-    )  
+    paths.update((k, root + "/" + v) for k, v in paths.items())
 
     ############################################################################
     # Make an instance of the GUI and run it
