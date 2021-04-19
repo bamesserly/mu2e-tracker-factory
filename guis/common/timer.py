@@ -3,8 +3,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from time import time
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from advancedthreading import LoopingReusableThread
+from guis.common.advancedthreading import LoopingReusableThread
 
 
 class Timer:

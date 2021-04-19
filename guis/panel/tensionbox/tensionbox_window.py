@@ -14,10 +14,8 @@ import sys
 import os
 from pathlib import Path
 
-# print(f'dir: {str(Path(__file__).parent)}')
-sys.path.insert(0, str(Path(__file__).parent))
 import serial.tools.list_ports  ## automatically get COM port
-import tensionbox_ui  ## edit in Qt Designer, convert with pyuic5
+import guis.panel.tensionbox.tensionbox_ui as tensionbox_ui  ## edit in Qt Designer, convert with pyuic5
 
 import numpy as np
 from numpy.fft import rfft, irfft
@@ -29,10 +27,10 @@ import math, time, os
 import csv
 
 from scipy.signal import blackmanharris, fftconvolve
-from parabolic import parabolic
+from guis.panel.tensionbox.parabolic import parabolic
 
 from datetime import datetime as dt
-from X0117d import DataCanvas  ## control window for plots
+from guis.panel.tensionbox.X0117d import DataCanvas  ## control window for plots
 
 
 nplot = 200

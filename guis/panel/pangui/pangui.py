@@ -94,7 +94,7 @@ from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 
 # Import QLCDTimer from Modules
-from timer import QLCDTimer
+from guis.common.timer import QLCDTimer
 
 # import packages that are used by other files (data processor, straw tensioner, etc.)
 # this 'should' slightly speed up the program while it's running, with a tiny bit of time added to starting it up

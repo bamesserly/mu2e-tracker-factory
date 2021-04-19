@@ -694,6 +694,15 @@ class MultipleDataProcessor(DataProcessor):
 # Save tools, parts, supplies
 # Save mold release
 
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
+
 
 class TxtDataProcessor(DataProcessor):
     def __init__(self, gui, lab_version=True):
@@ -708,19 +717,19 @@ class TxtDataProcessor(DataProcessor):
 
     def _init_directories(self, lab_version):
 
-        # Get paths from file
-        # TODO paths.txt is deprecated.
-        path_files = {True: "paths-lab.txt", False: "paths.txt"}
-
-        path_file = path_files[lab_version]
-        path = (Path(__file__).parent / path_file).resolve()
-        self.paths = dict(np.loadtxt(path, delimiter=",", dtype=str))
-
-        current_dir = os.path.dirname(__file__)
-        top_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
-        self.paths.update(
-            (k, top_dir + "/" + v) for k, v in self.paths.items()
-        )  # make paths absolute
+        ############################################################################
+        # Get the directory locations of various resources we'll need.
+        ############################################################################
+        # Read in the csv file containing the directory locations.
+        # Save them into a dictionary {tag, path}
+        paths_file = ""
+        with pkg_resources.path(resources, "paths.csv") as p:
+            paths_file = p.resolve()
+        paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+        # Make paths absolute. This txt file that holds the root/top dir of this
+        # installation is created during setup.py.
+        root = pkg_resources.read_text(resources, "rootDirectory.txt")
+        paths.update((k, root + "/" + v) for k, v in paths.items())
 
         # Save directories as instance variables
         self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()

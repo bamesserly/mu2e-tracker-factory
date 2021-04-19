@@ -2,11 +2,7 @@ import sqlite3, os, time, sys
 from pathlib import Path
 from datetime import datetime
 
-# Import LoopingReusableThread from Modules.advancedthreading
-sys.path.insert(
-    0, str(Path(__file__).resolve().parent)
-)  # Insert path to this directory
-from advancedthreading import LoopingReusableThread
+from guis.common.advancedthreading import LoopingReusableThread
 
 import logging
 
