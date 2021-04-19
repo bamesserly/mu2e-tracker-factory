@@ -10,15 +10,30 @@ import os
 import csv
 import sys
 from datetime import datetime
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtWidgets import (
+    QLabel,
+    QFrame,
+    QStackedWidget,
+    QWidget,
+    QPushButton,
+    QSizePolicy,
+    QCheckBox,
+    QVBoxLayout,
+    QLayout,
+    QSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QApplication,
+    QComboBox,
+    QMessageBox,
+)
 from pynput.keyboard import Key, Controller
 from pathlib import Path
 from guis.straw.co2.co2 import Ui_MainWindow  ## edit via Qt Designer
 import numpy as np
 
-# import modules
 from guis.straw.removestraw import *
 from guis.straw.checkstraw import *
 from data.workers.credentials.credentials import Credentials
@@ -451,9 +466,8 @@ class CO2(QMainWindow):
         event.accept()
         sys.exit(0)
 
-    def main(self):
+    def main(self, app):
         while True:
-
             if self.timing:
                 running = time.time() - self.startTime
                 self.ui.hour_disp.display(int(running / 3600))
@@ -490,7 +504,7 @@ def run():
     app = QApplication(sys.argv)
     ctr = CO2(paths)
     ctr.show()
-    ctr.main()
+    ctr.main(app)
     app.exec_()
 
 

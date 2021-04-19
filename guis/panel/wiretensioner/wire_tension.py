@@ -26,8 +26,9 @@ from PyQt5.QtWidgets import (
 )
 from pathlib import Path
 
-sys.path.insert(0, str(Path(Path(__file__).parent).resolve()))
-from wire_tensioner_window import Ui_Dialog  ## edit via QTDesigner
+from guis.panel.wiretensioner.wire_tensioner_window import (
+    Ui_Dialog,
+)  ## edit via QTDesigner
 
 
 class WireTensionWindow(QMainWindow):

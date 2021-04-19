@@ -14,49 +14,60 @@ import os
 import csv
 import sys
 from datetime import datetime
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtWidgets import (
+    QLabel,
+    QFrame,
+    QStackedWidget,
+    QWidget,
+    QPushButton,
+    QSizePolicy,
+    QCheckBox,
+    QVBoxLayout,
+    QLayout,
+    QSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QApplication,
+    QComboBox,
+    QMessageBox,
+)
 from pynput.keyboard import Key, Controller
 from pathlib import Path
-from design import Ui_MainWindow  ## edit via Qt Designer
+from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 
-os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
-)
-from workers.credentials.credentials import Credentials
+from data.workers.credentials.credentials import Credentials
 
-# using straw_label_script instead of make_CPAL_labels
-# sys.path.insert(
-#    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Modules"))
-# )
-# import BarcodePrinter.CpalLabels.make_CPAL_labels as make_CPAL_labels
-import straw_label_script
+import guis.straw.prep.straw_label_script
+
+import numpy as np
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
 
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
+
 
 class Prep(QMainWindow):
-    def __init__(self, webapp=None, parent=None):
+    def __init__(self, paths, webapp=None, parent=None):
         super(Prep, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.stationID = "prep"
-        self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\straw prep\\"
-        )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
-        self.prepDirectory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Straw Prep Data\\"
-        )
-        self.boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data/Status Board 464\\"
-        )
+        self.workerDirectory = paths["prepworkers"]
+        self.palletDirectory = paths["pallets"]
+        self.prepDirectory = paths["prepdata"]
+        self.boardPath = paths["co2board"]
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.ui.tab_widget.setCurrentIndex(0)
         self.Current_workers = [
@@ -1142,8 +1153,7 @@ class Prep(QMainWindow):
         event.accept()
         sys.exit()
 
-    def main(self):
-
+    def main(self, app):
         while True:
 
             if not self.calledGetUncollectedPalletInfo:
@@ -1166,11 +1176,30 @@ class Prep(QMainWindow):
             time.sleep(0.05)
 
 
-if __name__ == "__main__":
+def run():
+
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
+        paths_file = p.resolve()
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    paths.update((k, root + "/" + v) for k, v in paths.items())
+
     app = QApplication(sys.argv)
-    ctr = Prep()
+    ctr = Prep(paths)
     ctr.show()
-    ctr.main()
+    ctr.main(app)
     ctr.close()
     app.exec_()
     # sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    run()

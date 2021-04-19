@@ -20,3 +20,5 @@ co2workers,Data/workers/straw workers/CO2 endpiece insertion
 pallets,Data/Pallets
 co2epoxy,Data/CO2 endpiece data
 co2board,Data/Status Board 464
+prepworkers,Data/workers/straw workers/straw prep
+prepdata,Data/Straw Prep Data
