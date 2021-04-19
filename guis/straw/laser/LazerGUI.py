@@ -32,28 +32,42 @@ import win32con
 
 from datetime import datetime
 from pathlib import Path
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from Laser import Ui_MainWindow  ## edit via Qt Designer
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtWidgets import (
+    QLabel,
+    QFrame,
+    QStackedWidget,
+    QWidget,
+    QPushButton,
+    QSizePolicy,
+    QCheckBox,
+    QVBoxLayout,
+    QLayout,
+    QSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QApplication,
+    QComboBox,
+    QMessageBox,
+)
+from guis.straw.laser.Laser import Ui_MainWindow  ## edit via Qt Designer
+import numpy as np
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
-# Get modules from current directories
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
-)
-from workers.credentials.credentials import Credentials
+from data.workers.credentials.credentials import Credentials
+from guis.straw.removestraw import *
+from guis.straw.checkstraw import *
 
-dummyPath = "\\Users\\Mu2e\\Desktop\\Mu2e-Factory\\Straw lab GUIs\\"
-removeP = dummyPath + "Remove"
-checkP = dummyPath + "Check Straw"
-sys.path.insert(0, removeP)
-sys.path.insert(0, checkP)
-# move up one directory
-sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent)))
-from removeStraw import *
-from checkstraw import *
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
 
 
 ##**GLOBAL VARIABLES**##
@@ -82,25 +96,16 @@ C2 = 0.0000096  # Humidity coefficient
 class cutMenu(QMainWindow):
     LockGUI = QtCore.pyqtSignal(bool)
 
-    def __init__(self, webapp=None, parent=None):
+    def __init__(self, paths, webapp=None, parent=None):
         super(cutMenu, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.ui.viewButton.clicked.connect(self.editPallet)
-        self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "\\..\\..\\..\\Data\\workers\\straw workers\\laser cutting\\"
-        )
-        self.palletDirectory = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data/Pallets\\"
-        )
-        self.laserDirectory = boardPath = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Laser cut data\\"
-        )
-        self.boardPath = boardPath = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Status Board 464\\"
-        )
+        self.workerDirectory = paths["laserworkers"]
+        self.palletDirectory = paths["pallets"]
+        self.boardPath = paths["board"]
+        self.laserDirectory = paths["laserdata"]
         self.palletID = ""
         self.palletNum = ""
         self.cutType = ""
@@ -843,12 +848,31 @@ def except_hook(cls, exception, traceback):
     sys.exit()
 
 
-if __name__ == "__main__":
+def run():
+
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
+        paths_file = p.resolve()
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    paths.update((k, root + "/" + v) for k, v in paths.items())
+
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
-    ctr = cutMenu()
+    ctr = cutMenu(paths)
     ctr.show()
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()
 
 
 def closeWindows():

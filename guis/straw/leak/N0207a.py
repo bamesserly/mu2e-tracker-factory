@@ -46,4 +46,4 @@ class Ui_Dialog(object):
         self.cancelButton.setText(_translate("Dialog", "Cancel"))
 
 
-import images_rc
+import guis.straw.leak.images_rc

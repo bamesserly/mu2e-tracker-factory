@@ -58,12 +58,10 @@ class CO2(QMainWindow):
         super(CO2, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.workerDirectory = paths[
-            "co2workers"
-        ]  # \\Data\\workers\\straw workers\\CO2 endpiece insertion\\"
-        self.palletDirectory = paths["pallets"]  # \Data/Pallets\\"
-        self.epoxyDirectory = paths["co2epoxy"]  # \Data\\CO2 endpiece data\\"
-        self.boardPath = paths["co2board"]  # \Data\\Status Board 464\\"
+        self.workerDirectory = paths["co2workers"]
+        self.palletDirectory = paths["pallets"]
+        self.epoxyDirectory = paths["co2epoxy"]
+        self.boardPath = paths["board"]
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.stationID = "C-O2"
         self.credentialChecker = Credentials(self.stationID)

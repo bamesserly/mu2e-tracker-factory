@@ -6,7 +6,7 @@ from datetime import datetime
 import time
 import csv
 import os
-from Straw import Straw
+from guis.straw.resistance.Straw import Straw
 import sys
 
 # os.system('mode con: cols=115 lines=50')

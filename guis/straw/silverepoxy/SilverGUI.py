@@ -12,26 +12,41 @@ import sys
 import threading
 from datetime import datetime
 from pathlib import Path
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from silver import Ui_MainWindow  ## edit via Qt Designer
-
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-os.chdir(dir_path)
-
-# move up one directory
-sys.path.insert(0, os.path.dirname(__file__) + "..\\")
-
-from remove import Ui_Dialogw
-from removeStraw import *
-from checkstraw import *
-
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtWidgets import (
+    QLabel,
+    QFrame,
+    QStackedWidget,
+    QWidget,
+    QPushButton,
+    QSizePolicy,
+    QCheckBox,
+    QVBoxLayout,
+    QLayout,
+    QSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QApplication,
+    QComboBox,
+    QMessageBox,
 )
-from workers.credentials.credentials import Credentials
+from guis.straw.silverepoxy.silver import Ui_MainWindow  ## edit via Qt Designer
+from guis.straw.remove import Ui_Dialogw
+from guis.straw.removestraw import *
+from guis.straw.checkstraw import *
+from data.workers.credentials.credentials import Credentials
+
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
+
+import numpy as np
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -39,21 +54,14 @@ pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 class Silver(QMainWindow):
     LockGUI = QtCore.pyqtSignal(bool)
 
-    def __init__(self, webapp=None, parent=None):
+    def __init__(self, paths, webapp=None, parent=None):
         super(Silver, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
-        self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\silver epoxy\\"
-        )
-        self.silverDirectory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Silver epoxy data\\"
-        )
-        self.boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
-        )
+        self.palletDirectory = paths["pallets"]
+        self.workerDirectory = paths["silverworkers"]
+        self.silverDirectory = paths["silverdata"]
+        self.boardPath = paths["board"]
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.Current_workers = [
             self.ui.Current_worker1,
@@ -451,9 +459,28 @@ def except_hook(cls, exception, traceback):
     sys.exit()
 
 
-if __name__ == "__main__":
+def run():
+
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
+        paths_file = p.resolve()
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    paths.update((k, root + "/" + v) for k, v in paths.items())
+
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
-    ctr = Silver()
+    ctr = Silver(paths)
     ctr.show()
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()

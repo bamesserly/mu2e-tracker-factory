@@ -4363,4 +4363,4 @@ class Ui_MainWindow(object):
         )
 
 
-import images_rc
+import guis.straw.leak.images_rc

@@ -67,7 +67,7 @@ class Prep(QMainWindow):
         self.workerDirectory = paths["prepworkers"]
         self.palletDirectory = paths["pallets"]
         self.prepDirectory = paths["prepdata"]
-        self.boardPath = paths["co2board"]
+        self.boardPath = paths["board"]
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
         self.ui.tab_widget.setCurrentIndex(0)
         self.Current_workers = [

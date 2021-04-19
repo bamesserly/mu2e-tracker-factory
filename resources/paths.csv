@@ -16,9 +16,17 @@ continuity_data,Data/Panel data/wire_stringing_continuity_data
 straw_tension_location,GUIS/panel/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
 wire_tension_location,GUIS/panel/current/tension_devices/wire_tensioner/wire_tension.py
 tensionbox_location,GUIS/panel/current/tension_devices/tension_box/tensionbox_window.py
-co2workers,Data/workers/straw workers/CO2 endpiece insertion
 pallets,Data/Pallets
+board,Data/Status Board 464
+co2workers,Data/workers/straw workers/CO2 endpiece insertion
 co2epoxy,Data/CO2 endpiece data
-co2board,Data/Status Board 464
 prepworkers,Data/workers/straw workers/straw prep
 prepdata,Data/Straw Prep Data
+laserworkers,Data/workers/straw workers/laser cutting
+laserdata,Data/Laser cut data
+resistanceworkers,Data/workers/straw workers/resistance
+silverworkers,Data/workers/straw workers/silver epoxy
+silverdata,Data/Silver epoxy data
+leakworkers,Data/workers/straw workers/leak testing
+leakdata,Data/Leak test data/Leak Test Results
+cpaldata,Data/Leak test data/CPALS in Testing/CPALS.txt

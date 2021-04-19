@@ -41,27 +41,45 @@ import os
 import csv
 from datetime import datetime
 import time
-from PyQt5.QtWidgets import *
-from PyQt5 import *
-from PyQt5.QtGui import *
-from design import Ui_MainWindow
-from resistanceMeter import Resistance
-from measureByHand import MeasureByHandPopup
-
-# move up one directory
-sys.path.insert(0, os.path.dirname(__file__) + "..\\")
-
-# import modules
-from removeStraw import *
-
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtWidgets import (
+    QLabel,
+    QFrame,
+    QStackedWidget,
+    QWidget,
+    QPushButton,
+    QSizePolicy,
+    QCheckBox,
+    QVBoxLayout,
+    QLayout,
+    QSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QApplication,
+    QComboBox,
+    QMessageBox,
 )
-from workers.credentials.credentials import Credentials
+from guis.straw.resistance.design import Ui_MainWindow
+from guis.straw.resistance.resistanceMeter import Resistance
+from guis.straw.resistance.measureByHand import MeasureByHandPopup
+from guis.straw.removeStraw import *
+from data.workers.credentials.credentials import Credentials
+
+import numpy as np
+
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
 
 
 class CompletionTrack(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, paths):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -81,17 +99,10 @@ class CompletionTrack(QtWidgets.QDialog):
         )  # QLabel objects labeling each box with unique straw ID
 
         # Directories
-        self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data\\workers\\straw workers\\resistance\\"
-        )
-        self.palletDirectory = os.path.dirname(__file__) + "..\\..\\..\\Data/Pallets\\"
-        self.prepDirectory = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Straw Prep Data\\"
-        )
-        self.boardPath = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\Status Board 464\\"
-        )
+        self.workerDirectory = paths["resistanceworkers"]
+        self.palletDirectory = paths["pallets"]
+        self.prepDirectory = paths["prepdata"]
+        self.boardPath = paths["board"]
 
         # Connect buttons to respective functions
         self.ui.collect_button.clicked.connect(self.collectData)
@@ -915,9 +926,28 @@ class CompletionTrack(QtWidgets.QDialog):
             app.processEvents()
 
 
-if __name__ == "__main__":
+def run():
+
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
+        paths_file = p.resolve()
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    paths.update((k, root + "/" + v) for k, v in paths.items())
+
     app = QtWidgets.QApplication(sys.argv)
-    ctr = CompletionTrack()
+    ctr = CompletionTrack(paths)
     ctr.show()
     ctr.main()
     sys.exit()
+
+
+if __name__ == "__main__":
+    run()

@@ -30,27 +30,28 @@ import serial  ## Takes this from pyserial, not serial
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
-from least_square_linear import *  ## Contributes fit functions
-from N0202a import Ui_MainWindow  ## Main GUI window
-from N0207a import Ui_Dialog  ## Pop-up GUI window for straw selection
-from WORKER import Ui_Dialogw
+from guis.straw.leak.least_square_linear import *  ## Contributes fit functions
+from guis.straw.leak.N0202a import Ui_MainWindow  ## Main GUI window
+from guis.straw.leak.N0207a import Ui_Dialog  ## Pop-up GUI window for straw selection
+from guis.straw.leak.WORKER import Ui_Dialogw
 import inspect
-from WriteToFile import *  ## Functions to save to pallet file
+from guis.straw.leak.WriteToFile import *  ## Functions to save to pallet file
 import csv
 from pathlib import Path
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-os.chdir(dir_path)
-
-sys.path.insert(0, "..\\Upload")
-
-sys.path.insert(
-    0, str(Path(Path(__file__).resolve().parent.parent.parent.parent / "Data"))
-)
-from workers.credentials.credentials import Credentials
-from remove import Ui_DialogBox
+from data.workers.credentials.credentials import Credentials
+from guis.straw.leak.remove import Ui_DialogBox
 
 import threading
+
+# Resource manager, and the resources folder (package)
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
+import resources
 
 
 class LeakTestStatus(QMainWindow):
@@ -68,7 +69,7 @@ class LeakTestStatus(QMainWindow):
     UnloadUpdate = QtCore.pyqtSignal(int)
     LockGUI = QtCore.pyqtSignal(bool)
 
-    def __init__(self, COM, baudrate, arduino_input=False):
+    def __init__(self, paths, COM, baudrate, app, arduino_input=False):
         super(LeakTestStatus, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -116,18 +117,9 @@ class LeakTestStatus(QMainWindow):
         self.number_of_chambers = 5
         self.max_chambers = 50
 
-        self.cpalDirectory = (
-            os.path.dirname(__file__)
-            + "\..\\..\\..\\Data\\Leak test data\\CPALS in Testing\\CPALS.txt"
-        )
-        self.networkDirectory = (
-            os.path.dirname(__file__)
-            + "\..\\..\\..\\Data\\Leak test data\\Leak Test Results\\"
-        )
-        self.workerDirectory = (
-            os.path.dirname(__file__)
-            + "\..\\..\\..\\Data\\workers\\straw workers\\leak testing\\"
-        )
+        self.cpalDirectory = paths["cpaldata"]
+        self.leakDirectory = paths["leakdata"]
+        self.workerDirectory = paths["leakworkers"]
 
         self.starttime = [
             0,
@@ -283,7 +275,7 @@ class LeakTestStatus(QMainWindow):
 
         self.files = {}
         self.straw_list = []  ## Passed straws with saved data
-        self.result = self.networkDirectory + "Leak Test Results.csv"
+        self.result = os.path.join(self.leakDirectory, "Leak Test Results.csv")
         result = open(self.result, "a+", 1)
         result.close()
         #        self.result = self.directory + datetime.now().strftime("%Y-%m-%d_%H%M%S") + '_%s.csv' % self.COM
@@ -646,7 +638,7 @@ class LeakTestStatus(QMainWindow):
         thread.start()
 
         # Start data collection in background, to reduce GUI lagging
-        thread2 = threading.Thread(target=self.dataCollection, args=())
+        thread2 = threading.Thread(target=self.dataCollection, args=(app,))
         thread2.daemon = True  # Daemonize thread
         thread2.start()
 
@@ -829,7 +821,7 @@ class LeakTestStatus(QMainWindow):
                                 intercept[chamber] = 0
                                 intercept_err[chamber] = 0
                                 with open(
-                                    self.networkDirectory
+                                    self.leakDirectory
                                     + self.Choosenames[ROW][COL]
                                     + "_rawdata.txt",
                                     "r+",
@@ -1026,7 +1018,7 @@ class LeakTestStatus(QMainWindow):
                                         color="r",
                                     )
                                     plt.savefig(
-                                        self.networkDirectory
+                                        self.leakDirectory
                                         + self.Choosenames[ROW][COL]
                                         + "_fit.pdf"
                                     )
@@ -1095,13 +1087,13 @@ class LeakTestStatus(QMainWindow):
 
     def deleteFiles(self, ROW, COL):
         path1 = os.path.join(
-            self.networkDirectory, f"{self.Choosenames[ROW][COL]}_rawdata.txt"
+            self.leakDirectory, f"{self.Choosenames[ROW][COL]}_rawdata.txt"
         )
         path2 = os.path.join(
-            self.networkDirectory, f"{self.Choosenames[ROW][COL]}_fit.pdf"
+            self.leakDirectory, f"{self.Choosenames[ROW][COL]}_fit.pdf"
         )
         path3 = os.path.join(
-            self.networkDirectory, f"{self.Choosenames[ROW][COL]}_fit_temp.pdf"
+            self.leakDirectory, f"{self.Choosenames[ROW][COL]}_fit_temp.pdf"
         )
 
         if os.path.exists(path1):
@@ -1182,7 +1174,7 @@ class LeakTestStatus(QMainWindow):
     def update_name(self, ROW, COL):
         """Change file name based on chamber contents"""
         chamber = ROW * 5 + COL
-        filename = self.networkDirectory + self.Choosenames[ROW][COL]
+        filename = os.path.join(self.leakDirectory, self.Choosenames[ROW][COL])
         self.files[chamber] = filename + "_rawdata.txt"
         x = open(self.files[chamber], "a+", 1)
         print("Saving data to file %s" % self.Choosenames[ROW][COL])
@@ -1193,11 +1185,11 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
         # print('Plotting data for chamber', chamber)
-        filepath = (
-            self.networkDirectory + self.Choosenames[ROW][COL] + "_fit.pdf"
+        filepath = os.path.join(
+            self.leakDirectory, self.Choosenames[ROW][COL] + "_fit.pdf"
         )  ## Data is still being saved here. Don't open
-        filepath_temp = (
-            self.networkDirectory + self.Choosenames[ROW][COL] + "_fit_temp.pdf"
+        filepath_temp = os.path.join(
+            self.leakDirectory, self.Choosenames[ROW][COL] + "_fit_temp.pdf"
         )  ## Static snapshot. Safe to open
         if os.path.exists(filepath_temp):
             try:
@@ -1260,7 +1252,7 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
 
-        path = self.networkDirectory + "Leak Test Results.csv"
+        path = os.path.join(self.leakDirectory, "Leak Test Results.csv")
 
         Current_worker = self.getWorker()
 
@@ -1456,7 +1448,7 @@ class LeakTestStatus(QMainWindow):
 
         return False
 
-    def dataCollection(self):
+    def dataCollection(self, app):
         while True:
             if any(self._running):
                 self.handleStart()
@@ -2556,9 +2548,28 @@ def except_hook(cls, exception, traceback):
     sys.exit()
 
 
-if __name__ == "__main__":
+def run():
+
+    ############################################################################
+    # Get the directory locations of various resources we'll need.
+    ############################################################################
+    # Read in the csv file containing the directory locations.
+    # Save them into a dictionary {tag, path}
+    paths_file = ""
+    with pkg_resources.path(resources, "paths.csv") as p:
+        paths_file = p.resolve()
+    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+    # Make paths absolute. This txt file that holds the root/top dir of this
+    # installation is created during setup.py.
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    paths.update((k, root + "/" + v) for k, v in paths.items())
+
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
-    lts = LeakTestStatus("COM11", 115200, arduino_input=True)
+    lts = LeakTestStatus(paths, "COM11", 115200, app, arduino_input=True)
     lts.show()
     app.exec_()
+
+
+if __name__ == "__main__":
+    run()
