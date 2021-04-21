@@ -13,12 +13,12 @@ print("===============================================")
 root_dir = Path(__file__).parent
 root_dir_file = root_dir / "resources" / "rootDirectory.txt"
 with open(root_dir_file, "w") as f:
-    f.write(root_dir.resolve())
+    f.write(str(root_dir.resolve()))
 
 # ===============================================================================
 # 1. Determine key paths
 # ===============================================================================
-username = getpass.getuser()
+username = getuser()
 network_top_dir = Path("\\\\rds01.storage.umn.edu\\cse_spa_mu2e")
 network_data_dir = network_top_dir / "Data"
 network_db = network_data_dir / "database.db"
@@ -37,7 +37,7 @@ merge_destination_db_path_file = root_dir / "resources" / "networkDatabasePath.t
 official_lab_production_root = Path(
     "C:\\Users\\{0}\\Desktop\\Production".format(username)
 )
-is_official_lab_production = official_lab_production_root in str(root_dir)
+is_official_lab_production = str(official_lab_production_root) in str(root_dir)
 if not is_official_lab_production:
     print("... Software development mode detected.")
     print("    Will not automerge with the official network database.")
@@ -45,7 +45,7 @@ if not is_official_lab_production:
 # ===============================================================================
 # 2. Copy Data from network to work area
 # ===============================================================================
-if is_official_lab_production:
+if is_official_lab_production or sys.argv[1] == "copy_data":
     print("... Copying the Data/ dir from the network.")
     print("    This can take several minutes so grab a cup of coffee.")
     print("    Beginning copy of Data dir...")
