@@ -5,8 +5,10 @@
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
+
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
+
 # time formatting
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
@@ -30,13 +32,15 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QPushButton,
     QTableWidgetItem,
-    QMessageBox
+    QMessageBox,
 )
+
 # mostly for gui window management, QPen and QSize are for plotting
 from PyQt5.QtGui import QBrush, QIcon, QPen
 from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize
+
 # for time formatting
-from datetime import datetime  
+from datetime import datetime
 
 # all for plotting apparently...
 import sip
@@ -46,7 +50,7 @@ import qwt
 from facileDB import Ui_MainWindow  # import raw UI
 from panelData import PanelData  # import class for data organization
 
-# for plotting heat data, qwt doesn't come with a convinient way to 
+# for plotting heat data, qwt doesn't come with a convinient way to
 # use time as the x-axis label (unless you want to use epoch time)
 class TimeScaleDraw(qwt.QwtScaleDraw):
     def __init__(self, baseTime, *args):
@@ -56,6 +60,7 @@ class TimeScaleDraw(qwt.QwtScaleDraw):
     def label(self, value):
         timeStr = time.strftime("%m/%d, %H:%M", time.localtime(value))
         return qwt.QwtText(timeStr)
+
 
 # fmt: off
 # ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗    ██╗   ██╗██╗███████╗██╗    ██╗███████╗██████╗ 
@@ -363,14 +368,14 @@ class facileDBGUI(QMainWindow):
             lambda: self.graphSimple(
                 self.data.wireData,
                 "Tension (g)",
-                1000
+                120
             )
         )
         self.ui.wirePlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
                 "Tension (g)",
-                1000
+                120
             )
         )
 
@@ -507,7 +512,7 @@ class facileDBGUI(QMainWindow):
                 self.graphSimple(
                     dataType,
                     "Current (μA)",
-                    2.5,
+                    0.5,
                 )
                 return 0
             except:
@@ -1135,7 +1140,7 @@ class facileDBGUI(QMainWindow):
         # return retList found or not
         return (len(retList) > 0)
 
-    # finds wire tension data and stores it in self.data.wireData
+    # finds heat data and stores it in ____
     # parameters: int, pro is the process to find data for (1,2, or 6)
     # returns: bool, true if any data found, false otherwise
     def findSpecificHeat(self, pro):
@@ -1168,8 +1173,8 @@ class facileDBGUI(QMainWindow):
                     (
                         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
                         toop[0],
-                        toop[1],
-                        toop[2],
+                        toop[1] if (0 < toop[1] and toop[1] < 150) else None,
+                        toop[2] if (0 < toop[2] and toop[2] < 150) else None,
                     )
                 )
         # assign built list to self.data
@@ -1441,8 +1446,10 @@ class facileDBGUI(QMainWindow):
         plot.setAxisTitle(0,"Temperature (°C)")
         #plot.setCanvasBackground(Qt.black)
         # y axis is temperature
-        paasA = [toop[2] for toop in localHeat]
-        paasBC = [toop[3] for toop in localHeat]
+        # first remove tuples where no measurements for A or B/C
+        localHeat = [toop for toop in localHeat if (toop[2] or toop[3])]
+        paasA = [toop[2] if toop[2] else 1 for toop in localHeat]
+        paasBC = [toop[3] if toop[3] else 1 for toop in localHeat]
         time = [toop[1] for toop in localHeat]
         curveA = qwt.QwtPlotCurve("PAAS A")
         curveA.setPen(QPen(Qt.darkBlue))
@@ -1499,9 +1506,10 @@ class facileDBGUI(QMainWindow):
             for button in buttons:
                 button.setEnabled(True)
             ###################################################
-            # make lists of temps for paas A and B/C
-            paasATemps = [toop[2] for toop in heatData]
-            paasBCTemps = [toop[3] for toop in heatData]
+            # make lists of temps for paas A and B/C in order to calculate
+            # statistics. Remove Nones for this purpose.
+            paasATemps = [toop[2] for toop in heatData if toop[2]]
+            paasBCTemps = [toop[3] for toop in heatData if toop[3]]
 
             if len(paasATemps) > 0:  # if paas A data exits
                 # make a list of stats
@@ -1527,7 +1535,7 @@ class facileDBGUI(QMainWindow):
                 ]
             
             # make a list of heat timestamps
-            heatTimes = [toop[1] for toop in heatData]
+            heatTimes = [toop[1] for toop in heatData if (toop[2] or toop[3])]
             # if we have that data
             if len(heatTimes) > 0:
                 # find the total time it took
@@ -1633,18 +1641,6 @@ class facileDBGUI(QMainWindow):
     # returns: nothing returned
     def graphSpecificHeat(self, pro):
         heatData = getattr(self.data,f'p{pro}HeatData')
-
-        for toop in heatData:
-            if toop[2] < -240 or toop[3] < -240:
-                qM = QMessageBox()
-                answer = qM.question(
-                    self,'','At least one data point is -242.  Do you still want to plot the graph?', qM.Yes | qM.No
-                )
-                # if the user doesn't want to plot len(dataType) points, then don't!
-                if answer == qM.No:
-                    return
-                else:
-                    break
 
         # make x data list by converting raw timesamps to matplotlib dates
         xData = [
