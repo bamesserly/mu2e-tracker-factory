@@ -1,7 +1,7 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 11/24/2020 /
+#  -   / ______  _/____)       /  Last Update 04/20/2021 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
@@ -17,6 +17,7 @@ import sqlite3  # for connecting with db
 import matplotlib.pyplot as plt  # for plotting
 import matplotlib as mpl  # also for plotting
 import pandas as pd  # even more plotting
+
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -31,15 +32,34 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QPushButton,
     QTableWidgetItem,
+    QMessageBox,
 )
-from PyQt5.QtGui import QBrush, QIcon
 
-# for GUI widget management^
-from PyQt5.QtCore import Qt, QRect, QObject  # for gui window management
-from datetime import datetime  # for time formatting
+# mostly for gui window management, QPen and QSize are for plotting
+from PyQt5.QtGui import QBrush, QIcon, QPen
+from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize
+
+# for time formatting
+from datetime import datetime
+
+# all for plotting apparently...
+import sip
+import numpy as np
+import qwt
 
 from facileDB import Ui_MainWindow  # import raw UI
 from panelData import PanelData  # import class for data organization
+
+# for plotting heat data, qwt doesn't come with a convinient way to
+# use time as the x-axis label (unless you want to use epoch time)
+class TimeScaleDraw(qwt.QwtScaleDraw):
+    def __init__(self, baseTime, *args):
+        qwt.QwtScaleDraw.__init__(self, *args)
+        self.baseTime = baseTime
+
+    def label(self, value):
+        timeStr = time.strftime("%m/%d, %H:%M", time.localtime(value))
+        return qwt.QwtText(timeStr)
 
 
 # fmt: off
@@ -56,7 +76,7 @@ from panelData import PanelData  # import class for data organization
 # Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
 ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
-# fmt: on
+
 
 
 class facileDBGUI(QMainWindow):
@@ -72,6 +92,8 @@ class facileDBGUI(QMainWindow):
     # fmt: on
 
     # initializer, takes ui parameter from the .ui file
+    # parameters: no parameters
+    # returns: nothing returned
     def __init__(self, ui_layout):
         # initialize superclass
         QMainWindow.__init__(self)
@@ -90,16 +112,31 @@ class facileDBGUI(QMainWindow):
 
         # link buttons/menu items to functions
         self.initInputWidgets()
-        self.initMenusActions()
 
         # initialize widget lists
         self.initWidgetLists()
 
         # create panelData member, pretty much all data is stored here
-        # would it be more efficient to store data in the widgets?
+        # would it be more efficient to store data only in the widgets?
+        # it might not be feasible, all the heat measurements would have
+        # to go somewhere, and nobody cares about individual heat measurements
         self.data = PanelData()
 
+    # override close button event (see comments in function)
+    # parameters: event = close window button clicked signal(?)
+    # returns: nothing returned
+    def closeEvent(self, event):
+        sys.exit()  # kill program
+        # this is necessary since using the pyplot.show() makes python think there's another app running, so closing the gui
+        # won't close the program if you used the plot button (so you'd have a python process still running in the background
+        # doing nothing).  Overriding the closeEvent to exit the program makes sure the whole process is dead when the user
+        # clicks the X in the upper right corner.
+        # It's not called anywhere because having it here overwrites a QMainWindow method.
+        # Killing it with sys.exit() will not hurt the database.
+
     # make engine, connection, and metadata objects to interact with database
+    # parameters: database = file object that points to the database
+    # returns: nothing returned
     def connectToDatabaseRO(self, database):
 
         # override connect to return a read-only DB connection, MUST use path starting at C drive (or any drive, X, Z, etc.)
@@ -147,44 +184,50 @@ class facileDBGUI(QMainWindow):
 
         self.metadata = sqla.MetaData()  # create metadata
         self.initSQLTables()  # create important tables
+        self.disableButtons() # disable all input except panel entry/submit
 
     # initialize important tables
+    # parameters: no parameters
+    # returns: nothing returned
     def initSQLTables(self):
+        # straw_location (panels)
         self.panelsTable = sqla.Table(
             "straw_location", self.metadata, autoload=True, autoload_with=self.engine
-        )  # straw_location
+        )  
+        # procedure (each different pro for each panel pro3 for mn100, pro6 for mn050, etc)
         self.proceduresTable = sqla.Table(
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
-        )  # procedure
-
-    # initialize lists of widgets for organization and easy access
-    def initWidgetLists(self):
-        # tuple of comment QListWidgets
-        # index = pro number -1
-        self.comWidgetList = (
-            (self.ui.ringsComList, self.ui.pan1TimeList),
-            (self.ui.strawsComList, self.ui.pan2TimeList),
-            (self.ui.senseComList, self.ui.pan3TimeList),
-            (self.ui.pinsComList, self.ui.pan4TimeList),
-            (self.ui.highComList, self.ui.pan5TimeList),
-            (self.ui.manifoldComList, self.ui.pan6TimeList),
-            (self.ui.floodingComList, self.ui.pan7TimeList),
         )
 
-        # for toop in self.comWidgetList:
-        #   toop[0].setStyleSheet("background-image: url(mu2e_logo.png)")
 
-        # tuple of procedure timing/session QLineEdit widgets
+    # initialize lists of widgets for organization and easy access
+    # parameters: no parameters
+    # returns: nothing returned
+    def initWidgetLists(self):
+        # tuple of tuples of comment QListWidgets
+        # each tuple in the tuple has the form: (<comment list>, <start/stop time list>)
+        # pro number = index + 1
+        self.comWidgetList = (
+            (self.ui.pan1ComList, self.ui.pan1TimeList),
+            (self.ui.pan2ComList, self.ui.pan2TimeList),
+            (self.ui.pan3ComList, self.ui.pan3TimeList),
+            (self.ui.pan4ComList, self.ui.pan4TimeList),
+            (self.ui.pan5ComList, self.ui.pan5TimeList),
+            (self.ui.pan6ComList, self.ui.pan6TimeList),
+            (self.ui.pan7ComList, self.ui.pan7TimeList),
+        )
+
+        # tuple of tuples of procedure timing/session QLineEdit widgets
         # each tuple in the tuple has the form: (<start time>, <end time>, <total time>)
-        # index = pro number -1
+        # pro number = index + 1
         self.timeWidgetList = (
-            (self.ui.pan1STime, self.ui.pan1ETime, self.ui.pan1TTime),
-            (self.ui.pan2STime, self.ui.pan2ETime, self.ui.pan2TTime),
-            (self.ui.pan3STime, self.ui.pan3ETime, self.ui.pan3TTime),
-            (self.ui.pan4STime, self.ui.pan4ETime, self.ui.pan4TTime),
-            (self.ui.pan5STime, self.ui.pan5ETime, self.ui.pan5TTime),
-            (self.ui.pan6STime, self.ui.pan6ETime, self.ui.pan6TTime),
-            (self.ui.pan7STime, self.ui.pan7ETime, self.ui.pan7TTime),
+            (self.ui.pan1STimeLE, self.ui.pan1ETimeLE, self.ui.pan1TTimeLE),
+            (self.ui.pan2STimeLE, self.ui.pan2ETimeLE, self.ui.pan2TTimeLE),
+            (self.ui.pan3STimeLE, self.ui.pan3ETimeLE, self.ui.pan3TTimeLE),
+            (self.ui.pan4STimeLE, self.ui.pan4ETimeLE, self.ui.pan4TTimeLE),
+            (self.ui.pan5STimeLE, self.ui.pan5ETimeLE, self.ui.pan5TTimeLE),
+            (self.ui.pan6STimeLE, self.ui.pan6ETimeLE, self.ui.pan6TTimeLE),
+            (self.ui.pan7STimeLE, self.ui.pan7ETimeLE, self.ui.pan7TTimeLE),
         )
 
         # tuple of QLineEdit widgets for parts
@@ -206,162 +249,430 @@ class facileDBGUI(QMainWindow):
             self.ui.partFRAMELE,
             self.ui.partMIDDLERIB_1LE,
             self.ui.partMIDDLERIB_2LE,
+            self.ui.partlpal_top_LE,
+            self.ui.partlpal_top_LE
         )
 
+
     # link buttons with respective funcitons and panel line edit enter
+    # parameters: no parameters
+    # returns: nothing returned
     def initInputWidgets(self):
-        # link widgets and things
-        # bind function for entering panel id
-        self.ui.panelLE.returnPressed.connect(self.findPanel)
-        # bind function for submit button
-        self.ui.submitPB.clicked.connect(self.findPanel)
-        # bind function for export wire tension stuff
-        self.ui.wireExportButton.clicked.connect(self.exportWireMeasurements)
-        # bind function for wire plot button
-        self.ui.plotWireDataButton.clicked.connect(self.plotWireData)
-        # bind function for export straw tension data
-        self.ui.strawExportButton.clicked.connect(self.exportStrawMeasurements)
-        # bind function for plot straw tension data
-        self.ui.plotStrawDataButton.clicked.connect(self.plotStrawData)
-        # bind funciton for export HV data
-        self.ui.hvExportButton.clicked.connect(self.exportHVMeasurements)
-        # bind function for plot HV data
-        self.ui.plotHVDataButton.clicked.connect(self.plotHVData)
-        # bind function for export heat data
-        self.ui.heatExportButton.clicked.connect(self.exportHeatMeasurements)
-        # bind function for plot heat data
-        self.ui.plotHeatDataButton.clicked.connect(self.plotHeatData)
-        # bind function for heat combo box change
-        self.ui.heatProBox.currentIndexChanged.connect(self.displayHeat)
-        # buttons get re-enabled later if data is present for the corresponding data type
-        self.disableButtons()
+        # submit push button
+        self.ui.submitPB.clicked.connect(self.submitClicked)
+
+        # heat buttons
+        self.ui.heatExportButton.clicked.connect(
+            lambda: self.exportData(
+                f'Process_{self.ui.heatProBox.currentText()[8]}_Heat_Data',
+                getattr(self.data,f'p{self.ui.heatProBox.currentText()[8]}HeatData'),
+                ("Human timestamp", "Epoch timestamp", "PAAS A temp", "PAAS B/C temp")
+            )
+        )
+        self.ui.heatExportButton_2.clicked.connect(
+            lambda: self.exportData(
+                f'Process_{self.ui.heatProBox_2.currentText()[8]}_Heat_Data',
+                getattr(self.data,f'p{self.ui.heatProBox.currentText()[8]}HeatData'),
+                ("Human timestamp", "Epoch timestamp", "PAAS A temp", "PAAS B/C temp")
+            )
+        )
+        self.ui.heatPlotButton.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.heatProBox.currentText()
+            )
+        )
+        self.ui.heatPlotButton_2.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.heatProBox_2.currentText()
+            )
+        )
+
+        # hv buttons
+        self.ui.hvExportButton.clicked.connect(
+            lambda: self.exportData(
+                f'{self.ui.hvProBox.currentText()}_HV_Data',
+                getattr(
+                    self.data,
+                    f'hv1{self.ui.hvProBox.currentText()[12]}00P{self.ui.hvProBox.currentText()[8]}' if self.ui.hvProBox.currentText()[8] != 5 else "hvXXXXP5"
+                ),
+                ("Position", "Current (micro amps)", "Trip Status", "Side", "Epoch Timestamp")
+            )
+        )
+        self.ui.hvExportButton_2.clicked.connect(
+            lambda: self.exportData(
+                f'{self.ui.hvProBox_2.currentText()}_HV_Data',
+                getattr(
+                    self.data,
+                    f'hv1{self.ui.hvProBox_2.currentText()[12]}00P{self.ui.hvProBox_2.currentText()[8]}' if self.ui.hvProBox_2.currentText()[8] != 5 else "hvXXXXP5"
+                ),
+                ("Position", "Current (micro amps)", "Trip Status", "Side", "Epoch Timestamp")
+            )
+        )
+        self.ui.hvPlotButton.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.hvProBox.currentText()
+            )
+        )
+        self.ui.hvPlotButton_2.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.hvProBox_2.currentText()
+            )
+        )
+
+        # straw buttons
+        self.ui.strawExportButton.clicked.connect(
+            lambda: self.exportData(
+                "Straw_tension_data",
+                self.data.strawData,
+                ["Position", "Tension", "Epoch Timestamp", "Uncertainty"]
+            )
+        )
+        self.ui.strawExportButton.clicked.connect(
+            lambda: self.exportData(
+                "Straw_tension_data",
+                self.data.strawData,
+                ["Position", "Tension", "Epoch Timestamp", "Uncertainty"]
+            )
+        )
+        self.ui.strawPlotButton.clicked.connect(
+            lambda: self.graphSimple(
+                self.data.strawData,
+                "Tension (g)",
+                1000
+            )
+        )
+        self.ui.strawPlotButton_2.clicked.connect(
+            lambda: self.graphSimple(
+                self.data.strawData,
+                "Tension (g)",
+                1000
+            )
+        )
+
+        # wire buttons
+        self.ui.wireExportButton.clicked.connect(
+            lambda: self.exportData(
+                "Wire_tension_data",
+                self.data.wireData,
+                ["Position", "Tension", "Epoch Timestamp"]
+            )
+        )
+        self.ui.wireExportButton.clicked.connect(
+            lambda: self.exportData(
+                "Wire_tension_data",
+                self.data.wireData,
+                ["Position", "Tension", "Epoch Timestamp"]
+            )
+        )
+        self.ui.wirePlotButton.clicked.connect(
+            lambda: self.graphSimple(
+                self.data.wireData,
+                "Tension (g)",
+                120
+            )
+        )
+        self.ui.wirePlotButton_2.clicked.connect(
+            lambda: self.graphSimple(
+                self.data.wireData,
+                "Tension (g)",
+                120
+            )
+        )
+
+        # heat combo boxes
+        self.ui.heatProBox.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.heatProBox.currentText())
+        )
+        self.ui.heatProBox_2.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.heatProBox_2.currentText())
+        )
+
+        # hv combo boxes
+        self.ui.hvProBox.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.hvProBox.currentText())
+        )
+        self.ui.hvProBox_2.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.hvProBox_2.currentText())
+        )
+
+    # utility, get any widget by name
+    # parameters: widgetName, name of the desired widget as a string
+    # returns: requested widget, will always be a child of self.ui
+    def getWid(self, widgetName,):
+        return getattr(self.ui, widgetName)
 
     # disable plot/export buttons
+    # parameters: no parameters
+    # returns: nothing returned
     def disableButtons(self):
-        # disables all the buttons
+        # disables all the buttons and combo boxes
         # useful for avoiding out of bounds exceptions when no data is present in lists
         self.ui.wireExportButton.setDisabled(True)
-        self.ui.plotWireDataButton.setDisabled(True)
+        self.ui.wirePlotButton.setDisabled(True)
         self.ui.strawExportButton.setDisabled(True)
-        self.ui.plotStrawDataButton.setDisabled(True)
+        self.ui.strawPlotButton.setDisabled(True)
         self.ui.hvExportButton.setDisabled(True)
-        self.ui.plotHVDataButton.setDisabled(True)
+        self.ui.hvPlotButton.setDisabled(True)
         self.ui.heatExportButton.setDisabled(True)
-        self.ui.plotHeatDataButton.setDisabled(True)
+        self.ui.heatPlotButton.setDisabled(True)
         self.ui.heatProBox.setDisabled(True)
+        self.ui.hvProBox.setDisabled(True)
+        self.ui.wireExportButton_2.setDisabled(True)
+        self.ui.wirePlotButton_2.setDisabled(True)
+        self.ui.strawExportButton_2.setDisabled(True)
+        self.ui.strawPlotButton_2.setDisabled(True)
+        self.ui.hvExportButton_2.setDisabled(True)
+        self.ui.hvPlotButton_2.setDisabled(True)
+        self.ui.heatExportButton_2.setDisabled(True)
+        self.ui.heatPlotButton_2.setDisabled(True)
+        self.ui.heatProBox_2.setDisabled(True)
+        self.ui.hvProBox_2.setDisabled(True)
 
-    # link menus/actions to functions
-    # some get disabled since they dont have any finished function yet
-    def initMenusActions(self):
-        pass
+    # remove data from all widgets
+    # parameters: no parameters
+    # returns: nothing returned
+    def clearWidgets(self):
+        # clear measurement widgets
+        # widget type: QListWidget
+        self.ui.strawListWidget.clear()
+        self.ui.wireListWidget.clear()
+        self.ui.hvListWidget.clear()
+        self.ui.heatListWidget.clear()
+        self.ui.strawListWidget_2.clear()
+        self.ui.wireListWidget_2.clear()
+        self.ui.hvListWidget_2.clear()
+        self.ui.heatListWidget_2.clear()
 
-    #    # file
-    #    self.ui.menuExport_Graph.setDisabled(True)
-    #    self.ui.menuExport.setDisabled(True)
-    #    self.ui.actionExport_Panel_Report.setDisabled(True)
+        # clear comment list widgets
+        # widget type: QListWidget
+        for toop in self.comWidgetList:
+            for widget in toop:
+                widget.clear()
 
-    #    # edit
-    #    self.ui.actionGraph_Settings.setDisabled(True)
-    #    self.ui.actionExport_Location.setDisabled(True)
-    #    self.ui.actionDatabase_Location.setDisabled(True)
+        # clear timing widgets
+        # widget type: QLineEdit
+        for toop in self.timeWidgetList:
+            for widget in toop:
+                widget.setText("")
 
-    #    # view
-    #    self.ui.menuColor_Scheme.setDisabled(True)
-
-    #    # help
-    #    self.ui.actionSend_Feedback_Issue.setDisabled(True)
-    #    #self.ui.actionLatest_Changes.triggered.connect(self.latestChanges)
-
-    # fmt: off
-    # ██████╗ ███████╗ █████╗ ██████╗     ███████╗██████╗  ██████╗ ███╗   ███╗    ██████╗ ██████╗
-    # ██╔══██╗██╔════╝██╔══██╗██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ██╔══██╗██╔══██╗
-    # ██████╔╝█████╗  ███████║██║  ██║    █████╗  ██████╔╝██║   ██║██╔████╔██║    ██║  ██║██████╔╝
-    # ██╔══██╗██╔══╝  ██╔══██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╔╝██║    ██║  ██║██╔══██╗
-    # ██║  ██║███████╗██║  ██║██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║    ██████╔╝██████╔╝
-    # ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝    ╚═════╝ ╚═════╝
-    # Functions that read from the SQL database
-    # Find panel is a pretty important function, it's tied to the submit button and clears data
-    #   from the GUI, checks for the existence of the submitted panel, and changes the top text
-    #   label all before calling all the other "find" functions
-    # fmt: on
-
-    # called upon hitting submit (does a lot of stuff)
-    def findPanel(self):
-
-        # Clear any saved data
-        self.data.clearPanel()
-
-        # Clear all widgets except the panel entry line edit
-        self.clearWidgets()
-
-        # Set new human id
-        self.data.humanID = self.ui.panelLE.text()
-
-        # Set label at top
+    # submitClicked does this stuff:
+    # - checks to see if the text in self.ui.panelLE is a panel with data
+    # - if not it shows an error and returns early
+    # - removes all data from widgets and self.data
+    # - calls findPanelData to get data from DB
+    # - if findPanelData returns false it shows an error and returns early
+    # - calls displayPanelData to put data on the gui
+    # parameters: no parameters
+    # returns: nothing returned
+    def submitClicked(self):
+        print("debug - submit clicked")
+        # get new human readable panel id, if a bad id was entered
+        # show an error and return
+        try:
+            # any non-numerical characters in int() will
+            # raise an invalid literal exception
+            self.data.humanID = int(self.ui.panelLE.text())
+        except:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"MN{(self.ui.panelLE.text()).zfill(3)} is not a valid panel ID.",
+            )
+            return
+        # change label at top of gui
         self.ui.label_2.setText(f"MN{str(self.data.humanID).zfill(3)}")
 
-        # Set new database id
+        # clear self.data, but leave ids intact
+        self.data.clearPanel(dbOnly=True)
+        # clear all widgets except entry widget
+        self.clearWidgets()
+
+        # call self.findPanelData to attempt to get data
+        # if no data is found show an error and return early
+        if not self.findPanelData():
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"No data was found for MN{(self.ui.panelLE.text()).zfill(3)}.",
+            )
+            return
+
+        # put data on the gui
+        self.displayPanelData()
+
+        self.ui.hvProBox.setEnabled(True)
+        self.ui.hvProBox_2.setEnabled(True)
+        self.ui.heatProBox.setEnabled(True)
+        self.ui.heatProBox_2.setEnabled(True)
+
+    # parameters: ???
+    # returns: nothing returned
+    def graphComboPressed(self,text):
+        # local function to call function to graph hv
+        def graphHV(self,dataType):
+            try:
+                self.graphSimple(
+                    dataType,
+                    "Current (μA)",
+                    0.5,
+                )
+                return 0
+            except:
+                return 1
+        # local funciton to call function to graph heat
+        def graphHeat(self,pro):
+            try:
+                self.graphSpecificHeat(pro)
+                return 0
+            except:
+                return 1
+
+        callDict = {
+            "Process 3, 1100V"  : (lambda: graphHV(self, self.data.hv1100P3)),
+            "Process 3, 1500V"  : (lambda: graphHV(self, self.data.hv1500P3)),
+            "Process 5"         : (lambda: graphHV(self, self.data.hvXXXXP5)),
+            "Process 6, 1500V"  : (lambda: graphHV(self, self.data.hv1500P6)),
+            "Process 1, Inner Rings": (lambda: graphHeat(self, 1)),
+            "Process 2, Straws"     : (lambda: graphHeat(self, 2)),
+            "Process 6, Manifold"   : (lambda: graphHeat(self, 6)),
+            "Select"                : (lambda: 0)
+        }
+        boool = callDict[text]()
+        if boool:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f'An error was encountered while attempting to graph {text}.',
+            )
+
+    
+    # called when a combo box index changes, calls functions to update relevant data
+    # parameters:   type, a string either "hv" or "heat"
+    #               index, the new index of the comboBox
+    # returns: nothing returned
+    def comboBoxChanged(self, text):
+        callDict = {
+            "Process 3, 1100V"  : (lambda: self.updateCombo(3,1100)),
+            "Process 3, 1500V"  : (lambda: self.updateCombo(3,1500)),
+            "Process 5"         : (lambda: self.updateCombo(5,1)),
+            "Process 6, 1500V"  : (lambda: self.updateCombo(6,1500)),
+            "Process 1, Inner Rings": (lambda: self.updateCombo(1,0)),
+            "Process 2, Straws"     : (lambda: self.updateCombo(2,0)),
+            "Process 6, Manifold"   : (lambda: self.updateCombo(6,0)),
+            "Select"                : (lambda: 0)
+        }
+        
+        boool = callDict[text]()
+        if boool:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f'An error was encountered while fetching data for {text}.',
+            )
+            return
+    
+    # called in comboBoxChanged.  Does the heavy lifting when it comes to showing the
+    # correct data in the list widgets and graphs.
+    # parameters:   pro, int representing the process being shown
+    #               volts, int representing the voltage for hv, if updating heat, volts = 0
+    # returns: 0 if success, 1 if failure
+    def updateCombo(self, pro, volts):
+        if not volts:
+            # update heat
+            self.displaySpecificHeat(
+                pro,
+                self.ui.heatListWidget,
+                (self.ui.heatExportButton, self.ui.heatPlotButton)
+            )
+            self.displaySpecificHeat(
+                pro,
+                self.ui.heatListWidget_2,
+                (self.ui.heatExportButton_2, self.ui.heatPlotButton_2),
+                self.ui.heatGraphLayout
+            )
+            return 0
+        else:
+            if volts < 1000:
+                volts = "XXXX"
+            # update hv
+            self.displayOnLists(
+                pro,
+                getattr(self.data,f'hv{volts}P{pro}'),
+                [("Position",18),("Current",13),("Trip Status",0)],
+                (self.ui.hvListWidget,self.ui.hvListWidget_2),
+                (
+                    self.ui.hvExportButton,self.ui.hvExportButton_2,
+                    self.ui.hvPlotButton,self.ui.hvPlotButton_2
+                )
+            )   
+            return 0
+
+    # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗ 
+    # ██╔════╝██║████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+    # █████╗  ██║██╔██╗ ██║██║  ██║    ██║  ██║███████║   ██║   ███████║
+    # ██╔══╝  ██║██║╚██╗██║██║  ██║    ██║  ██║██╔══██║   ██║   ██╔══██║
+    # ██║     ██║██║ ╚████║██████╔╝    ██████╔╝██║  ██║   ██║   ██║  ██║
+    # ╚═╝     ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+
+    # findPanelData fetches data from the DB and puts it into self.data
+    # it does NOT put data into the widgets, displayPanelData does that
+    # parameters: no parameters
+    # returns: bool, true if any data was found for the panel
+    def findPanelData(self):
+        
+        # find new database ID
         self.data.dbID = self.findPanelDatabaseID()
 
-        # if no database id found
+        # if no database id found return False
+        # without a database id, nothing else can be found
         if self.data.dbID == -1:
-            # show error message
-            tkinter.messagebox.showerror(
-                title="Error",
-                message=f"No data for MN{str(self.data.humanID).zfill(3)} was found.",
-            )
-            # and return, no point in looking for data that doesn't exist
-            # (and it's not possible w/o the database id)
-            return
+            return False
 
-        # Set new procedure ids
-        # calling the function sets them
-        # if nothing gets returned then abort, no procedures exist
+        # call findProcedures to get an id for each procedure
+        # it will return true if at least one procedure is found
+        # if it's false then return False
+        # if there are no procedures yet, the panel doesn't have any data
         if not self.findProcedures():
-            # show error
-            tkinter.messagebox.showerror(
-                title="Error",
-                message=f"No data for MN{str(self.data.humanID).zfill(3)} was found.",
-            )
-            return
+            return False
 
-        if self.findProTiming():
-            self.displayTiming()
-        # no "else -> no data found" since display htiming takes care of it
 
-        # FIND COMMENTS AND TIMING HERE
-        self.findComments()
+        # make a bool to represent if any data a user would like
+        # to see has been found (I doubt they care about database ids)
+        # at this point no useful data has been found
+        # if any of the following "find" funciton calls return true
+        # then hasData will be true by the end
+        hasData = False
+        # funcRet stores return from "find" functions
+        funcRet = False
 
-        # Find part human IDs
-        if self.findParts():
-            self.displayParts()
-        # no "else -> no data found" since display parts takes care of it
+        # find pro timing (events like start, pause, etc.)
+        funcRet = self.findProTiming()
+        # find comments
+        funcRet = self.findComments()
+        hasData = hasData or funcRet
+        # find parts
+        funcRet = self.findParts()
+        hasData = hasData or funcRet
+        # find straw tension data
+        funcRet = self.findStraws()
+        hasData = hasData or funcRet
+        # find wire tension data
+        funcRet = self.findWires()
+        hasData = hasData or funcRet
+        # find hv data
+        funcRetI = self.findSpecificHV(3,1100)
+        funcRetII = self.findSpecificHV(3,1500)
+        funcRetIII = self.findSpecificHV(6,1500)
+        hasData = hasData or funcRetI or funcRetII or funcRetIII
+        # find heat data
+        funcRetI = self.findSpecificHeat(1)
+        funcRetII = self.findSpecificHeat(2)
+        funcRetIII = self.findSpecificHeat(6)
+        hasData = hasData or funcRetI or funcRetII or funcRetIII
 
-        # Find heat data -- debug mode
-        if self.findHeat() is not []:
-            self.displayHeat()
-        # no "else -> no data found" since display heat takes care of it
+        #print(str(self.data))
+        return hasData
 
-        # Find wire tension data
-        if self.findWires():
-            self.displayWires()
-        else:
-            self.ui.wireListWidget.addItem("No data found :(")
-
-        # Find straw tension data
-        if self.findStraws():
-            self.displayStraws()
-        else:
-            self.ui.strawListWidget.addItem("No data found :(")
-
-        # Find high voltage data
-        if self.findHV():
-            self.displayHV()
-        else:
-            self.ui.hvListWidget.addItem("No data found :(")
-
-    # Query to find database ID (straw_location id) for panel
-    # returns either the id or a -1 to indicate no panel found
+    # finds and returns the database id for the panel in question
+    # the database id is a really long int, usually 16 characters
+    # parameters: no parameters
+    # returns: int, the database id or -1 to indicate failure
     def findPanelDatabaseID(self):
         panelIDQuery = (
             # select panel ids
@@ -376,7 +687,7 @@ class facileDBGUI(QMainWindow):
         resultProxy = self.connection.execute(panelIDQuery)
         # fetch from proxy, which gives [(<PANEL ID>,)]
         resultSet = resultProxy.fetchall()
-
+        
         # if nothing returned,
         if len(resultSet) == 0:
             # the panel doesn't exist!
@@ -385,7 +696,9 @@ class facileDBGUI(QMainWindow):
             # since resultSet is a list of tuples, add [0][0] to get an int
             return resultSet[0][0]
 
-    # query to get all procedure IDs for the panel (self.data.proIDs)
+    # finds procedure ids and stores them in the self.data.proIDs dict
+    # parameters: no parameters
+    # returns: bool, true if at least one procedure found, false otherwise
     def findProcedures(self):
         proceduresQuery = sqla.select(
             # select pro ids and stations
@@ -411,19 +724,18 @@ class facileDBGUI(QMainWindow):
 
         return not ([toop[0] for toop in panelProcedures] is None)
 
-    # query to find procedure timestamps
+    # finds procedure timing data and stores it in the self.data.timingLists dict
+    # parameters: no parameters
+    # returns: bool, true if any data found, false otherwise
     def findProTiming(self):
-
         # make table for procedure_timestamp
         timing = sqla.Table(
-            "procedure_timestamp",
-            self.metadata,
-            autoload=True,
-            autoload_with=self.engine,
+            "procedure_timestamp", self.metadata, autoload=True, autoload_with=self.engine,
         )
 
+        # function to get specific process data
+        # it will be used once for each pro
         def proSpecificQuery(self, pro):
-
             # don't waste any time on a procudure that doesn't exist yet
             if self.data.proIDs[pro] == -1:
                 return tuple("f")
@@ -476,20 +788,16 @@ class facileDBGUI(QMainWindow):
             )
 
         return retList is not None
-
-    # move displaying of comments to seperate functions
-    # get and display comments for selected panel (TODO: efficiency could be improved... ?)
+    
+    # finds comments for each procedure and stores it in self.data.comLists
+    # parameters: no parameters
+    # returns: bool, true if any data found, false otherwise
     def findComments(self):
         # make table
         comments = sqla.Table(
             "comment", self.metadata, autoload=True, autoload_with=self.engine
         )
-
-        # make query, it first selects:
-        #   self.panelsTable.number where number = self.data.humanID (panel number)
-        #   self.proceduresTable.station (process number)
-        #   comments.text (comment text)
-        #   comments.timestamp (time comment was made)
+        # make query
         comQuery = sqla.select(
             [
                 self.panelsTable.columns.number,
@@ -498,35 +806,35 @@ class facileDBGUI(QMainWindow):
                 comments.columns.timestamp,
             ]
         ).where(self.panelsTable.columns.number == self.data.humanID)
-        # since the first select only picked entries from self.panelsTable whose number = self.data.humanID, then we're getting the selected info where
-        #   the comment's procedure is one whose panel number is the what the user typed in
         comQuery = comQuery.select_from(
             self.panelsTable.join(
                 self.proceduresTable,
-                self.panelsTable.columns.id
-                == self.proceduresTable.columns.straw_location,
+                self.panelsTable.columns.id == self.proceduresTable.columns.straw_location,
             ).join(
-                comments, self.proceduresTable.columns.id == comments.columns.procedure
+                comments,
+                self.proceduresTable.columns.id == comments.columns.procedure
             )
         )
-
         resultProxy = self.connection.execute(comQuery)  # execute query
         resultSet = resultProxy.fetchall()  # get all results as list of tuples
         # tuples have the form: (<panel Number>, <process number>, <comment text>, <comment timestamp in epoch time>)
-
         # now lets plug the comments into the lists!
-        for i, listWidgetToop in enumerate(self.comWidgetList):
-            for commentTuple in resultSet:
-                # if process number string index 3 == current list widget process number
-                if int(commentTuple[1][3]) == (i + 1):
-                    realTime = time.strftime(
-                        "%Y-%m-%d %H:%M:%S", time.localtime(commentTuple[3])
-                    )
-                    listWidgetToop[0].addItem(f"{realTime}\n{commentTuple[2]}")
+        for toop in resultSet:
+            # append comment to appropriate list in comLists dictionary
+            self.data.comLists[toop[1]].append(
+                (toop[2],toop[3])
+            )
+        # return bool, true if any comments found
+        hasData = False
+        for key in self.data.comLists:
+            if len(self.data.comLists[key]) > 0:
+                hasData = True
+        return hasData
 
-        # for key in self.data.comLists:
-
-    # for getting the part number, type, and PIR details (L/R, A/B/C), panel_part has all you need. (TODO: Needs comments)
+    # finds parts for the panel and stores the data in self.data.parts
+    # calls self.findLPALs, since LPALs are parts
+    # parameters: no parameters
+    # returns: bool, true if any data found, false otherwise
     def findParts(self):
         # panel_part_use    --> panelPartUsage
         panelPartUsage = sqla.Table(
@@ -565,17 +873,106 @@ class facileDBGUI(QMainWindow):
 
         retList = []
 
+        # takes a tuple (from the query for part data), filters out the junk, saves to self.data.parts
+        # and returns a part tuple minus the junk
+        # parameter part:
+            #   0           1           2           3           4                       5           6               7
+            # (<panelnum>, <part id>, <straw_loc>, <ALF L/R>, <type (MIR, ALF, etc)>, <part num>, <PIR l/R>, <PIR,PAAS A/B/C>)
+        def sortAndRefinePart(self, part):
+            # retPart:
+            #   0           1                       2           3           4
+            # (<ALF L/R>, <type (MIR, ALF, etc)>, <part num>, <PIR l/R>, <PIR,PAAS A/B/C>)
+            retPart = ["", "", "", "", ""]
+            for i in range(3, 8):
+                if part[i] is not None:
+                    retPart[i - 3] = part[i]
+            # build a string to function as a dict key (for self.data.parts dict)
+            # some of the pieces will be "", some will be a string like "PIR", "L", "A", etc.
+            self.data.parts[f"{retPart[1]}{retPart[3]}{retPart[4]}{retPart[0]}"]=retPart[2]
+            return retPart
+
+
         # (<panelnum>, <part id>, <straw_loc>, <ALF L/R>, <type (MIR, ALF, etc)>, <part num>, <PIR l/R>, PIR,PAAS A/B/C>)
         for partTuple in resultSet:
-            self.sortAndRefinePart(partTuple)
+            sortAndRefinePart(self, partTuple)
             retList.append(partTuple)
 
-        # return retList -- returning the list could be useful for debugging...
-        return retList is not None
+        # lpals are slightly different, so they have their own function
+        self.findLPALs()
 
-    # get straw data
+        # return bool
+        return (len(retList) > 0)
+
+    # finds LPALs and stores them in self.data.parts, called by findParts
+    # LPALs have their own find function because they are different than the other parts
+    # parameters: no parameters
+    # returns: nothing returned (yet)
+    # TODO: CHECK TO MAKE SURE THIS FINDS CORRECT DATA
+    def findLPALs(self):
+        # LPALs are found differently than regular parts
+        # straw_location(MN type) --> procedures(this panel) --> 
+        #   pan1_procedure(this panels procedure) --> straw_location(LPAL type)
+
+        # procedure_details_pan1        --> pan1Pros
+        pan1Pros = sqla.Table(
+            "procedure_details_pan1", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        lpal1Query = sqla.select([self.panelsTable.columns.number]
+        ).select_from(
+            pan1Pros.join(
+                self.panelsTable,
+                sqla.or_(
+                    pan1Pros.columns.lpal_top == self.panelsTable.columns.id,
+                    pan1Pros.columns.lpal_bot == self.panelsTable.columns.id
+                )
+            )
+        ).where(pan1Pros.columns.procedure == self.data.proIDs["pan1"])
+        resultProxy = self.connection.execute(lpal1Query)
+        resultSet = resultProxy.fetchall()
+        # if we have stuff for pro 1, set that as the lpal data and return
+        if len(resultSet ) > 0:
+            if resultSet[0][0] is not None:
+                self.data.parts["lpal_top_"] = resultSet[0][0]
+            if resultSet[1][0] is not None:
+                self.data.parts["lpal_bot_"] = resultSet[1][0]
+        # if both LPALs have been found, return early
+        if self.data.parts["lpal_bot_"] != [] and self.data.parts["lpal_top_"] != []:
+            return
+        
+        # otherwise repeat for pro 2
+        # procedure_details_pan2        --> pan2Pros
+        pan2Pros = sqla.Table(
+            "procedure_details_pan2", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        lpal2Query = sqla.select([self.panelsTable.columns.number]
+        ).select_from(
+            pan2Pros.join(
+                self.panelsTable,
+                sqla.or_(
+                    pan2Pros.columns.lpal_top == self.panelsTable.columns.id,
+                    pan2Pros.columns.lpal_bot == self.panelsTable.columns.id
+                )
+            )
+        ).where(pan2Pros.columns.procedure == self.data.proIDs["pan2"])
+
+        resultProxy = self.connection.execute(lpal2Query)
+        resultSet = resultProxy.fetchall()
+        
+        if len(resultSet ) > 0:
+            if resultSet[0][0] is not None and self.data.parts["lpal_top_"] == []:
+                self.data.parts["lpal_top_"] = resultSet[0][0]
+            if resultSet[1][0] is not None and self.data.parts["lpal_bot_"] == []:
+                self.data.parts["lpal_bot_"] = resultSet[1][0]
+
+    # finds straw tension data and stores it in self.data.strawData
+    # parameters: no parameters
+    # returns: bool, true if any data found, false otherwise
     def findStraws(self):
-        # straw_tension
+        # check if pro 2 exists
+        if self.data.proIDs["pan2"] == -1:
+            return False
         strawTensions = sqla.Table(
             "measurement_straw_tension",
             self.metadata,
@@ -583,832 +980,257 @@ class facileDBGUI(QMainWindow):
             autoload_with=self.engine,
         )
 
-        # check if we have data for pro 2 --> straw tension
-        if self.data.proIDs["pan2"] != -1:
-            strawTensionQuery = sqla.select(
-                [  # select
-                    strawTensions.columns.position,  # straw position
-                    strawTensions.columns.tension,  # straw tension
-                    strawTensions.columns.uncertainty,  # measurement uncertainty
-                    strawTensions.columns.timestamp,  # measurement timestamp
-                ]
-            ).where(
-                strawTensions.columns.procedure == self.data.proIDs["pan2"]
-            )  # where procedure = pro 2 id
+        strawTensionQuery = sqla.select(
+            [  # select
+                strawTensions.columns.position,  # straw position
+                strawTensions.columns.tension,  # straw tension
+                strawTensions.columns.uncertainty,  # measurement uncertainty
+                strawTensions.columns.timestamp,  # measurement timestamp
+            ]
+        ).where(
+            strawTensions.columns.procedure == self.data.proIDs["pan2"]
+        )  # where procedure = pro 2 id
 
-            resultProxy4 = self.connection.execute(
-                strawTensionQuery
-            )  # make proxy (do I need a different proxy every time??  Probably not)
-            rawStrawData = resultProxy4.fetchall()  # fetch all and send to class member
-            # list of tuples:  (<POS>, <TEN>, <UNCERTAINTY>, <TIME>)
-            self.data.strawData = []  # enure strawTensionData is clear
-            for x in range(96):  # for x = 0 to 96
-                self.data.strawData += [
-                    (x, "No Data", "No Data", 0)
-                ]  # assign "data" to strawTensionData
+        resultProxy4 = self.connection.execute(
+            strawTensionQuery
+        )  # make proxy (do I need a different proxy every time??  Probably not)
+        rawStrawData = resultProxy4.fetchall()  # fetch all and send to class member
+        # list of tuples:  (<POS>, <TEN>, <UNCERTAINTY>, <TIME>)
+        self.data.strawData = []  # enure strawTensionData is clear
+        for x in range(96):  # for x = 0 to 96
+            self.data.strawData += [
+                (x, "No Data", "No Data", 0)
+            ]  # assign "data" to strawTensionData
 
-            # The following for loop goes through the raw data and puts it into self.data.strawData.  It will only put data into
-            # self.data.strawData if the raw data has a timestamp newer than the existing one in self.data.strawData, in order to
-            # filter out old data.  So if a tuple from rawStrawData for position 5 is found, and self.data.strawData already
-            # has data for position 5, it will replace the existing data if the timestamp from the raw data is newer than the
-            # already existing one.
-            # self.data.strawData[toop[0]][3] gets index 3 (time) from the tuple at the index in strawTensionData equal
-            # to index 0 (position) of toop (data from rawStrawData)
+        # The following for loop goes through the raw data and puts it into self.data.strawData.  It will only put data into
+        # self.data.strawData if the raw data has a timestamp newer than the existing one in self.data.strawData, in order to
+        # filter out old data.  So if a tuple from rawStrawData for position 5 is found, and self.data.strawData already
+        # has data for position 5, it will replace the existing data if the timestamp from the raw data is newer than the
+        # already existing one.
+        # self.data.strawData[toop[0]][3] gets index 3 (time) from the tuple at the index in strawTensionData equal
+        # to index 0 (position) of toop (data from rawStrawData)
 
-            retList = []
+        retList = []
 
-            for toop in rawStrawData:
-                retList.append(toop)
-                if self.data.strawData[toop[0]][3] < toop[3]:
-                    self.data.strawData[toop[0]] = toop
+        for toop in rawStrawData:
+            retList.append(toop)
+            if self.data.strawData[toop[0]][3] < toop[3]:
+                # tuple has form: (<position>, <tension>, <epoch timestamp>, <uncertainty>)
+                self.data.strawData[toop[0]] = (toop[0],toop[1],toop[3],toop[2])
 
-            # return retList
-            return retList is not None
+        # return true if any data found
+        return (len(retList) > 0)
 
-    # get high voltage data
-    def findHV(self):
-
-        if int(self.data.humanID) < 34:  # if the panel is too old for HV data
-            labelBrush = QBrush(Qt.red)  # make a red brush
-            labelItem = QListWidgetItem(
-                "This panel was created before HV data was recorded in the database"
-            )
-            # make a list item with text ^
-            labelItem.setBackground(labelBrush)  # paint the list item background red
-            self.ui.hvListWidget.addItem(labelItem)  # add the item to the list
-
-            # return early, no data to look for
-            return []
-
-        hvCurrents = sqla.Table(
-            "measurement_pan5", self.metadata, autoload=True, autoload_with=self.engine
-        )
-        # check if we have data for pro 5 --> pan5 measurement
-        if self.data.proIDs["pan5"] != -1:
-            hvCurrentsQuery = sqla.select(
-                [  # select
-                    hvCurrents.columns.position,  # wire/straw position
-                    hvCurrents.columns.current_left,  # left current
-                    hvCurrents.columns.current_right,  # right current
-                    hvCurrents.columns.is_tripped,  # trip status
-                    hvCurrents.columns.timestamp,  # timestamp
-                ]
-            ).where(  # where procedure = this panels pan5 procedure
-                hvCurrents.columns.procedure == self.data.proIDs["pan5"]
-            )
-            # fetching from this query will give list of tuples: (<POS>, <L_AMPS>, <R_AMPS>, <TRIP>, <TIME>)
-
-            resultProxy = self.connection.execute(hvCurrentsQuery)  # make proxy
-            rawHVData = resultProxy.fetchall()  # get all the data from the query
-
-            self.data.hvData = []  # ensure hvData is clear
-            for x in range(96):  # for x = 0 to 96
-                self.data.hvData += [
-                    (x, "No Data", "No Data", "No Data", 0)
-                ]  # assign "data" to wireTensionData
-            # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
-            # it also replaces None types with "No Data" so that an absence of data is consistent with other measurement types
-            retList = []
-
-            for toop in rawHVData:
-                retList.append(toop)
-                if self.data.hvData[toop[0]][4] < toop[4]:
-                    self.data.hvData[toop[0]] = list(toop)
-                    if self.data.hvData[toop[0]][1] == None:
-                        self.data.hvData[toop[0]][1] = "No Data"
-                    if self.data.hvData[toop[0]][2] == None:
-                        self.data.hvData[toop[0]][2] = "No Data"
-
-            return retList is not None
-
-    # get wire tension data
+    # finds wire tension data and stores it in self.data.wireData
+    # parameters: no parameters
+    # returns: bool, true if any data found, false otherwise
     def findWires(self):
-        # wire_tension
+        # check if pro 3 exists
+        if self.data.proIDs["pan3"] == -1:
+            return False
+
         wireTensions = sqla.Table(
             "measurement_wire_tension",
             self.metadata,
             autoload=True,
             autoload_with=self.engine,
         )
+        
+        wireTensionQuery = sqla.select(
+            [  # select:
+                wireTensions.columns.position,  # wire position
+                wireTensions.columns.tension,  # wire tension
+                wireTensions.columns.wire_timer,  # wire timer (whatever that is)
+                wireTensions.columns.calibration_factor,  # calibration factor
+                wireTensions.columns.timestamp,
+            ]
+        ).where(
+            wireTensions.columns.procedure == self.data.proIDs["pan3"]
+        )  # where procedure = db pro 3 id
 
-        # check if we have data for pro 3 --> wire tension
-        if self.data.proIDs["pan3"] != -1:
-            wireTensionQuery = sqla.select(
-                [  # select:
-                    wireTensions.columns.position,  # wire position
-                    wireTensions.columns.tension,  # wire tension
-                    wireTensions.columns.wire_timer,  # wire timer (whatever that is)
-                    wireTensions.columns.calibration_factor,  # calibration factor
-                    wireTensions.columns.timestamp,
-                ]
-            ).where(
-                wireTensions.columns.procedure == self.data.proIDs["pan3"]
-            )  # where procedure = db pro 3 id
+        resultProxy3 = self.connection.execute(wireTensionQuery)  # make proxy
+        rawWireData = resultProxy3.fetchall()
+        # rawWireData = list of tuples: (<POS>, <TEN>, <TIMER>, <CALIB>, <TIME>)
 
-            resultProxy3 = self.connection.execute(wireTensionQuery)  # make proxy
-            rawWireData = (
-                resultProxy3.fetchall()
-            )  # fetchall and send to class member, list of tuples: (<POS>, <TEN>, <TIMER>, <CALIB>, <TIME>)
 
-            self.data.wireData = []  # ensure wireTensionData is clear
-            for x in range(96):  # for x = 0 to 96
-                self.data.wireData += [
-                    (x, "No Data", "No Data", 0, 0)
-                ]  # assign "data" to wireTensionData
-            # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
+        self.data.wireData = []  # ensure wireTensionData is clear
+        for x in range(96):  # for x = 0 to 96
+            self.data.wireData += [
+                (x, "No Data", 0)
+            ]  # assign "data" to wireTensionData
+        # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
+        retList = []
+        for toop in rawWireData:
+            retList.append(retList)
+            if self.data.wireData[toop[0]][2] < toop[4]:
+                self.data.wireData[toop[0]] = (toop[0],toop[1],toop[4])
 
-            retList = []
+        # return retList found or not
+        return (len(retList) > 0)
 
-            for toop in rawWireData:
-                retList.append(retList)
-                if self.data.wireData[toop[0]][4] < toop[4]:
-                    self.data.wireData[toop[0]] = toop
+    # finds hv data for a specific pro and voltage
+    # parameters: pro, int that specifies procedure (3 or 6)
+    #             volts, int that specifies voltage (1100 or 1500)
+    # returns: bool, true if any data found, false otherwise
+    # TODO: add pro 5 compatability
+    def findSpecificHV(self, pro, volts):
+        # first check if procedure exists
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            return False
 
-            # return retList
-            return retList is not None
+        hvTable = sqla.Table(
+            "measurement_pan5",
+            self.metadata,
+            autoload=True,
+            autoload_with=self.engine,
+        )
+        
+        hvQuery = sqla.select(          # get...
+            [
+                hvTable.columns.position,     # position,
+                hvTable.columns.current_left, # left current,
+                hvTable.columns.current_right,# right current,
+                hvTable.columns.is_tripped,   # trip status,
+                hvTable.columns.timestamp     # timestamp
+            ]
+        ).where(                        # where...
+            sqla.and_(
+                hvTable.columns.procedure == self.data.proIDs[f'pan{pro}'], # pro is this procedure
+                hvTable.columns.voltage == volts  # voltage is the voltage we want
+            )
+        )
 
-    # find and display PAAS heating data
-    def findHeat(self):
-        # get heat table
+        resultProxy = self.connection.execute(hvQuery)  # make proxy
+        rawHVData = resultProxy.fetchall()
+        # rawHVData = list of tuples:
+        # (<position>, <L amps>, <R amps>, <trip status>, <epoch timestamp>)
+
+        hvList = []
+        
+        for x in range(96):  # for x = 0 to 96
+            hvList += [
+                (x, "No Data", "No Data", False, 0)
+            ]  # assign "data" to hvList
+        # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
+        retList = []
+        for toop in rawHVData:
+            retList.append(toop)
+            if hvList[toop[0]][4] < toop[4]:
+                hvList[toop[0]] = toop
+
+        lCount = 0
+        rCount = 0
+        for lst in hvList:
+            if lst[1] is not None:
+                lCount += 1
+            if lst[2] is not None:
+                rCount += 1
+        
+        if lCount > rCount:
+            for i,toop in enumerate(hvList):
+                hvList[i] = (toop[0],toop[1],toop[3],"L",toop[4])
+        else:
+            for i,toop in enumerate(hvList):
+                hvList[i] = (toop[0],toop[2],toop[3],"R",toop[4])
+
+        targetList = getattr(self.data, f'hv{volts}P{pro}')
+
+        targetList += hvList
+
+        # return retList found or not
+        return (len(retList) > 0)
+
+    # finds heat data and stores it in ____
+    # parameters: int, pro is the process to find data for (1,2, or 6)
+    # returns: bool, true if any data found, false otherwise
+    def findSpecificHeat(self, pro):
+        # check if desired pro exists
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            return False
+
         panelHeats = sqla.Table(
             "panel_heat", self.metadata, autoload=True, autoload_with=self.engine
         )
 
-        # make bools to keep track of what data we have
-        # originally lists were initialized here, but sqlalchemys fetchall() returns
-        #   dumb lists that aren't real lists because you can't concatenate them onto normal lists
-        self.pro1HeatData = False
-        self.pro2HeatData = False
-        self.pro6HeatData = False
+        heatQuery = sqla.select(
+            [
+                panelHeats.columns.timestamp,  # time temp taken
+                panelHeats.columns.temp_paas_a,  # PAAS A temp
+                panelHeats.columns.temp_paas_bc,  # PAAS BC temp
+                panelHeats.columns.procedure,
+            ]
+        ).where(panelHeats.columns.procedure == self.data.proIDs[f'pan{pro}'])
 
-        self.pro1AStats = []
-        self.pro1BCStats = []
-        self.pro1HeatTime = []
-        self.pro2AStats = []
-        self.pro2BCStats = []
-        self.pro2HeatTime = []
-        self.pro6AStats = []
-        self.pro6BCStats = []
-        self.pro6HeatTime = []
+        resultProxy = self.connection.execute(heatQuery)  # make proxy
+        rawHeatData = resultProxy.fetchall()  # get data from db
 
-        # if a pro 1 exists, get the data!
-        if self.data.proIDs["pan1"] != -1:
-            pro1HeatQuery = sqla.select(
-                [
-                    panelHeats.columns.timestamp,  # time temp taken
-                    panelHeats.columns.temp_paas_a,  # PAAS A temp
-                    panelHeats.columns.temp_paas_bc,  # PAAS BC temp
-                    panelHeats.columns.procedure,
-                ]
-            ).where(panelHeats.columns.procedure == self.data.proIDs["pan1"])
-            # where the procedure for the entry is the procedure for this panel
-            resultProxy = self.connection.execute(pro1HeatQuery)  # make proxy
-            rawPro1HeatData = resultProxy.fetchall()  # get data from db
-            if rawPro1HeatData is not []:  # check if we actually have data
-                self.pro1HeatData = True  # we do! huzzah!
-
-        # if a pro 2 exists, get the data!
-        if self.data.proIDs["pan2"] != -1:
-            pro2HeatQuery = sqla.select(
-                [
-                    panelHeats.columns.timestamp,  # time temp taken
-                    panelHeats.columns.temp_paas_a,  # PAAS A temp
-                    panelHeats.columns.temp_paas_bc,  # PAAS BC temp
-                ]
-            ).where(panelHeats.columns.procedure == self.data.proIDs["pan2"])
-            # where the procedure for the entry is the procedure for this panel
-            resultProxy = self.connection.execute(pro2HeatQuery)  # make proxy
-            rawPro2HeatData = resultProxy.fetchall()  # get data from db
-            if rawPro2HeatData is not []:  # check if we actually have data
-                self.pro2HeatData = True  # we do! noice!
-
-        # if a pro 6 exists, get the data!
-        if self.data.proIDs["pan6"] != -1:
-            pro6HeatQuery = sqla.select(
-                [
-                    panelHeats.columns.timestamp,  # time temp taken
-                    panelHeats.columns.temp_paas_a,  # PAAS A temp
-                    panelHeats.columns.temp_paas_bc,  # PAAS BC temp
-                ]
-            ).where(panelHeats.columns.procedure == self.data.proIDs["pan6"])
-            # where the procedure for the entry is the procedure for this panel
-            resultProxy = self.connection.execute(pro6HeatQuery)  # make proxy
-            rawPro6HeatData = resultProxy.fetchall()  # get data from db
-            if rawPro6HeatData is not []:  # check if we actually have data
-                self.pro6HeatData = True  # we do! excellent!
-
-        # The tuples in the raw data lists exist in the form: (timestamp, PAAS A temp, PAAS B temp)
-
-        # the next 3 if blocks take the raw data and refine it
-        # first it changes the bool into a list, and then puts the raw data in the list, with a human
-        # readable timestamp at index 0.
-        # second it gets statistics from the refined data temp: min, max, mean, std dev time: total time
-        if self.pro1HeatData:
-            self.pro1HeatData = []  # switch bool to list
-
-            for toop in rawPro1HeatData:  # for each tuple in list,
-                # add that data to the heat data with a human readable timestamp in front
-                self.pro1HeatData.append(
-                    [
+        # go through the raw data and build a list with it
+        # list is list of tuples: 
+        # (<human timestamp>, <epoch timestamp>, <PAAS A temp>, <PAAS B/C temp>)
+        heatList = []
+        for toop in rawHeatData:
+            heatList.append(
+                    (
                         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
                         toop[0],
-                        toop[1],
-                        toop[2],
-                    ]
-                )
-
-            # make lists of temps for paas A and B/C
-            paasATemps = [toop[2] for toop in self.pro1HeatData]
-            paasBCTemps = [toop[3] for toop in self.pro1HeatData]
-
-            if len(paasATemps) > 0:  # if paas A data exits
-                # make a list of stats
-                self.pro1AStats = [
-                    statistics.mean(paasATemps),  # mean of paas A
-                    min(paasATemps),  # min of paas A
-                    max(paasATemps),  # max of paas A
-                    statistics.stdev(paasATemps),  # standard dev of paas A
-                    statistics.mean(paasATemps)
-                    - statistics.stdev(paasATemps),  # upper std dev
-                    statistics.mean(paasATemps)
-                    + statistics.stdev(paasATemps),  # lower std dev
-                ]
-            if len(paasBCTemps) > 0:  # if paas B/C exists
-                # make a list of stats
-                self.pro1BCStats = [
-                    statistics.mean(paasBCTemps),  # mean of paas BC
-                    min(paasBCTemps),  # min of paas BC
-                    max(paasBCTemps),  # max of paas BC
-                    statistics.stdev(paasBCTemps),  # standard dev of paas BC
-                    statistics.mean(paasBCTemps)
-                    - statistics.stdev(paasBCTemps),  # upper std dev
-                    statistics.mean(paasBCTemps)
-                    + statistics.stdev(paasBCTemps),  # lower std dev
-                ]
-
-            # make a list of heat timestamps
-            heatTimes = [toop[1] for toop in self.pro1HeatData]
-            # if we have that data
-            if len(heatTimes) > 0:
-                # find the total time it took
-                rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro1HeatTime = timedelta(seconds=rawHeatTime)
-
-        # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
-        if self.pro2HeatData:
-            self.pro2HeatData = []
-            for toop in rawPro2HeatData:
-                self.pro2HeatData.append(
-                    [
-                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
-                        toop[0],
-                        toop[1],
-                        toop[2],
-                    ]
-                )
-            paasATemps = [toop[2] for toop in self.pro2HeatData]
-            paasBCTemps = [toop[3] for toop in self.pro2HeatData]
-            if len(paasATemps) > 0:
-                self.pro2AStats = [
-                    statistics.mean(paasATemps),  # mean of paas A
-                    min(paasATemps),  # min of paas A
-                    max(paasATemps),  # max of paas A
-                    statistics.stdev(paasATemps),  # standard dev of paas A
-                    statistics.mean(paasATemps)
-                    - statistics.stdev(paasATemps),  # upper std dev
-                    statistics.mean(paasATemps)
-                    + statistics.stdev(paasATemps),  # lower std dev
-                ]
-            if len(paasBCTemps) > 0:
-                self.pro2BCStats = [
-                    statistics.mean(paasBCTemps),  # mean of paas BC
-                    min(paasBCTemps),  # min of paas BC
-                    max(paasBCTemps),  # max of paas BC
-                    statistics.stdev(paasBCTemps),  # standard dev of paas BC
-                    statistics.mean(paasBCTemps)
-                    - statistics.stdev(paasBCTemps),  # upper std dev
-                    statistics.mean(paasBCTemps)
-                    + statistics.stdev(paasBCTemps),  # lower std dev
-                ]
-
-            heatTimes = [toop[1] for toop in self.pro2HeatData]
-            if len(heatTimes) > 0:
-                rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro2HeatTime = timedelta(seconds=rawHeatTime)
-
-        # SEE THE ABOVE IF BLOCK FOR COMMENTS, THIS ONE WORKS THE SAME WAY
-        if self.pro6HeatData:
-            self.pro6HeatData = []
-            for toop in rawPro6HeatData:
-                self.pro6HeatData.append(
-                    [
-                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
-                        toop[0],
-                        toop[1],
-                        toop[2],
-                    ]
-                )
-
-            paasATemps = [toop[2] for toop in self.pro6HeatData]
-            paasBCTemps = [toop[3] for toop in self.pro6HeatData]
-            if len(paasATemps) > 0:
-                self.pro6AStats = [
-                    statistics.mean(paasATemps),  # mean of paas A
-                    min(paasATemps),  # min of paas A
-                    max(paasATemps),  # max of paas A
-                    statistics.stdev(paasATemps),  # standard dev of paas A
-                    statistics.mean(paasATemps)
-                    - statistics.stdev(paasATemps),  # upper std dev
-                    statistics.mean(paasATemps)
-                    + statistics.stdev(paasATemps),  # lower std dev
-                ]
-            if len(paasBCTemps) > 0:
-                self.pro6BCStats = [
-                    statistics.mean(paasBCTemps),  # mean of paas BC
-                    min(paasBCTemps),  # min of paas BC
-                    max(paasBCTemps),  # max of paas BC
-                    statistics.stdev(paasBCTemps),  # standard dev of paas BC
-                    statistics.mean(paasBCTemps)
-                    - statistics.stdev(paasBCTemps),  # upper std dev
-                    statistics.mean(paasBCTemps)
-                    + statistics.stdev(paasBCTemps),  # lower std dev
-                ]
-
-            heatTimes = [toop[1] for toop in self.pro6HeatData]
-            if len(heatTimes) > 0:
-                rawHeatTime = max(heatTimes) - min(heatTimes)
-                self.pro6HeatTime = timedelta(seconds=rawHeatTime)
-
-        # stats lists are of the form: [mean, min, max, std dev, upper std dev, lower std dev]
-
-        self.displayHeat()
-
-    # fmt: off
-    # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗
-    # ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝
-    # █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗
-    # ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║
-    # ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝
-    # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝
-    # Functions responsible for writing data to CSV files, these all need more comments
-    # fmt: on
-
-    # export wire data to CSV file
-    def exportWireMeasurements(self):
-        if len(self.data.wireData) == 0:
-            tkinter.messagebox.showerror(
-                title="Error",
-                message=f"No wire tension data found for MN{self.data.humanID}",
-            )
-            return
-        with open(
-            f"MN{self.data.humanID}_wire_tension_data.csv", "w", newline=""
-        ) as csvFile:
-            csvWriter = csv.writer(csvFile)
-            csvWriter.writerow([f"MN{self.data.humanID} Wire Tension Data"])
-            csvWriter.writerow(
-                ["Position", "Tension", "Wire Timer", "Calibration Factor"]
-            )
-            csvWriter.writerows(self.data.wireData)
-            tkinter.messagebox.showinfo(
-                title="Data Exported",
-                message=f"Data exported to MN{self.data.humanID}_wire_tension_data.csv",
-            )
-
-    # export straw tension data to CSV (TODO: NEEDS COMMENTS)
-    def exportStrawMeasurements(self):
-        if len(self.data.strawData) == 0:
-            tkinter.messagebox.showerror(
-                title="Error",
-                message=f"No straw tension data found for MN{self.data.humanID}",
-            )
-            return
-        with open(
-            f"MN{self.data.humanID}_straw_tension_data.csv", "w", newline=""
-        ) as csvFile:
-            csvWriter = csv.writer(csvFile)
-            csvWriter.writerow([f"MN{self.data.humanID} Straw Tension Data"])
-            csvWriter.writerow(["Position", "Tension", "Uncertainty", "Timestamp"])
-            csvWriter.writerows(self.data.strawData)
-            tkinter.messagebox.showinfo(
-                title="Data Exported",
-                message=f"Data exported to MN{self.data.humanID}_straw_tension_data.csv",
-            )
-
-    # export HV data to CSV (TODO: NEEDS COMMENTS)
-    def exportHVMeasurements(self):
-        # (<POS>, <L_AMPS>, <R_AMPS>, <TRIP>, <TIME>)
-        if len(self.data.hvData) == 0:
-            tkinter.messagebox.showerror(
-                title="Error", message=f"No HV data found for MN{self.data.humanID}"
-            )
-            return
-        with open(f"MN{self.data.humanID}_HV_data.csv", "w", newline="") as csvFile:
-            csvWriter = csv.writer(csvFile)
-            csvWriter.writerow([f"MN{self.data.humanID} HV Data"])
-            csvWriter.writerow(
-                [
-                    "Position",
-                    "Left Current",
-                    "Right Current",
-                    "Trip Status",
-                    "Timestamp",
-                ]
-            )
-            csvWriter.writerows(self.data.hvData)
-            tkinter.messagebox.showinfo(
-                title="Data Exported",
-                message=f"Data exported to MN{self.data.humanID}_HV_data.csv",
-            )
-
-    # export heat data to CSV
-    def exportHeatMeasurements(self):
-        # get the current pro
-        curPro = self.ui.heatProBox.currentText()[8]
-
-        if len(self.getHeatData(curPro, "HeatData")) == 0:
-            tkinter.messagebox.showerror(
-                title="Error", message=f"No heat data found for MN{self.data.humanID}"
-            )
-            return
-
-        with open(
-            f"MN{self.data.humanID}_pro_{curPro}_heat_data.csv", "w", newline=""
-        ) as csvFile:
-            csvWriter = csv.writer(csvFile)
-            csvWriter.writerow([f"MN{self.data.humanID} heat Data"])
-            csvWriter.writerow(
-                ["Time (Human)", "Time (Epoch)", "PAAS A Temp", "PAAS B/C Temp"]
-            )
-            csvWriter.writerows(self.getHeatData(curPro, "HeatData"))
-            tkinter.messagebox.showinfo(
-                title="Data Exported",
-                message=f"Data exported to MN{self.data.humanID}_pro_{curPro}_heat_data.csv",
-            )
-
-    # fmt: off
-    #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗
-    # ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║██║████╗  ██║██╔════╝
-    # ██║  ███╗██████╔╝███████║██████╔╝███████║██║██╔██╗ ██║██║  ███╗
-    # ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║██║██║╚██╗██║██║   ██║
-    # ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║██║██║ ╚████║╚██████╔╝
-    #  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
-    # Functions that use matplotlib to make graphs from the data in scroll areas
-    # fmt: on
-
-    # function to open new window with wire tension data graphed
-    def plotWireData(self):
-        # plt.style.use('dark_background') # darkmodebestmode
-        # self.data.wireData = [(pos,ten,...), (pos,ten,...),...]
-        xData = list(range(96))  # string positions: 0 to 95
-        sctrYData = []  # give this list data in for loop
-        for toop in self.data.wireData:  # go through wireTensionData
-            if toop[1] != "No Data":  # if data exists...
-                sctrYData += [toop[1]]  # add it to the list of y axis points
-            else:  # if there isn't data...
-                sctrYData += [None]  # add a None value to the list
-
-        plt.subplot(211)  # make subplot 1
-        plt.scatter(xData, sctrYData)  # make a scatterplot out of the x and y data
-        plt.axis([0, 100, 0, 100])  # set the bounds of the graph
-        plt.xlabel("Wire Position", fontsize=20)  # set x axis label
-        plt.ylabel("Wire Tension", fontsize=20)  # set y axis label
-        for x, y in enumerate(sctrYData):  # go through y data, enumerate for x
-            if y is not None and y < 70:  # if y exists and is too low...
-                plt.annotate(f"({x},{y})", (x, y))  # annotate that point
-
-        plt.subplot(212)  # make subplot 2
-        histYData = []  # make list to filter out None types
-        # doing the histogram before the scatterplot to avoid the redundant addition then
-        # removal of None types wouldn't work since you would still need to remove the strings
-        for y in sctrYData:  # go through scatter y data
-            if y != None:  # if it's not a None type
-                histYData += [y]  # add it to the new histogram y data
-        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
-        plt.xlabel("Wire Tension", fontsize=20)  # set x axis label
-        plt.ylabel("Frequency", fontsize=20)  # set y axis label
-
-        plt.tight_layout()  # give subplots enough space between them
-        # mpl.rcParams['figure.dpi'] = 300        # make the graph itself bigger (deault is super smol)
-        plt.show()  # show the graphs
-
-    # plot straw tension data in new window (TODO: NEEDS BETTER COMMENTS)
-    def plotStrawData(self):
-        # self.data.strawData = [(pos, ten, unc, time),...]
-        xData = list(range(96))
-        sctrYDataPoints = []
-        sctrYDataUncs = []
-        for toop in self.data.strawData:
-            if toop[1] != "No Data" and toop[2] != "No Data":
-                sctrYDataPoints += [toop[1]]
-                sctrYDataUncs += [toop[2]]
-            else:
-                sctrYDataPoints += [None]  # source of a bug???
-                sctrYDataUncs += [None]
-
-        plt.subplot(211)
-        # plt.figure(figsize=(12,8))
-
-        try:
-            plt.errorbar(
-                xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
-            )  # make a scatterplot out of the x and y data
-        except:
-            print("Insufficient data to plot error bars.")
-
-        plt.axis([0, 100, 0, 1000])  # set the bounds of the graph
-        plt.xlabel("Wire Position", fontsize=20)  # set x axis label
-        plt.ylabel("Straw Tension", fontsize=20)  # set y axis label
-        for x, y in enumerate(sctrYDataPoints):  # go through y data, enumerate for x
-            if y is not None:  # if y exists and is too low...
-                plt.annotate(f"{x}", (x, y), fontsize=8)  # annotate that point
-
-        plt.subplot(212)  # make subplot 2
-        histYData = []  # make list to filter out None types
-
-        for y in sctrYDataPoints:  # go through scatter y data
-            if y != None:  # if it's not a None type
-                histYData += [y]  # add it to the new histogram y data
-        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
-        plt.xlabel("Straw Tension", fontsize=20)  # set x axis label
-        plt.ylabel("Frequency", fontsize=20)  # set y axis label
-
-        plt.tight_layout()
-        # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
-        plt.show()
-
-    # plot HV data in new window (TODO: NEEDS BETTER COMMENTS)
-    def plotHVData(self):
-        # (<pos>, <L current>, <R current>, <is tripped bool>, <time>)
-
-        xData = list(range(96))  # x data can be re-used
-
-        # left current subplots
-        yData = []
-        for toop in self.data.hvData:
-            if toop[1] != "No Data":
-                yData += [toop[1]]
-            else:
-                yData += [None]
-
-        plt.subplot(221)
-        plt.scatter(xData, yData)
-        plt.xlabel("Left Current", fontsize=20)  # set x axis label
-        plt.ylabel("Position", fontsize=20)  # set y axis label
-
-        plt.subplot(223)  # make subplot 2
-        histYData = []  # make list to filter out None types
-
-        for y in yData:  # go through scatter y data
-            if y != None:  # if it's not a None type
-                histYData += [y]  # add it to the new histogram y data
-        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
-        plt.xlabel("Left Current", fontsize=20)  # set x axis label
-        plt.ylabel("Frequency", fontsize=20)  # set y axis label
-
-        # right current subplots
-        yData = []
-        for toop in self.data.hvData:
-            if toop[2] != "No Data":
-                yData += [toop[2]]
-            else:
-                yData += [None]
-
-        plt.subplot(222)
-        plt.scatter(xData, yData)
-        plt.xlabel("Right Current", fontsize=20)  # set x axis label
-
-        plt.subplot(224)  # make subplot 2
-        histYData = []  # make list to filter out None types
-
-        for y in yData:  # go through scatter y data
-            if y != None:  # if it's not a None type
-                histYData += [y]  # add it to the new histogram y data
-        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
-        plt.xlabel("Right Current", fontsize=20)  # set x axis label
-
-        plt.tight_layout()
-        # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
-        plt.show()
-
-    # plot heat data in new window
-    def plotHeatData(self):
-        # get the current pro
-        curPro = self.ui.heatProBox.currentText()[8]
-
-        # make x data list by converting raw timesamps to matplotlib dates
-        xData = [
-            mpl.dates.epoch2num(toop[1])
-            for toop in self.getHeatData(curPro, "HeatData")
-        ]
-
-        if len(xData) < 3:  # <3
-            tkinter.messagebox.showerror(
-                title="Error",
-                message=f"Too little or no heat data was found for MN{self.data.humanID}, process {curPro}.",
-            )
-            return
-
-        # make y data sets
-        yDataA = [toop[2] for toop in self.getHeatData(curPro, "HeatData")]
-        yDataBC = [toop[3] for toop in self.getHeatData(curPro, "HeatData")]
-        # yColorBC = [(heat - 5) for heat in yDataBC]
-
-        # make subplot for PAAS A
-        plt.subplot(211)
-        plt.plot_date(xData, yDataA)  # make plot
-        mpl.dates.HourLocator()
-        plt.xlabel("Time", fontsize=20)  # set x axis label
-        plt.ylabel("Temperature of PAAS A (°C)", fontsize=20)  # set y axis label
-
-        # make subplot for PAAS A
-        plt.subplot(212)
-        plt.plot_date(xData, yDataBC)  # make plot
-        mpl.dates.HourLocator()
-        plt.xlabel("Time", fontsize=20)  # set x axis label
-        plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
-
-        """
-        This adds color(sick as frick), but the x ticks are in days since 0001...
-        # make subplot for PAAS B/C
-        plt.subplot(212)
-        plt.scatter(xData, yDataBC, c=yColorBC, s=10, cmap=plt.cm.jet) # make plot
-        mpl.dates.HourLocator()
-        plt.xlabel("Time", fontsize=20)  # set x axis label
-        plt.ylabel("Temperature of PAAS B/C (°C)", fontsize=20)  # set y axis label
-        """
-
-        plt.tight_layout()
-        plt.show()
-
-    # fmt: off
-    # ██████╗  █████╗ ██████╗ ███████╗███████╗    ██████╗  █████╗ ████████╗ █████╗
-    # ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-    # ██████╔╝███████║██████╔╝███████╗█████╗      ██║  ██║███████║   ██║   ███████║
-    # ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝      ██║  ██║██╔══██║   ██║   ██╔══██║
-    # ██║     ██║  ██║██║  ██║███████║███████╗    ██████╔╝██║  ██║   ██║   ██║  ██║
-    # ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-    # Functions that put data onto the GUI
-    # findComments() should be split into findComments() and displayComments(), same w/ findMeasurements()
-    # fmt: on
-
-    # put panel part IDs (human IDs not database IDs)
-    def displayParts(self):
-
-        # function to get widgets w/ string
-        def getPartWidget(self, widget):
-            return getattr(self.ui, f"part{widget}LE")
-
-        # for each type of part,
-        for key in self.data.parts:
-            # set the corresponding widget to the key's number
-            if self.data.parts[key] > -1:
-                getPartWidget(self, key).setText(str(self.data.parts[key]))
-            else:
-                getPartWidget(self, key).setText("Not found")
-
-    # put hv data on gui
-    def displayHV(self):
-        extantHVData = False
-        # make sure data exists
-        # look through data to look for a number
-        for toop in self.data.hvData:
-            if toop[1] != "No Data":
-                extantHVData = True
-
-        # if hv data exists
-        if extantHVData:
-            self.ui.hvExportButton.setEnabled(True)
-            self.ui.plotHVDataButton.setEnabled(True)
-            trippedBrush = QBrush(Qt.red)
-            self.ui.hvListWidget.addItem(
-                f'{str("Position").ljust(14)}{str("L μA").ljust(18)}{str("R μA").ljust(18)}'
-            )
-            for toop in self.data.hvData:  # for each tuple in self.data.hvData
-                if toop[3]:  # if index 3 (isTripped) is true,
-                    trippedItem = QListWidgetItem(
-                        f"{str(toop[0]).ljust(18)}{str(toop[1]).ljust(18)}{str(toop[2]).ljust(18)}   TRIPPED"
+                        toop[1] if (0 < toop[1] and toop[1] < 150) else None,
+                        toop[2] if (0 < toop[2] and toop[2] < 150) else None,
                     )
-                    trippedItem.setBackground(trippedBrush)
-                    self.ui.hvListWidget.addItem(trippedItem)  # display TRIPPED
-                else:  # otherwise, it's not tripped
-                    self.ui.hvListWidget.addItem(
-                        f"{str(toop[0]).ljust(18)}{str(toop[1]).ljust(18)}{str(toop[2]).ljust(18)}"
-                    )  # display just the data
+                )
+        # assign built list to self.data
+        listPointer = getattr(self.data,f'p{pro}HeatData')
+        listPointer += heatList
 
-    # put wire tension data on gui
-    def displayWires(self):
-        extantWireData = False
+        return (len(heatList) > 0)
 
-        for toop in self.data.wireData:  # for each tuple in self.data.wireData
-            if toop[1] != "No Data":  # if it isn't "No Data"
-                extantWireData = True  # then data exists!
 
-        if extantWireData:  # if wire data exists
-            self.ui.wireExportButton.setEnabled(True)
-            self.ui.plotWireDataButton.setEnabled(True)
-            self.ui.wireListWidget.addItem(
-                "Position      Tension"
-            )  # add wire tension header
-            for toop in self.data.wireData:  # for each tuple in wire data
-                self.ui.wireListWidget.addItem(
-                    f"{str(toop[0]).ljust(18)}{toop[1]}"
-                )  # add position and tension to list TODO: use string fill?
+    # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
+    # ██╔══██╗██║██╔════╝██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+    # ██║  ██║██║███████╗██████╔╝██║     ███████║ ╚████╔╝     ██║  ██║███████║   ██║   ███████║
+    # ██║  ██║██║╚════██║██╔═══╝ ██║     ██╔══██║  ╚██╔╝      ██║  ██║██╔══██║   ██║   ██╔══██║
+    # ██████╔╝██║███████║██║     ███████╗██║  ██║   ██║       ██████╔╝██║  ██║   ██║   ██║  ██║
+    # ╚═════╝ ╚═╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 
-    # put straw tension data on gui
-    def displayStraws(self):
-        extantStrawData = False
-
-        for toop in self.data.strawData:
-            if toop[1] != "No Data":
-                extantStrawData = True
-
-        if extantStrawData:
-            self.ui.strawExportButton.setEnabled(True)
-            self.ui.plotStrawDataButton.setEnabled(True)
-            self.ui.strawListWidget.addItem("Position     Tension     Uncertainty")
-            for toop in self.data.strawData:  # for each tuple in strawTensionData
-                self.ui.strawListWidget.addItem(
-                    f"{str(toop[0]).ljust(18)}{str(toop[1]).ljust(18)}{str(toop[2]).ljust(18)}"
-                )  # add position, tension, and uncertainty to list
-
-    # put heat statistics on the gui
-    def displayHeat(self):
-
-        # clear out the current data
-        self.ui.heatListWidget.clear()
-
-        # get the current pro
-        curPro = self.ui.heatProBox.currentText()[8]
-
-        if isinstance(self.getHeatData(curPro, "HeatData"), list):
-            self.ui.heatListWidget.addItem(
-                f'{len(self.getHeatData(curPro, "HeatData"))} measurements found for process {curPro}.'
+    # displayPanelData puts data from self.data into the GUI's widgets
+    # also enables buttons for data types that have enough data
+    # parameters: no parameters
+    # returns: nothing returned
+    def displayPanelData(self):
+        self.displayProTiming()
+        self.displayComments()
+        self.displayParts()
+        self.displayOnLists(
+            3,
+            self.data.wireData,
+            [("Position",18),("Tension",0)],
+            (self.ui.wireListWidget,self.ui.wireListWidget_2),
+            (
+                self.ui.wireExportButton,self.ui.wireExportButton_2,
+                self.ui.wirePlotButton,self.ui.wirePlotButton_2
             )
-            self.ui.heatListWidget.addItem(
-                f'Total Heat Time: {self.getHeatData(curPro,"HeatTime")}'
-                if (self.getHeatData(curPro, "HeatTime") is not [])
-                else "No Heat Time Data Found"
+        )
+        self.displayOnLists(
+            2,
+            self.data.strawData,
+            [("Position",18),("Tension",13),("timestamp",-1),("Uncertainty",0)],
+            (self.ui.strawListWidget,self.ui.strawListWidget_2),
+            (
+                self.ui.strawExportButton,self.ui.strawExportButton_2,
+                self.ui.strawPlotButton,self.ui.strawPlotButton_2
             )
+        )
+        return
 
-            self.ui.heatExportButton.setEnabled(True)
-            self.ui.plotHeatDataButton.setEnabled(True)
-
-            self.ui.heatListWidget.addItem(
-                f"PAAS A Stats"
-                if len(self.getHeatData(curPro, "AStats")) > 0
-                else "No PAAS A Data Found :("
-            )
-            if len(self.getHeatData(curPro, "AStats")) > 0:
-                paasAItemsToAdd = [
-                    f'PAAS A Mean Temperature: {round(self.getHeatData(curPro,"AStats")[0], 2)}'
-                    if len(self.getHeatData(curPro, "AStats")) > 0
-                    else "None",
-                    f'PAAS A Maximum Temperature: {self.getHeatData(curPro,"AStats")[2]}'
-                    if len(self.getHeatData(curPro, "AStats")) > 0
-                    else "None",
-                    f'PAAS A Minimum Temperature: {self.getHeatData(curPro,"AStats")[1]}'
-                    if len(self.getHeatData(curPro, "AStats")) > 0
-                    else "None",
-                    f'PAAS A Standard Deviation: {round(self.getHeatData(curPro,"AStats")[3], 2)}'
-                    if len(self.getHeatData(curPro, "AStats")) > 0
-                    else "None",
-                ]
-                self.ui.heatListWidget.addItems(paasAItemsToAdd)
+    # puts part IDs on the gui
+    # parameters: no parameters
+    # returns: nothing returned
+    def displayProTiming(self):
+        # helper to get widgets by name
+        def getTimeWidget(self, pro, event):
+            if event == "L":
+                return self.getWid(f"{pro}TimeList")
             else:
-                self.ui.heatListWidget.addItem("No PAAS A data found :(")
-
-            self.ui.heatListWidget.addItem(
-                f"PAAS B/C Stats"
-                if len(self.getHeatData(curPro, "BCStats")) > 0
-                else "No PAAS B/C Data Found :("
-            )
-            if len(self.getHeatData(curPro, "BCStats")) > 0:
-                paasBItemsToAdd = [
-                    f'PAAS B/C Mean Temperature: {round(self.getHeatData(curPro,"BCStats")[0], 2)}'
-                    if len(self.getHeatData(curPro, "BCStats")) > 0
-                    else "None",
-                    f'PAAS B/C Maximum Temperature: {self.getHeatData(curPro,"BCStats")[2]}'
-                    if len(self.getHeatData(curPro, "BCStats")) > 0
-                    else "None",
-                    f'PAAS B/C Minimum Temperature: {self.getHeatData(curPro,"BCStats")[1]}'
-                    if len(self.getHeatData(curPro, "BCStats")) > 0
-                    else "None",
-                    f'PAAS B/C Standard Deviation: {round(self.getHeatData(curPro,"BCStats")[3], 2)}'
-                    if len(self.getHeatData(curPro, "BCStats")) > 0
-                    else "None",
-                ]
-                self.ui.heatListWidget.addItems(paasBItemsToAdd)
-            else:
-                self.ui.heatListWidget.addItem("No PAAS B/C data found :(")
-        else:
-            self.ui.heatListWidget.addItem(f"0 measurements found for process {curPro}")
-
-        # enabled no matter what to allow switching between pros
-        self.ui.heatProBox.setEnabled(True)
-
-    # put procedure timestamps (in human readable form) on the gui
-    def displayTiming(self):
+                return self.getWid(f"{pro}{event}TimeLE")
 
         for key in self.data.timingLists:
             if self.data.timingLists[key] is not []:
@@ -1430,49 +1252,49 @@ class facileDBGUI(QMainWindow):
                     if event[0] == "start":
                         startTime = event[1]
                         lastTime = event[1]
-                        self.getTimeWidget(key, "L").addItem(
+                        getTimeWidget(self, key, "L").addItem(
                             f"START:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
                         )
                     elif event[0] == "stop":
                         stopTime = event[1]
                         totalTime += event[1] - lastTime
-                        self.getTimeWidget(key, "L").addItem(
+                        getTimeWidget(self, key, "L").addItem(
                             f"END:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
                         )
                     elif event[0] == "pause":
                         totalTime += event[1] - lastTime
-                        self.getTimeWidget(key, "L").addItem(
+                        getTimeWidget(self, key, "L").addItem(
                             f"PAUSE:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
                         )
                     elif event[0] == "resume":
-                        self.getTimeWidget(key, "L").addItem(
+                        getTimeWidget(self, key, "L").addItem(
                             f"RESUME:  {time.strftime('%a, %d %b %Y %H:%M:%S', (time.localtime(event[1])))}"
                         )
                         lastTime = event[1]
 
                 # start time
                 if startTime > 0:
-                    self.getTimeWidget(key, "S").setText(
+                    getTimeWidget(self, key, "S").setText(
                         time.strftime(
                             "%a, %d %b %Y %H:%M:%S", (time.localtime(startTime))
                         )
                     )
                 else:
-                    self.getTimeWidget(key, "S").setText("Not found")
+                    getTimeWidget(self, key, "S").setText("Not found")
 
                 # end time
                 if stopTime > 0:
-                    self.getTimeWidget(key, "E").setText(
+                    getTimeWidget(self, key, "E").setText(
                         time.strftime(
                             "%a, %d %b %Y %H:%M:%S", (time.localtime(stopTime))
                         )
                     )
                 else:
-                    self.getTimeWidget(key, "E").setText("Not found")
+                    getTimeWidget(self, key, "E").setText("Not found")
                 # total/elapsed time
                 if totalTime > 0:
                     prefix = "Estimate: " if stopTime <= 0 else ""
-                    self.getTimeWidget(key, "T").setText(
+                    getTimeWidget(self, key, "T").setText(
                         # totalTime = total time in seconds
                         # hours = totalTime//3600
                         # minutes = (totalTime%3600)//60
@@ -1480,104 +1302,415 @@ class facileDBGUI(QMainWindow):
                         f"{prefix}{totalTime//3600}:{(totalTime%3600)//60}:{totalTime%60}"
                     )
                 else:
-                    self.getTimeWidget(key, "T").setText("Not found")
+                    getTimeWidget(self, key, "T").setText("Not found")
 
-    # remove data from all widgets
-    def clearWidgets(self):
+    # puts comments on the gui
+    # parameters: no parameters
+    # returns: nothing returned
+    def displayComments(self):
+        # goes through each pro and adds each pro's comments to the
+        # corresponding list widget
+        for key in self.data.comLists:
+            listWidget = self.getWid(f'{key}ComList')
+            for comment in self.data.comLists[key]:
+                listWidget.addItem(
+                    f'{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(comment[1]))}\n{comment[0]}'
+                )
 
-        # clear comment list widgets
-        # widget type: QListWidget
-        for toop in self.comWidgetList:
-            for widget in toop:
-                widget.clear()
+    # puts part IDs on the gui
+    # parameters: no parameters
+    # returns: nothing returned
+    def displayParts(self):
+        # this helper takes widget name, returns pointer to that widget
+        def getPartWidget(self, widget):
+            try:
+                return self.getWid(f"part{widget}LE")
+            except:
+                tkinter.messagebox.showerror(
+                    title="Error",
+                    message=f'Key Error: No part found with name "{widget}".\nPerhaps an L/R or A/B/C was not found in the database?',
+                )
+                return self.ui.label_2
+            
+        # for each type of part,
+        for key in self.data.parts:
+            # make sure we actually have an id
+            if self.data.parts[key] == []:
+                # if not, let it know we don't
+                self.data.parts[key] = -1
+            # set the corresponding widget to the key's number
+            if self.data.parts[key] > -1:
+                getPartWidget(self, key).setText(str(self.data.parts[key]))
+                self.ui.label_2.setText(f"MN{str(self.data.humanID).zfill(3)}")
+            else:
+                getPartWidget(self, key).setText("Not found")
+                self.ui.label_2.setText(f"MN{str(self.data.humanID).zfill(3)}")
 
-        # clear timing widgets
-        # widget type: QLineEdit
-        for toop in self.timeWidgetList:
-            for widget in toop:
-                widget.setText("")
+    # put data into QListWidgets
+    # parameters:   pro, int representing which pro to check for data in
+    #               dataType, list of tuples (like self.data.strawData)
+    #               dataCols, list of tuples (string, int): col name, space needed, space = -1 to exclude
+    #               listWidgets, tuple of QListWidgets on gui to put data in
+    #               buttons, tuple of QPushButtons: the export/plot buttons under lists
+    #               hV, bool that's true if displaying HV measurements
+    # returns: nothing returned
+    def displayOnLists(self,pro,dataType,dataCols,listWidgets,buttons,hV=False):
+        # clear the list, disable buttons
+        for lst in listWidgets:
+            lst.clear()
+        for button in buttons:
+            button.setDisabled(True)
 
-        # clear part widgets
-        # widget type: QLineEdit
-        for widget in self.partSetupWidgetList:
-            widget.setText("")
+        # check if relevant procedure exists, if not return
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            for lst in listWidgets:
+                lst.addItem("No data found :(")
+            return
 
-        # clear measurement widgets
-        # widget type: QListWidget
-        self.ui.strawListWidget.clear()
-        self.ui.wireListWidget.clear()
-        self.ui.hvListWidget.clear()
-        self.ui.heatListWidget.clear()
+        for button in buttons:
+            button.setEnabled(True)
+        
+        # add line to show side if using HV
+        if hV:
+            try:
+                if dataType[0][3] == "L":
+                    for lst in listWidgets:
+                        lst.addItem(f'***Using Left Side Measurements***')
+                elif dataType[0][3] == "R":
+                    for lst in listWidgets:
+                        lst.addItem(f'***Using Right Side Measurements***')
+                else:
+                    raise NameError("No HV Measurement Side Found")
+            except:
+                for lst in listWidgets:
+                    lst.addItem(f'HV Measurement side not found')
 
-    # fmt: off
-    # ███╗   ███╗██╗███████╗ ██████╗
-    # ████╗ ████║██║██╔════╝██╔════╝
-    # ██╔████╔██║██║███████╗██║
-    # ██║╚██╔╝██║██║╚════██║██║
-    # ██║ ╚═╝ ██║██║███████║╚██████╗
-    # ╚═╝     ╚═╝╚═╝╚══════╝ ╚═════╝
-    # The isle of misfit functions
-    # fmt: on
+        # make header out of data columns
+        headerString = ""
+        for toop in dataCols:
+            if toop[1] != -1:
+                headerString += f'{str(toop[0])}      ' # note the 6 spaces
 
-    # a function to get heat related member variables from facileDBGUI by name
-    # takes a pro and type of data you want (should be one of AStats, BCStats, HeatData, HeatTime)
-    # and returns a pointer to the member you indicated (ex, get(2,AStats) returns self.pro2AStats)
-    # I should make one of these that can get any data from anywhere in the GUI...  maybe later!
-    def getHeatData(self, pro, data):
-        return getattr(self, f"pro{pro}{data}")
+        # add header string
+        for lst in listWidgets:
+            lst.addItem(headerString)
 
-    # similar to getHeatData, except it gets a specific widget
-    # pro = process station type (pan1, pan2, etc)
-    # event = 'S', 'E', 'T', or "L" s = start, e = end, t = total, l = list
-    def getTimeWidget(self, pro, event):
-        if event == "L":
-            return getattr(self.ui, f"{pro}TimeList")
+        noData = True
+        for dataToop in dataType:  # for each tuple in data
+            itemString = "" # build a string
+            # for each piece of data (position, tension, etc.)
+            for i in range(len(dataCols)):
+                if dataCols[i][1] != -1:
+                    itemString += f'{str(dataToop[i]).ljust(dataCols[i][1])}'
+            if "No Data" not in itemString:
+                noData = False
+            for lst in listWidgets:
+                lst.addItem(itemString)
+
+        # check if no data was added or all data is "No Data"
+        # if so, only display "No data found :("
+        for lst in listWidgets:
+            if lst.count() == 0:
+                lst.addItem("No data found :(")
+            if noData:
+                lst.clear()
+                lst.addItem("No data found :(")
+                for button in buttons:
+                    button.setDisabled(True)
+
+    # general function to graph any data on the main window
+    # TODO: actually write the function lol
+    def displayOnGraph(self,dataType,xAxis,yAxis,graphType,targetLayout):
+        targetLayout.addWidget(QLabel("Graph coming soon!"))
+        return
+
+    def displayOnGraphHEAT(self,pro):
+        # clear current plot
+        for i in reversed(range(self.ui.heatGraphLayout.count())): 
+            self.ui.plotLayout.itemAt(i).widget().setParent(None)
+
+        if len(getattr(self.data,f'p{pro}HeatData')) == 0:
+            self.ui.heatGraphLayout.addWidget(QLabel("Insufficient Data."))
+            return
         else:
-            return getattr(self.ui, f"{pro}{event}Time")
+            localHeat = getattr(self.data,f'p{pro}HeatData')
 
-    # override close button event (see comments in function)
-    def closeEvent(self, event):
-        sys.exit()  # kill program
-        # this is necessary since using the pyplot.show() makes python think there's another app running, so closing the gui
-        # won't close the program if you used the plot button (so you'd have a python process still running in the background
-        # doing nothing).  Overriding the closeEvent to exit the program makes sure the whole process is dead when the user
-        # clicks the X in the upper right corner.
-        # It's not called anywhere because having it here overwrites a QMainWindow method.
-        # Killing it with sys.exit() will not hurt the database.
+        plot = qwt.QwtPlot(self)
+        plot.setTitle(f"MN{self.data.humanID} Pro {pro} Heat Data")
 
-    # takes a tuple (from the query for part data), filters out the junk, saves to self.data.parts
-    # and returns a part tuple minus the junk
-    def sortAndRefinePart(self, part):
+        plot.setAxisScaleDraw(
+            qwt.QwtPlot.xBottom, TimeScaleDraw(
+                QDateTime.fromMSecsSinceEpoch(localHeat[0][1])
+            )
+        )
+        plot.setAxisTitle(0,"Temperature (°C)")
+        #plot.setCanvasBackground(Qt.black)
+        # y axis is temperature
+        # first remove tuples where no measurements for A or B/C
+        localHeat = [toop for toop in localHeat if (toop[2] or toop[3])]
+        paasA = [toop[2] if toop[2] else 1 for toop in localHeat]
+        paasBC = [toop[3] if toop[3] else 1 for toop in localHeat]
+        time = [toop[1] for toop in localHeat]
+        curveA = qwt.QwtPlotCurve("PAAS A")
+        curveA.setPen(QPen(Qt.darkBlue))
+        curveA.setData(time, paasA)
+        curveA.attach(plot)
 
-        # parameter part:
-        #   0           1           2           3           4                       5           6               7
-        # (<panelnum>, <part id>, <straw_loc>, <ALF L/R>, <type (MIR, ALF, etc)>, <part num>, <PIR l/R>, <PIR,PAAS A/B/C>)
-        # retPart:
-        #   0           1                       2           3           4
-        # (<ALF L/R>, <type (MIR, ALF, etc)>, <part num>, <PIR l/R>, <PIR,PAAS A/B/C>)
-        retPart = ["", "", "", "", ""]
+        if pro == 2:
+            curveB = qwt.QwtPlotCurve("PAAS B")
+            curveB.setPen(QPen(Qt.red))
+            curveB.setData(time, paasBC)
+            curveB.attach(plot)
+        if pro == 6:
+            curveB = qwt.QwtPlotCurve("PAAS C")
+            curveB.setPen(QPen(Qt.red))
+            curveB.setData(time, paasBC)
+            curveB.attach(plot)
 
-        for i in range(3, 8):
-            if part[i] is not None:
-                retPart[i - 3] = part[i]
+        grid = qwt.QwtPlotGrid()
+        grid.attach(plot)
+        grid.setPen(QPen(Qt.black, 0, Qt.DotLine))
 
-        # build a string to function as a dict key (for self.data.parts dict)
-        # some of the pieces will be "", some will be a string like "PIR", "L", "A", etc.
-        self.data.parts[f"{retPart[1]}{retPart[3]}{retPart[4]}{retPart[0]}"] = retPart[
-            2
+        plot.replot()
+        self.ui.heatGraphLayout.addWidget(plot)
+
+    # puts heat data in the gui
+    # parameters:   pro, int representing which pro to get data for (1,2,or 6)
+    #               listWidget, QListWidget to put data in
+    #               listWidget, tuple of QPushButtons: the export/plot buttons under the list
+    #               targetLayout, QVBoxLayout to put graph or "error" label in
+    # returns: nothing returned
+    def displaySpecificHeat(self, pro, listWidget=None, buttons=None, targetLayout=None):
+        # check if relevant procedure exists, if not display errors
+        noPro = False
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            noPro = True
+        # disable buttons
+        for button in buttons:
+            button.setDisabled(True)
+        # get list of data to use (self.data.p2HeatData if pro = 2)
+        heatData = getattr(self.data, f'p{pro}HeatData')
+
+
+        # add data to list widget
+        if listWidget is not None:
+            #Logistic sorts of things:
+            ###################################################
+            # clear list
+            listWidget.clear()
+            # check for presence of data
+            if noPro:
+                listWidget.addItem("No data found :(")
+                return
+            # enable buttons
+            for button in buttons:
+                button.setEnabled(True)
+            ###################################################
+            # make lists of temps for paas A and B/C in order to calculate
+            # statistics. Remove Nones for this purpose.
+            paasATemps = [toop[2] for toop in heatData if toop[2]]
+            paasBCTemps = [toop[3] for toop in heatData if toop[3]]
+
+            if len(paasATemps) > 0:  # if paas A data exits
+                # make a list of stats
+                paasAStats = [
+                    "PAAS A (Blue on graph) Statistics",
+                    f'Mean: {statistics.mean(paasATemps)}',  # mean of paas A
+                    f'Min: {min(paasATemps)}',  # min of paas A
+                    f'Max: {max(paasATemps)}',  # max of paas A
+                    f'Std Dev: {statistics.stdev(paasATemps)}',  # standard dev of paas A
+                    f'Upper σ: {statistics.mean(paasATemps)- statistics.stdev(paasATemps)}',  # upper std dev
+                    f'Lower σ: {statistics.mean(paasATemps) + statistics.stdev(paasATemps)}',  # lower std dev
+                ]
+            if len(paasBCTemps) > 0 and pro != 1:  # if paas B/C exists
+                # make a list of stats
+                paasBCStats = [
+                    f'\nPAAS {"B" if pro == 2 else "C"} (Red on graph) Statistics',
+                    f'Mean: {statistics.mean(paasBCTemps)}',  # mean of paas BC
+                    f'Min: {min(paasBCTemps)}',  # min of paas BC
+                    f'Max: {max(paasBCTemps)}',  # max of paas BC
+                    f'Std Dev: {statistics.stdev(paasBCTemps)}',  # standard dev of paas BC
+                    f'Upper σ: {statistics.mean(paasBCTemps)- statistics.stdev(paasBCTemps)}',  # upper std dev
+                    f'Lower σ: {statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)}',  # lower std dev
+                ]
+            
+            # make a list of heat timestamps
+            heatTimes = [toop[1] for toop in heatData if (toop[2] or toop[3])]
+            # if we have that data
+            if len(heatTimes) > 0:
+                # find the total time it took
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                heatTotalTime = timedelta(seconds=rawHeatTime)
+                listWidget.addItem(f'Total heating time: {heatTotalTime}')
+                for item in paasAStats:
+                    listWidget.addItem(item)
+                if pro != 1:
+                    for item in paasBCStats:
+                        listWidget.addItem(item)
+
+            # add stuff to list
+            listWidget.addItem(f'{len(paasATemps)} measurements found for PAAS A')
+            if pro != 1:
+                listWidget.addItem(f'{len(paasBCTemps)} measurements found for PAAS BC')
+
+        # make graph
+        if targetLayout is not None:
+            #Logistic sorts of things:
+            ###################################################
+            # clear layout
+            for i in reversed(range(targetLayout.count())): 
+                targetLayout.itemAt(i).widget().setParent(None)
+            # check for presence of data
+            #if noPro:
+            #    listWidget.addItem("No data found :(")
+            ###################################################
+            # add graph
+            self.displayOnGraphHEAT(pro)
+        return
+
+
+    #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗    ██████╗  █████╗ ████████╗ █████╗ 
+    # ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+    # ██║  ███╗██████╔╝███████║██████╔╝███████║    ██║  ██║███████║   ██║   ███████║
+    # ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║    ██║  ██║██╔══██║   ██║   ██╔══██║
+    # ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║    ██████╔╝██║  ██║   ██║   ██║  ██║
+    #  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+
+    # graph straws, wires, or specific hv data in a popup window
+    # parameters:   dataType, a list of tuples with the first two elements of each tuple
+    #                           being the x and y values
+    #               yAxis, a string that will be the y axis label
+    #               yUpperBound, an int that will be the upper bound of the y axis
+    #               errorBars, a bool that makes error bars if true; the third element
+    #                           in each tuple from dataType is the uncertainty
+    # returns: nothing returned
+    def graphSimple(self,dataType,yAxis,yUpperBound,errorBars=False):
+        # all "simple" data types will have 96 points
+        xData = list(range(96))
+        # make list for y values
+        sctrYDataPoints = []
+        # make list for y value uncertainties
+        sctrYDataUncs = []
+        # for each point, add it to 
+        for toop in dataType:
+            if toop[1] != "No Data":
+                sctrYDataPoints += [toop[1]]
+            else:
+                sctrYDataPoints += [None]  # source of a bug???
+            if errorBars:
+                if toop[2] != "No Data":
+                    sctrYDataUncs += [toop[2]]
+                else:
+                    sctrYDataUncs += [None]
+
+        plt.subplot(211)
+        # plt.figure(figsize=(12,8))
+        if errorBars:
+            try:
+                plt.errorbar(
+                    xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
+                )  # make a scatterplot out of the x and y data
+            except:
+                print("Insufficient data to plot error bars.")
+        else:
+            plt.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
+
+        plt.axis([0, 100, 0, yUpperBound])  # set the bounds of the graph
+        plt.xlabel("Position", fontsize=20)  # set x axis label
+        plt.ylabel(yAxis, fontsize=20)  # set y axis label
+        for x, y in enumerate(sctrYDataPoints):  # go through y data, enumerate for x
+            if y is not None:  # if y exists and is too low...??? wat
+                plt.annotate(f"{x}", (x, y), fontsize=8)  # annotate that point
+
+        plt.subplot(212)  # make subplot 2
+        histYData = []  # make list to filter out None types
+
+        for y in sctrYDataPoints:  # go through scatter y data
+            if y != None:  # if it's not a None type
+                histYData += [y]  # add it to the new histogram y data
+        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
+        plt.xlabel(yAxis, fontsize=20)  # set x axis label
+        plt.ylabel("Frequency", fontsize=20)  # set y axis label
+
+        plt.tight_layout()
+        # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
+        plt.show()
+
+    # graph heat data in pop up window
+    # parameters: pro, an int for which procedure (1, 2, or 6)
+    # returns: nothing returned
+    def graphSpecificHeat(self, pro):
+        heatData = getattr(self.data,f'p{pro}HeatData')
+
+        # make x data list by converting raw timesamps to matplotlib dates
+        xData = [
+            mpl.dates.epoch2num(toop[1])
+            for toop in heatData
         ]
 
-        return retPart
-
-    '''
-    def latestChanges(self):
-        tkinter.messagebox.showinfo(
-                title="Latest Changes",
-                message= """
-
-                """
+        if len(xData) <3 :  # <3 <3 <3
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Too little or no heat data was found for MN{self.data.humanID}, process {pro}.",
             )
-    '''
+            return
+
+        # make y data sets
+        yDataA = [toop[2] for toop in heatData]
+        yDataBC = [toop[3] for toop in heatData]
+        # yColorBC = [(heat - 5) for heat in yDataBC]
+
+        # make subplot for PAAS A
+        labelAddOn = "of PAAS A " if pro == 1 else ""
+        plt.subplot(211)
+        plt.plot_date(xData, yDataA, label="PAAS A")  # make plot
+        mpl.dates.HourLocator()
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel(f'Temperature {labelAddOn}(°C)', fontsize=20)  # set y axis label
+
+        if pro > 1:
+            letter = "B" if pro == 2 else "C"
+            plt.plot_date(xData, yDataBC, label=f'PAAS {letter}')  # make plot
+            plt.legend(loc="upper left")
+
+        plt.tight_layout()
+        plt.show()
+
+
+    # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗    ██████╗  █████╗ ████████╗ █████╗ 
+    # ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+    # █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║       ██║  ██║███████║   ██║   ███████║
+    # ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║       ██║  ██║██╔══██║   ██║   ██╔══██║
+    # ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║       ██████╔╝██║  ██║   ██║   ██║  ██║
+    # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝       ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+
+    def exportData(self,dataName,dataType,dataCols):
+        # if there are very few data points...
+        if len(dataType) < 10:
+            # make a question popup
+            qM = QMessageBox()
+            answer = qM.question(
+                self,'',f'{len(dataType)} data points were found.  Do you still want to export the data?', qM.Yes | qM.No
+            )
+            # if the user doesn't want to plot len(dataType) points, then don't!
+            if answer == qM.No:
+                return
+        
+        filePath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+        dataName.replace(" ","_")
+        filePath += f"\MN{self.data.humanID}_{dataName}.csv"
+        with open(
+            filePath, "w", newline=""
+        ) as csvFile:
+            csvWriter = csv.writer(csvFile)
+            dataName.replace("_"," ")
+            csvWriter.writerow([f"MN{self.data.humanID} {dataName}"])
+            csvWriter.writerow(dataCols)
+            csvWriter.writerows(dataType)
+            tkinter.messagebox.showinfo(
+                title="Data Exported",
+                message=f"Data exported to {filePath}",
+            )
 
 
 # fmt: off

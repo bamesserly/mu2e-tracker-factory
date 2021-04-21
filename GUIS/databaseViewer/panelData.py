@@ -14,6 +14,9 @@ class PanelData:
         #   Procedure timing
         #   Comments
         #   HV measurements
+        #       pro 3 @ 1100V
+        #       pro 3 @ 1500V
+        #       pro 6 @ 1500V
         #   Heat measurements
         #   Straw and wire tension data
         #   Parts - Base plate, MIR, BIR,
@@ -51,6 +54,7 @@ class PanelData:
         }
 
         # Comment lists: lists of comments for each procedure
+        # each comment is a tuple: (<text>, <timestamp in epoch time>)
         self.comLists = {
             "pan1": [],
             "pan2": [],
@@ -83,34 +87,48 @@ class PanelData:
             "PAASA": -1,
             "PAASB": -1,
             "PAASC": -1,
+            # frame id
             "FRAME": -1,
+            # rib ids
             "MIDDLERIB_1": -1,
             "MIDDLERIB_2": -1,
+            # loading pallet ids
+            # lowercse because that's how it is in the database
+            "lpal_bot_": -1,
+            "lpal_top_": -1,
         }
 
         # HV data: list of hv data where list index = straw
-        # List of tuples of the form: (<TODO>)
-        self.hvData = []
+        # List of tuples of the form:
+        # (<position>, <current>, <trip status>, <side>, <timestamp>)
+        self.hv1100P3 = []
+        self.hv1500P3 = []
+        self.hvXXXXP5 = []
+        self.hv1500P6 = []
 
         # Heat data: list of heat measurements by procedure
-        # List of tuples of the form: (<TODO>)
+        # List of tuples of the form:
+        # (<human timestamp>, <epoch timestamp>, <PAAS A temp>, <PAAS B/C temp>)
         self.p1HeatData = []
         self.p2HeatData = []
         self.p6HeatData = []
 
-        # Straw tension data: list of straw data where
-        #   index = straw
-        # List of tuples of the form: (<TODO>)
+        # Straw tension data: list of straw data where index = straw
+        # List of tuples of the form:
+        # (<position>, <tension>, <epoch timestamp>, <uncertainty>)
         self.strawData = []
 
-        # Wire tension data: list of wire data where
-        #   index = wire
-        # List of tuples of the form: (<TODO>)
+        # Wire tension data: list of wire data where index = wire
+        # List of tuples of the form:
+        # (<position>, <tension>, <epoch timestamp>)
         self.wireData = []
 
     # Clear all panel data (calls everyting in init)
-    def clearPanel(self):
-        self.humanID = -1
+    # if dbOnly is true, then the human id will be preserved
+    def clearPanel(self, dbOnly=False):
+        if not dbOnly:
+            self.humanID = -1
+        
         self.databaseID = -1
 
         for key in self.proIDs:
@@ -122,7 +140,13 @@ class PanelData:
         for key in self.comLists:
             self.comLists[key] = []
 
-        self.hvData = []
+        for key in self.parts:
+            self.parts[key] = []
+
+        self.hv1100P3 = []
+        self.hv1500P3 = []
+        self.hvXXXXP5 = []
+        self.hv1500P6 = []
 
         self.p1HeatData = []
         self.p2HeatData = []
@@ -132,70 +156,38 @@ class PanelData:
 
         self.wireData = []
 
-        self.partBP = -1
-        self.partMIR = -1
-        self.partBIR = -1
-        self.partPLA = -1
-        self.partPLB = -1
-        self.partPLC = -1
-        self.partPRA = -1
-        self.partPRB = -1
-        self.partPRC = -1
-        self.partALF1 = -1
-        self.partALF2 = -1
-        self.partPaasA = -1
-        self.partPaasB = -1
-        self.partPaasC = -1
-
     # print ALL the data (for debugging)
+    # indentation is gone due to multi-line string
     def __str__(self):
-        return f"""PANEL: {self.humanID}
-        """
+        return f"""
+PANEL: {self.humanID}
 
+    DB ID: {self.dbID}
 
+    Pro IDs: {self.proIDs}
+
+    Timing: {self.timingLists}
+
+    Comments: {self.comLists}
+
+    Parts: {self.parts}
+
+    Straws: {self.strawData}
+
+    Wires: {self.wireData}
+
+    HV P3 1.1kV: {self.hv1100P3}
+
+    HV P3 1.5kV: {self.hv1500P3}
+
+    HV P5 ???kV: {self.hvXXXXP5}
+
+    HV P6 1.5kV: {self.hv1500P6}
+
+    Heat P1: {self.p1HeatData}
+
+    Heat P2: {self.p2HeatData}
+
+    Heat P6: {self.p6HeatData}
 """
-    # called upon hitting submit (does a lot of stuff)
-    def findPanel(self):
-        # What it does:
-        # gets rid of data on the gui
-        # changes the panel ID on the top of the gui
-        # checks if the requested panel exists, if not gives error popup
-        # finally calls all the functions that read data from the database
-        #   which in turn call all the display functions (should a seperate
-        #   thing call those maybe?)
 
-        # first get rid of any existing data
-        self.panelDatabaseID = -1  # reset panel database ID
-        self.disableButtons() # disable buttons
-        for widget in self.comListWidgetList:  # clear comments from list widgets
-            widget.clear()
-        for widget in self.partSetupWidgetList:  # erase all part IDs
-            widget.setText("")
-        for key in self.panelProcedureIDs:  # "rip up" the dictionary (keep keys of course)
-            self.panelProcedureIDs[key] = -1
-        # clear lists
-        self.ui.hvListWidget.clear()  # clear text in widget
-        self.hvData = []  # clear saved data
-        self.ui.strawListWidget.clear()
-        self.strawTensionData = []
-        self.ui.wireListWidget.clear()
-        self.wireTensionData = []
-
-        # get new data and do stuff with it!
-        self.panelNumber = self.ui.panelLE.text()  # get panel number from user input
-        self.ui.label_2.setText(
-            f"MN{str(self.panelNumber).zfill(3)}"
-        )  # set label on top of gui (zfill because all panels have 3 numeric digits)
-        self.findPanelDatabaseID()  # get the panels id in the straw_location table in the db
-        if self.panelDatabaseID == -1:  # if the panel is not in the db
-            tkinter.messagebox.showerror(  # show error message
-                title="Error",  # name it 'Error'
-                message=f"No data for MN{str(self.panelNumber).zfill(3)} was found.",  # give it this string for a message
-            )       
-            return  # return to avoid errors (if self.panelDatabaseID == -1)
-        self.findProcedures()  # get procedure IDs (get data for self.panelProcedureIDs)
-        self.findComments()  # get comments, put them into list widgets
-        self.findPanelParts()  # get part IDs, put them into disabled line edit widgets
-        self.findMeasurements()  # get measurements, put them into class member lists and display them
-        self.findHeat() # get heat measurements
-"""
