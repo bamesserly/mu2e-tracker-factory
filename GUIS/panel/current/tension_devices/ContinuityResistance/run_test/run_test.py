@@ -21,8 +21,8 @@ def GetSerialPort():
     serialport = None
     avail_ports = serial.tools.list_ports.comports()
     for port, desc, hwid in sorted(avail_ports):
-        # print("{}: {} [{}]".format(port, desc, hwid))
-        if "USB" in desc:
+        #print("{}: {} [{}]".format(port, desc, hwid))
+        if "USB" in desc or "USB" in hwid:
             try:
                 serialport = serial.Serial(
                     port=port, baudrate=baudrate, timeout=timeout
@@ -32,6 +32,9 @@ def GetSerialPort():
             except:
                 continue
     print("Can't find working port. Is arduino plugged in?")
+    print("Ports found:")
+    for port, desc, hwid in sorted(avail_ports):
+        print("{}: {} [{}]".format(port, desc, hwid))
 
 
 # Initialize colorama.  autoreset = True makes it return to
