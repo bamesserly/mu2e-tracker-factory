@@ -45,7 +45,14 @@ if not is_official_lab_production:
 # ===============================================================================
 # 2. Copy Data from network to work area
 # ===============================================================================
-if is_official_lab_production or sys.argv[1] == "copy_data":
+copy_data = None
+try:
+    copy_data = sys.argv[1]
+    print("Copy data option specified. Will attempt to copy data from UMN network.")
+except IndexError:
+    pass
+
+if is_official_lab_production or copy_data:
     print("... Copying the Data/ dir from the network.")
     print("    This can take several minutes so grab a cup of coffee.")
     print("    Beginning copy of Data dir...")
@@ -58,9 +65,11 @@ if is_official_lab_production or sys.argv[1] == "copy_data":
 else:
     print("... Local environment detected.")
     print("... Checking if Data directory exists")
-    if os.path.isdir("Data"):
+    if os.path.isdir("data"):
         print("    Data directory was found.")
         print("    Setup script will continue running.")
+        with open("data/__init__.py",'w') as file:
+            pass
     else:
         print("    Data directory was not found.")
         print("    Please, download the Data directory and add it to this folder.")
@@ -101,7 +110,7 @@ if not is_official_lab_production:
 
     print("... Finally, setting up autoformatter.")
     system = platform.system()
-    cmd = 'cd "{0}"; pre-commit install'.format(local_top_dir)
+    cmd = 'cd "{0}"; pre-commit install'.format(root_dir)
     if system == "Windows":
         p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
         p.communicate()
