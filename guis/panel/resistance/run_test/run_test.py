@@ -66,6 +66,9 @@ class ser_wrapper:
         self.logfile.write(line)
         return line
 
+    def write(self, cmd):
+        self.ser.write(str(cmd).encode("utf8"))
+
     def __del__(self):
         self.logfile.close()
 
@@ -143,6 +146,12 @@ def main():
     ser.logfile.write("# panelid:" + panelid + "\n")
     ser.logfile.write("# measurement stage:" + stage_tag[when] + "\n")
     # ser.readline()
+
+    # Tell the arduino to enter straws-only mode if when = proc2 or proc3
+    if(when == 1 or when == 2):
+        ser.write('s') # yes, straw mode
+    else:
+        ser.write('\n') # no, not straw mode
 
     # Here begins the main loop to measure every straw and wire.
     print("Begin testing!  Press Ctrl+C when the panel is finished.")

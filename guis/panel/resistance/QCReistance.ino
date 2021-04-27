@@ -44,8 +44,9 @@ const int max_count = 96;
 
 float strawMeasurements[max_count];
 float wireMeasurements[max_count];
-int counter = 0;       // keeps track of the straw/wire index
-bool at_wire = false;  // keeps track of whether we are at a wire or a straw
+int counter = 0;           // keeps track of the straw/wire index
+bool at_wire = false;      // keeps track of whether we are at a wire or a straw
+bool straws_only = false;  // only measure straws
 
 // This flag is set when the mainButton gets pushed, in an interrupt.
 volatile bool buttonPushed = false;
@@ -154,6 +155,16 @@ void setup() {
   }
 
   Serial.begin(115200);  // start the USB serial connection
+
+  // Parse straws-only mode
+  // Wait up to 3 seconds for input from the python prog
+  while (!Serial.available() && millis() < 3000) {
+  }
+  char straw_mode = Serial.read();  // 's' will trigger straws-only mode
+  if (straw_mode == 's') {
+    straws_only = true;
+  }
+
   Serial.print(F("# Position, wire/straw, ADC values..., resistance, PASS?\n"));
 
   // Delay a little bit, so the welcome screen is visible to humans.
@@ -235,10 +246,14 @@ void loop() {
     // bool valid = !bool(check_resistance(resistance, counter, at_wire));
 
     if (valid) {
-      counter =
-          (counter + at_wire) %
-          max_count;  // increase counter if we're at_wire, wrap from 95 to 0.
-      at_wire = !at_wire;  // Toggle at_wire
+      if (straw_mode) {
+        counter = (counter + 2) % max_count;  // in straw mode, increment by 2
+      } else {
+        counter =
+            (counter + at_wire) %
+            max_count;  // increase counter if we're at_wire, wrap from 95 to 0.
+        at_wire = !at_wire;  // Toggle at_wire
+      }
     }
     lcd.clear();
     draw_LCD();
