@@ -47,6 +47,7 @@ float wireMeasurements[max_count];
 int counter = 0;           // keeps track of the straw/wire index
 bool at_wire = false;      // keeps track of whether we are at a wire or a straw
 bool straws_only = false;  // only measure straws
+char straw_mode;
 
 // This flag is set when the mainButton gets pushed, in an interrupt.
 volatile bool buttonPushed = false;
@@ -160,7 +161,7 @@ void setup() {
   // Wait up to 3 seconds for input from the python prog
   while (!Serial.available() && millis() < 3000) {
   }
-  char straw_mode = Serial.read();  // 's' will trigger straws-only mode
+  straw_mode = Serial.read();  // 's' will trigger straws-only mode
   if (straw_mode == 's') {
     straws_only = true;
   }

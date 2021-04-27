@@ -1,6 +1,5 @@
 # This script is used to run the continuity and resistance test.
 # It talks to the tester box Arduino and writes a log file.
-# Note: this script (and other QC scripts) use python 2.7.
 
 import datetime
 import serial
