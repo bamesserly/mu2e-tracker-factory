@@ -1,6 +1,5 @@
 # This script takes a log file produced by run_test.py and produces a .csv file
 # that is more human-readable and suitable for plotting.
-# Note: this script (and other QC scripts) use python 2.7.
 
 import sys, numpy, uncertainties
 
@@ -17,10 +16,11 @@ def parse_log(infilename):
     # Loop over all the lines in the input file.
     for line in infile:
         # Copy comment lines directly into the output file.
+        # Modify the header – don't write ADCs, do write err on resistance.
         if line.startswith("#"):
-            sublines = line.split("#")
-            for sl in sublines:
-                outfile.write("# " + sl + "\n")
+            if line == "# Position, wire/straw, ADC values..., resistance, PASS?":
+                line = "# Position, wire/straw, resistance, err, PASS?"
+            outfile.write(line)
             continue
 
         # Now tokenize the line, and skip blank ones.
