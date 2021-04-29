@@ -36,6 +36,8 @@ from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root")
 
+from guis.common.getresources import GetProjectPaths
+
 import inspect
 import pyautogui
 from PIL import Image
@@ -100,15 +102,6 @@ from guis.common.timer import QLCDTimer
 # this 'should' slightly speed up the program while it's running, with a tiny bit of time added to starting it up
 # also allows for checking the packages right off the bat
 import cycler, kiwisolver, matplotlib, pyparsing, pyrect, pyscreeze, pytweening, scipy, setuptools, six, sqlalchemy
-
-# Resource manager, and the resources folder (package)
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
-
-import resources
 
 # ██████╗ ██████╗ ███╗   ██╗███████╗████████╗ █████╗ ███╗   ██╗████████╗███████╗
 # ██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗████╗  ██║╚══██╔══╝██╔════╝
@@ -4976,19 +4969,7 @@ def run():
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
 
-    ############################################################################
-    # Get the directory locations of various resources we'll need.
-    ############################################################################
-    # Read in the csv file containing the directory locations.
-    # Save them into a dictionary {tag, path}
-    paths_file = ""
-    with pkg_resources.path(resources, "paths.csv") as p:
-        paths_file = p.resolve()
-    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
-    # Make paths absolute. This txt file that holds the root/top dir of this
-    # installation is created during setup.py.
-    root = pkg_resources.read_text(resources, "rootDirectoryLocation.txt")
-    paths.update((k, root + "/" + v) for k, v in paths.items())
+    paths = GetProjectPaths()
 
     ############################################################################
     # Make an instance of the GUI and run it
