@@ -725,11 +725,11 @@ class TxtDataProcessor(DataProcessor):
         paths_file = ""
         with pkg_resources.path(resources, "paths.csv") as p:
             paths_file = p.resolve()
-        paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
+        self.paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
         # Make paths absolute. This txt file that holds the root/top dir of this
         # installation is created during setup.py.
         root = pkg_resources.read_text(resources, "rootDirectory.txt")
-        paths.update((k, root + "/" + v) for k, v in paths.items())
+        self.paths.update((k, root + "/" + v) for k, v in self.paths.items())
 
         # Save directories as instance variables
         self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()
