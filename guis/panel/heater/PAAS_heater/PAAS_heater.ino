@@ -130,7 +130,7 @@ void temp_control(){
       // Heat A and B at full blast unless TA>=46 && (TB<40 || TA>44), in
       // which case use the default dT.
       if (setpointA>50) {
-        if(tempA>=46 && (temp2<40 || temp2>44){ ; }
+        if(tempA>=46 && (temp2<40 || temp2>44)){ ; }
         else dT=0;
       }
     }
