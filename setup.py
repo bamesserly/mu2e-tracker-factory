@@ -91,7 +91,7 @@ else:
 # software development.
 # official --> merge with network
 # software --> merge with local dummy
-merge_destination_db = (
+merge_destination_db = str(
     network_db if is_official_lab_production else path.join(local_data_dir, "dummy.db")
 )
 with open(merge_destination_db_path_file, "w") as f:
