@@ -22,6 +22,8 @@ from guis.common.databaseClasses import (
     MoldReleaseItemsChecked,
     MoldReleaseItems,
     TensionboxMeasurement,
+    BrokenTap,
+    BadWire,
 )
 
 import logging
@@ -617,6 +619,14 @@ class MultipleDataProcessor(DataProcessor):
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
 
+    def saveBadWire(self, number, failure, process):
+        for dp in self.processors:
+            dp.saveBadWire(number, failure, process)
+
+    def saveTapForm(self, tap_id):
+        for dp in self.processors:
+            dp.saveTapForm(tap_id)
+
     def handleClose(self):
         for dp in self.processors:
             dp.handleClose()
@@ -758,6 +768,7 @@ class TxtDataProcessor(DataProcessor):
             5: self._pro5header,
             6: self._pro6header,
             7: self._pro7header,
+            8: self._pro8header,
         }[self.getPro()]()
 
         # Count number of steps
@@ -820,6 +831,7 @@ class TxtDataProcessor(DataProcessor):
             5: self._pro5header,
             6: self._pro6header,
             7: self._pro7header,
+            8: self._pro8header,
         }[self.getPro()]()
 
         # steps are automatically saved periodically while gui is running
@@ -1154,6 +1166,12 @@ class TxtDataProcessor(DataProcessor):
     def saveMoldRelease(self, item, state):
         return "", 0
 
+    def saveTapForm(self, tap_id):
+        pass
+
+    def saveBadWire(self, number, failure, process):
+        pass
+
     #  _                     _  ___  ___     _   _               _
     # | |                   | | |  \/  |    | | | |             | |
     # | |     ___   __ _  __| | | .  . | ___| |_| |__   ___   __| |___
@@ -1401,6 +1419,19 @@ class TxtDataProcessor(DataProcessor):
             "Flood Epoxy Work Time (H:M:S) (Right)",
         ]
 
+    # TODO
+    def _pro8header(self):
+        return [
+            7,
+            "Panel ID",
+            "Left Cover",
+            "Right Cover",
+            "Center Ring",
+            "Center Cover",
+            "Left Ring",
+            "Right Ring",
+        ]
+
     # ___  ____            _   _      _
     # |  \/  (_)          | | | |    | |
     # | .  . |_ ___  ___  | |_| | ___| |_ __   ___ _ __ ___
@@ -1518,6 +1549,7 @@ class SQLDataProcessor(DataProcessor):
             5: self.saveDataProcess5,
             6: self.saveDataProcess6,
             7: self.saveDataProcess7,
+            8: self.saveDataProcess8,
         }[self.getPro()]()
 
     # IR
@@ -1750,6 +1782,30 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             self.procedure.recordEpoxyTimeRight, *self.parseTimeTuple(data[4])
         )  # Flood Epoxy Work Time (Right)
+
+    # TODO
+    # FinalQC
+    def saveDataProcess8(self):
+        data = self.getProData()
+
+        self.callMethod(
+            self.procedure.recordLeftCover, self.stripNumber(data[1])
+        )  # Left Cover
+        self.callMethod(
+            self.procedure.recordRightCover, self.stripNumber(data[2])
+        )  # Right Cover
+        self.callMethod(
+            self.procedure.recordCenterRing, self.stripNumber(data[3])
+        )  # Center Ring
+        self.callMethod(
+            self.procedure.recordCenterCover, self.stripNumber(data[4])
+        )  # Center Cover
+        self.callMethod(
+            self.procedure.recordLeftRing, self.stripNumber(data[5])
+        )  # Left Ring
+        self.callMethod(
+            self.procedure.recordRightRing, self.stripNumber(data[6])
+        )  # Right Ring
 
     ## TIME EVENTS ##
 
@@ -1996,6 +2052,14 @@ class SQLDataProcessor(DataProcessor):
                     position, side, current, voltage, is_tripped
                 )
 
+    def saveTapForm(self, tap_id):
+        if self.ensureProcedure():
+            BrokenTap(tap_id=tap_id)
+
+    def saveBadWire(self, number, failure, process):
+        if self.ensureProcedure():
+            BadWire(number=number, failure=failure, process=process)
+
     def wireQCd(self, wire):
         id = self.stripNumber(wire)
         spool = WireSpool.queryWithId(id)
@@ -2022,6 +2086,7 @@ class SQLDataProcessor(DataProcessor):
                 5: self.loadDataProcess5,
                 6: self.loadDataProcess6,
                 7: self.loadDataProcess7,
+                8: self.loadDataProcess8,
             }[self.getPro()]()
 
             # Elapsed Time
@@ -2480,6 +2545,14 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getEpoxyTimeRight(),
                 self.procedure.getEpoxyTimeRightRunning(),
             ),  # Flood Epoxy Work Time (Right)
+        ]
+
+    # TODO
+    # Final QC
+    def loadDataProcess8(self):
+        panel = self.panel()
+        return [
+            self.getBarcode(panel),
         ]
 
 

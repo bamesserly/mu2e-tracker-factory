@@ -1238,7 +1238,7 @@ class Pan3Procedure(PanelProcedure):
             current_left=current if side == "Left" else None,
             current_right=current if side == "Right" else None,
             voltage=voltage,
-            is_tripped=is_tripped
+            is_tripped=is_tripped,
         ).commit()
 
 
@@ -1682,6 +1682,115 @@ class Pan7Procedure(PanelProcedure):
     def recordEpoxyTimeRight(self, time, running):
         self.details.epoxy_time_right = time
         self.details.epoxy_time_right_running = running
+        self.commit()
+
+
+# Process 8
+class Pan8Procedure(PanelProcedure):
+    __mapper_args__ = {"polymorphic_identity": "pan8"}
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "pan8"
+        ), f"Error. Tried to construct Pan8Procedure for a station '{station.id}' not 'pan8'."
+        super().__init__(station, straw_location, create_key)
+
+    def _getDetailsClass(self):
+        class Details(BASE, OBJECT):
+            __tablename__ = "procedure_details_pan8"
+            id = Column(Integer, primary_key=True)
+            procedure = Column(Integer, ForeignKey("procedure.id"))
+            left_cover = Column(Integer)
+            right_cover = Column(Integer)
+            center_ring = Column(Integer)
+            center_cover = Column(Integer)
+            left_ring = Column(Integer)
+            right_ring = Column(Integer)
+
+        return Details
+
+    def getLeftCover(self):
+        return self.details.left_cover
+
+    def recordLeftCover(self, left_cover):
+        self.details.left_cover = left_cover
+        self.commit()
+
+    def getRightCover(self):
+        return self.details.left_cover
+
+    def recordRightCover(self, right_cover):
+        self.details.right_cover = right_cover
+        self.commit()
+
+    def getCenterRing(self):
+        return self.details.left_cover
+
+    def recordCenterRing(self, center_ring):
+        self.details.center_ring = center_ring
+        self.commit()
+
+    def getCenterCover(self):
+        return self.details.left_cover
+
+    def recordCenterCover(self, center_cover):
+        self.details.center_cover = center_cover
+        self.commit()
+
+    def getLeftRing(self):
+        return self.details.left_cover
+
+    def recordLeftRing(self, left_ring):
+        self.details.left_ring = left_ring
+        self.commit()
+
+    def getRightRing(self):
+        return self.details.left_cover
+
+    def recordRightRing(self, right_ring):
+        self.details.right_ring = right_ring
+        self.commit()
+
+
+"""
+    Broken Tap Form
+        Table used to record broken taps in the database
+        This form is part of process 8
+"""
+
+
+class BrokenTap(BASE, OBJECT):
+    __tablename__ = "broken_taps"
+
+    id = Column(Integer, primary_key=True)
+    tap_id = Column(Integer)
+
+    def __init__(self, tap_id):
+        self.tap_id = tap_id
+
+        self.commit()
+
+
+"""
+    Bad Wire Form
+        Table used to record broken taps in the database
+        This form is part of process 8
+"""
+
+
+class BadWire(BASE, OBJECT):
+    __tablename__ = "bad_wire_straw"
+
+    id = Column(Integer, primary_key=True)
+    number = Column(Integer)
+    failure = Column(String)
+    process = Column(Integer)
+
+    def __init__(self, number, failure, process):
+        self.number = number
+        self.failure = failure
+        self.process = process
+
         self.commit()
 
 

@@ -93,6 +93,7 @@ from guis.panel.wiretensioner.wire_tension import WireTensionWindow
 from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
+from guis.panel.resistance.run_test import run_test
 
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
@@ -242,6 +243,7 @@ class panelGUI(QMainWindow):
         self._init_pro5_setup()  # process 5: high voltage tests
         self._init_pro6_setup()
         self._init_pro7_setup()
+        self._init_pro8_setup()
         self._init_failure_setup()
 
         # Pro 5 "re-enable"
@@ -296,7 +298,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5, 8: 7}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -763,6 +765,13 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_mixed5_3.clicked.connect(self.pro7part3)
         self.ui.epoxy_applied5_3.clicked.connect(self.pro7part3_2)
 
+    # TODO: implement _init_pro8_setup()
+    def _init_pro8_setup(self):
+        self.ui.panelInput_8.installEventFilter(self)
+        self.ui.rest_test_pro8.clicked.connect(self.run_test)
+        self.ui.broken_tap.clicked.connect(self.broken_tap_form)
+        self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
+
     def _init_timers(self):
         self.timers = [
             # Main timer
@@ -1069,6 +1078,7 @@ class panelGUI(QMainWindow):
             self.ui.startButton5,
             self.ui.startButton6,
             self.ui.startButton7,
+            self.ui.startButton_8,
         ]
 
         # without the loop it would look like self.ui.startButton1.clicked.connect(self.pro1part1)
@@ -1082,6 +1092,7 @@ class panelGUI(QMainWindow):
                     5: self.pro5part0,
                     6: self.pro6part1,
                     7: self.pro7part1,
+                    8: self.pro8part1,
                 }[self.pro]()
             )
 
@@ -1175,6 +1186,17 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch5_3,
                 self.ui.epoxy_applied5_3,
             ],
+            # TODO: pro8 Widgets
+            # pro 8 Widgets
+            [
+                self.ui.panelInput_8,
+                self.ui.left_cover_6,
+                self.ui.right_cover_6,
+                self.ui.center_ring_6,
+                self.ui.center_cover_6,
+                self.ui.left_ring_6,
+                self.ui.right_ring_6,
+            ],
         ]
 
     def _init_panel_input(self):
@@ -1186,6 +1208,7 @@ class panelGUI(QMainWindow):
             self.ui.panelInput5,
             self.ui.panelInput6,
             self.ui.panelInput7,
+            self.ui.panelInput_8,
         ]
 
         # Lambda expression that gets text from the panel input line.
@@ -1394,7 +1417,12 @@ class panelGUI(QMainWindow):
             return
 
         # Get pro Information
-        self.pro = int(btn.objectName()[3:-6])
+        # QT designer does not let rename button for pro8 as pro8Select
+        string = btn.objectName()
+        if string[-1] == "_":
+            string = string[:-1]
+
+        self.pro = int(string[3:-6])
         logger.info("pro selected: %s" % self.pro)
         self.pro_index = self.pro - 1
         self.ui.proSelection.setCurrentIndex(0)
@@ -1623,6 +1651,7 @@ class panelGUI(QMainWindow):
             self.resetPro5,
             self.resetpro6,
             self.resetpro7,
+            self.resetpro8,
         ][self.pro_index]()
 
         # Reset data and dataTime lists to lists of None
@@ -2309,6 +2338,7 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox5,
                 self.ui.commentBox6,
                 self.ui.commentBox7,
+                self.ui.commentBox8,
             ][self.pro_index]
             # Extract text
             comments = box.document().toPlainText()
@@ -2370,6 +2400,7 @@ class panelGUI(QMainWindow):
             self.updateDataProcess5,
             self.updateDataProcess6,
             self.updateDataProcess7,
+            self.updateDataProcess8,
         ][self.pro_index]()
 
         # Process the updated data list by replacing all elements in the list that don't pass bool(el) with None
@@ -2535,6 +2566,16 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
+    # TODO
+    def updateDataProcess8(self):
+        self.data[self.pro_index][0] = self.ui.panelInput_8.text()
+        self.data[self.pro_index][1] = self.ui.left_cover_6.text()
+        self.data[self.pro_index][2] = self.ui.right_cover_6.text()
+        self.data[self.pro_index][3] = self.ui.center_ring_6.text()
+        self.data[self.pro_index][4] = self.ui.center_cover_6.text()
+        self.data[self.pro_index][5] = self.ui.left_ring_6.text()
+        self.data[self.pro_index][6] = self.ui.right_ring_6.text()
+
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
     # ██║     ██╔═══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -2590,6 +2631,7 @@ class panelGUI(QMainWindow):
             self.parsePro5Data,
             self.parsepro6Data,
             self.parsepro7Data,
+            self.parsepro8Data,
         ]
 
         # Call method giving 'data' as input.
@@ -3495,6 +3537,19 @@ class panelGUI(QMainWindow):
             else:
                 self.ui.epoxy_applied5_3.setDisabled(True)
 
+        self.displayComments()
+
+    # TODO
+    """
+    parsepro8Data(self, data)
+
+        Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
+                    UI elements to ensure the GUI state is consistent with normal use.
+
+        Parameter: data - A list of the parsed input data
+    """
+
+    def parsepro8Data(self, data):
         self.displayComments()
 
     # fmt: off
@@ -4671,6 +4726,41 @@ class panelGUI(QMainWindow):
         self.ui.panelInput7.setEnabled(True)
 
     # fmt: off
+    # ██████╗ ██████╗  ██████╗      ██████╗
+    # ██╔══██╗██╔══██╗██╔═══██╗    ██╔═══██╗
+    # ██████╔╝██████╔╝██║   ██║    ╚██████╔╝
+    # ██╔═══╝ ██╔══██╗██║   ██║    ██╔═══██╗
+    # ██║     ██║  ██║╚██████╔╝    ╚██████╔╝
+    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝
+    # fmt: on
+
+    # TODO: proc8 implementation
+    def pro8part1(self):
+
+        # Ensure that all parts have been checked off
+        if not (self.checkSupplies() or DEBUG):
+            return
+
+        # Check that inputs are not empty
+        # inputs = []
+        # inputs.append(self.ui.left_cover_6.text())
+        # inputs.append(self.ui.right_cover_6.text())
+        # inputs.append(self.ui.center_ring_6.text())
+        # inputs.append(self.ui.center_cover_6.text())
+        # inputs.append(self.ui.left_ring_6.text())
+        # inputs.append(self.ui.right_ring_6.text())
+        # if "" in inputs:
+        #     return
+
+        # Disable
+        self.setWidgetsDisabled([self.ui.startButton_8, self.ui.panelInput_8])
+
+        self.startRunning()
+
+    def resetpro8(self):
+        pass
+
+    # fmt: off
     # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
     # ██╔════╝██║   ██║██╔══██╗    ██╔════╝ ██║   ██║██║██╔════╝
     # ███████╗██║   ██║██████╔╝    ██║  ███╗██║   ██║██║███████╗
@@ -4886,6 +4976,32 @@ class panelGUI(QMainWindow):
             self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet(
                 "background-color: rgb(122, 0, 25);"
             )
+
+    def run_test(self):
+        if self.checkDevice() == True:  # if no device connected,
+            return  # return from this function
+
+        run_test.main()
+
+    # record broken tap from the broken tap form in pro8
+    def broken_tap_form(self):
+        tap_id = int(self.ui.tap_id_txt.text())
+        self.DP.saveTapForm(tap_id)
+
+        # clear form data
+        self.ui.tap_id_txt.setText("")
+
+    # record bad wire/straw from the bad straw/wire form in pro8
+    def bad_wire_form(self):
+        number = int(self.ui.bad_wire_number.text())
+        failure = self.ui.bad_wire_failure.text()
+        process = str(self.ui.bad_wire_process.currentText())
+        self.DP.saveBadWire(number, failure, int(process[-1]))
+
+        # clear form data
+        self.ui.bad_wire_number.setText("")
+        self.ui.bad_wire_failure.setText("")
+        self.ui.bad_wire_process.setCurrentIndex(0)
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
