@@ -1,9 +1,11 @@
-############################################################################
+################################################################################
 # Get a dictionary containing the important paths for this project.
 # Read in the csv file containing the directory locations.
 # Save them into a dictionary {name : path}.
 # The paths are strings in absolute form: root_dir + relative_project_dir.
-############################################################################
+################################################################################
+
+import numpy as np  # has the most convenient csv parser for the task at hand
 
 # Resource manager, and the resources folder (package)
 try:
@@ -17,6 +19,7 @@ import resources
 
 import numpy as np
 
+
 def GetProjectPaths():
     paths_file = ""
     with pkg_resources.path(resources, "paths.csv") as p:
@@ -24,6 +27,6 @@ def GetProjectPaths():
     paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
     # Make paths absolute. This txt file that holds the root/top dir of this
     # installation is created during setup.py.
-    root = pkg_resources.read_text(resources, "rootDirectoryLocation.txt")
+    root = pkg_resources.read_text(resources, "rootDirectory.txt")
     paths.update((k, root + "/" + v) for k, v in paths.items())
     return paths

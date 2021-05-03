@@ -2,7 +2,6 @@
 #### python interface to collect and visualize data from [PAAS_heater_1009.ino]
 #### variable temperature setpoint input
 
-from pathlib import Path
 import serial  ## from pyserial
 import serial.tools.list_ports
 import time, csv, sys, os
@@ -23,6 +22,8 @@ from guis.panel.heater.heat_control_window import (
 import logging
 
 logger = logging.getLogger("root")
+
+from guis.common.getresources import GetProjectPaths
 
 import matplotlib
 
@@ -203,10 +204,8 @@ class DataThread(threading.Thread):
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
-        self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
         self.datafile = (
-            self.directory
-            + "..\\..\\..\\..\\..\\Data\\Panel Data\\external_gui_data\\heat_control_data\\"
+            GetProjectPaths()["heatdata"]
             + panel
             + "_"
             + dt.now().strftime("%Y-%m-%d")

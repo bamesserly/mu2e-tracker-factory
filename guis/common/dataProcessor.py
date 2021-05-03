@@ -28,6 +28,8 @@ import logging
 
 logger = logging.getLogger("root")
 
+from guis.common.getresources import GetProjectPaths
+
 # MkI saves DB friendly CSV files
 # MkII saves human friendly CSV files
 # MkI can be on, but no data will be lost if it's off.
@@ -694,20 +696,12 @@ class MultipleDataProcessor(DataProcessor):
 # Save tools, parts, supplies
 # Save mold release
 
-# Resource manager, and the resources folder (package)
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
-
-import resources
-
 
 class TxtDataProcessor(DataProcessor):
     def __init__(self, gui, lab_version=True):
         super().__init__(gui)
-        self._init_directories(lab_version)
+        self.paths = GetProjectPaths()
+        self._init_directories(self.paths)
         self.credentialChecker = Credentials(
             "pan" + str(self.getPro()), self.paths["credentialsChecklist"]
         )
@@ -715,40 +709,20 @@ class TxtDataProcessor(DataProcessor):
         self.workerInformation = []
         self.validWorkers = []
 
-    def _init_directories(self, lab_version):
-
-        ############################################################################
-        # Get the directory locations of various resources we'll need.
-        ############################################################################
-        # Read in the csv file containing the directory locations.
-        # Save them into a dictionary {tag, path}
-        paths_file = ""
-        with pkg_resources.path(resources, "paths.csv") as p:
-            paths_file = p.resolve()
-        self.paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
-        # Make paths absolute. This txt file that holds the root/top dir of this
-        # installation is created during setup.py.
-        root = pkg_resources.read_text(resources, "rootDirectory.txt")
-        self.paths.update((k, root + "/" + v) for k, v in self.paths.items())
+    def _init_directories(self, paths):
 
         # Save directories as instance variables
-        self.workerDirectory = Path(self.paths["workerDirectory"]).resolve()
-        self.panelDirectory = Path(self.paths["panelDirectory"]).resolve()
+        self.workerDirectory = Path(paths["workerDirectory"]).resolve()
+        self.panelDirectory = Path(paths["panelDirectory"]).resolve()
         self.failDirectory = self.panelDirectory / "Failures"
         self.commentDirectory = self.panelDirectory / "Comments"
-        self.listDirectory = Path(self.paths["listsDirectory"]).resolve()
-        self.stepsDirectory = Path(self.paths["stepsDirectory"]).resolve()
-        self.continuity_dataDirectory = Path(self.paths["continuity_data"]).resolve()
-        self.wire_tensionerDirectory = Path(self.paths["wire_tensioner_data"]).resolve()
-        self.strawTensionboxDirectory = Path(
-            self.paths["tensionbox_data_straw"]
-        ).resolve()
-        self.wireTensionboxDirectory = Path(
-            self.paths["tensionbox_data_wire"]
-        ).resolve()
-        self.straw_tensionerDirectory = Path(
-            self.paths["straw_tensioner_data"]
-        ).resolve()
+        self.listDirectory = Path(paths["listsDirectory"]).resolve()
+        self.stepsDirectory = Path(paths["stepsDirectory"]).resolve()
+        self.continuity_dataDirectory = Path(paths["continuity_data"]).resolve()
+        self.wire_tensionerDirectory = Path(paths["wire_tensioner_data"]).resolve()
+        self.strawTensionboxDirectory = Path(paths["tensionbox_data_straw"]).resolve()
+        self.wireTensionboxDirectory = Path(paths["tensionbox_data_wire"]).resolve()
+        self.straw_tensionerDirectory = Path(paths["straw_tensioner_data"]).resolve()
 
     #  _____                  ___  ___     _   _               _
     # /  ___|                 |  \/  |    | | | |             | |

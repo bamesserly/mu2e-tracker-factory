@@ -34,8 +34,6 @@ from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator
 # for GUI window management
 from PyQt5.QtCore import Qt, QRect, QRegExp
 
-# Add GUIS/panel/current to sys.path
-sys.path.insert(0, str(Path(Path(__file__).resolve().parent.parent.parent)))
 # import UI
 from guis.panel.hv.hvGUI import (
     Ui_MainWindow,
@@ -44,6 +42,8 @@ from guis.panel.hv.hvGUI import (
 import logging
 
 logger = logging.getLogger("root")
+
+from guis.common.getresources import GetProjectPaths
 
 
 """
@@ -127,8 +127,7 @@ class highVoltageGUI(QMainWindow):
         self.straw = 0
 
         # set icon in upper left
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.setWindowIcon(QIcon(f"{dir_path}\\mu2e.jpg"))
+        self.setWindowIcon(QIcon(GetProjectPaths["hvguiicon"]))
 
         # set save mode (DB or CSV), changes at the end of this function
         self.saveMode = ""
@@ -355,7 +354,7 @@ class highVoltageGUI(QMainWindow):
     # Save one HV measurement, append CSV file
     def saveCSV(self, position, side, current, voltage, is_tripped):
         headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
-        pathString = "..\\..\\..\\..\\..\\Data\\Panel Data\\hv_data\\"
+        pathString = GetProjectPaths()["hvdata"]
         today = datetime.datetime.today().strftime("%Y%m%d")
         outfile = pathString + self.panel + "_hv_data_" + today + ".csv"
         outfile = Path(outfile).resolve()

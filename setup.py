@@ -11,9 +11,10 @@ print("===============================================")
 
 # Define root directory of this installation. Save it in a text file.
 root_dir = Path(__file__).parent
+root_dir = root_dir.resolve()
 root_dir_file = root_dir / "resources" / "rootDirectory.txt"
 with open(root_dir_file, "w") as f:
-    f.write(str(root_dir.resolve()))
+    f.write(str(root_dir))
 
 # ===============================================================================
 # 1. Determine key paths
@@ -68,7 +69,7 @@ else:
     if os.path.isdir("data"):
         print("    Data directory was found.")
         print("    Setup script will continue running.")
-        with open("data/__init__.py",'w') as file:
+        with open("data/__init__.py", "w") as file:
             pass
     else:
         print("    Data directory was not found.")

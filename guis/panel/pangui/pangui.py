@@ -43,7 +43,6 @@ import pyautogui
 from PIL import Image
 from datetime import datetime
 from threading import Thread, enumerate as enumerateThreads
-import numpy as np
 import subprocess  ## run straw and wire tensioner GUIs as subprocesses
 from PyQt5.Qt import PYQT_VERSION_STR  # used for version checking
 from PyQt5.QtCore import (
@@ -4923,7 +4922,7 @@ def checkPackages():
         ("cycler", cycler.__version__ == "0.10.0"),
         ("kiwisolver", kiwisolver.__version__ == "1.1.0"),
         ("matplotlib", matplotlib.__version__ == "3.1.0"),
-        ("numpy", np.__version__ == "1.16.4"),
+        # ("numpy", np.__version__ == "1.16.4"),
         ("pyautogui", pyautogui.__version__ == "0.9.44"),
         ("pyparsing", pyparsing.__version__ == "2.4.0"),
         (
