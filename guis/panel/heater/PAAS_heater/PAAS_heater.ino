@@ -127,17 +127,15 @@ void temp_control(){
         else {dT = tempA - temp2 - 5.0*(max(0,temp2-20)/14);}
       }
       // Heat to 55:
-      // Override default dT so TA holds at 46 only until TB reaches 40
-      // (compared to 44, as the default dT has it.)
+      // Heat A and B at full blast unless TA>=46 && (TB<40 || TA>44), in
+      // which case use the default dT.
       if (setpointA>50) {
-        if(tempA<46) dT=0;
-        else {
-          if(temp2<44) dT = tempA - temp2 - (temp2-34);
-        }
+        if(tempA>=46 && (temp2<40 || temp2>44){ ; }
+        else dT=0;
       }
     }
     if (dT<0 && valA==255) valB+=int(round(Pb * dT)); // -> slow the heating of B
-    else if (dT>0 && valB==255) valA-=int(round(Pa *dT)); // -> slow the heating of A
+    else if (dT>0 && valB==255) valA-=int(round(Pa * dT)); // -> slow the heating of A
     else {
       valA += int(round(Pa * (setpointA-tempA)));
       valB += int(round(Pb * (setpoint2-temp2)));
