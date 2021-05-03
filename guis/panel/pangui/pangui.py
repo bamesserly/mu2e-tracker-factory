@@ -4747,7 +4747,6 @@ class panelGUI(QMainWindow):
         # if "" in inputs:
         #     return
 
-        logger.info("buttons", self.ui.saveButtons.buttons())
         # Disable
         self.setWidgetsDisabled([self.ui.startButton_8, self.ui.panelInput_8])
 
