@@ -1417,12 +1417,7 @@ class panelGUI(QMainWindow):
             return
 
         # Get pro Information
-        # QT designer does not let rename button for pro8 as pro8Select
-        string = btn.objectName()
-        if string[-1] == "_":
-            string = string[:-1]
-
-        self.pro = int(string[3:-6])
+        self.pro = int(btn.objectName()[3])
         logger.info("pro selected: %s" % self.pro)
         self.pro_index = self.pro - 1
         self.ui.proSelection.setCurrentIndex(0)
@@ -4752,6 +4747,7 @@ class panelGUI(QMainWindow):
         # if "" in inputs:
         #     return
 
+        logger.info("buttons", self.ui.saveButtons.buttons())
         # Disable
         self.setWidgetsDisabled([self.ui.startButton_8, self.ui.panelInput_8])
 
