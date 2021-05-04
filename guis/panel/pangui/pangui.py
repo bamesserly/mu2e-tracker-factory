@@ -39,6 +39,7 @@ logger = SetupPANGUILogger("root")
 from guis.common.getresources import GetProjectPaths
 
 import inspect
+import subprocess
 import pyautogui
 from PIL import Image
 from datetime import datetime
@@ -94,6 +95,7 @@ from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.panel.resistance.run_test import run_test
+from guis.panel.resistance.run_test import test
 
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
@@ -771,6 +773,7 @@ class panelGUI(QMainWindow):
         self.ui.rest_test_pro8.clicked.connect(self.run_test)
         self.ui.broken_tap.clicked.connect(self.broken_tap_form)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
+        self.ui.save_pro8parts.clicked.connect(self.save_parts)
 
     def _init_timers(self):
         self.timers = [
@@ -3545,6 +3548,24 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
+        if data[1] is not None:
+            self.ui.left_cover_6.setText(data[1])
+            self.ui.left_cover_6.setDisabled(True)
+        if data[2] is not None:
+            self.ui.right_cover_6.setText(data[2])
+            self.ui.right_cover_6.setDisabled(True)
+        if data[3] is not None:
+            self.ui.center_ring_6.setText(data[3])
+            self.ui.center_ring_6.setDisabled(True)
+        if data[4] is not None:
+            self.ui.center_cover_6.setText(data[4])
+            self.ui.center_cover_6.setDisabled(True)
+        if data[5] is not None:
+            self.ui.left_ring_6.setText(data[5])
+            self.ui.left_ring_6.setDisabled(True)
+        if data[6] is not None:
+            self.ui.right_ring_6.setText(data[6])
+            self.ui.right_ring_6.setDisabled(True)
         self.displayComments()
 
     # fmt: off
@@ -4736,7 +4757,10 @@ class panelGUI(QMainWindow):
         if not (self.checkSupplies() or DEBUG):
             return
 
-        # Check that inputs are not empty
+        # Validate inputs
+        # validateInput gives error
+        # if not self.validateInput(indices=range(7)):
+        #     return
         # inputs = []
         # inputs.append(self.ui.left_cover_6.text())
         # inputs.append(self.ui.right_cover_6.text())
@@ -4747,11 +4771,23 @@ class panelGUI(QMainWindow):
         # if "" in inputs:
         #     return
 
-        logger.info("buttons", self.ui.saveButtons.buttons())
-        # Disable
-        self.setWidgetsDisabled([self.ui.startButton_8, self.ui.panelInput_8])
+        # Disable start button, panel input, and part inputs
+        self.setWidgetsDisabled(
+            [
+                self.ui.startButton_8,
+                self.ui.panelInput_8,
+                self.ui.left_cover_6,
+                self.ui.right_cover_6,
+                self.ui.center_cover_6,
+                self.ui.left_ring_6,
+                self.ui.right_ring_6,
+                self.ui.center_ring_6,
+                self.ui.save_pro8parts,
+            ]
+        )
 
         self.startRunning()
+        self.saveData()
 
     def resetpro8(self):
         pass
@@ -4974,10 +5010,8 @@ class panelGUI(QMainWindow):
             )
 
     def run_test(self):
-        if self.checkDevice() == True:  # if no device connected,
-            return  # return from this function
-
-        run_test.main()
+        script_dir = os.getcwd() + "\guis\panel\\resistance\\run_test\\"
+        subprocess.call("start /wait python test.py", shell=True, cwd=script_dir)
 
     # record broken tap from the broken tap form in pro8
     def broken_tap_form(self):
@@ -4998,6 +5032,9 @@ class panelGUI(QMainWindow):
         self.ui.bad_wire_number.setText("")
         self.ui.bad_wire_failure.setText("")
         self.ui.bad_wire_process.setCurrentIndex(0)
+
+    def save_parts(self):
+        self.saveData()
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
