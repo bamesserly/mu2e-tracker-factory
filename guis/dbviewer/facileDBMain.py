@@ -154,7 +154,7 @@ class facileDBGUI(QMainWindow):
         # double backslashes are necessary because \U is a unicode escape, but \\U is not
         def connectSpecial(dbPath):
             print("Attempting connection to database:", database)
-            ro_sql3_connection_uri = "file:" + database + "?mode=ro"
+            ro_sql3_connection_uri = "file:" + str(database) + "?mode=ro"
             return sqlite3.connect(
                 ro_sql3_connection_uri,
                 uri=True,
@@ -1745,7 +1745,7 @@ def run():
         with pkg_resources.path(data, "database.db") as p:
             database = p.resolve()
     window.connectToDatabaseRO(database)  # link to database
-    window.setWindowTitle("Database Viewer, Connected to " + database)
+    window.setWindowTitle("Database Viewer, Connected to " + str(database))
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 
     app.exec_()  # run the app!
