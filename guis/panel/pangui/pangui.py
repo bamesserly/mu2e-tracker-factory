@@ -4968,11 +4968,10 @@ def run():
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
 
-    paths = GetProjectPaths()
-
     ############################################################################
     # Make an instance of the GUI and run it
     ############################################################################
+    paths = GetProjectPaths()
     ctr = panelGUI(paths)  # create gui window
     ctr.show()  # show gui window
     app.exec_()  # go!

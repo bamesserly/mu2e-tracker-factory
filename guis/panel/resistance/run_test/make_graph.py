@@ -3,11 +3,7 @@ import os, sys, math, re, time
 import numpy as np
 from itertools import islice
 import csv
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
-dir_path = dir_path[: -len(suffix)]
-dir_path += "\Data\Panel data\\FinalQC\\Resistance\\Plots\\"
+from guis.common.getresources import GetProjectPaths
 
 # Function that makes and saves a graph for visually summarizing
 # the continuity test results.
@@ -77,11 +73,12 @@ def make_graph(filename, panelid, logfilename, stage_tag=""):
     logfilename = logfilename[:-3] + "png"
 
     # check if panel folder exist, create otherwise
-    if os.path.exists(dir_path + "\MN" + panelid):
-        fig.savefig(dir_path + "\MN" + panelid + "\\" + logfilename)
+    data_dir = GetProjectPaths()["panelresistancedata"]
+    if os.path.exists(data_dir + "\MN" + panelid):
+        fig.savefig(data_dir + "\MN" + panelid + "\\" + logfilename)
     else:
-        os.makedirs(dir_path + "\MN" + panelid)
-        fig.savefig(dir_path + "\MN" + panelid + "\\" + logfilename)
+        os.makedirs(data_dir + "\MN" + panelid)
+        fig.savefig(data_dir + "\MN" + panelid + "\\" + logfilename)
 
 
 if __name__ == "__main__":

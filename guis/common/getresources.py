@@ -17,8 +17,6 @@ except ImportError:
 # Resources folder: where the paths.csv file is stored.
 import resources
 
-import numpy as np
-
 
 def GetProjectPaths():
     paths_file = ""

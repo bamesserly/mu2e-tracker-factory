@@ -28,8 +28,6 @@ from guis.common.getresources import GetProjectPaths
 import matplotlib
 
 matplotlib.use("Qt5Agg")
-import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 

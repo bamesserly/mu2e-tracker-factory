@@ -36,17 +36,7 @@ from guis.straw.remove import Ui_Dialogw
 from guis.straw.removestraw import *
 from guis.straw.checkstraw import *
 from data.workers.credentials.credentials import Credentials
-
-# Resource manager, and the resources folder (package)
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
-
-import resources
-
-import numpy as np
+from guis.common.getresources import GetProjectPaths
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -460,21 +450,7 @@ def except_hook(cls, exception, traceback):
 
 
 def run():
-
-    ############################################################################
-    # Get the directory locations of various resources we'll need.
-    ############################################################################
-    # Read in the csv file containing the directory locations.
-    # Save them into a dictionary {tag, path}
-    paths_file = ""
-    with pkg_resources.path(resources, "paths.csv") as p:
-        paths_file = p.resolve()
-    paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
-    # Make paths absolute. This txt file that holds the root/top dir of this
-    # installation is created during setup.py.
-    root = pkg_resources.read_text(resources, "rootDirectory.txt")
-    paths.update((k, root + "/" + v) for k, v in paths.items())
-
+    paths = GetProjectPaths()
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
     ctr = Silver(paths)

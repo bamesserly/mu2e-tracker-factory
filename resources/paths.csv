@@ -34,3 +34,4 @@ heatdata,Data/Panel Data/external_gui_data/heat_control_data
 strawtensiondata,Data/Panel Data/external_gui_data/straw_tension_data
 hvguiicon,guis/panel/hv/mu2e.jpg
 hvdata,Data/Panel Data/hv_data
+panelresistancedata,/Data/Panel data/FinalQC/Resistance/Plots

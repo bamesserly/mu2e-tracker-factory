@@ -82,7 +82,7 @@ HOW DATA IS STORED:
     However!  there are set/get methods for doing those things
         to make code more readable.  See setAmp, getAmp,
         setTrip, and getTrip
-    
+
 """
 
 

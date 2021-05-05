@@ -12,7 +12,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QFileDialog
 import sys
 import os
-from pathlib import Path
 
 import serial.tools.list_ports  ## automatically get COM port
 import guis.panel.tensionbox.tensionbox_ui as tensionbox_ui  ## edit in Qt Designer, convert with pyuic5
