@@ -710,19 +710,17 @@ class TxtDataProcessor(DataProcessor):
         self.validWorkers = []
 
     def _init_directories(self, paths):
-
-        # Save directories as instance variables
-        self.workerDirectory = Path(paths["workerDirectory"]).resolve()
-        self.panelDirectory = Path(paths["panelDirectory"]).resolve()
+        self.workerDirectory = paths["workerDirectory"]
+        self.panelDirectory = paths["panelDirectory"]
         self.failDirectory = self.panelDirectory / "Failures"
         self.commentDirectory = self.panelDirectory / "Comments"
-        self.listDirectory = Path(paths["listsDirectory"]).resolve()
-        self.stepsDirectory = Path(paths["stepsDirectory"]).resolve()
-        self.continuity_dataDirectory = Path(paths["continuity_data"]).resolve()
-        self.wire_tensionerDirectory = Path(paths["wire_tensioner_data"]).resolve()
-        self.strawTensionboxDirectory = Path(paths["tensionbox_data_straw"]).resolve()
-        self.wireTensionboxDirectory = Path(paths["tensionbox_data_wire"]).resolve()
-        self.straw_tensionerDirectory = Path(paths["straw_tensioner_data"]).resolve()
+        self.listDirectory = paths["listsDirectory"]
+        self.stepsDirectory = paths["stepsDirectory"]
+        self.continuity_dataDirectory = paths["continuity_data"]
+        self.wire_tensionerDirectory = paths["wire_tensioner_data"]
+        self.strawTensionboxDirectory = paths["tensionbox_data_straw"]
+        self.wireTensionboxDirectory = paths["tensionbox_data_wire"]
+        self.straw_tensionerDirectory = paths["straw_tensioner_data"]
 
     #  _____                  ___  ___     _   _               _
     # /  ___|                 |  \/  |    | | | |             | |
@@ -881,10 +879,9 @@ class TxtDataProcessor(DataProcessor):
     # worker is the worker's ID as a string
     # login = True --> logging in, login = False --> logging out
     def saveWorkers(self, worker, login):
-        path = Path(self.paths["workerDirectory"]).resolve()
-        lockFile = path / "workers.lock"
-        workerFile = path / "workers.csv"
-        tempFile = path / "temp.csv"
+        lockFile = self.workerDirectory / "workers.lock"
+        workerFile = self.workerDirectory / "workers.csv"
+        tempFile = self.workerDirectory / "temp.csv"
 
         index = [worker.upper() in info for info in self.workerInformation].index(True)
         workerRow = self.workerInformation[index]
@@ -1259,13 +1256,13 @@ class TxtDataProcessor(DataProcessor):
         )
 
     def getListPath(self):
-        return Path(f"{self.listDirectory}\Day {self.getPro()}.txt").resolve()
+        return self.listDirectory / f"Day {self.getPro()}.txt"
 
     def getMoldReleasePath(self):
-        return Path(self.paths["moldReleasePath"]).resolve()
+        return self.paths["moldReleasePath"]
 
     def getStepsPath(self):
-        return Path(self.stepsDirectory / f"Day {self.getPro()}.csv").resolve()
+        return self.stepsDirectory / f"Day {self.getPro()}.csv"
 
     def checkPanelFileExistsMk2(self):
         return self.getPanelPathMk2().exists()

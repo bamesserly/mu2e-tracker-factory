@@ -2,10 +2,11 @@
 # Get a dictionary containing the important paths for this project.
 # Read in the csv file containing the directory locations.
 # Save them into a dictionary {name : path}.
-# The paths are strings in absolute form: root_dir + relative_project_dir.
+# The paths are pathlib objs in absolute form: root_dir + relative_project_dir.
 ################################################################################
 
 import numpy as np  # has the most convenient csv parser for the task at hand
+from pathlib import Path
 
 # Resource manager, and the resources folder (package)
 try:
@@ -26,5 +27,5 @@ def GetProjectPaths():
     # Make paths absolute. This txt file that holds the root/top dir of this
     # installation is created during setup.py.
     root = pkg_resources.read_text(resources, "rootDirectory.txt")
-    paths.update((k, root + "/" + v) for k, v in paths.items())
+    paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
     return paths

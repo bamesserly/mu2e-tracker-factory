@@ -194,7 +194,7 @@ class panelGUI(QMainWindow):
 
         ## File paths
         self.paths = paths
-        self.imagePath = Path(self.paths["imagePath"]).resolve()
+        self.imagePath = self.paths["imagePath"]
 
         ## Setup UI
         self.ui = Ui_MainWindow()

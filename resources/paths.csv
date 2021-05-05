@@ -1,37 +1,34 @@
 # All paths are relative to the topdir which is two parent dirs above the
 # location of this file
-imagePath,Data/Panel data/diagrams
-workerDirectory,Data/workers/panel workers
-panelDirectory,Data/Panel data
-stepsDirectory,Data/Panel data/Steps/
+board,Data/Status Board 464
+co2epoxy,Data/CO2 endpiece data
+co2workers,Data/workers/straw workers/CO2 endpiece insertion
+continuity_data,Data/Panel data/wire_stringing_continuity_data
+cpaldata,Data/Leak test data/CPALS in Testing/CPALS.txt
 credentialsChecklist,Data/workers/credentials/WorkerProficiencyChecklist.csv
-wireQC,Data/Panel data/pass_qc/wire.csv
-moldReleasePath,Data/Panel data/Mold Release/Mold Release.csv
+heatdata,Data/Panel Data/external_gui_data/heat_control_data
+hvdata,Data/Panel Data/hv_data
+hvguiicon,guis/panel/hv/mu2e.jpg
+imagePath,Data/Panel data/diagrams
+laserdata,Data/Laser cut data
+laserworkers,Data/workers/straw workers/laser cutting
+leakdata,Data/Leak test data/Leak Test Results
+leakworkers,Data/workers/straw workers/leak testing
 listsDirectory,Data/Panel data/Lists/
-wire_tensioner_data,Data/Panel data/wire_tensioner_data
+moldReleasePath,Data/Panel data/Mold Release/Mold Release.csv
+pallets,Data/Pallets
+panelDirectory,Data/Panel data
+panelresistancedata,/Data/Panel data/FinalQC/Resistance/Plots
+prepdata,Data/Straw Prep Data
+prepworkers,Data/workers/straw workers/straw prep
+resistanceworkers,Data/workers/straw workers/resistance
+silverdata,Data/Silver epoxy data
+silverworkers,Data/workers/straw workers/silver epoxy
+stepsDirectory,Data/Panel data/Steps/
+straw_tensioner_data,Data/Panel data/straw_tensioner_data
+strawtensiondata,Data/Panel Data/external_gui_data/straw_tension_data
 tensionbox_data_straw,Data/Panel data\tensionbox_data\straw_measurements
 tensionbox_data_wire,Data/Panel data\tensionbox_data\wire_measurements
-straw_tensioner_data,Data/Panel data/straw_tensioner_data
-continuity_data,Data/Panel data/wire_stringing_continuity_data
-straw_tension_location,GUIS/panel/current/tension_devices/straw_tensioner/run_straw_tensioner.pyw
-wire_tension_location,GUIS/panel/current/tension_devices/wire_tensioner/wire_tension.py
-tensionbox_location,GUIS/panel/current/tension_devices/tension_box/tensionbox_window.py
-pallets,Data/Pallets
-board,Data/Status Board 464
-co2workers,Data/workers/straw workers/CO2 endpiece insertion
-co2epoxy,Data/CO2 endpiece data
-prepworkers,Data/workers/straw workers/straw prep
-prepdata,Data/Straw Prep Data
-laserworkers,Data/workers/straw workers/laser cutting
-laserdata,Data/Laser cut data
-resistanceworkers,Data/workers/straw workers/resistance
-silverworkers,Data/workers/straw workers/silver epoxy
-silverdata,Data/Silver epoxy data
-leakworkers,Data/workers/straw workers/leak testing
-leakdata,Data/Leak test data/Leak Test Results
-cpaldata,Data/Leak test data/CPALS in Testing/CPALS.txt
-heatdata,Data/Panel Data/external_gui_data/heat_control_data
-strawtensiondata,Data/Panel Data/external_gui_data/straw_tension_data
-hvguiicon,guis/panel/hv/mu2e.jpg
-hvdata,Data/Panel Data/hv_data
-panelresistancedata,/Data/Panel data/FinalQC/Resistance/Plots
+wireQC,Data/Panel data/pass_qc/wire.csv
+wire_tensioner_data,Data/Panel data/wire_tensioner_data
+workerDirectory,Data/workers/panel workers
