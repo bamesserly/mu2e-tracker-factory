@@ -56,7 +56,7 @@ def make_graph(filename, panelid, logfilename, stage_tag=""):
     Y_s = np.array(Y_strws)
     wires = plt.scatter(X_w, Y_w, s=50, facecolor="none", edgecolors="r")
     straws = plt.scatter(X_s, Y_s, marker="s", s=50, facecolor="none", edgecolors="b")
-    fig.savefig(filename[:-3] + "png")
+    fig.savefig(str(filename)[:-3] + "png")
     ax.legend([wires, straws], ["wires", "straws"], loc="upper right")
     plt.title("Panel ID " + panelid + " Resistance Test " + stage_tag)
     plt.xlabel("Straw number")
@@ -70,23 +70,18 @@ def make_graph(filename, panelid, logfilename, stage_tag=""):
     print(maxy_axis)
     plt.axis([0, 100, 0, maxy_axis])
     plt.show()
-    logfilename = logfilename[:-3] + "png"
+    outfilename = str(logfilename)[:-3] + "png"
 
-    # check if panel folder exist, create otherwise
-    data_dir = GetProjectPaths()["panelresistancedata"]
-    if os.path.exists(data_dir + "\MN" + panelid):
-        fig.savefig(data_dir + "\MN" + panelid + "\\" + logfilename)
-    else:
-        os.makedirs(data_dir + "\MN" + panelid)
-        fig.savefig(data_dir + "\MN" + panelid + "\\" + logfilename)
+    # Save the figure
+    fig_outfile = GetProjectPaths()["panelresistancedata"] / "Plots" / f"MN{panelid}" / outfilename
+    fig_outfile.parent.mkdir(exist_ok=True, parents=True)
+    fig.savefig(str(fig_outfile))
 
 
 if __name__ == "__main__":
     file_path = ""
     panelid = 0
-    correct_argv = True
     if len(sys.argv) < 3:
-        correct_argv = False
         print("Please specify the csv file to be used and the panel ID.\n")
         print(
             "Example: C:\\User\\Desktop\\Production\\Data\\Panel data\\FinalQC\\Resistance\\RawData\\name_of_file.csv"
@@ -94,34 +89,19 @@ if __name__ == "__main__":
         print(
             "If you don't want to type all this, you can do right click -> Properties and copy the field location.\n"
         )
-        print(
-            "You will need to add \ and the name of the file + .csv (ex: log_file.csv) at the end of the path\n"
-        )
-        file_path = input("Paths of the csv file: ")
+        file_path = Path(input("Path of the csv file: "))
+
         print("Example: 10")
         panelid = input("Panel id: ")
 
-        # if the path does not exist, prompt user again
-        # Set correct_argv to True to enter the while loop
-        if not os.path.exists(file_path):
-            correct_argv = True
+    else:
+        file_path = Path(sys.argv[1])
+        panelid = sys.argv[2]
 
-    while correct_argv:
-        path = sys.argv[1]
-        panel = sys.argv[2]
-        if os.path.exists(path):
-            file_path = path
-            panelid = panel
-            break
-        else:
-            print("The csv specified does not exist")
-            print("Please enter a valid csv file path or press Ctrl+C to quit")
-            path = input("Path to csv: ")
-            panel = input("Panel id: ")
-            if os.path.exists(path):
-                file_path = path
-                panelid = panel
-                break
+    while not file_path.is_file():
+        print("The csv specified does not exist")
+        print("Please enter a valid csv file path or press Ctrl+C to quit")
+        file_path = Path(input("Path of the csv file: "))
 
-    logfile = file_path[-33:]
+    logfile = file_path.name
     make_graph(file_path, panelid, logfile)

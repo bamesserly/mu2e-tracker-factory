@@ -9,6 +9,8 @@ import uncertainties  # module for propagating uncertainties.
 import colorama  # used to colour the terminal output
 import numpy
 import os
+from guis.common.getresources import GetProjectPaths
+from sys import exit
 
 
 def GetSerialPort():
@@ -35,6 +37,7 @@ def GetSerialPort():
     print("Ports found:")
     for port, desc, hwid in sorted(avail_ports):
         print("{}: {} [{}]".format(port, desc, hwid))
+    exit()
 
 
 # Initialize colorama.  autoreset = True makes it return to
@@ -116,7 +119,7 @@ def main():
     ############################################################################
     stage_tag = {1: "proc2", 2: "proc3", 3: "finalQC"}
     logfilename = (
-        "\\resistancetest_MN"
+        "resistancetest_MN"
         + panelid
         + "_"
         + timestamp
@@ -124,19 +127,12 @@ def main():
         + stage_tag[when]
         + ".log"
     )
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    suffix = "\GUIS\panel\current\\tension_devices\ContinuityResistance\\run_test"
-    dir_path = dir_path[: -len(suffix)]
-    dir_path += "\Data\Panel data\\FinalQC\\Resistance\\RawData\\"
-    dir_path += "\MN" + panelid
+    dir_path = GetProjectPaths()["panelresistancedata"] / "RawData" / f"MN{panelid}"
+    dir_path.mkdir(exist_ok=True, parents=True)
 
-    # Put the raw_data in its own folder
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
+    logfile = dir_path / logfilename
 
-    logfile = dir_path + logfilename
-
-    print("raw data going to", logfile)
+    print("raw data going to", str(logfile))
 
     serialport = GetSerialPort()
 
