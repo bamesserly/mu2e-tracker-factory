@@ -26,6 +26,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
+from guis.common.getresources import GetProjectPaths
 
 DEBUG = False
 # from straw_tensioner_window import Ui_MainWindow   ## edit via straw_tensioner_window.ui in Qt Designer
@@ -314,21 +315,8 @@ class GetDataThread(threading.Thread):
         self.stn = stn  ## straw position in panel
         self.cal = cal  ## offset at zero tension
         self.nano_params = {"port": COM, "baudrate": baudrate, "timeout": timeout}
-        if networked:  ## saving data to networked drive MU2E-CART1
-            # print('networked')
-            self.mu2ecart = "\\\MU2E-CART1\\Users\\Public\\Database Backup\\Panel data\\straw_tensioner_data\\"
-            self.datafile = (
-                self.mu2ecart + loc + "_" + datetime.now().strftime("%Y-%m-%d")
-            )
-        else:
-            self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
-            self.datafile = (
-                self.directory
-                + "..\\..\\..\\..\\..\\Data\\Panel Data\\external_gui_data\\straw_tension_data\\"
-                + loc
-                + "_"
-                + datetime.now().strftime("%Y-%m-%d")
-            )
+        self.directory = GetProjectPaths()["strawtensiondata"]
+        self.datafile = self.directory + loc + "_" + datetime.now().strftime("%Y-%m-%d")
         if not os.path.isfile(self.datafile + ".csv"):
             with open(self.datafile + ".csv", mode="a+") as f:
                 f.write("Date,StrawPosition,Tension(grams),Uncertainty(grams),Epoc\n")
