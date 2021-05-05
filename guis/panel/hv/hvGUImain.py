@@ -55,7 +55,6 @@ LIST OF IMPORTANT WIDGETS:
     Straw position              --> positionBox
     Amps input                  --> ampsLE
     Trip status input           --> tripBox
-    
 
     Initialized in _init_scroll
     List of right current boxes --> self.currentRight
@@ -127,7 +126,7 @@ class highVoltageGUI(QMainWindow):
         self.straw = 0
 
         # set icon in upper left
-        self.setWindowIcon(QIcon(GetProjectPaths["hvguiicon"]))
+        self.setWindowIcon(QIcon(str(GetProjectPaths()["hvguiicon"])))
 
         # set save mode (DB or CSV), changes at the end of this function
         self.saveMode = ""
@@ -150,6 +149,7 @@ class highVoltageGUI(QMainWindow):
         self.ui.ampsLE.setValidator(ampValidator)
 
         # bind function to submit panel button
+        #self.ui.subPanelButton.setEnabled(True)
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
 
         # disable straw data entry widgets
@@ -354,13 +354,13 @@ class highVoltageGUI(QMainWindow):
     # Save one HV measurement, append CSV file
     def saveCSV(self, position, side, current, voltage, is_tripped):
         headers = ["Position", "Current", "Side", "Voltage", "IsTripped", "Timestamp"]
-        pathString = GetProjectPaths()["hvdata"]
+        outdir = GetProjectPaths()["hvdata"]
         today = datetime.datetime.today().strftime("%Y%m%d")
-        outfile = pathString + self.panel + "_hv_data_" + today + ".csv"
-        outfile = Path(outfile).resolve()
+        outfilename = self.panel + "_hv_data_" + today + ".csv"
+        outfile = outdir / outfilename
         self.ui.statusbar.showMessage(f"CSV saved at: {outfile}")
-        print("Saving HV current data to", outfile)
-        file_exists = os.path.isfile(outfile)
+        print("Saving HV current data to", str(outfile))
+        file_exists = outfile.exists()
         try:
             with open(outfile, "a+") as f:
                 writer = csv.DictWriter(
