@@ -4964,9 +4964,9 @@ def checkPackages():
 def run():
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)  # create new app to run
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
-    app.setAttribute(Qt.AA_EnableHighDpiScaling)  # aestetics
 
     ############################################################################
     # Make an instance of the GUI and run it
