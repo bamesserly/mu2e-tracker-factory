@@ -206,6 +206,7 @@ class DataThread(threading.Thread):
         self.setpt = setpoint
         self.datafile = (
             GetProjectPaths()["heatdata"]
+            + "\\"
             + panel
             + "_"
             + dt.now().strftime("%Y-%m-%d")
