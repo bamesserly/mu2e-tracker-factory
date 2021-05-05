@@ -316,7 +316,9 @@ class GetDataThread(threading.Thread):
         self.cal = cal  ## offset at zero tension
         self.nano_params = {"port": COM, "baudrate": baudrate, "timeout": timeout}
         self.directory = GetProjectPaths()["strawtensiondata"]
-        self.datafile = self.directory + loc + "_" + datetime.now().strftime("%Y-%m-%d")
+        self.datafile = (
+            self.directory + "\\" + loc + "_" + datetime.now().strftime("%Y-%m-%d")
+        )
         if not os.path.isfile(self.datafile + ".csv"):
             with open(self.datafile + ".csv", mode="a+") as f:
                 f.write("Date,StrawPosition,Tension(grams),Uncertainty(grams),Epoc\n")
