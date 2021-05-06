@@ -149,7 +149,6 @@ class highVoltageGUI(QMainWindow):
         self.ui.ampsLE.setValidator(ampValidator)
 
         # bind function to submit panel button
-        #self.ui.subPanelButton.setEnabled(True)
         self.ui.subPanelButton.clicked.connect(self.submitPanel)
 
         # disable straw data entry widgets
@@ -361,6 +360,7 @@ class highVoltageGUI(QMainWindow):
         self.ui.statusbar.showMessage(f"CSV saved at: {outfile}")
         print("Saving HV current data to", str(outfile))
         file_exists = outfile.exists()
+        outfile.parent.mkdir(exist_ok=True, parents=True)
         try:
             with open(outfile, "a+") as f:
                 writer = csv.DictWriter(
