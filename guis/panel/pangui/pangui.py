@@ -300,7 +300,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5, 8: 7}
+        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5, 8: 8}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -773,7 +773,6 @@ class panelGUI(QMainWindow):
         self.ui.rest_test_pro8.clicked.connect(self.run_test)
         self.ui.broken_tap.clicked.connect(self.broken_tap_form)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
-        self.ui.save_pro8parts.clicked.connect(self.save_parts)
 
     def _init_timers(self):
         self.timers = [
@@ -2336,7 +2335,7 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox5,
                 self.ui.commentBox6,
                 self.ui.commentBox7,
-                self.ui.commentBox8,
+                self.ui.commentBox8_6,
             ][self.pro_index]
             # Extract text
             comments = box.document().toPlainText()
@@ -3474,6 +3473,7 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro7Data(self, data):
+
         # print("data passed to parsepro7Data is", data)
         # if data[0] is not None:
         #     self.ui.panelInput7.setText(str(data[0]))
@@ -3548,6 +3548,10 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
+        logger.info("Parse 8 data")
+        if data[0] is not None:
+            self.ui.panelInput_8.setText(str(data[0]))
+            self.ui.panelInput_8.setDisabled(True)
         if data[1] is not None:
             self.ui.left_cover_6.setText(data[1])
             self.ui.left_cover_6.setDisabled(True)
@@ -4757,19 +4761,9 @@ class panelGUI(QMainWindow):
         if not (self.checkSupplies() or DEBUG):
             return
 
-        # Validate inputs
-        # validateInput gives error
-        # if not self.validateInput(indices=range(7)):
-        #     return
-        # inputs = []
-        # inputs.append(self.ui.left_cover_6.text())
-        # inputs.append(self.ui.right_cover_6.text())
-        # inputs.append(self.ui.center_ring_6.text())
-        # inputs.append(self.ui.center_cover_6.text())
-        # inputs.append(self.ui.left_ring_6.text())
-        # inputs.append(self.ui.right_ring_6.text())
-        # if "" in inputs:
-        #     return
+        # Ensure that all input data is valid
+        if not self.validateInput(indices=range(1)):
+            return
 
         # Disable start button, panel input, and part inputs
         self.setWidgetsDisabled(
@@ -4782,15 +4776,23 @@ class panelGUI(QMainWindow):
                 self.ui.left_ring_6,
                 self.ui.right_ring_6,
                 self.ui.center_ring_6,
-                self.ui.save_pro8parts,
             ]
         )
 
         self.startRunning()
         self.saveData()
 
+    # not tested
     def resetpro8(self):
-        pass
+        self.data[4] = [None for x in self.data[4]]
+        self.ui.left_cover_6.setText("")
+        self.ui.right_cover_6.setText("")
+        self.ui.center_cover_6.setText("")
+        self.ui.left_ring_6.setText("")
+        self.ui.right_ring_6.setText("")
+        self.ui.center_ring_6.setText("")
+        self.ui.startButton7.setEnabled(True)
+        self.ui.panelInput7.setEnabled(True)
 
     # fmt: off
     # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
@@ -5014,27 +5016,41 @@ class panelGUI(QMainWindow):
         subprocess.call("start /wait python test.py", shell=True, cwd=script_dir)
 
     # record broken tap from the broken tap form in pro8
+    # broken_taps is a column in the pan8 table that stores an integer value
+    # This integer value represents a hexadecimal number that reprensents the tab that has been broken
+    # e.g. 0 means 0 taps are broken -> 0000
+    #      12 means taps 3 and 4 are broken -> 1100
+    #      1 means tap 1 is broken -> 0001
     def broken_tap_form(self):
-        tap_id = int(self.ui.tap_id_txt.text())
-        self.DP.saveTapForm(tap_id)
+        tap_value = int(self.ui.tap_id_txt.text())
+        if tap_value == 1:
+            self.DP.saveTapForm(1)
+        elif tap_value == 2:
+            self.DP.saveTapForm(2)
+        elif tap_value == 3:
+            self.DP.saveTapForm(4)
+        elif tap_value == 4:
+            self.DP.saveTapForm(8)
+        # invalid number
+        else:
+            return
 
         # clear form data
         self.ui.tap_id_txt.setText("")
 
     # record bad wire/straw from the bad straw/wire form in pro8
     def bad_wire_form(self):
-        number = int(self.ui.bad_wire_number.text())
-        failure = self.ui.bad_wire_failure.text()
+        number = int(self.ui.bad_number.text())
+        failure = self.ui.bad_failure.text()
         process = str(self.ui.bad_wire_process.currentText())
-        self.DP.saveBadWire(number, failure, int(process[-1]))
+        wire_check = self.ui.wireCheck.isChecked()
+        self.DP.saveBadWire(number, failure, int(process[-1]), wire_check)
 
         # clear form data
-        self.ui.bad_wire_number.setText("")
-        self.ui.bad_wire_failure.setText("")
+        self.ui.wireCheck.setChecked(False)
+        self.ui.bad_number.setText("")
+        self.ui.bad_failure.setText("")
         self.ui.bad_wire_process.setCurrentIndex(0)
-
-    def save_parts(self):
-        self.saveData()
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

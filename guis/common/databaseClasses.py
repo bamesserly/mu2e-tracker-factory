@@ -1706,6 +1706,7 @@ class Pan8Procedure(PanelProcedure):
             center_cover = Column(Integer)
             left_ring = Column(Integer)
             right_ring = Column(Integer)
+            broken_taps = Column(Integer)
 
         return Details
 
@@ -1751,6 +1752,13 @@ class Pan8Procedure(PanelProcedure):
         self.details.right_ring = right_ring
         self.commit()
 
+    def getBrokenTaps(self):
+        return self.details.broken_taps
+
+    def recordBrokenTaps(self, tap_value):
+        self.details.broken_taps += tap_value
+        self.commit()
+
 
 """
     Broken Tap Form
@@ -1785,11 +1793,15 @@ class BadWire(BASE, OBJECT):
     number = Column(Integer)
     failure = Column(String)
     process = Column(Integer)
+    procedure = Column(Integer)
+    wire = Column(BOOLEAN)
 
-    def __init__(self, number, failure, process):
+    def __init__(self, number, failure, process, procedure, wire_check):
         self.number = number
         self.failure = failure
         self.process = process
+        self.procedure = procedure
+        self.wire = wire_check
 
         self.commit()
 

@@ -619,9 +619,9 @@ class MultipleDataProcessor(DataProcessor):
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
 
-    def saveBadWire(self, number, failure, process):
+    def saveBadWire(self, number, failure, process, wire_check):
         for dp in self.processors:
-            dp.saveBadWire(number, failure, process)
+            dp.saveBadWire(number, failure, process, wire_check)
 
     def saveTapForm(self, tap_id):
         for dp in self.processors:
@@ -1169,7 +1169,7 @@ class TxtDataProcessor(DataProcessor):
     def saveTapForm(self, tap_id):
         pass
 
-    def saveBadWire(self, number, failure, process):
+    def saveBadWire(self, number, failure, process, wire_check):
         pass
 
     #  _                     _  ___  ___     _   _               _
@@ -2052,13 +2052,21 @@ class SQLDataProcessor(DataProcessor):
                     position, side, current, voltage, is_tripped
                 )
 
-    def saveTapForm(self, tap_id):
+    def saveTapForm(self, tap_value):
         if self.ensureProcedure():
-            BrokenTap(tap_id=tap_id)
+            self.procedure.recordBrokenTaps(tap_value)
 
-    def saveBadWire(self, number, failure, process):
+    def saveBadWire(self, number, failure, process, wire_check):
         if self.ensureProcedure():
-            BadWire(number=number, failure=failure, process=process)
+            logger.info(self.procedure)
+            logger.info(self.procedure.id)
+            BadWire(
+                number=number,
+                failure=failure,
+                process=process,
+                procedure=self.procedure.id,
+                wire_check=wire_check,
+            )
 
     def wireQCd(self, wire):
         id = self.stripNumber(wire)
