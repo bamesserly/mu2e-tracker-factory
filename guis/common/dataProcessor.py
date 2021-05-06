@@ -22,7 +22,6 @@ from guis.common.databaseClasses import (
     MoldReleaseItemsChecked,
     MoldReleaseItems,
     TensionboxMeasurement,
-    BrokenTap,
     BadWire,
 )
 

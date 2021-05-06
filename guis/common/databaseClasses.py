@@ -1761,25 +1761,6 @@ class Pan8Procedure(PanelProcedure):
 
 
 """
-    Broken Tap Form
-        Table used to record broken taps in the database
-        This form is part of process 8
-"""
-
-
-class BrokenTap(BASE, OBJECT):
-    __tablename__ = "broken_taps"
-
-    id = Column(Integer, primary_key=True)
-    tap_id = Column(Integer)
-
-    def __init__(self, tap_id):
-        self.tap_id = tap_id
-
-        self.commit()
-
-
-"""
     Bad Wire Form
         Table used to record broken taps in the database
         This form is part of process 8
