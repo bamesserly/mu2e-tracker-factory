@@ -202,16 +202,10 @@ class DataThread(threading.Thread):
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
-        self.datafile = (
-            GetProjectPaths()["heatdata"]
-            + "\\"
-            + panel
-            + "_"
-            + dt.now().strftime("%Y-%m-%d")
-            + ".csv"
-        )
+        outfilename = panel + "_" + dt.now().strftime("%Y-%m-%d") + ".csv"
+        self.datafile = GetProjectPaths()["heatdata"] / outfilename
         ## create file if needed and write header
-        if not os.path.isfile(self.datafile):
+        if not self.datafile.is_file():
             with open(self.datafile, "a+", newline="") as file:
                 file.write(
                     ",".join(["Date", "PAASA_Temp[C]", "2ndPAAS_Temp[C]", "Epoc\n"])
