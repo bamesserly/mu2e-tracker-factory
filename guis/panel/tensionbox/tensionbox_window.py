@@ -31,6 +31,7 @@ from guis.panel.tensionbox.parabolic import parabolic
 from datetime import datetime as dt
 from guis.panel.tensionbox.X0117d import DataCanvas  ## control window for plots
 
+from guis.common.getresources import GetProjectPaths
 
 nplot = 200
 nmax = 400
@@ -345,14 +346,12 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )
 
         # Add entry to csv file
-        filename = panel + "_proc" + process + ".csv"
-        file_path = "../../../Data/Panel data/external_gui_data/tensionbox_data/"
+        outfile = panel + "_proc" + process + ".csv"
+        outfile = GetProjectPaths()["straw_tensioner_data"] / outfile
+        outfile.parent.mkdir(exist_ok=True, parents=True)
 
-        if not os.path.exists(file_path):
-            os.mkdir(file_path)
-
-        if os.path.exists(file_path + filename):
-            with open(file_path + filename, "a", newline="") as f:
+        if outfile.is_file():
+            with open(outfile, "a", newline="") as f:
                 csvwriter = csv.writer(f)
                 entry = [
                     dt.now().isoformat(),
@@ -365,7 +364,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 ]
                 csvwriter.writerow(entry)
         else:
-            with open(file_path + filename, "w", newline="") as f:
+            with open(outfile, "w", newline="") as f:
                 f.write("Tension Box data for " + panel + "\n")
                 csvwriter = csv.writer(f)
                 header = [
