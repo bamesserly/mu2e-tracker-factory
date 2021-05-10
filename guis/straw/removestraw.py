@@ -7,6 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from guis.straw.remove import *
+from guis.common.getresources import GetProjectPaths
 
 
 class removeStraw(QDialog):
@@ -14,7 +15,7 @@ class removeStraw(QDialog):
         super(removeStraw, self).__init__(parent)
         self.ui = Ui_Dialogw()
         self.ui.setupUi(self)
-        self.palletDirectory = os.path.dirname(__file__) + "/../../Data/Pallets/"
+        self.palletDirectory = GetProjectPaths()["pallets"]
         self.sessionWorkers = []
         self.strawLabels = [
             self.ui.straw_1,
@@ -76,11 +77,10 @@ class removeStraw(QDialog):
         straws = []
         passfail = []
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "r"
-                    ) as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
                         for line in dummy:
@@ -105,7 +105,7 @@ class removeStraw(QDialog):
 
     def displayPallet(self, CPAL, lastTask, straws, passfail):
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
                     self.ui.palletIDLabel.setText("Pallet ID: " + palletid)
         self.ui.palletLabel.setText("Pallet: " + CPAL)
@@ -135,8 +135,7 @@ class removeStraw(QDialog):
         buttonReply = QMessageBox.question(
             self,
             "Straw Removal Confirmation",
-            "Are you sure you want \
-to permanently remove "
+            "Are you sure you want to permanently remove "
             + straws[pos]
             + " from "
             + CPAL
@@ -147,11 +146,10 @@ to permanently remove "
         if buttonReply != QMessageBox.Yes:
             return
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "a"
-                    ) as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "a") as file:
                         file.write("\n")
                         file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                         file.write(lastTask + ",")
@@ -183,20 +181,22 @@ to permanently remove "
         CPAL, lastTask, straws, passfail = self.getPallet(
             self.ui.palletLabel.text()[8:]
         )
+
         if straws[pos] == "Empty":
             return
         items = ("This Pallet", "Another Pallet")
         item, okPressed = QInputDialog.getItem(
             self,
             "Move Straw",
-            "Where would you like to \
-move this straw to?",
+            "Where would you like to this straw to?",
             items,
             0,
             False,
         )
+
         if not okPressed:
             return
+
         if item == "This Pallet":
             newpos, okPressed = QInputDialog.getInt(
                 self, "Move Straw", "New Straw Position:", pos, 0, 23, 1
@@ -209,8 +209,7 @@ move this straw to?",
                     "Move Error",
                     "Position "
                     + str(newpos)
-                    + " is already \
-filled by straw "
+                    + " is already filled by straw "
                     + straws[newpos]
                     + " .",
                     QMessageBox.Ok | QMessageBox.Cancel,
@@ -220,13 +219,11 @@ filled by straw "
             buttonReply = QMessageBox.question(
                 self,
                 "Straw Move Confirmation",
-                "Are you sure you \
-want to move "
+                "Are you sure you want to move "
                 + straws[pos]
                 + " from position "
                 + str(pos)
-                + " to \
-position "
+                + " to position "
                 + str(newpos)
                 + " ?",
                 QMessageBox.Ok | QMessageBox.Cancel,
@@ -235,11 +232,10 @@ position "
             if buttonReply != QMessageBox.Ok:
                 return
             for palletid in os.listdir(self.palletDirectory):
-                for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+                for pallet in os.listdir(self.palletDirectory / palletid):
                     if CPAL + ".csv" == pallet:
-                        with open(
-                            self.palletDirectory + palletid + "\\" + pallet, "a"
-                        ) as file:
+                        pfile = self.palletDirectory / palletid / pallet
+                        with open(pfile, "a") as file:
                             file.write("\n")
                             file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                             file.write(lastTask + ",")
@@ -272,12 +268,12 @@ position "
                                 if i != len(self.sessionWorkers) - 1:
                                     file.write(",")
                                 i = i + 1
+
         if item == "Another Pallet":
             newpal, okPressed = QInputDialog.getText(
                 self,
                 "Move Straw",
-                "Scan the pallet number of the \
-pallet the straw will be moved to:",
+                "Scan the pallet number of the pallet the straw will be moved to:",
                 QLineEdit.Normal,
                 "",
             )
@@ -290,8 +286,7 @@ pallet the straw will be moved to:",
                     "Move Error",
                     "Pallet "
                     + CPAL
-                    + " and \
-pallet "
+                    + " and pallet "
                     + newpal
                     + " are at different stages of production.",
                     QMessageBox.Ok | QMessageBox.Cancel,
@@ -301,10 +296,7 @@ pallet "
             newpos, okPressed = QInputDialog.getInt(
                 self,
                 "Move Straw",
-                "New Straw Position on \
-"
-                + newpal
-                + ":",
+                "New Straw Position on " + newpal + ":",
                 pos,
                 0,
                 23,
@@ -318,8 +310,7 @@ pallet "
                     "Move Error",
                     "Position "
                     + str(newpos)
-                    + " is already \
-filled by straw "
+                    + " is already filled by straw "
                     + newstraws[newpos]
                     + " .",
                     QMessageBox.Ok | QMessageBox.Cancel,
@@ -327,11 +318,10 @@ filled by straw "
                 )
                 return
             for palletid in os.listdir(self.palletDirectory):
-                for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+                for pallet in os.listdir(self.palletDirectory / palletid):
                     if newpal + ".csv" == pallet:
-                        with open(
-                            self.palletDirectory + palletid + "\\" + pallet, "a"
-                        ) as file:
+                        pfile = self.palletDirectory / palletid / pallet
+                        with open(pfile, "a") as file:
                             file.write("\n")
                             file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                             file.write("adds,")

@@ -34,7 +34,7 @@ DEBUG = False
 
 
 class StrawTension(QMainWindow):
-    """ GUI to display data from Arduino Uno and Vernier force sensor DFS-BTA """
+    """GUI to display data from Arduino Uno and Vernier force sensor DFS-BTA"""
 
     def __init__(
         self,
@@ -105,7 +105,7 @@ class StrawTension(QMainWindow):
         print("initialized")
 
     def start_data(self):
-        """ Start data collection """
+        """Start data collection"""
         self.ui.statusbar.showMessage("")
         if self.ui.autoincrement.isChecked():  ## auto-increment straw number by two
             x = self.ui.strawnumbox.value()
@@ -207,7 +207,7 @@ class StrawTension(QMainWindow):
         return plot, curve
 
     def next(self):
-        """ Add next data to the plots """
+        """Add next data to the plots"""
         data_list = list(self.thdl.transfer(self.thdl.qs))
         if len(data_list) > 0 and data_list[-1][0][1] != "nan":  ## skip blank data
             data = dict(
@@ -288,7 +288,7 @@ class StrawTension(QMainWindow):
                         )
 
     def pause_data(self):
-        """ Pause data collection """
+        """Pause data collection"""
         if self.thdl:  ## must stop thread if it's running
             self.thdl.join(0.1)  ## make thread timeout
             self.thdl = None
@@ -298,14 +298,14 @@ class StrawTension(QMainWindow):
         QTimer.singleShot(180, lambda: self.ui.setzero.setEnabled(True))
 
     def zero(self):
-        """ Set zero by subtracting sensor offset at zero tension. """
+        """Set zero by subtracting sensor offset at zero tension."""
         self.ui.setzero.setEnabled(False)
         self.calmode = True
         self.start_data()
 
 
 class GetDataThread(threading.Thread):
-    """ Read data from Arduino Uno and Vernier force sensor DFS-BTA"""
+    """Read data from Arduino Uno and Vernier force sensor DFS-BTA"""
 
     def __init__(self, stn, qs, cal, loc, COM, baudrate, timeout=0.08, networked=False):
         threading.Thread.__init__(self)
@@ -316,11 +316,10 @@ class GetDataThread(threading.Thread):
         self.cal = cal  ## offset at zero tension
         self.nano_params = {"port": COM, "baudrate": baudrate, "timeout": timeout}
         self.directory = GetProjectPaths()["strawtensiondata"]
-        self.datafile = (
-            self.directory + "\\" + loc + "_" + datetime.now().strftime("%Y-%m-%d")
-        )
-        if not os.path.isfile(self.datafile + ".csv"):
-            with open(self.datafile + ".csv", mode="a+") as f:
+        outfilename = loc + "_" + datetime.now().strftime("%Y-%m-%d") + ".csv"
+        self.datafile = self.directory / outfilename
+        if not self.datafile.is_file():
+            with open(self.datafile, mode="a+") as f:
                 f.write("Date,StrawPosition,Tension(grams),Uncertainty(grams),Epoc\n")
 
     def run(self):
@@ -345,9 +344,7 @@ class GetDataThread(threading.Thread):
                     self.qs.put((THdata, timestamp, state))
                     # join thread on "end" signal: slope=-9, see Arduino code to edit
                     if state == b"end":
-                        with open(
-                            self.datafile + ".csv", mode="a+"
-                        ) as f:  ## save to csv
+                        with open(self.datafile, mode="a+") as f:  ## save to csv
                             f.write(datetime.now().strftime("%Y-%m-%d_%H%M%S") + ",")
                             f.write(str(self.stn) + ",")  ## straw position in panel
                             f.write(str(THdata[0]) + ",")  ## tension (grams force)

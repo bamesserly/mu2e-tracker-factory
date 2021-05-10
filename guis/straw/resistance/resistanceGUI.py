@@ -63,7 +63,7 @@ from PyQt5.QtWidgets import (
 from guis.straw.resistance.design import Ui_MainWindow
 from guis.straw.resistance.resistanceMeter import Resistance
 from guis.straw.resistance.measureByHand import MeasureByHandPopup
-from guis.straw.removeStraw import *
+from guis.straw.removestraw import removeStraw
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 
@@ -253,14 +253,11 @@ class CompletionTrack(QtWidgets.QDialog):
     def saveWorkers(self):
         previousWorkers = []
         activeWorkers = []
-        exists = os.path.exists(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
-        )
+        outfilename = datetime.now().strftime("%Y-%m-%d") + ".csv"
+        outfile = self.workerDirectory / outfilename
+        exists = outfile.is_file()
         if exists:
-            with open(
-                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
-                "r",
-            ) as previous:
+            with open(outfile, "r") as previous:
                 today = csv.reader(previous)
                 for row in today:
                     previousWorkers = []
@@ -277,9 +274,7 @@ class CompletionTrack(QtWidgets.QDialog):
             if not already:
                 if prev != self.justLogOut:
                     activeWorkers.append(prev)
-        with open(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv", "a+"
-        ) as workers:
+        with open(outfile, "a+") as workers:
             if exists:
                 workers.write("\n")
             if len(activeWorkers) == 0:
@@ -824,11 +819,10 @@ class CompletionTrack(QtWidgets.QDialog):
         ## SAVE TO PALLET FILE ##
         ## This is a .txt file logging the history of each CPAL that all GUIs write to.
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if self.palletNumber + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "a"
-                    ) as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "a") as file:
                         # Record Session Data
                         file.write(
                             "\n" + datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
@@ -837,7 +831,6 @@ class CompletionTrack(QtWidgets.QDialog):
 
                         # Record each straw and whether it passes/fails
                         for i in range(24):
-
                             straw = self.strawIDs[i]
                             pass_fail = ""
 
@@ -866,7 +859,6 @@ class CompletionTrack(QtWidgets.QDialog):
                             if i != len(self.sessionWorkers) - 1:
                                 file.write(",")
                             i += 1
-                    file.close()
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
 
