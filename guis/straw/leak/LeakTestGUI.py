@@ -42,6 +42,7 @@ from pathlib import Path
 from data.workers.credentials.credentials import Credentials
 from guis.straw.leak.remove import Ui_DialogBox
 from guis.common.getresources import GetProjectPaths
+from guis.common.save_straw_workers import saveWorkers
 
 import threading
 
@@ -109,8 +110,8 @@ class LeakTestStatus(QMainWindow):
         self.number_of_chambers = 5
         self.max_chambers = 50
 
-        self.cpalDirectory = paths["cpaldata"]
-        self.leakDirectory = paths["leakdata"]
+        self.leakDirectory = paths["strawleakdata"]
+        self.leakDirectoryRaw = self.leakDirectory / "raw_data"
         self.workerDirectory = paths["leakworkers"]
 
         self.starttime = [
@@ -267,7 +268,7 @@ class LeakTestStatus(QMainWindow):
 
         self.files = {}
         self.straw_list = []  ## Passed straws with saved data
-        self.result = os.path.join(self.leakDirectory, "Leak Test Results.csv")
+        self.result = self.leakDirectory / "LeakTestResults.csv"
         result = open(self.result, "a+", 1)
         result.close()
         #        self.result = self.directory + datetime.now().strftime("%Y-%m-%d_%H%M%S") + '_%s.csv' % self.COM
@@ -609,7 +610,7 @@ class LeakTestStatus(QMainWindow):
         self.credentialChecker = Credentials(self.stationID)
 
         self.justLogOut = ""
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.lockGUI(False)
 
         # Connect Signals
@@ -812,13 +813,8 @@ class LeakTestStatus(QMainWindow):
                                 slope_err[chamber] = 0
                                 intercept[chamber] = 0
                                 intercept_err[chamber] = 0
-                                with open(
-                                    self.leakDirectory
-                                    + self.Choosenames[ROW][COL]
-                                    + "_rawdata.txt",
-                                    "r+",
-                                    1,
-                                ) as readfile:
+                                outfile = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_rawdata.txt")
+                                with open(outfile, "r+",1,) as readfile:
                                     for line in readfile:
                                         numbers_float = line.split()[:3]
                                         if numbers_float[2] == "0.00":
@@ -1009,11 +1005,8 @@ class LeakTestStatus(QMainWindow):
                                         fontsize=12,
                                         color="r",
                                     )
-                                    plt.savefig(
-                                        self.leakDirectory
-                                        + self.Choosenames[ROW][COL]
-                                        + "_fit.pdf"
-                                    )
+                                    outfig = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit.pdf")
+                                    plt.savefig(outfig)
                                     plt.clf()
 
             # sys.stdout.flush()
@@ -1078,23 +1071,17 @@ class LeakTestStatus(QMainWindow):
             thread.start()
 
     def deleteFiles(self, ROW, COL):
-        path1 = os.path.join(
-            self.leakDirectory, f"{self.Choosenames[ROW][COL]}_rawdata.txt"
-        )
-        path2 = os.path.join(
-            self.leakDirectory, f"{self.Choosenames[ROW][COL]}_fit.pdf"
-        )
-        path3 = os.path.join(
-            self.leakDirectory, f"{self.Choosenames[ROW][COL]}_fit_temp.pdf"
-        )
+        path1 = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_rawdata.txt")
+        path2 = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit.pdf")
+        path3 = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit_temp.pdf")
 
-        if os.path.exists(path1):
+        if path1.is_file():
             os.remove(path1)
 
-        if os.path.exists(path2):
+        if path2.is_file():
             os.remove(path2)
 
-        if os.path.exists(path3):
+        if path3.is_file():
             os.remove(path3)
 
     def unloadAction(self, ROW, COL, chamber, btn):
@@ -1166,8 +1153,7 @@ class LeakTestStatus(QMainWindow):
     def update_name(self, ROW, COL):
         """Change file name based on chamber contents"""
         chamber = ROW * 5 + COL
-        filename = os.path.join(self.leakDirectory, self.Choosenames[ROW][COL])
-        self.files[chamber] = filename + "_rawdata.txt"
+        self.files[chamber] = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_rawdata.txt")
         x = open(self.files[chamber], "a+", 1)
         print("Saving data to file %s" % self.Choosenames[ROW][COL])
 
@@ -1177,20 +1163,16 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
         # print('Plotting data for chamber', chamber)
-        filepath = os.path.join(
-            self.leakDirectory, self.Choosenames[ROW][COL] + "_fit.pdf"
-        )  ## Data is still being saved here. Don't open
-        filepath_temp = os.path.join(
-            self.leakDirectory, self.Choosenames[ROW][COL] + "_fit_temp.pdf"
-        )  ## Static snapshot. Safe to open
-        if os.path.exists(filepath_temp):
+        filepath = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit.pdf") ## Data is still being saved here. Don't open
+        filepath_temp = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit_temp.pdf") ## Static snapshot. Safe to open
+        if filepath_temp.is_file():
             try:
                 os.system(
                     "TASKKILL /F /IM AcroRd32.exe"
                 )  ## ?Possibly find a better way to close file
             except:
                 openplots = None
-        if os.path.exists(filepath):
+        if filepath.is_file():
             shutil.copyfile(str(filepath), str(filepath_temp))
             os.startfile(filepath_temp, "open")
         else:
@@ -1228,7 +1210,7 @@ class LeakTestStatus(QMainWindow):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
 
     def lockGUI(self, credentials):
@@ -1244,7 +1226,7 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
 
-        path = os.path.join(self.leakDirectory, "Leak Test Results.csv")
+        path = self.leakDirectory / "LeakTestResults.csv"
 
         Current_worker = self.getWorker()
 
@@ -1329,49 +1311,6 @@ class LeakTestStatus(QMainWindow):
     def checkCredentials(self):
         return self.credentialChecker.checkCredentials(self.sessionWorkers)
 
-    def saveWorkers(self):
-        previousWorkers = []
-        activeWorkers = []
-        exists = os.path.exists(
-            self.workerDirectory + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
-        )
-        if exists:
-            with open(
-                self.workerDirectory
-                + datetime.datetime.now().strftime("%Y-%m-%d")
-                + ".csv",
-                "r",
-            ) as previous:
-                today = csv.reader(previous)
-                for row in today:
-                    previousWorkers = []
-                    for worker in row:
-                        previousWorkers.append(worker)
-        for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != "":
-                activeWorkers.append(self.Current_workers[i].text())
-        for prev in previousWorkers:
-            already = False
-            for act in activeWorkers:
-                if prev == act:
-                    already = True
-            if not already:
-                if prev != self.justLogOut:
-                    activeWorkers.append(prev)
-        with open(
-            self.workerDirectory
-            + datetime.datetime.now().strftime("%Y-%m-%d")
-            + ".csv",
-            "a+",
-        ) as workers:
-            if exists:
-                workers.write("\n")
-            if len(activeWorkers) == 0:
-                workers.write(",")
-            for i in range(len(activeWorkers)):
-                workers.write(activeWorkers[i])
-                if i != len(activeWorkers) - 1:
-                    workers.write(",")
 
     def openLogInDialog(self):
         QMessageBox.warning(self, "Login Required", "Please login to complete action")
@@ -1386,7 +1325,8 @@ class LeakTestStatus(QMainWindow):
     def getCPALS(self):
         self.cpals = []
 
-        with open(self.cpalDirectory, "r") as f:
+        cpals_file = self.leakDirectory / "CPALS.txt"
+        with open(cpals_file, "r") as f:
             line = f.readline()
 
             line = line.translate({ord(c): None for c in "\n"})
@@ -1677,11 +1617,10 @@ class removeStraw(QDialog):
 
         if path == "":
             for palletid in os.listdir(self.palletDirectory):
-                for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+                for pallet in os.listdir(self.palletDirectory / palletid):
                     if CPAL + ".csv" == pallet:
-                        with open(
-                            self.palletDirectory + palletid + "\\" + pallet, "r"
-                        ) as file:
+                        pfile = self.palletDirectory / palletid / pallet
+                        with open(pfile, "r") as file:
                             dummy = csv.reader(file)
                             history = []
                             for line in dummy:
@@ -1772,11 +1711,10 @@ to permanently remove "
         if buttonReply != QMessageBox.Yes:
             return
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "a"
-                    ) as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "a") as file:
                         file.write("\n")
                         file.write(
                             datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
@@ -2502,17 +2440,14 @@ to permanently remove "
     def validCPAL(self, CPAL, straw="ST"):
         found = False
         valid = False
-        path = ""
+        pfile = ""
 
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
                     found = True
-
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "r"
-                    ) as file:
-                        path = self.palletDirectory + palletid + "\\" + pallet
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "r") as file:
                         old_line = ""
                         line = file.readline()
 
@@ -2524,7 +2459,7 @@ to permanently remove "
                             valid = True
                     break
 
-        return found, valid, path
+        return found, valid, pfile
 
     def updateMenu(self):
         for i in self.CPALS:

@@ -10,6 +10,7 @@ heatdata,data/Panel Data/external_gui_data/heat_control_data
 hvdata,data/Panel Data/hv_data
 hvguiicon,guis/panel/hv/mu2e.jpg
 imagePath,data/Panel Data/diagrams
+lasercutfiles,guis/straws/laser/Cut_files
 laserdata,data/Laser cut data
 laserworkers,data/workers/straw workers/laser cutting
 leakdata,data/Leak test data/Leak Test Results
@@ -26,7 +27,9 @@ silverdata,data/Silver epoxy data
 silverworkers,data/workers/straw workers/silver epoxy
 stepsDirectory,data/Panel Data/Steps/
 straw_tensioner_data,data/Panel Data/straw_tensioner_data
+strawleakdata,data/StrawLeak
 strawtensiondata,data/Panel Data/external_gui_data/straw_tension_data
+temp_humid_data,Data/temp_humid_data/464_main
 tensionbox_data,data/Panel Data/external_gui_data/tensionbox_data/
 tensionbox_data_straw,data/Panel Data\tensionbox_data\straw_measurements
 tensionbox_data_wire,data/Panel Data\tensionbox_data\wire_measurements

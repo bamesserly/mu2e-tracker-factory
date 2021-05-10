@@ -39,6 +39,7 @@ from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 from data.workers.credentials.credentials import Credentials
 import guis.straw.prep.straw_label_script
 from guis.common.getresources import GetProjectPaths
+from guis.common.save_straw_workers import saveWorkers
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -124,7 +125,7 @@ class Prep(QMainWindow):
         self.ui.hour_disp.setNumDigits(2)
         self.ui.hour_disp.setSegmentStyle(2)
         self.justLogOut = ""
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
         # Progression Information
         self.calledGetUncollectedPalletInfo = False
@@ -158,46 +159,8 @@ class Prep(QMainWindow):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
-
-    def saveWorkers(self):
-        previousWorkers = []
-        activeWorkers = []
-        exists = os.path.exists(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
-        )
-        if exists:
-            with open(
-                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv", "r"
-            ) as previous:
-                today = csv.reader(previous)
-                for row in today:
-                    previousWorkers = []
-                    for worker in row:
-                        previousWorkers.append(worker)
-        for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != "":
-                activeWorkers.append(self.Current_workers[i].text())
-        for prev in previousWorkers:
-            already = False
-            for act in activeWorkers:
-                if prev == act:
-                    already = True
-            if not already:
-                if prev != self.justLogOut:
-                    activeWorkers.append(prev)
-        with open(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv", "a+"
-        ) as workers:
-            if exists:
-                workers.write("\n")
-            if len(activeWorkers) == 0:
-                workers.write(",")
-            for i in range(len(activeWorkers)):
-                workers.write(activeWorkers[i])
-                if i != len(activeWorkers) - 1:
-                    workers.write(",")
 
     def lockGUI(self):
         if not self.credentialChecker.checkCredentials(self.sessionWorkers):
@@ -686,14 +649,8 @@ class Prep(QMainWindow):
 
         exist = False
         for id in range(1, 24):
-            path = (
-                self.palletDirectory
-                + "CPALID"
-                + str(id).zfill(2)
-                + "/"
-                + self.palletNumber
-                + ".csv"
-            )
+            file = self.palletNumber + ".csv"
+            path = self.palletDirectory / str("CPALID" + str(id).zfill(2)) / file
             exist_tmp = os.path.exists(path)
             if exist_tmp == True:
                 exist = True
@@ -946,7 +903,8 @@ class Prep(QMainWindow):
         workers_str = ", ".join(
             self.sessionWorkers
         ).upper()  # Converts self.sessionWorkers to a string csv-style: "wk-worker01, wk-worker02, etc..."
-        with open(self.prepDirectory + file_name, "w+") as file:
+        data_file = self.prepDirectory / file_name
+        with open(data_file, "w+") as file:
             file.write("Station: " + self.stationID)
             header = "Timestamp, Pallet ID, Pallet Number, Paper pull time (H:M:S), workers ***NEWLINE***: Comments (optional)***\n"
             file.write(header)
@@ -995,10 +953,8 @@ class Prep(QMainWindow):
         # This is a txt file logging the history of each CPAL that all GUIs write to.
         # This file gets created while running this GUI.
 
-        with open(
-            self.palletDirectory + self.palletID + "\\" + self.palletNumber + ".csv",
-            "w+",
-        ) as file:
+        pfile = self.palletDirectory / self.palletID / str(self.palletNumber + ".csv")
+        with open(pfile, "w+") as file:
 
             # Create File Header
             header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
@@ -1135,7 +1091,7 @@ class Prep(QMainWindow):
                     self.Change_worker_ID(self.portals[i])
             self.sessionWorkers = []
             self.justLogOut = ""
-            self.saveWorkers()
+            saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
     def closeEvent(self, event):
         event.accept()

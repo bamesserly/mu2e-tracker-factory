@@ -33,10 +33,11 @@ from PyQt5.QtWidgets import (
 )
 from guis.straw.silverepoxy.silver import Ui_MainWindow  ## edit via Qt Designer
 from guis.straw.remove import Ui_Dialogw
-from guis.straw.removestraw import *
+from guis.straw.removestraw import removeStraw
 from guis.straw.checkstraw import *
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
+from guis.common.save_straw_workers import saveWorkers
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -82,7 +83,7 @@ class Silver(QMainWindow):
         self.ui.hour_disp.setNumDigits(2)
         self.ui.hour_disp.setSegmentStyle(2)
         self.justLogOut = ""
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
         self.LockGUI.connect(self.lockGUI)
 
@@ -119,48 +120,8 @@ class Silver(QMainWindow):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
-
-    def saveWorkers(self):
-        previousWorkers = []
-        activeWorkers = []
-        exists = os.path.exists(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
-        )
-        if exists:
-            with open(
-                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
-                "r",
-            ) as previous:
-                today = csv.reader(previous)
-                for row in today:
-                    previousWorkers = []
-                    for worker in row:
-                        previousWorkers.append(worker)
-        for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != "":
-                activeWorkers.append(self.Current_workers[i].text())
-        for prev in previousWorkers:
-            already = False
-            for act in activeWorkers:
-                if prev == act:
-                    already = True
-            if not already:
-                if prev != self.justLogOut:
-                    activeWorkers.append(prev)
-        with open(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
-            "a+",
-        ) as workers:
-            if exists:
-                workers.write("\n")
-            if len(activeWorkers) == 0:
-                workers.write(",")
-            for i in range(len(activeWorkers)):
-                workers.write(activeWorkers[i])
-                if i != len(activeWorkers) - 1:
-                    workers.write(",")
 
     def checkCredentials(self):
         return self.credentialChecker.checkCredentials(self.sessionWorkers)
@@ -215,7 +176,7 @@ class Silver(QMainWindow):
                 self.ui.palletNumInput.setStyleSheet("background-color:rgb(255, 0, 0)")
 
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if self.palletNum + ".csv" == pallet:
                     self.palletID = palletid
                     valid[0] = True
@@ -302,12 +263,9 @@ class Silver(QMainWindow):
         self.temp = False
 
     def saveData(self):
-        if os.path.exists(
-            self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv"
-        ):
-            with open(
-                self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv"
-            ) as palletFile:
+        pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
+        if pfile.is_file():
+            with open(pfile, "r") as palletFile:
                 dummy = csv.reader(palletFile)
                 pallet = []
                 for line in dummy:
@@ -318,10 +276,8 @@ class Silver(QMainWindow):
                             if entry > 1 and entry < 50:
                                 if entry % 2 == 0:
                                     self.straws.append(pallet[row][entry])
-            with open(
-                self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv",
-                "a",
-            ) as palletWrite:
+
+            with open(pfile, "a") as palletWrite:
                 palletWrite.write("\n")
                 palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",silv,")
                 for straw in self.straws:
@@ -333,7 +289,9 @@ class Silver(QMainWindow):
                         palletWrite.write(",_,")
 
                 palletWrite.write(",".join(self.sessionWorkers))
-        with open(self.silverDirectory + self.palletNum + ".csv", "w+") as file:
+
+        sfile = self.silverDirectory / str(self.palletNum + ".csv")
+        with open(sfile, "w+") as file:
             header = "Timestamp, Pallet ID, Epoxy Batch #, Endpiece Insertion time (H:M:S), Workers ***NEWLINE***: Comments (optional)\n"
             file.write(header)
             file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
@@ -383,9 +341,8 @@ class Silver(QMainWindow):
     ##            self.logOut()
 
     def getStraws(self):
-        with open(
-            self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv"
-        ) as palletFile:
+        pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
+        with open(pfile, "r") as palletFile:
             dummy = csv.reader(palletFile)
             pallet = []
             for line in dummy:

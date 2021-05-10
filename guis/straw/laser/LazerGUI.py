@@ -56,9 +56,10 @@ from guis.straw.laser.Laser import Ui_MainWindow  ## edit via Qt Designer
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 from data.workers.credentials.credentials import Credentials
-from guis.straw.removestraw import *
+from guis.straw.removestraw import removeStraw
 from guis.straw.checkstraw import *
 from guis.common.getresources import GetProjectPaths
+from guis.common.save_straw_workers import saveWorkers
 
 
 ##**GLOBAL VARIABLES**##
@@ -73,9 +74,6 @@ LASERCUT_FILE_04 = 'Cut 2 for 0,4 - version 3.ecp'
 
 CSV_FILE_26 = 'LaserInfo2,6.csv'
 LASERCUT_FILE_26 = 'Cut 2 for 2,6 - version 3.ecp'"""
-
-
-MAIN_DIR = "C:\\Users\\Mu2e\\Desktop\\Production\\GUIS\\straw\\Laser\\"  # CSV in CSV_Files, LASERCUT in Original_Lazer_Files
 
 X_SIZE = 3  # set pixel amount to adjust to right and down
 Y_SIZE = 7
@@ -118,7 +116,7 @@ class cutMenu(QMainWindow):
             self.ui.portal4,
         ]
         self.justLogOut = ""
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.scanEntry = ""
         self.step = 0
         self.ui.instructions.setFocus()
@@ -140,9 +138,10 @@ class cutMenu(QMainWindow):
 
     """def checkPreviousStep(self, CPAL, previousStep):
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + '\\'):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + '.csv' == pallet:
-                    with open(self.palletDirectory + palletid + '\\' + pallet, 'r') as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, 'r') as file:
                         dummy = csv.reader(file)
                         history = []
                         for line in dummy:
@@ -261,7 +260,7 @@ class cutMenu(QMainWindow):
         pyautogui.hotkey("ctrl", "o")
         time.sleep(1)
         print("Trying to open '{}' from directory: '{}'".format(filename, directory))
-        pyautogui.typewrite(MAIN_DIR + directory + filename)
+        pyautogui.typewrite(directory + filename)
         time.sleep(1)
         pyautogui.press("enter")
         time.sleep(1)
@@ -277,18 +276,15 @@ class cutMenu(QMainWindow):
         # First, search local data dir for today's temp/humidity file.
         # If that doesn't work get it manually.
         try:
-            directory = (
-                os.path.dirname(__file__)
-                + "\\..\\..\\..\\Data\\temp_humid_data\\464_main\\"
-            )
+            directory = GetProjectPaths()["temp_humid_data"]
             D = os.listdir(directory)
             filename = ""
             for entry in D:
                 if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
                     filename = entry
 
-            print("Attempting to read temp/humid from", directory + filename)
-            with open(directory + filename) as f:
+            print("Attempting to read temp/humid from", str(directory / filename))
+            with open(directory / filename) as f:
                 # skip null bytes, which often appear if we seized the file
                 # while it was still open.
                 data = csv.reader(x.replace("\0", "") for x in f)
@@ -345,7 +341,6 @@ class cutMenu(QMainWindow):
         time.sleep(0.5)
 
     def getPalletNum(self):
-
         pallet, ok = QInputDialog().getText(
             self, "Pallet Number", "Please scan the Pallet Number", text="CPAL####"
         )
@@ -356,8 +351,8 @@ class cutMenu(QMainWindow):
             if self.verifyPalletNum(pallet):
                 self.palletNum = pallet
                 for palletid in os.listdir(self.palletDirectory):
-                    for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
-                        if self.palletNum + ".csv" == pallet:
+                    for pal in os.listdir(self.palletDirectory / palletid):
+                        if self.palletNum + ".csv" == pal:
                             self.palletID = palletid
             else:
                 self.getPalletNum()
@@ -464,7 +459,9 @@ class cutMenu(QMainWindow):
                 self.editPallet()
 
     def firstCut(self):
-        self.openFile("Cut 1.ecp", "Cut_Files\\Cut_1\\")
+        filename = "Cut 1.ecp"
+        directory = str(GetProjectPaths()["lasercutfiles"] / "Cut_1")
+        self.openFile(filename, directory)
         self.changeSettings()
         self.loadLaser()
         self.step = 1
@@ -505,11 +502,11 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut_Files\\Cut2-RH" + humidString + "\\"
+        directory = GetProjectPaths()["lasercutfiles"] / str("Cut2-RH" + humidString)
         filename = "Cut 2 for 0,4 - RH" + humidString + ".ecp"
         print(filename)
 
-        with open(directory + "LaserInfo0,4RH" + humidString + ".csv", "r") as list:
+        with open(directory / str("LaserInfo0,4RH" + humidString + ".csv"), "r") as list:
             reader = csv.reader(list)
 
             for row in reader:
@@ -549,11 +546,11 @@ class cutMenu(QMainWindow):
             diff.append((HUMID - v) * (HUMID - v))
         index = diff.index(min(diff))
         humidString = str(self.humidValues[index])
-        directory = "Cut_Files\\Cut2-RH" + humidString + "\\"
+        directory = GetProjectPaths()["lasercutfiles"] / str("Cut2-RH" + humidString)
         filename = "Cut 2 for 2,6 - RH" + humidString + ".ecp"
         print(filename)
 
-        with open(directory + "LaserInfo2,6RH" + humidString + ".csv", "r") as list:
+        with open(directory / str("LaserInfo2,6RH" + humidString + ".csv"), "r") as list:
             reader = csv.reader(list)
 
             for row in reader:
@@ -618,48 +615,8 @@ class cutMenu(QMainWindow):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
-
-    def saveWorkers(self):
-        previousWorkers = []
-        activeWorkers = []
-        exists = os.path.exists(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv"
-        )
-        if exists:
-            with open(
-                self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
-                "r",
-            ) as previous:
-                today = csv.reader(previous)
-                for row in today:
-                    previousWorkers = []
-                    for worker in row:
-                        previousWorkers.append(worker)
-        for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != "":
-                activeWorkers.append(self.Current_workers[i].text())
-        for prev in previousWorkers:
-            already = False
-            for act in activeWorkers:
-                if prev == act:
-                    already = True
-            if not already:
-                if prev != self.justLogOut:
-                    activeWorkers.append(prev)
-        with open(
-            self.workerDirectory + datetime.now().strftime("%Y-%m-%d") + ".csv",
-            "a+",
-        ) as workers:
-            if exists:
-                workers.write("\n")
-            if len(activeWorkers) == 0:
-                workers.write(",")
-            for i in range(len(activeWorkers)):
-                workers.write(activeWorkers[i])
-                if i != len(activeWorkers) - 1:
-                    workers.write(",")
 
     def checkCredentials(self):
         return self.credentialChecker.checkCredentials(self.sessionWorkers)
@@ -677,13 +634,14 @@ class cutMenu(QMainWindow):
     def updateBoard(self):
         status = []
         try:
-            with open(self.boardPath + "Progression Status.csv") as readfile:
+            psfile = self.boardPath / "Progression Status.csv"
+            with open(psfile, "r") as readfile:
                 data = csv.reader(readfile)
                 for row in data:
                     for pallet in row:
                         status.append(pallet)
             status[int(self.palletID[6:]) - 1] = 65
-            with open(self.boardPath + "Progression Status.csv", "w") as writefile:
+            with open(psfile, "w") as writefile:
                 i = 0
                 for pallet in status:
                     writefile.write(pallet)
@@ -698,12 +656,9 @@ class cutMenu(QMainWindow):
     def saveData(self):
         if self.step != 2:
             return
-        if os.path.exists(
-            self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv"
-        ):
-            with open(
-                self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv"
-            ) as palletFile:
+        pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
+        if pfile.is_file():
+            with open(pfile, "r") as palletFile:
                 dummy = csv.reader(palletFile)
                 pallet = []
                 for line in dummy:
@@ -714,10 +669,8 @@ class cutMenu(QMainWindow):
                             if entry > 1 and entry < 50:
                                 if entry % 2 == 0:
                                     self.straws.append(pallet[row][entry])
-            with open(
-                self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv",
-                "a",
-            ) as palletWrite:
+
+            with open(pfile, "a") as palletWrite:
                 palletWrite.write("\n")
                 palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                 palletWrite.write("lasr,")
@@ -729,10 +682,8 @@ class cutMenu(QMainWindow):
                     palletWrite.write(",")
                 i = 0
                 palletWrite.write(",".join(self.sessionWorkers))
-            with open(
-                self.palletDirectory + self.palletID + "\\" + self.palletNum + ".csv",
-                "a",
-            ) as palletWrite:
+
+            with open(pfile, "a") as palletWrite:
                 palletWrite.write("\n")
                 palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                 palletWrite.write("leng,")
@@ -745,7 +696,8 @@ class cutMenu(QMainWindow):
                 i = 0
                 palletWrite.write(",".join(self.sessionWorkers))
 
-        with open(self.laserDirectory + self.palletNum + ".csv", "w+") as file:
+        lfile = self.laserDirectory / str(self.palletNum + ".csv")
+        with open(lfile, "w+") as file:
             header = "Timestamp, Pallet ID, Cut Type (0-4) or (2-6), Cut Temperature [C], Cut Humidity, workers ***NEWLINE***: Straw Names (24) ***NEWLINE***: Cut Lengths mm (24) ***NEWLINE***: Comments (optional)***\n"
             file.write(header)
             file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")

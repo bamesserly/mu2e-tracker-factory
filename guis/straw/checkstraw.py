@@ -3,7 +3,7 @@ import time
 import os
 import csv
 import sys
-
+from guis.common.getresources import GetProjectPaths
 
 class StrawFailedError(Exception):
     # Raised when attempting to test a straw that has failed a previous step, but was not removed
@@ -13,22 +13,18 @@ class StrawFailedError(Exception):
 
 
 class Check:
-    palletDirectory = os.path.dirname(__file__) + "/../../Data/Pallets/"
-    workerDirectory = (
-        os.path.dirname(__file__)
-        + "/../../Data/workers/straw workers/CO2 endpiece insertion/"
-    )
-    epoxyDirectory = os.path.dirname(__file__) + "/../../Data/CO2 endpiece data/"
-    boardPath = os.path.dirname(__file__) + "/../../Data/Status Board 464/"
+    palletDirectory = self.palletDirectory = paths["pallets"]
+    workerDirectory = paths["co2workers"]
+    epoxyDirectory = paths["co2epoxy"]
+    boardPath = paths["board"]
 
     def strawPass(self, CPAL, straw, step):
         PASS = False
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "r"
-                    ) as file:
+                    pfile =  self.palletDirectory / palletid / pallet
+                    with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
                         for line in dummy:
@@ -53,7 +49,9 @@ class Check:
                                         PASS = self.strawPass(
                                             CPAL, line[index + 1], step
                                         )
+
         return PASS
+
 
     def strawPassAll(self, CPAL, straw):
         PASS = False
@@ -70,11 +68,10 @@ class Check:
         results = []
         straws = []
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "r"
-                    ) as file:
+                    pfile =  self.palletDirectory / palletid / pallet
+                    with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
                         for line in dummy:

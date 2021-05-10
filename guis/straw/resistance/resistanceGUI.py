@@ -66,6 +66,7 @@ from guis.straw.resistance.measureByHand import MeasureByHandPopup
 from guis.straw.removestraw import removeStraw
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
+from guis.common.save_straw_workers import saveWorkers
 
 class CompletionTrack(QtWidgets.QDialog):
     def __init__(self, paths):
@@ -90,8 +91,6 @@ class CompletionTrack(QtWidgets.QDialog):
         # Directories
         self.workerDirectory = paths["resistanceworkers"]
         self.palletDirectory = paths["pallets"]
-        self.prepDirectory = paths["prepdata"]
-        self.boardPath = paths["board"]
 
         # Connect buttons to respective functions
         self.ui.collect_button.clicked.connect(self.collectData)
@@ -177,7 +176,7 @@ class CompletionTrack(QtWidgets.QDialog):
 
         # LogOut
         self.justLogOut = ""
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
         # Keep program running
         self.run_program = True
@@ -247,42 +246,8 @@ class CompletionTrack(QtWidgets.QDialog):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
-        self.saveWorkers()
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
-
-    def saveWorkers(self):
-        previousWorkers = []
-        activeWorkers = []
-        outfilename = datetime.now().strftime("%Y-%m-%d") + ".csv"
-        outfile = self.workerDirectory / outfilename
-        exists = outfile.is_file()
-        if exists:
-            with open(outfile, "r") as previous:
-                today = csv.reader(previous)
-                for row in today:
-                    previousWorkers = []
-                    for worker in row:
-                        previousWorkers.append(worker)
-        for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != "":
-                activeWorkers.append(self.Current_workers[i].text())
-        for prev in previousWorkers:
-            already = False
-            for act in activeWorkers:
-                if prev == act:
-                    already = True
-            if not already:
-                if prev != self.justLogOut:
-                    activeWorkers.append(prev)
-        with open(outfile, "a+") as workers:
-            if exists:
-                workers.write("\n")
-            if len(activeWorkers) == 0:
-                workers.write(",")
-            for i in range(len(activeWorkers)):
-                workers.write(activeWorkers[i])
-                if i != len(activeWorkers) - 1:
-                    workers.write(",")
 
     def lockGUI(self):
         if not self.credentialChecker.checkCredentials(self.sessionWorkers):
