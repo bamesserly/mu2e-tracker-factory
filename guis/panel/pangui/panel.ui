@@ -10425,8 +10425,8 @@ Tension Box</string>
                      <rect>
                       <x>0</x>
                       <y>315</y>
-                      <width>401</width>
-                      <height>401</height>
+                      <width>421</width>
+                      <height>421</height>
                      </rect>
                     </property>
                     <property name="title">
@@ -10441,16 +10441,41 @@ Tension Box</string>
                       </widget>
                      </item>
                      <item row="6" column="5">
-                      <widget class="QComboBox" name="comboBox_17">
+                      <widget class="QComboBox" name="leak_next">
                        <item>
                         <property name="text">
                          <string>Reflood</string>
                         </property>
                        </item>
+                       <item>
+                        <property name="text">
+                         <string>Patch</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Remove Cover</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Inspect</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Remove</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Success</string>
+                        </property>
+                       </item>
                       </widget>
                      </item>
                      <item row="1" column="0" colspan="3">
-                      <widget class="QCheckBox" name="checkBox_26">
+                      <widget class="QCheckBox" name="re_left">
                        <property name="text">
                         <string>Re-installed Left</string>
                        </property>
@@ -10464,7 +10489,7 @@ Tension Box</string>
                       </widget>
                      </item>
                      <item row="8" column="2" colspan="2">
-                      <widget class="QLineEdit" name="lineEdit_31"/>
+                      <widget class="QLineEdit" name="leak_size"/>
                      </item>
                      <item row="6" column="0" colspan="2">
                       <widget class="QLabel" name="label_505">
@@ -10488,21 +10513,21 @@ Tension Box</string>
                       </widget>
                      </item>
                      <item row="5" column="1">
-                      <widget class="QCheckBox" name="checkBox_30">
+                      <widget class="QCheckBox" name="inflated_yes">
                        <property name="text">
                         <string>Yes</string>
                        </property>
                       </widget>
                      </item>
                      <item row="8" column="5">
-                      <widget class="QPushButton" name="pushButton_24">
+                      <widget class="QPushButton" name="leak_form_submit">
                        <property name="text">
                         <string>Submit</string>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="0" colspan="4">
-                      <widget class="QCheckBox" name="checkBox_28">
+                      <widget class="QCheckBox" name="re_right">
                        <property name="text">
                         <string>Re-installed Right</string>
                        </property>
@@ -10516,28 +10541,21 @@ Tension Box</string>
                       </widget>
                      </item>
                      <item row="2" column="0" colspan="4">
-                      <widget class="QCheckBox" name="checkBox_27">
+                      <widget class="QCheckBox" name="re_center">
                        <property name="text">
                         <string>Re-installed Center</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="6" column="4">
-                      <widget class="QLabel" name="label_506">
-                       <property name="text">
-                        <string>Next</string>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="5" column="3">
-                      <widget class="QCheckBox" name="checkBox_29">
+                      <widget class="QCheckBox" name="inflated_no">
                        <property name="text">
                         <string>No</string>
                        </property>
                       </widget>
                      </item>
                      <item row="7" column="2" colspan="2">
-                      <widget class="QComboBox" name="comboBox_18">
+                      <widget class="QComboBox" name="leak_confidence">
                        <item>
                         <property name="text">
                          <string>High</string>
@@ -10563,17 +10581,27 @@ Tension Box</string>
                       </widget>
                      </item>
                      <item row="1" column="4" rowspan="4" colspan="2">
-                      <widget class="QPlainTextEdit" name="plainTextEdit_6"/>
+                      <widget class="QPlainTextEdit" name="leak_resolution"/>
+                     </item>
+                     <item row="6" column="4">
+                      <widget class="QLabel" name="label_506">
+                       <property name="text">
+                        <string>Next</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="6" column="2" colspan="2">
+                      <widget class="QLineEdit" name="leak_location"/>
                      </item>
                     </layout>
                    </widget>
                    <widget class="QGroupBox" name="groupBox_189">
                     <property name="geometry">
                      <rect>
-                      <x>420</x>
-                      <y>380</y>
-                      <width>311</width>
-                      <height>341</height>
+                      <x>430</x>
+                      <y>370</y>
+                      <width>321</width>
+                      <height>371</height>
                      </rect>
                     </property>
                     <property name="font">
@@ -10669,7 +10697,7 @@ Tension Box</string>
                      <rect>
                       <x>430</x>
                       <y>130</y>
-                      <width>301</width>
+                      <width>321</width>
                       <height>231</height>
                      </rect>
                     </property>
@@ -10801,7 +10829,7 @@ Tension Box</string>
                       <string>Leak Test</string>
                      </property>
                     </widget>
-                    <widget class="QLineEdit" name="lineEdit_6">
+                    <widget class="QLineEdit" name="csv_leak_file">
                      <property name="geometry">
                       <rect>
                        <x>10</x>
@@ -10817,7 +10845,7 @@ Tension Box</string>
                       <string>CSV name</string>
                      </property>
                     </widget>
-                    <widget class="QPushButton" name="pushButton_25">
+                    <widget class="QPushButton" name="plot_leak">
                      <property name="geometry">
                       <rect>
                        <x>150</x>
@@ -12290,8 +12318,8 @@ Tension Box</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="proSelectButtons"/>
+  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>

@@ -773,6 +773,8 @@ class panelGUI(QMainWindow):
         self.ui.rest_test_pro8.clicked.connect(self.run_test)
         self.ui.broken_tap.clicked.connect(self.broken_tap_form)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
+        self.ui.leak_form_submit.clicked.connect(self.leak_form)
+        self.ui.plot_leak.clicked.connect(self.run_plot_leak)
 
     def _init_timers(self):
         self.timers = [
@@ -5011,6 +5013,7 @@ class panelGUI(QMainWindow):
                 "background-color: rgb(122, 0, 25);"
             )
 
+    # Creates a new terminal window and runs the run_test.py script
     def run_test(self):
         script_dir = os.getcwd() + "\guis\panel\\resistance\\run_test\\"
         subprocess.call("start /wait python test.py", shell=True, cwd=script_dir)
@@ -5051,6 +5054,47 @@ class panelGUI(QMainWindow):
         self.ui.bad_number.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_wire_process.setCurrentIndex(0)
+
+    def leak_form(self):
+        reinstalled = ""
+        # check if anything has been reinstalled
+        if self.ui.re_left.isChecked():
+            reinstalled = "left"
+        elif self.ui.re_center.isChecked():
+            reinstalled = "center"
+        elif self.ui.re_right.isChecked:
+            reinstalled = "right"
+
+        inflated = True
+        if self.ui.inflated_no.isChecked():
+            inflated = False
+
+        location = self.ui.leak_location.text()
+        confidence = str(self.ui.leak_confidence.currentText())
+        size = int(self.ui.leak_size.text())
+        resolution = self.ui.leak_resolution.document().toPlainText()
+        next_step = str(self.ui.leak_next.currentText())
+        self.DP.saveLeakForm(
+            reinstalled, inflated, location, confidence, size, resolution, next_step
+        )
+
+        # clear form data
+        self.ui.re_left.setChecked(False)
+        self.ui.re_center.setChecked(False)
+        self.ui.re_right.setChecked(False)
+        self.ui.inflated_yes.setChecked(False)
+        self.ui.inflated_no.setChecked(False)
+        self.ui.leak_location.setText("")
+        self.ui.leak_confidence.setCurrentIndex(0)
+        self.ui.leak_size.setText("")
+        self.ui.leak_resolution.setPlainText("")
+        self.ui.leak_next.setCurrentIndex(0)
+
+    # Creates a new terminal window and runs the run_test.py script
+    def run_plot_leak(self):
+        pass
+        # script_dir = os.getcwd() + "\guis\panel\leak\\"
+        # subprocess.call("start /wait python PlotLeakRate.py", shell=True, cwd=script_dir)
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

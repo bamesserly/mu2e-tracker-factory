@@ -1771,18 +1771,54 @@ class BadWire(BASE, OBJECT):
     __tablename__ = "bad_wire_straw"
 
     id = Column(Integer, primary_key=True)
-    number = Column(Integer)
+    position = Column(Integer)
     failure = Column(String)
     process = Column(Integer)
     procedure = Column(Integer)
     wire = Column(BOOLEAN)
 
-    def __init__(self, number, failure, process, procedure, wire_check):
-        self.number = number
+    def __init__(self, position, failure, process, procedure, wire_check):
+        self.position = position
         self.failure = failure
         self.process = process
         self.procedure = procedure
         self.wire = wire_check
+
+        self.commit()
+
+
+class LeakFinalForm(BASE, OBJECT):
+    __tablename__ = "leak_final_form"
+
+    id = Column(Integer, primary_key=True)
+    procedure = Column(Integer)
+    cover_reinstalled = Column(String)
+    inflated = Column(BOOLEAN)
+    leak_location = Column(String)
+    confidence = Column(String)
+    leak_size = Column(Integer)
+    resolution = Column(TEXT)
+    next_step = Column(String)
+
+    def __init__(
+        self,
+        procedure,
+        cover_reinstalled,
+        inflated,
+        leak_location,
+        confidence,
+        leak_size,
+        resolution,
+        next_step,
+    ):
+        self.procedure = procedure
+        self.cover_reinstalled = cover_reinstalled
+        self.inflated = inflated
+        self.leak_location = leak_location
+        self.confidence = confidence
+        self.leak_size = leak_size
+        self.resolution = resolution
+        self.next_step = next_step
 
         self.commit()
 

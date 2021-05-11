@@ -23,6 +23,7 @@ from guis.common.databaseClasses import (
     MoldReleaseItems,
     TensionboxMeasurement,
     BadWire,
+    LeakFinalForm,
 )
 
 import logging
@@ -618,9 +619,17 @@ class MultipleDataProcessor(DataProcessor):
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
 
-    def saveBadWire(self, number, failure, process, wire_check):
+    def saveBadWire(self, position, failure, process, wire_check):
         for dp in self.processors:
-            dp.saveBadWire(number, failure, process, wire_check)
+            dp.saveBadWire(position, failure, process, wire_check)
+
+    def saveLeakForm(
+        self, reinstalled, inflated, location, confidence, size, resolution, next_step
+    ):
+        for dp in self.processors:
+            dp.saveLeakForm(
+                reinstalled, inflated, location, confidence, size, resolution, next_step
+            )
 
     def saveTapForm(self, tap_id):
         for dp in self.processors:
@@ -1169,6 +1178,11 @@ class TxtDataProcessor(DataProcessor):
         pass
 
     def saveBadWire(self, number, failure, process, wire_check):
+        pass
+
+    def saveLeakForm(
+        self, reinstalled, inflated, location, confidence, size, resolution, next_step
+    ):
         pass
 
     #  _                     _  ___  ___     _   _               _
@@ -2055,16 +2069,29 @@ class SQLDataProcessor(DataProcessor):
         if self.ensureProcedure():
             self.procedure.recordBrokenTaps(tap_value)
 
-    def saveBadWire(self, number, failure, process, wire_check):
+    def saveBadWire(self, position, failure, process, wire_check):
         if self.ensureProcedure():
-            logger.info(self.procedure)
-            logger.info(self.procedure.id)
             BadWire(
-                number=number,
+                position=position,
                 failure=failure,
                 process=process,
                 procedure=self.procedure.id,
                 wire_check=wire_check,
+            )
+
+    def saveLeakForm(
+        self, reinstalled, inflated, location, confidence, size, resolution, next_step
+    ):
+        if self.ensureProcedure():
+            LeakFinalForm(
+                procedure=self.procedure.id,
+                cover_reinstalled=reinstalled,
+                inflated=inflated,
+                leak_location=location,
+                confidence=confidence,
+                leak_size=size,
+                resolution=resolution,
+                next_step=next_step,
             )
 
     def wireQCd(self, wire):
