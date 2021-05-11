@@ -27,9 +27,15 @@ silverdata,data/Silver epoxy data
 silverworkers,data/workers/straw workers/silver epoxy
 stepsDirectory,data/Panel Data/Steps/
 straw_tensioner_data,data/Panel Data/straw_tensioner_data
+strawfailure,data/Failure Data/Upload Failure
 strawleakdata,data/StrawLeak
+strawresistance,data/Resistance Testing
+strawstorage,data/Straw storage
 strawtensiondata,data/Panel Data/external_gui_data/straw_tension_data
-temp_humid_data,Data/temp_humid_data/464_main
+strawupload,data/Make Straw Data
+strawverificationcode,guis/straws/verification
+strawtensionercode,guis/panel/strawtensioner
+temp_humid_data,data/temp_humid_data/464_main
 tensionbox_data,data/Panel Data/external_gui_data/tensionbox_data/
 tensionbox_data_straw,data/Panel Data\tensionbox_data\straw_measurements
 tensionbox_data_wire,data/Panel Data\tensionbox_data\wire_measurements
