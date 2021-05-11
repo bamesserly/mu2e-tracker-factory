@@ -8,22 +8,21 @@ from datetime import datetime
 from calibratedRLS import CalibratedRLS
 from tempHumid import getTempHumid
 from multiMeter import MultiMeter
+from guis.common.getresources import GetProjectPaths
 
 
 class verifyStorageStraw:
     def __init__(self):
         self.printMu2e()
         # Data Storage
-        self.storage_directory = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Straw storage\\"
-        )
+        self.storage_directory = GetProjectPaths()['strawstorage']
         self.verification_files = {
             "verified": "StorageVerified.csv",
             "rejected": "StorageRejected.csv",
             "storage": "Storage.csv",
         }
         self.verification_file = (
-            lambda key: self.storage_directory + self.verification_files[key]
+            lambda key: self.storage_directory / self.verification_files[key]
         )
 
         self.storage = list()
@@ -64,7 +63,6 @@ class verifyStorageStraw:
                 break
 
     def getStraws(self, key):
-
         if key == True:
             key = "verified"
         if key == False:
@@ -87,9 +85,9 @@ class verifyStorageStraw:
 
     # Function based on positioncheck.py
     def checkLaserCutData(self, straw, pos):
-        path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Laser cut data"
+        path = GetProjectPaths()['laserdata']
         for pal in os.listdir(path):
-            with open(path + "\\" + pal) as csvf:
+            with open(path / pal) as csvf:
                 reader = csv.reader(csvf)
                 line = reader.__next__()
                 line = reader.__next__()
@@ -114,9 +112,7 @@ class verifyStorageStraw:
     # Given strawID, returns ((float) ii, (float) oo, (bool) pass_fail)
     def checkResistanceData(self, strawID):
         strawID = strawID.upper()
-        resistance_dir = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Resistance Testing"
-        )
+        resistance_dir = GetProjectPaths()['strawresistance']
         res_data = {
             "ii": float(),
             "io": float(),
@@ -137,7 +133,7 @@ class verifyStorageStraw:
         }
         for filename in os.listdir(resistance_dir):
             if filename.endswith(".csv") and strawID[:5] in filename.upper():
-                with open(resistance_dir + "\\" + filename) as f:
+                with open(resistance_dir / filename) as f:
                     reader = csv.DictReader(f)
                     for line in reader:
                         if line["Straw Number"].upper() == strawID.upper():
@@ -162,14 +158,10 @@ class verifyStorageStraw:
         return MultiMeter().collect_data()
 
     def checkLeakData(self, strawID):
-
         data_found = False
+        leaktest_dir = GetProjectPaths()['strawleakdata']
 
-        leaktest_dir = (
-            os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Leak test data\\"
-        )
-
-        with open(leaktest_dir + "leakratefile.csv", "r") as leak_rate_data:
+        with open(leaktest_dir / "StrawLeakSummary.csv", "r") as leak_rate_data:
             for line in leak_rate_data:
                 if strawID.upper() in str(line).upper():
                     print("\nLeak rate data found!")
@@ -183,11 +175,7 @@ class verifyStorageStraw:
                         pass
 
         if not data_found:
-
-            leak_dir = (
-                os.path.dirname(__file__)
-                + "\\..\\..\\..\\Data\\Leak test data\\Leak Test Results"
-            )
+            leak_dir = GetProjectPaths()['strawleakdata'] / "raw_data"
 
             for file_name in os.listdir(leak_dir):
                 if self.strawID in file_name.upper() and ".PDF" in file_name.upper():
@@ -197,7 +185,7 @@ class verifyStorageStraw:
                     print("\nI found a pdf of this straw's leak data.")
                     print("Opening pdf...")
                     subprocess.Popen(
-                        [leak_dir + "\\" + file_name], shell=True
+                        [str(leak_dir / file_name)], shell=True
                     )  # Opens leak plot pdf
 
                     if self.getYN("Does this plot have reasonable data?"):
@@ -232,11 +220,7 @@ class verifyStorageStraw:
                         )
 
                         # Record findings in leak_ratefile.csv
-                        with open(
-                            os.path.dirname(__file__)
-                            + "\\..\\..\\..\\Data\\Leak test data\\Leak Test Results\\Leak Test Results.csv",
-                            "a",
-                        ) as leak_rate_file:
+                        with open(GetProjectPaths()["strawleakdata"] / "LeakTestResults.csv", "a") as leak_rate_file:
                             leak_rate_file.write("\n")  # Newline
                             leak_rate_file.write(self.strawID + ",")  # Straw ID
                             leak_rate_file.write(
@@ -259,11 +243,7 @@ class verifyStorageStraw:
                             )  # Comments
 
                     else:  # There's something funky with the plot
-                        with open(
-                            os.path.dirname(__file__)
-                            + "\\..\\..\\..\\Data\\Straw storage\\BenRecalculateLeakTest.txt",
-                            "a",
-                        ) as f:
+                        with open(GetProjectPaths()["strawstorage"] / "BenRecalculateLeakTest.txt", "a") as f:
                             f.write("\n" + self.strawID)
                         print("We'll have Ben look at it.")
                         self.comments += "abnormal leak plot- ben recalculate"
@@ -349,7 +329,7 @@ class verifyStorageStraw:
 
         nominal_length = float()
 
-        with open(os.getcwd() + "\\nominal_lengths.csv", "r") as nominal_lengths:
+        with open(GetProjectPaths()['strawverificationcode'] / "nominal_lengths.csv", "r") as nominal_lengths:
             reader = csv.DictReader(nominal_lengths)
             for line in reader:
                 if int(line["position"]) == pos:

@@ -15,6 +15,7 @@ all_steps = [
     "silverepoxy",
 ]
 all_stationids = ["make", "ohms", "C-O2", "leak", "leng", "silv"]
+from guis.common.getresources import GetProjectPaths
 
 
 def workerIDError(worker):
@@ -38,10 +39,8 @@ class MakeUpload:
     def __init__(self, mode):
         self.table = "straws"
         self.mode = mode
-        self.failed_path = (
-            os.path.dirname(__file__) + "..\\..\\Data\\Failure Data\\Upload Failure"
-        )
-        self.data_path = os.path.dirname(__file__) + "..\\..\\Data\\Make Straw Data"
+        self.failed_path = GetProjectPaths()['strawfailure']
+        self.data_path = GetProjectPaths()['strawupload']
 
         if self.mode == "dev":
             self.url = "https://dbweb6.fnal.gov:8443/hdb/mu2edev/loader"  # dev url
@@ -64,7 +63,7 @@ class MakeUpload:
     def beginUpload(self, straw, batch, worker, cpal, source="gui"):
         if source == "gui":
             t = datetime.datetime.now().strftime("%Y-%m-%d")
-            path = self.failed_path + "\\" + t + "_" + cpal + "_makestraw_errors.txt"
+            path = self.failed_path / str(t + "_" + cpal + "_makestraw_errors.txt")
             errors = open(path, "a+")
 
         failed = False
@@ -127,25 +126,13 @@ class MakeUpload:
                                         "master",
                                     )
                                 except UploadFailedError:
-                                    errors = open(
-                                        self.failed_path
-                                        + "\\"
-                                        + t
-                                        + "_masterupload_errors.txt",
-                                        "a+",
-                                    )
+                                    errors = open(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                     errors.write(straw + " FAILED UPLOAD\n")
                                     errors.write(original_message)
                                     errors.write("\n")
                                     errors.close()
                             else:
-                                errors = open(
-                                    self.failed_path
-                                    + "\\"
-                                    + t
-                                    + "_masterupload_errors.txt",
-                                    "a+",
-                                )
+                                errors = open(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                 errors.write(straw + " FAILED UPLOAD\n")
                                 errors.write(original_message)
                                 errors.write("\n")
@@ -158,10 +145,8 @@ class ResistanceUpload:
     def __init__(self, mode):
         table = "straw_resistance_measurements"
         self.mode = mode
-        self.failed_path = (
-            os.path.dirname(__file__) + "/../../Data/Failure Data/Upload Failure"
-        )
-        self.data_path = os.path.dirname(__file__) + "/../../Data/Resistance Testing"
+        self.failed_path = GetProjectPaths()['strawfailure']
+        self.data_path = GetProjectPaths()['strawresistance']
 
         if self.mode == "dev":
             self.url = "https://dbweb6.fnal.gov:8443/hdb/mu2edev/loader"  # dev url
@@ -204,7 +189,7 @@ class ResistanceUpload:
             t = datetime.datetime.now()
             create_time = t.strftime("%m-%d-%Y %H:%M:%S")
             tf = t.strftime("%Y-%m-%d")
-            path = self.failed_path + "\\" + tf + "_" + cpal + "_resistance_errors.txt"
+            path = self.failed_path / str(tf + "_" + cpal + "_resistance_errors.txt")
             errors = open(path, "a+")
 
         failed = False
@@ -344,13 +329,7 @@ class ResistanceUpload:
                                             "master",
                                         )
                                     except UploadFailedError:
-                                        errors = open(
-                                            self.failed_path
-                                            + "\\"
-                                            + t
-                                            + "_masterupload_errors.txt",
-                                            "a+",
-                                        )
+                                        errors = open(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                         errors.write(
                                             straw + " " + test + " FAILED UPLOAD\n"
                                         )
@@ -388,13 +367,7 @@ class ResistanceUpload:
                                                     "master",
                                                 )
                                             except UploadFailedError:
-                                                errors = open(
-                                                    self.failed_path
-                                                    + "\\"
-                                                    + t
-                                                    + "_masterupload_errors.txt",
-                                                    "a+",
-                                                )
+                                                errors = open(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                                 errors.write(
                                                     straw
                                                     + " "
@@ -405,13 +378,7 @@ class ResistanceUpload:
                                                 errors.write("\n")
                                                 errors.close()
                                         else:
-                                            errors = open(
-                                                self.failed_path
-                                                + "\\"
-                                                + t
-                                                + "_masterupload_errors.txt",
-                                                "a+",
-                                            )
+                                            errors = open(self.failed_path / str(t + "_" + "_masterupload_errors.txt"), "a+")
                                             errors.write(
                                                 straw + " " + test + " FAILED UPLOAD\n"
                                             )
@@ -420,13 +387,7 @@ class ResistanceUpload:
                                             errors.close()
 
                                 else:
-                                    errors = open(
-                                        self.failed_path
-                                        + "\\"
-                                        + t
-                                        + "_masterupload_errors.txt",
-                                        "a+",
-                                    )
+                                    errors = open(self.failed_path / str(t + "_" + "_masterupload_errors.txt"), "a+")
                                     errors.write(
                                         straw + " " + test + " FAILED UPLOAD\n"
                                     )
@@ -439,10 +400,8 @@ class CO2Upload:
     def __init__(self, mode):
         self.table = "straw_glueups"
         self.mode = mode
-        self.failed_path = (
-            "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
-        )
-        self.data_path = "\\\\MU2E-CART1\\Database Backup\\CO2 endpiece data"
+        self.failed_path = GetProjectPaths()['strawfailure']
+        self.data_path = GetProjectPaths()['co2epoxy']
 
         if self.mode == "dev":
             self.url = "https://dbweb6.fnal.gov:8443/hdb/mu2edev/loader"  # dev url
@@ -469,7 +428,7 @@ class CO2Upload:
     def beginUpload(self, straw, worker, epoxy_batch, cpal, source="gui"):
         if source == "gui":
             t = datetime.datetime.now().strftime("%Y-%m-%d")
-            path = self.failed_path + "\\" + t + "_" + cpal + "_co2epoxy_errors.txt"
+            path = self.failed_path / str(t + "_" + cpal + "_co2epoxy_errors.txt")
             errors = open(path, "a+")
 
         failed = False
@@ -503,7 +462,7 @@ class CO2Upload:
         for file in os.listdir(self.data_path):
             filename = os.fsdecode(file)
             if CPAL in filename:
-                path = self.data_path + "\\" + filename
+                path = self.data_path / filename
                 with open(path, "r") as f:
                     data_file = csv.reader(f)
                     for index, row in enumerate(data_file):
@@ -523,13 +482,7 @@ class CO2Upload:
                                 straw, master_worker, batch, CPAL, "master"
                             )
                         except UploadFailedError:
-                            errors = open(
-                                self.failed_path
-                                + "\\"
-                                + t
-                                + "_masterupload_errors.txt",
-                                "a+",
-                            )
+                            errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                             errors.write(straw + " FAILED UPLOAD\n")
                             errors.write(original_message)
                             errors.write("\n")
@@ -545,35 +498,20 @@ class CO2Upload:
                                         straw, master_worker, batch, CPAL, "master"
                                     )
                                 except UploadFailedError:
-                                    errors = open(
-                                        self.failed_path
-                                        + "\\"
-                                        + t
-                                        + "_masterupload_errors.txt",
-                                        "a+",
-                                    )
+                                    errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                     errors.write(straw + " FAILED UPLOAD\n")
                                     errors.write(original_message)
                                     errors.write("\n")
                                     errors.close()
                             else:
-                                errors = open(
-                                    self.failed_path
-                                    + "\\"
-                                    + t
-                                    + "_masterupload_errors.txt",
-                                    "a+",
-                                )
+                                errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                 errors.write(straw + " FAILED UPLOAD\n")
                                 errors.write(original_message)
                                 errors.write("\n")
                                 errors.close()
 
                     else:
-                        errors = open(
-                            self.failed_path + "\\" + t + "_masterupload_errors.txt",
-                            "a+",
-                        )
+                        errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                         errors.write(straw + " FAILED UPLOAD\n")
                         errors.write(original_message)
                         errors.write("\n")
@@ -584,9 +522,7 @@ class LeakUpload:
     def __init__(self, mode):
         self.table = "straw_leak_tests"
         self.mode = mode
-        self.failed_path = (
-            "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
-        )
+        self.failed_path = GetProjectPaths()['strawfailure']
         self.data_path = "\\\\MU2E-CART1\\Database Backup\\Leak test data\\Leak Test Results\\Leak Test Results.csv"
 
         if self.mode == "dev":
@@ -631,7 +567,7 @@ class LeakUpload:
 
         if source == "gui":
             t = datetime.datetime.now().strftime("%Y-%m-%d")
-            path = self.failed_path + "\\" + t + "_" + cpal + "_leak_errors.txt"
+            path = self.failed_path / str(t + "_" + cpal + "_leak_errors.txt")
             errors = open(path, "a+")
 
         failed = False
@@ -709,13 +645,7 @@ class LeakUpload:
                                     "master",
                                 )
                             except UploadFailedError:
-                                errors = open(
-                                    self.failed_path
-                                    + "\\"
-                                    + t
-                                    + "_masterupload_errors.txt",
-                                    "a+",
-                                )
+                                errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                 errors.write(straw + " FAILED UPLOAD\n")
                                 errors.write(original_message)
                                 errors.write("\n")
@@ -745,38 +675,20 @@ class LeakUpload:
                                             "master",
                                         )
                                     except UploadFailedError:
-                                        errors = open(
-                                            self.failed_path
-                                            + "\\"
-                                            + t
-                                            + "_masterupload_errors.txt",
-                                            "a+",
-                                        )
+                                        errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                         errors.write(straw + " FAILED UPLOAD\n")
                                         errors.write(original_message)
                                         errors.write("\n")
                                         errors.close()
                                 else:
-                                    errors = open(
-                                        self.failed_path
-                                        + "\\"
-                                        + t
-                                        + "_masterupload_errors.txt",
-                                        "a+",
-                                    )
+                                    errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                     errors.write(straw + " FAILED UPLOAD\n")
                                     errors.write(original_message)
                                     errors.write("\n")
                                     errors.close()
 
                         else:
-                            errors = open(
-                                self.failed_path
-                                + "\\"
-                                + t
-                                + "_masterupload_errors.txt",
-                                "a+",
-                            )
+                            errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                             errors.write(straw + " FAILED UPLOAD\n")
                             errors.write(original_message)
                             errors.write("\n")
@@ -787,9 +699,7 @@ class MeasurementUpload:
     def __init__(self, mode):
         self.table = "straw_cut_lengths"
         self.mode = mode
-        self.failed_path = (
-            "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
-        )
+        self.failed_path = GetProjectPaths()['strawfailure']
         self.data_path2 = "\\\\MU2E-CART1\\Database Backup\\Measurement Data"
 
         self.group = "Straw Tables"
@@ -830,7 +740,8 @@ class MeasurementUpload:
     ):
         if source == "gui":
             t = datetime.datetime.now().strftime("%Y-%m-%d")
-            path = self.failed_path + "\\" + t + "_" + cpal + "_measurement_errors.txt"
+
+            path = self.failed_path / str(t + "_" + cpal + "_measurement_errors.txt")
             errors = open(path, "a+")
 
         failed = False
@@ -930,13 +841,7 @@ class MeasurementUpload:
                                 "master",
                             )
                         except UploadFailedError:
-                            errors = open(
-                                self.failed_path
-                                + "\\"
-                                + t
-                                + "_masterupload_errors.txt",
-                                "a+",
-                            )
+                            errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                             errors.write(straw + " FAILED UPLOAD\n")
                             errors.write(original_message)
                             errors.write("\n")
@@ -962,35 +867,20 @@ class MeasurementUpload:
                                         straw, master_worker, batch, CPAL, "master"
                                     )
                                 except UploadFailedError:
-                                    errors = open(
-                                        self.failed_path
-                                        + "\\"
-                                        + t
-                                        + "_masterupload_errors.txt",
-                                        "a+",
-                                    )
+                                    errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                     errors.write(straw + " FAILED UPLOAD\n")
                                     errors.write(original_message)
                                     errors.write("\n")
                                     errors.close()
                             else:
-                                errors = open(
-                                    self.failed_path
-                                    + "\\"
-                                    + t
-                                    + "_masterupload_errors.txt",
-                                    "a+",
-                                )
+                                errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                 errors.write(straw + " FAILED UPLOAD\n")
                                 errors.write(original_message)
                                 errors.write("\n")
                                 errors.close()
 
                     else:
-                        errors = open(
-                            self.failed_path + "\\" + t + "_masterupload_errors.txt",
-                            "a+",
-                        )
+                        errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                         errors.write(straw + " FAILED UPLOAD\n")
                         errors.write(original_message)
                         errors.write("\n")
@@ -1003,9 +893,7 @@ class SilverUpload:
     def __init__(self, mode):
         self.table = "straw_glueups"
         self.mode = mode
-        self.failed_path = (
-            "\\\\MU2E-CART1\\Database Backup\\Failure Data\\Upload Failure"
-        )
+        self.failed_path = GetProjectPaths()['strawfailure']
         self.data_path = "\\\\MU2E-CART1\\Database Backup\\Silver epoxy data"
 
         if self.mode == "dev":
@@ -1033,7 +921,7 @@ class SilverUpload:
     def beginUpload(self, straw, worker, epoxy_batch, cpal, source="gui"):
         if source == "gui":
             t = datetime.datetime.now().strftime("%Y-%m-%d")
-            path = self.failed_path + "\\" + t + "_" + cpal + "_silverepoxy_errors.txt"
+            path = self.failed_path / str(t + "_" + cpal + "_silverepoxy_errors.txt")
             errors = open(path, "a+")
 
         failed = False
@@ -1087,13 +975,7 @@ class SilverUpload:
                                 straw, master_worker, batch, CPAL, "master"
                             )
                         except UploadFailedError:
-                            errors = open(
-                                self.failed_path
-                                + "\\"
-                                + t
-                                + "_masterupload_errors.txt",
-                                "a+",
-                            )
+                            errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                             errors.write(straw + " FAILED UPLOAD\n")
                             errors.write(original_message)
                             errors.write("\n")
@@ -1109,35 +991,20 @@ class SilverUpload:
                                         straw, master_worker, batch, CPAL, "master"
                                     )
                                 except UploadFailedError:
-                                    errors = open(
-                                        self.failed_path
-                                        + "\\"
-                                        + t
-                                        + "_masterupload_errors.txt",
-                                        "a+",
-                                    )
+                                    errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                     errors.write(straw + " FAILED UPLOAD\n")
                                     errors.write(original_message)
                                     errors.write("\n")
                                     errors.close()
                             else:
-                                errors = open(
-                                    self.failed_path
-                                    + "\\"
-                                    + t
-                                    + "_masterupload_errors.txt",
-                                    "a+",
-                                )
+                                errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                                 errors.write(straw + " FAILED UPLOAD\n")
                                 errors.write(original_message)
                                 errors.write("\n")
                                 errors.close()
 
                     else:
-                        errors = open(
-                            self.failed_path + "\\" + t + "_masterupload_errors.txt",
-                            "a+",
-                        )
+                        errors(self.failed_path / str(t + "_masterupload_errors.txt"), "a+")
                         errors.write(straw + " FAILED UPLOAD\n")
                         errors.write(original_message)
                         errors.write("\n")

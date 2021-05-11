@@ -6,16 +6,17 @@ from datetime import datetime, date, timedelta
 import csv
 import os
 import sys
+from pathlib import Path
 
 com = "COM9"
 ser = serial.Serial(com, 9600)  # port on computer
 
-filepath = os.path.dirname(__file__) + "..\\..\\Data\\temp_humid_data\\464B\\"
-filename = "464B_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv"
+filepath = Path("X:\\Data\\temp_humid_data\\464B\\")
+filename = Path("464B_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv")
 date0 = date.today()
 
 
-f = open(filepath + filename, "w")
+f = open(filepath / filename, "w")
 print("464B temperature and humidity")
 time.sleep(3)
 
@@ -50,10 +51,10 @@ while True:
         # start new file after midnight
         datecheck = date.today() - date0
         if (datecheck.days) > 0:
-            filename = "464B_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv"
+            filename = Path("464B_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv")
             date0 = date.today()
             f.close()
-            f = open(filepath + filename, "w")
+            f = open(filepath / filename, "w")
     except Exception as e:
         f.close()  # close file
         ser.close()

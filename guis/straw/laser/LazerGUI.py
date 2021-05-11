@@ -215,8 +215,8 @@ class cutMenu(QMainWindow):
         y_i = []
         x_start = []
         y_start = []
-        print(directory + filename)
-        with open(directory + filename) as csvf:
+        print(str(directory / filename))
+        with open(directory / filename) as csvf:
             csvReader = csv.reader(csvf)
             firstline = True
             for row in csvReader:
@@ -259,8 +259,8 @@ class cutMenu(QMainWindow):
         time.sleep(0.5)
         pyautogui.hotkey("ctrl", "o")
         time.sleep(1)
-        print("Trying to open '{}' from directory: '{}'".format(filename, directory))
-        pyautogui.typewrite(directory + filename)
+        print("Trying to open '{}' from directory: '{}'".format(str(filename), str(directory)))
+        pyautogui.typewrite(str(directory / filename))
         time.sleep(1)
         pyautogui.press("enter")
         time.sleep(1)
@@ -276,7 +276,7 @@ class cutMenu(QMainWindow):
         # First, search local data dir for today's temp/humidity file.
         # If that doesn't work get it manually.
         try:
-            directory = GetProjectPaths()["temp_humid_data"]
+            directory = GetProjectPaths()["temp_humid_data"] / "464_main"
             D = os.listdir(directory)
             filename = ""
             for entry in D:
@@ -512,7 +512,7 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
-        print("Second cut opening from", directory)
+        print("Second cut opening from", str(directory))
         self.openFile(filename, directory)
 
         # if the y value increases (shorter straw length), start from top, else start from bottom
@@ -556,7 +556,7 @@ class cutMenu(QMainWindow):
             for row in reader:
                 self.cutLengths.append(row[1])
 
-        print("Second cut opening from", directory)
+        print("Second cut opening from", str(directory))
         self.openFile(filename, directory)
 
         # if the y value increases (shorter straw length), start from top, else start from bottom

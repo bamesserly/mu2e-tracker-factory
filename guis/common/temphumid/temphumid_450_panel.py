@@ -5,16 +5,17 @@ import calendar
 from datetime import date, datetime, timedelta
 import csv
 import os
+from pathlib import Path
 
 com = "COM5"
 ser = serial.Serial(com, 9600)  # port on computer
 
-filepath = "C:\\Users\\factory\\Desktop\\temphumid\\data\\panel_sensor\\"
-filename = "450_panel_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv"
+filepath = Path("C:\\Users\\factory\\Desktop\\temphumid\\data\\panel_sensor\\")
+filename = Path("450_panel_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv")
 date0 = date.today()
 
 
-f = open(filepath + filename, "w")
+f = open(filepath / filename, "w")
 print("Panel temperature and humidity")
 time.sleep(3)
 
@@ -48,10 +49,10 @@ while True:
     # start new file after midnight
     datecheck = date.today() - date0
     if (datecheck.days) > 0:
-        filename = "450_panel_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv"
+        filename = Path("450_panel_" + datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".csv")
         date0 = date.today()
         f.close()
-        f = open(filepath + filename, "w")
+        f = open(filepath / filename, "w")
 
 
 f.close()  # close file

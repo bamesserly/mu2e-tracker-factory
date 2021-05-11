@@ -1,6 +1,7 @@
 import os
 import csv
 from datetime import datetime
+from pathlib import Path
 
 # Converts temperature in C to any
 def tempConversion(temp, current_scale, desired_scale):
@@ -18,13 +19,12 @@ def tempConversion(temp, current_scale, desired_scale):
 
 
 def getTempHumid(temp_scale="C"):
-    directory = "X:\\Data\\temp_humid_data\\464_main\\"
-    D = os.listdir(directory)
+    directory = Path("X:\\Data\\temp_humid_data\\464_main\\")
     filename = ""
-    for entry in D:
+    for entry in os.listdir(directory):
         if entry.startswith("464_" + datetime.now().strftime("%Y-%m-%d")):
             filename = entry
-    with open(directory + filename, "r") as file:
+    with open(directory / filename, "r") as file:
         data = csv.reader(file)
         i = "first"
         for row in data:

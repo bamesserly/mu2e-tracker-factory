@@ -4,30 +4,21 @@ import os
 import csv
 import sys
 from datetime import datetime
+from guis.common.getresources import GetProjectPaths
 
 
 class checkLaserCut:
     def __init__(self):
-        self.palletDirectory = (
-            "\\\\MU2E-CART1\\Users\\Public\\Database Backup\\Pallets\\"
-        )
-        self.workerDirectory = "\\\\MU2E-CART1\\Users\\Public\\Database Backup\\workers\\straw workers\\CO2 endpiece insertion\\"
-        self.epoxyDirectory = (
-            "\\\\MU2E-CART1\\Users\\Public\\Database Backup\\CO2 endpiece data\\"
-        )
-        self.boardPath = (
-            "\\\\MU2E-CART1\\Users\\Public\\Database Backup\\Status Board 464\\"
-        )
+        self.palletDirectory = GetProjectPaths()['pallets']
         self.PASS = False
 
     def strawPass(self, CPAL, straw, step):
         self.PASS = False
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "r"
-                    ) as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
                         for line in dummy:
@@ -69,11 +60,10 @@ class checkLaserCut:
         results = []
         straws = []
         for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory + palletid + "\\"):
+            for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    with open(
-                        self.palletDirectory + palletid + "\\" + pallet, "r"
-                    ) as file:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
                         for line in dummy:

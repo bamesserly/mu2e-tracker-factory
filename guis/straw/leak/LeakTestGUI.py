@@ -271,7 +271,6 @@ class LeakTestStatus(QMainWindow):
         self.result = self.leakDirectory / "LeakTestResults.csv"
         result = open(self.result, "a+", 1)
         result.close()
-        #        self.result = self.directory + datetime.now().strftime("%Y-%m-%d_%H%M%S") + '_%s.csv' % self.COM
 
         self.chamber_volume1 = [594, 607, 595, 605, 595]  ## For row 1 chambers
         self.chamber_volume2 = [606, 609, 612, 606, 595]

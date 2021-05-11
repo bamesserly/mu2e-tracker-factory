@@ -54,7 +54,7 @@ class StrawTension(QMainWindow):
         self.port_loc = port_loc  ## maps sensor locations to COM ports
         self.calibration = calibration
         self.maxdatas, self.wait = maxdatas, wait
-        self.directory = os.path.dirname(os.path.realpath(__file__)) + "\\"
+        self.directory = GetProjectPaths()['strawtensionercode']
         self.networked = networked
         self.saveMethod = saveMethod  # method from PANGUI to save data to DB
         self.port_loc = self.getPortLoc()  # get arduino port
@@ -66,7 +66,7 @@ class StrawTension(QMainWindow):
             self.ui.panel_id.setText(f"MN{inGUI}")  # set panel id line edit widget text
             self.ui.panel_id.setDisabled(True)  # disable panel id line edit widget
 
-        with open(self.directory + "straw_tensionvalues.csv", "r") as f:
+        with open(self.directory / "straw_tensionvalues.csv", "r") as f:
             self.straw_tensionvalues = np.array(
                 [row for row in csv.reader(f, delimiter=",")][1:]
             )

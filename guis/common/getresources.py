@@ -1,8 +1,4 @@
 ################################################################################
-# Get a dictionary containing the important paths for this project.
-# Read in the csv file containing the directory locations.
-# Save them into a dictionary {name : path}.
-# The paths are pathlib objs in absolute form: root_dir + relative_project_dir.
 ################################################################################
 
 import numpy as np  # has the most convenient csv parser for the task at hand
@@ -19,6 +15,10 @@ except ImportError:
 import resources
 
 
+# Get a dictionary containing the important paths for this project.
+# Read in the csv file containing the directory locations.
+# Save them into a dictionary {name : path}.
+# The paths are pathlib objs in absolute form: root_dir + relative_project_dir.
 def GetProjectPaths():
     paths_file = ""
     with pkg_resources.path(resources, "paths.csv") as p:

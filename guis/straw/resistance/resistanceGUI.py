@@ -669,15 +669,13 @@ class CompletionTrack(QtWidgets.QDialog):
 
     ### SAVE / RESET ###
     def getTempHumid(self):
-        directory = (
-            os.path.dirname(__file__) + "..\\..\\..\\Data\\temp_humid_data\\464B\\"
-        )
+        directory = GetProjectPaths()['temp_humid_data'] / "464B"
         D = os.listdir(directory)
         filename = ""
         for entry in D:
             if entry.startswith("464B_" + datetime.now().strftime("%Y-%m-%d")):
                 filename = entry
-        with open(directory + filename) as file:
+        with open(directory / filename) as file:
             data = csv.reader(file)
             i = "first"
             for row in data:

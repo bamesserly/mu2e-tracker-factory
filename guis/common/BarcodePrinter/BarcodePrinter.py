@@ -11,15 +11,14 @@ import pyautogui
 import subprocess
 import time
 import os
+from pathlib import Path
 
 
 class BarcodePrinter:
     def __init__(self):
         self._default_click_position = (800, 450)
         # sys.path.insert(0, os.path.dirname(__file__) + '/../../../Modules/BarcodePrinter/')
-        self._barcode_file = (
-            os.path.dirname(__file__) + "/../../../Modules/BarcodePrinter/barcode.lbl"
-        )
+        self._barcode_file = ("X:\\Data\\BarcodePrinter\\barcode.lbl")
         self._zebra_open = False
 
         self._bar_width = 3
@@ -30,11 +29,10 @@ class BarcodePrinter:
             # Open lbl file
             subprocess.Popen(
                 [
-                    "\\\\spa-mu2e-network\\Files\\Production_Environment\Modules\\BarcodePrinter\\barcode.lbl"
+                    "X:\\Data\\BarcodePrinter\\barcode.lbl"
                 ],
                 shell=True,
             )
-            # os.startfile('\\\\spa-mu2e-network\\Files\\Production_Environment\\Modules\\BarcodePrinter\\barcode.lbl')
             time.sleep(6)
             self._zebra_open = True
 

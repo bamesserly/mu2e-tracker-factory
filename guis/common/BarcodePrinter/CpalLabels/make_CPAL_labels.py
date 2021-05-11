@@ -16,33 +16,20 @@ import time
 from datetime import datetime
 import sys
 import os
-
-# #import BarcodePrinter
-sys.path.insert(0, os.path.dirname(__file__) + "/../")
-# Billy: The line below actually import a .py file which contains the BarcodePrinter class in BarcodePrinter.py
-# Therefore, when we call BarcodePrinter, we are calling a module object whose type is not allowed to be called
-# See more at the second answer of https://stackoverflow.com/questions/4534438/typeerror-module-object-is-not-callable
-from BarcodePrinter import BarcodePrinter
+from pathlib import Path
+from guis.common.BarcodePrinter.BarcodePrinter import BarcodePrinter
 
 
 # automatically keep track of the number of straw batches done in a day
 def update_daily_num():
     # Get old number
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/dailytotal.txt",
-        "r",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/dailytotal.txt"), "r")
     old_number = int(f.read())
     f.close()
     # Calculate new number
     new_number = (old_number + 1) % 100  # If data > 100, reset to 0
     # Write new number
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/dailytotal.txt",
-        "w",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/dailytotal.txt"), "w")
     f.write(str(new_number))
     f.close()
     # Return
@@ -50,32 +37,20 @@ def update_daily_num():
 
 
 def reset_daily_num():
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/dailytotal.txt",
-        "w",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/dailytotal.txt"), "w")
     f.write("00")
     f.close()
 
 
 def update_cpal_num():
     # Get old number
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/cpalnum.txt",
-        "r",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/cpalnum.txt"), "r")
     old_number = int(f.read())
     f.close()
     # Calculate new number
     new_number = (old_number + 1) % 10000
     # Write new number
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/cpalnum.txt",
-        "w",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/cpalnum.txt"), "w")
     f.write(str(new_number))
     f.close()
     # Return
@@ -84,11 +59,7 @@ def update_cpal_num():
 
 def undo():
     # Get current number
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/palnum.txt",
-        "r",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/cpalnum.txt"), "r")
     current_number = int(f.read())
     f.close()
     # Get previous number
@@ -97,11 +68,7 @@ def undo():
     else:
         previous_number = current_number - 1
     # Write previous_number
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/cpalnum.txt",
-        "w",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/cpalnum.txt"), "w")
     f.write(str(previous_number))
     f.close()
     # Return
@@ -110,21 +77,13 @@ def undo():
 
 def check_new_day():
     # Get last date
-    f = open(
-        os.path.dirname(__file__)
-        + "/../../../Modules/BarcodePrinter/CpalLabels/date.txt",
-        "r",
-    )
+    f = open(Path("X:\\data\BarcodePrinter/CpalLabels/date.txt"), "r")
     last_date = f.read()
     f.close()
     # Update file if new day
     if datetime.today().strftime("%m%d%y") != last_date:
         reset_daily_num()
-        f = open(
-            os.path.dirname(__file__)
-            + "/../../../Modules/BarcodePrinter/CpalLabels/date.txt",
-            "w",
-        )
+        f = open(Path("X:\\data\BarcodePrinter/CpalLabels/date.txt"), "w")
         f.write(datetime.today().strftime("%m%d%y"))
         f.close()
 
