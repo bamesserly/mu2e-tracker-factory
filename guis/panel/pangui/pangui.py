@@ -94,6 +94,7 @@ from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.panel.resistance.run_test import run_test
+from guis.panel.leak.PlotLeakRate import run_from_pangui
 
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
@@ -765,7 +766,6 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_mixed5_3.clicked.connect(self.pro7part3)
         self.ui.epoxy_applied5_3.clicked.connect(self.pro7part3_2)
 
-    # TODO: implement _init_pro8_setup()
     def _init_pro8_setup(self):
         self.ui.panelInput_8.installEventFilter(self)
         self.ui.rest_test_pro8.clicked.connect(self.run_test)
@@ -1188,7 +1188,6 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch5_3,
                 self.ui.epoxy_applied5_3,
             ],
-            # TODO: pro8 Widgets
             # pro 8 Widgets
             [
                 self.ui.panelInput_8,
@@ -2563,7 +2562,6 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
-    # TODO
     def updateDataProcess8(self):
         self.data[self.pro_index][0] = self.ui.panelInput_8.text()
         self.data[self.pro_index][1] = self.ui.left_cover_6.text()
@@ -2605,11 +2603,10 @@ class panelGUI(QMainWindow):
             self.DP.loadData()
         )  # data should be renamed so there isn't self.data and data
         ## If no new data is found, return early
-        logger.info(data)
         if not any(
             el is not None for el in data[1:]
         ):  # Everything in data list except for panel
-            if not self.pro == 5 or not self.pro == 7:
+            if not self.pro == 5:
                 return
 
         ### Save data to corresponding data-storing instance variable
@@ -2631,7 +2628,6 @@ class panelGUI(QMainWindow):
             self.parsepro7Data,
             self.parsepro8Data,
         ]
-        logger.info(self.pro_index)
         # Call method giving 'data' as input.
         parse_pro[self.pro_index](data)
 
@@ -3539,7 +3535,6 @@ class panelGUI(QMainWindow):
 
         self.displayComments()
 
-    # TODO
     """
     parsepro8Data(self, data)
 
@@ -3550,7 +3545,6 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
-        logger.info("Parse 8 data")
         if data[0] is not None:
             self.ui.panelInput_8.setText(str(data[0]))
             self.ui.panelInput_8.setDisabled(True)
@@ -4756,7 +4750,6 @@ class panelGUI(QMainWindow):
     # ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝
     # fmt: on
 
-    # TODO: proc8 implementation
     def pro8part1(self):
 
         # Ensure that all parts have been checked off
@@ -5092,9 +5085,17 @@ class panelGUI(QMainWindow):
 
     # Creates a new terminal window and runs the run_test.py script
     def run_plot_leak(self):
-        pass
-        # script_dir = os.getcwd() + "\guis\panel\leak\\"
-        # subprocess.call("start /wait python PlotLeakRate.py", shell=True, cwd=script_dir)
+        filename = (
+            os.getcwd()
+            + "\data\Panel data\FinalQC\Leak\RawData\\"
+            + self.ui.csv_leak_file.text()
+        )
+        script_dir = os.getcwd() + "\guis\panel\leak\\"
+        subprocess.call(
+            "start /wait python PlotLeakRate.py {}".format(filename),
+            shell=True,
+            cwd=script_dir,
+        )
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

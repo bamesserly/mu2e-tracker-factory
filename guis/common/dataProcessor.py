@@ -1432,7 +1432,6 @@ class TxtDataProcessor(DataProcessor):
             "Flood Epoxy Work Time (H:M:S) (Right)",
         ]
 
-    # TODO
     def _pro8header(self):
         return [
             7,
@@ -1796,7 +1795,6 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordEpoxyTimeRight, *self.parseTimeTuple(data[4])
         )  # Flood Epoxy Work Time (Right)
 
-    # TODO
     # FinalQC
     def saveDataProcess8(self):
         data = self.getProData()
