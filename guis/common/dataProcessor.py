@@ -2581,12 +2581,17 @@ class SQLDataProcessor(DataProcessor):
             ),  # Flood Epoxy Work Time (Right)
         ]
 
-    # TODO
     # Final QC
     def loadDataProcess8(self):
         panel = self.panel()
         return [
             self.getBarcode(panel),
+            self.procedure.getLeftCover(),
+            self.procedure.getRightCover(),
+            self.procedure.getCenterCover(),
+            self.procedure.getCenterRing(),
+            self.procedure.getLeftRing(),
+            self.procedure.getRightRing(),
         ]
 
 

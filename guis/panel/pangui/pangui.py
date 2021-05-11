@@ -39,7 +39,6 @@ logger = SetupPANGUILogger("root")
 from guis.common.getresources import GetProjectPaths
 
 import inspect
-import subprocess
 import pyautogui
 from PIL import Image
 from datetime import datetime
@@ -95,7 +94,6 @@ from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.panel.resistance.run_test import run_test
-from guis.panel.resistance.run_test import test
 
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
@@ -2607,10 +2605,11 @@ class panelGUI(QMainWindow):
             self.DP.loadData()
         )  # data should be renamed so there isn't self.data and data
         ## If no new data is found, return early
+        logger.info(data)
         if not any(
             el is not None for el in data[1:]
         ):  # Everything in data list except for panel
-            if not self.pro == 5:
+            if not self.pro == 5 or not self.pro == 7:
                 return
 
         ### Save data to corresponding data-storing instance variable
@@ -2632,7 +2631,7 @@ class panelGUI(QMainWindow):
             self.parsepro7Data,
             self.parsepro8Data,
         ]
-
+        logger.info(self.pro_index)
         # Call method giving 'data' as input.
         parse_pro[self.pro_index](data)
 
@@ -3356,6 +3355,7 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro6Data(self, data):
+        logger.info("Parse 6")
         if data[0] is not None:
             self.ui.panelInput6.setText(data[0])
             self.ui.panelInput6.setDisabled(True)
@@ -3555,22 +3555,22 @@ class panelGUI(QMainWindow):
             self.ui.panelInput_8.setText(str(data[0]))
             self.ui.panelInput_8.setDisabled(True)
         if data[1] is not None:
-            self.ui.left_cover_6.setText(data[1])
+            self.ui.left_cover_6.setText(str(data[1]))
             self.ui.left_cover_6.setDisabled(True)
         if data[2] is not None:
-            self.ui.right_cover_6.setText(data[2])
+            self.ui.right_cover_6.setText(str(data[2]))
             self.ui.right_cover_6.setDisabled(True)
         if data[3] is not None:
-            self.ui.center_ring_6.setText(data[3])
+            self.ui.center_ring_6.setText(str(data[3]))
             self.ui.center_ring_6.setDisabled(True)
         if data[4] is not None:
-            self.ui.center_cover_6.setText(data[4])
+            self.ui.center_cover_6.setText(str(data[4]))
             self.ui.center_cover_6.setDisabled(True)
         if data[5] is not None:
-            self.ui.left_ring_6.setText(data[5])
+            self.ui.left_ring_6.setText(str(data[5]))
             self.ui.left_ring_6.setDisabled(True)
         if data[6] is not None:
-            self.ui.right_ring_6.setText(data[6])
+            self.ui.right_ring_6.setText(str(data[6]))
             self.ui.right_ring_6.setDisabled(True)
         self.displayComments()
 
@@ -5016,7 +5016,7 @@ class panelGUI(QMainWindow):
     # Creates a new terminal window and runs the run_test.py script
     def run_test(self):
         script_dir = os.getcwd() + "\guis\panel\\resistance\\run_test\\"
-        subprocess.call("start /wait python test.py", shell=True, cwd=script_dir)
+        subprocess.call("start /wait python run_test.py", shell=True, cwd=script_dir)
 
     # record broken tap from the broken tap form in pro8
     # broken_taps is a column in the pan8 table that stores an integer value
@@ -5025,14 +5025,14 @@ class panelGUI(QMainWindow):
     #      12 means taps 3 and 4 are broken -> 1100
     #      1 means tap 1 is broken -> 0001
     def broken_tap_form(self):
-        tap_value = int(self.ui.tap_id_txt.text())
-        if tap_value == 1:
+        tap_value = self.ui.tap_id_txt.text()
+        if tap_value == "1":
             self.DP.saveTapForm(1)
-        elif tap_value == 2:
+        elif tap_value == "2":
             self.DP.saveTapForm(2)
-        elif tap_value == 3:
+        elif tap_value == "3":
             self.DP.saveTapForm(4)
-        elif tap_value == 4:
+        elif tap_value == "4":
             self.DP.saveTapForm(8)
         # invalid number
         else:
