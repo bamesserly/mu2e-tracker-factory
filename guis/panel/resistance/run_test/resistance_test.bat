@@ -1,5 +1,5 @@
 @ECHO OFF
 cls
-CD C:\Users\%USERNAME%\Desktop\Production\GUIS\panel\current\tension_devices\ContinuityResistance\run_test
-python run_test.py
+CD C:\Users\%USERNAME%\Desktop\Production\
+python -m guis.panel.resistance
 pause
