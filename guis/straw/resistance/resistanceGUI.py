@@ -42,8 +42,10 @@ import csv
 from datetime import datetime
 import time
 from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
-from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
+from PyQt5.QtGui import QFont, QPalette, QColor, QBrush, QPixmap
 from PyQt5.QtWidgets import (
+    QInputDialog,
+    QDialog,
     QLabel,
     QFrame,
     QStackedWidget,
@@ -68,8 +70,8 @@ from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 
-class CompletionTrack(QtWidgets.QDialog):
-    def __init__(self, paths):
+class CompletionTrack(QDialog):
+    def __init__(self, paths, app):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -93,7 +95,7 @@ class CompletionTrack(QtWidgets.QDialog):
         self.palletDirectory = paths["pallets"]
 
         # Connect buttons to respective functions
-        self.ui.collect_button.clicked.connect(self.collectData)
+        self.ui.collect_button.clicked.connect(self.collectData, args=(app,))
         self.ui.byHand_button.clicked.connect(self.measureByHand)
         self.ui.reset_button.clicked.connect(self.resetGUI)
         self.ui.save_button.clicked.connect(self.saveReset)
@@ -420,7 +422,7 @@ class CompletionTrack(QtWidgets.QDialog):
                     self.LEDchange(self.bools[i2][j], self.led[i2][j])
 
     ### RESISTANCE METER MEASUREMENT ###
-    def collectData(self):
+    def collectData(self, app):
         # Show "processing" image
         self.setStatus("processing")
         time.sleep(0.01)
@@ -762,16 +764,8 @@ class CompletionTrack(QtWidgets.QDialog):
             j -= 1
         first_strawID = self.strawIDs[i]
         last_strawID = self.strawIDs[j]
-        fileName = (
-            os.path.dirname(__file__)
-            + "..\\..\\..\\Data/Resistance Testing\\Straw_Resistance"
-            + day
-            + "_"
-            + first_strawID
-            + "-"
-            + last_strawID
-            + ".csv"
-        )
+        data_dir = GetProjectPaths()['strawresistance']
+        fileName = data_dir / "Straw_Resistance" / f"{day}_{first_strawID}-{last_strawID}.csv"
         # Create new file on computer
         saveF = open(fileName, "a+")
         # Write self.saveFile to new file
@@ -857,7 +851,7 @@ class CompletionTrack(QtWidgets.QDialog):
         event.accept()
         sys.exit(0)
 
-    def main(self):
+    def main(self, app):
         while True:
 
             if not self.calledInitializePallet:
@@ -871,11 +865,11 @@ class CompletionTrack(QtWidgets.QDialog):
 
 
 def run():
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     paths = GetProjectPaths()
-    ctr = CompletionTrack(paths)
+    ctr = CompletionTrack(paths, app)
     ctr.show()
-    ctr.main()
+    ctr.main(app)
     sys.exit()
 
 

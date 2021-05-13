@@ -3,7 +3,7 @@ import datetime, csv
 def saveWorkers(worker_dir, current_workers, just_log_out):
     previousWorkers = []
     activeWorkers = []
-    outfilename = datetime.now().strftime("%Y-%m-%d") + ".csv"
+    outfilename = datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
     outfile = worker_dir / outfilename
     exists = outfile.is_file()
     if exists:

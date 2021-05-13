@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import pyqtSlot
-from multiMeter import MultiMeter
+from guis.straw.resistance.multiMeter import MultiMeter
 import time
 
 
