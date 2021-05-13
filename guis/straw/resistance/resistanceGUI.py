@@ -441,6 +441,10 @@ class CompletionTrack(QDialog):
 
             try:
                 self.measurements = self.resistanceMeter.rMain()
+            except FileNotFoundError as e:
+                print("File not found", e)
+                self.error(False)
+                return
             except:
                 print("Arduino Error")
                 self.error(False)

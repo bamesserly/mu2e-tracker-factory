@@ -30,6 +30,7 @@ straw_tensioner_data,data/Panel Data/straw_tensioner_data
 strawfailure,data/Failure Data/Upload Failure
 strawleakdata,data/StrawLeak
 strawresistance,data/Resistance Testing
+strawresistancecal,guis/straw/resistance/calib.csv
 strawstorage,data/Straw storage
 strawtensiondata,data/Panel Data/external_gui_data/straw_tension_data
 strawupload,data/Make Straw Data

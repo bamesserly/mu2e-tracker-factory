@@ -8,11 +8,12 @@ import csv
 import os
 from guis.straw.resistance.Straw import Straw
 import sys
+from guis.common.getresources import GetProjectPaths
 
 # os.system('mode con: cols=115 lines=50')
 com = "Com6"
 
-calibFile = "calib.csv"
+calibFile = GetProjectPaths()['strawresistancecal']
 dataFile = None
 measLet = "abcdefghijklmnop"
 
