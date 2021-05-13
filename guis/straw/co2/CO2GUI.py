@@ -137,13 +137,13 @@ class CO2(QMainWindow):
     def updateBoard(self):
         status = []
         try:
-            with open(self.boardPath + "Progression Status.csv") as readfile:
+            with open(self.boardPath / "Progression Status.csv") as readfile:
                 data = csv.reader(readfile)
                 for row in data:
                     for pallet in row:
                         status.append(pallet)
             status[int(self.palletID[6:]) - 1] == 22
-            with open(self.boardPath + "Progression Status.csv", "w") as writefile:
+            with open(self.boardPath / "Progression Status.csv", "w") as writefile:
                 i = 0
                 for pallet in status:
                     writefile.write(pallet)
@@ -328,7 +328,7 @@ class CO2(QMainWindow):
             with open(pfile, "a") as palletWrite:
                 palletWrite.write("\n")
                 palletWrite.write(
-                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
+                    datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
                 )
                 palletWrite.write(self.stationID + ",")
                 for straw in self.straws:
@@ -345,14 +345,14 @@ class CO2(QMainWindow):
                     i = i + 1
 
         efile = self.epoxyDirectory / str(self.palletNum + ".csv")
-        with open(efile, "w+") as file:
+        with open(efile, "w+") as ef:
             header = "Timestamp, Pallet ID, Epoxy Batch #, DP190 Batch #, CO2 endpiece insertion time (H:M:S), workers ***NEWLINE: Comments (optional)***\n"
-            file.write(header)
-            file.write(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
-            file.write(
+            ef.write(header)
+            ef.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
+            ef.write(
                 self.palletID + "," + self.epoxyBatch + "," + self.DP190Batch + ","
             )
-            file.write(
+            ef.write(
                 str(self.ui.hour_disp.intValue())
                 + ":"
                 + str(self.ui.min_disp.intValue())
@@ -362,12 +362,12 @@ class CO2(QMainWindow):
             )
             i = 0
             for worker in self.sessionWorkers:
-                file.write(worker)
+                ef.write(worker)
                 if i != len(self.sessionWorkers) - 1:
-                    file.write(",")
+                    ef.write(",")
                 i = i + 1
             if self.ui.commentBox.document().toPlainText() != "":
-                file.write("\n" + self.ui.commentBox.document().toPlainText())
+                ef.write("\n" + self.ui.commentBox.document().toPlainText())
 
         QMessageBox.about(self, "Save", "Data saved successfully!")
 
@@ -405,7 +405,6 @@ class CO2(QMainWindow):
 
     def finish(self):
         self.saveData()
-        self.uploadData()
         self.resetGUI()
 
     def closeEvent(self, event):

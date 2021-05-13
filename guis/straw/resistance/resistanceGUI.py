@@ -841,7 +841,6 @@ class CompletionTrack(QDialog):
         if buttonReply == QMessageBox.Yes:
             # Save data
             self.save()
-            self.uploadData()
             # self.resetGUI()
 
             """#Ask to reset
