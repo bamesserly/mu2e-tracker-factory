@@ -13,10 +13,8 @@ class StrawFailedError(Exception):
 
 
 class Check:
-    palletDirectory = self.palletDirectory = paths["pallets"]
-    workerDirectory = paths["co2workers"]
-    epoxyDirectory = paths["co2epoxy"]
-    boardPath = paths["board"]
+    def __init__(self):
+        self.palletDirectory = GetProjectPaths()["pallets"]
 
     def strawPass(self, CPAL, straw, step):
         PASS = False

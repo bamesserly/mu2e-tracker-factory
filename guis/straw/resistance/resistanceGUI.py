@@ -870,7 +870,7 @@ def run():
     paths = GetProjectPaths()
     ctr = CompletionTrack(paths, app)
     ctr.show()
-    ctr.main(app)
+    ctr.main()
     sys.exit()
 
 

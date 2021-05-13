@@ -13,6 +13,7 @@ from datetime import datetime
 from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
+    QInputDialog,
     QLabel,
     QFrame,
     QStackedWidget,

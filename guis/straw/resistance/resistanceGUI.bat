@@ -1,4 +1,4 @@
 @ECHO OFF
 cls
-CD C:\Users\%USERNAME%\Desktop\Production\GUIS\straw\Resistance
-python resistanceGUI.py
+CD C:\Users\%USERNAME%\Desktop\Production
+python guis.straw.resistance
