@@ -76,6 +76,7 @@ class CompletionTrack(QDialog):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.show()
+        self.app = app
 
         self.meas_input = (
             self.ui.meas_input_list
@@ -95,7 +96,7 @@ class CompletionTrack(QDialog):
         self.palletDirectory = paths["pallets"]
 
         # Connect buttons to respective functions
-        self.ui.collect_button.clicked.connect(self.collectData, args=(app,))
+        self.ui.collect_button.clicked.connect(self.collectData)
         self.ui.byHand_button.clicked.connect(self.measureByHand)
         self.ui.reset_button.clicked.connect(self.resetGUI)
         self.ui.save_button.clicked.connect(self.saveReset)
@@ -422,11 +423,11 @@ class CompletionTrack(QDialog):
                     self.LEDchange(self.bools[i2][j], self.led[i2][j])
 
     ### RESISTANCE METER MEASUREMENT ###
-    def collectData(self, app):
+    def collectData(self):
         # Show "processing" image
         self.setStatus("processing")
         time.sleep(0.01)
-        app.processEvents()
+        self.app.processEvents()
 
         if not self.palletInfoVerified:
             self.initializePallet()
@@ -851,7 +852,7 @@ class CompletionTrack(QDialog):
         event.accept()
         sys.exit(0)
 
-    def main(self, app):
+    def main(self):
         while True:
 
             if not self.calledInitializePallet:
@@ -861,7 +862,7 @@ class CompletionTrack(QDialog):
 
             self.lockGUI()
             time.sleep(0.1)
-            app.processEvents()
+            self.app.processEvents()
 
 
 def run():
