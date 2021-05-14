@@ -770,7 +770,7 @@ class CompletionTrack(QDialog):
         first_strawID = self.strawIDs[i]
         last_strawID = self.strawIDs[j]
         data_dir = GetProjectPaths()['strawresistance']
-        fileName = data_dir / "Straw_Resistance" / f"{day}_{first_strawID}-{last_strawID}.csv"
+        fileName = data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
         # Create new file on computer
         saveF = open(fileName, "a+")
         # Write self.saveFile to new file
