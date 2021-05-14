@@ -1,4 +1,4 @@
 @ECHO OFF
 cls
-CD C:\Users\%USERNAME%\Desktop\Production\GUIS\straw\Leak
-python .\LeakTestGUI.py
+CD C:\Users\%USERNAME%\Desktop\Production\
+python -m guis.straw.leak
