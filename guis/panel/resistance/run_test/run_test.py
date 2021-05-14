@@ -1,6 +1,5 @@
 # This script is used to run the continuity and resistance test.
 # It talks to the tester box Arduino and writes a log file.
-# Note: this script (and other QC scripts) use python 2.7.
 
 import datetime
 import serial
@@ -65,6 +64,9 @@ class ser_wrapper:
         line = self.ser.readline().decode("utf-8").strip() + "\n"
         self.logfile.write(line)
         return line
+
+    def write(self, cmd):
+        self.ser.write(str(cmd).encode("utf8"))
 
     def __del__(self):
         self.logfile.close()
@@ -143,6 +145,12 @@ def main():
     ser.logfile.write("# panelid:" + panelid + "\n")
     ser.logfile.write("# measurement stage:" + stage_tag[when] + "\n")
     # ser.readline()
+
+    # Tell the arduino to enter straws-only mode if when = proc2 or proc3
+    if(when == 1 or when == 2):
+        ser.write('s') # yes, straw mode
+    else:
+        ser.write('\n') # no, not straw mode
 
     # Here begins the main loop to measure every straw and wire.
     print("Begin testing!  Press Ctrl+C when the panel is finished.")
