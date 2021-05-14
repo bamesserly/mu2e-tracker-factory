@@ -812,8 +812,10 @@ class LeakTestStatus(QMainWindow):
                                 slope_err[chamber] = 0
                                 intercept[chamber] = 0
                                 intercept_err[chamber] = 0
-                                outfile = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_rawdata.txt")
-                                with open(outfile, "r+",1,) as readfile:
+                                outfile = self.leakDirectoryRaw / str(
+                                    self.Choosenames[ROW][COL] + "_rawdata.txt"
+                                )
+                                with open(outfile, "r+", 1,) as readfile:
                                     for line in readfile:
                                         numbers_float = line.split()[:3]
                                         if numbers_float[2] == "0.00":
@@ -985,9 +987,7 @@ class LeakTestStatus(QMainWindow):
                                     plt.xlabel("time (s)")
                                     plt.ylabel("CO2 level (PPM)")
                                     plt.title(self.Choosenames[ROW][COL] + "_fit")
-                                    plt.figtext(
-                                        0.49,
-                                        0.80,
+                                    info_string = (
                                         "Slope = %.2f +- %.2f x $10^{-3}$ PPM/sec \n"
                                         % (
                                             slope[chamber] * 10 ** 4,
@@ -999,12 +999,15 @@ class LeakTestStatus(QMainWindow):
                                             self.leak_rate_err[chamber] * (10 ** 5),
                                         )
                                         + straw_status
-                                        + "\t"
-                                        + currenttime,
-                                        fontsize=12,
-                                        color="r",
+                                        + "\n"
+                                        + currenttime
                                     )
-                                    outfig = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit.pdf")
+                                    plt.figtext(
+                                        0.49, 0.80, info_string, fontsize=12, color="r",
+                                    )
+                                    outfig = self.leakDirectoryRaw / str(
+                                        self.Choosenames[ROW][COL] + "_fit.pdf"
+                                    )
                                     plt.savefig(outfig)
                                     plt.clf()
 
@@ -1072,7 +1075,9 @@ class LeakTestStatus(QMainWindow):
     def deleteFiles(self, ROW, COL):
         path1 = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_rawdata.txt")
         path2 = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit.pdf")
-        path3 = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit_temp.pdf")
+        path3 = self.leakDirectoryRaw / str(
+            self.Choosenames[ROW][COL] + "_fit_temp.pdf"
+        )
 
         if path1.is_file():
             os.remove(path1)
@@ -1152,7 +1157,9 @@ class LeakTestStatus(QMainWindow):
     def update_name(self, ROW, COL):
         """Change file name based on chamber contents"""
         chamber = ROW * 5 + COL
-        self.files[chamber] = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_rawdata.txt")
+        self.files[chamber] = self.leakDirectoryRaw / str(
+            self.Choosenames[ROW][COL] + "_rawdata.txt"
+        )
         x = open(self.files[chamber], "a+", 1)
         print("Saving data to file %s" % self.Choosenames[ROW][COL])
 
@@ -1162,8 +1169,12 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
         # print('Plotting data for chamber', chamber)
-        filepath = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit.pdf") ## Data is still being saved here. Don't open
-        filepath_temp = self.leakDirectoryRaw / str(self.Choosenames[ROW][COL] + "_fit_temp.pdf") ## Static snapshot. Safe to open
+        filepath = self.leakDirectoryRaw / str(
+            self.Choosenames[ROW][COL] + "_fit.pdf"
+        )  ## Data is still being saved here. Don't open
+        filepath_temp = self.leakDirectoryRaw / str(
+            self.Choosenames[ROW][COL] + "_fit_temp.pdf"
+        )  ## Static snapshot. Safe to open
         if filepath_temp.is_file():
             try:
                 os.system(
@@ -1309,7 +1320,6 @@ class LeakTestStatus(QMainWindow):
 
     def checkCredentials(self):
         return self.credentialChecker.checkCredentials(self.sessionWorkers)
-
 
     def openLogInDialog(self):
         QMessageBox.warning(self, "Login Required", "Please login to complete action")
