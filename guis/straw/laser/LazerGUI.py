@@ -32,9 +32,10 @@ import win32con
 
 from datetime import datetime
 from pathlib import Path
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
+    QInputDialog,
     QLabel,
     QFrame,
     QStackedWidget,
@@ -83,7 +84,7 @@ C2 = 0.0000096  # Humidity coefficient
 
 
 class cutMenu(QMainWindow):
-    LockGUI = QtCore.pyqtSignal(bool)
+    LockGUI = pyqtSignal(bool)
 
     def __init__(self, paths, webapp=None, parent=None):
         super(cutMenu, self).__init__(parent)
@@ -260,7 +261,7 @@ class cutMenu(QMainWindow):
         pyautogui.hotkey("ctrl", "o")
         time.sleep(1)
         print("Trying to open '{}' from directory: '{}'".format(str(filename), str(directory)))
-        pyautogui.typewrite(str(directory / filename))
+        pyautogui.typewrite(str(directory) + "\\" + str(filename))
         time.sleep(1)
         pyautogui.press("enter")
         time.sleep(1)

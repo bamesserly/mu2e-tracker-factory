@@ -10,7 +10,7 @@ heatdata,data/Panel Data/external_gui_data/heat_control_data
 hvdata,data/Panel Data/hv_data
 hvguiicon,guis/panel/hv/mu2e.jpg
 imagePath,data/Panel Data/diagrams
-lasercutfiles,guis/straws/laser/Cut_files
+lasercutfiles,guis/straw/laser/Cut_files
 laserdata,data/Laser cut data
 laserworkers,data/workers/straw workers/laser cutting
 leakdata,data/Leak test data/Leak Test Results
