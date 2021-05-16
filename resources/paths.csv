@@ -1,0 +1,45 @@
+# All paths are relative to the topdir which is two parent dirs above the
+# location of this file
+board,data/Status Board 464
+co2epoxy,data/CO2 endpiece data
+co2workers,data/workers/straw workers/CO2 endpiece insertion
+continuity_data,data/Panel Data/wire_stringing_continuity_data
+cpaldata,data/Leak test data/CPALS in Testing/CPALS.txt
+credentialsChecklist,data/workers/credentials/WorkerProficiencyChecklist.csv
+heatdata,data/Panel Data/external_gui_data/heat_control_data
+hvdata,data/Panel Data/hv_data
+hvguiicon,guis/panel/hv/mu2e.jpg
+imagePath,data/Panel Data/diagrams
+lasercutfiles,guis/straw/laser/Cut_files
+laserdata,data/Laser cut data
+laserworkers,data/workers/straw workers/laser cutting
+leakdata,data/Leak test data/Leak Test Results
+leakworkers,data/workers/straw workers/leak testing
+listsDirectory,data/Panel Data/Lists/
+moldReleasePath,data/Panel Data/Mold Release/Mold Release.csv
+pallets,data/Pallets
+panelDirectory,data/Panel Data
+panelresistancedata,/data/Panel Data/FinalQC/Resistance
+prepdata,data/Straw Prep Data
+prepworkers,data/workers/straw workers/straw prep
+resistanceworkers,data/workers/straw workers/resistance
+silverdata,data/Silver epoxy data
+silverworkers,data/workers/straw workers/silver epoxy
+stepsDirectory,data/Panel Data/Steps/
+straw_tensioner_data,data/Panel Data/straw_tensioner_data
+strawfailure,data/Failure Data/Upload Failure
+strawleakdata,data/StrawLeak
+strawresistance,data/Resistance Testing
+strawresistancecal,guis/straw/resistance/calib.csv
+strawstorage,data/Straw storage
+strawtensiondata,data/Panel Data/external_gui_data/straw_tension_data
+strawupload,data/Make Straw Data
+strawverificationcode,guis/straws/verification
+strawtensionercode,guis/panel/strawtensioner
+temp_humid_data,data/temp_humid_data/464_main
+tensionbox_data,data/Panel Data/external_gui_data/tensionbox_data/
+tensionbox_data_straw,data/Panel Data\tensionbox_data\straw_measurements
+tensionbox_data_wire,data/Panel Data\tensionbox_data\wire_measurements
+wireQC,data/Panel Data/pass_qc/wire.csv
+wire_tensioner_data,data/Panel Data/wire_tensioner_data
+workerDirectory,data/workers/panel workers
