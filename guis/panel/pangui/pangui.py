@@ -296,7 +296,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 3, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -409,6 +409,15 @@ class panelGUI(QMainWindow):
     def _init_pro3_setup(self):
         ## Connect
         self.ui.panelInput3.installEventFilter(self)
+        self.ui.initialWireWeightLE.editingFinished.connect(self.pro3part2)
+
+        ## Enable wire input
+        self.ui.wireInput.setEnabled(True)
+        ## Disable wire weight inputs
+        self.ui.initialWireWeightLE.setDisabled(True)
+        self.ui.finalWireWeightLE.setDisabled(True)
+        ## Disable calibration factor
+        self.ui.panelInput3_2.setDisabled(True)
 
         ## Disable Widgets
         self.ui.wireInput.setDisabled(False)
@@ -1059,6 +1068,10 @@ class panelGUI(QMainWindow):
 
         set_validator(self.ui.wireInput, "(WIRE\.)\d{6}")
 
+        valid_weight = QDoubleValidator(bottom=0.01, top=99.99, decimals=2)
+        self.ui.initialWireWeightLE.setValidator(valid_weight)
+        self.ui.finalWireWeightLE.setValidator(valid_weight)
+
     def _init_widget_lists(self):
         # Start buttons
         self.startButtons = [
@@ -1128,7 +1141,12 @@ class panelGUI(QMainWindow):
                 self.ui.paasBInput,
             ],
             # pro 3 Widgets
-            [self.ui.panelInput3, self.ui.wireInput],
+            [
+                self.ui.panelInput3,
+                self.ui.wireInput,
+                self.ui.initialWireWeightLE,
+                self.ui.finalWireWeightLE
+            ],
             # Pro 4 Widgets --> can't be entered randomly
             [
                 self.ui.panelInput4,
@@ -2452,6 +2470,8 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][0] = self.ui.panelInput3.text()
         self.data[self.pro_index][1] = self.ui.wireInput.text()
         self.data[self.pro_index][2] = self.timerTuple(self.timers[5])
+        self.data[self.pro_index][3] = self.ui.initialWireWeightLE.text()
+        self.data[self.pro_index][4] = self.ui.finalWireWeightLE.text()
         # scroll area is saved/updated differently
 
     def updateDataProcess4(self):
@@ -3055,6 +3075,16 @@ class panelGUI(QMainWindow):
         else:
             # start the timer
             self.startTimer(5)
+
+        if data[3] is not None:
+            self.ui.initialWireWeightLE.setText(str(data[3]))
+            if data[4] is not None:
+                self.ui.finalWireWeightLE.setText(str(data[4]))
+            else:
+                self.ui.finalWireWeightLE.setEnabled(True)
+        else:
+            self.ui.initialWireWeightLE.setEnabled(True)
+            self.ui.finalWireWeightLE.setDisabled(True)
 
         # enable, tensioner, tension box, input widgets
         self.setWidgetsEnabled(self.continuity + self.wire_align)
@@ -3987,15 +4017,16 @@ class panelGUI(QMainWindow):
         if not self.validateInput(indices=[0]):
             return
 
-        # old verification for wire input, didn't just delete, since we may want to move it.
-        # in addition to this you need to put 1 into the indicies for validate input above here.
-        """
+
         # Verify that wire has been QCd with DataProcessor
         wire = self.ui.wireInput.text()
         if not self.DP.wireQCd(wire):
-            self.generateBox('critical', 'Wire Input Invalid', 'Sense wire spool not yet QCd')
-            return
-        """
+            self.generateBox(
+                'warning',
+                'Wire Spool Not Found',
+                'Either a wire spool was not entered, or it is not recorded in the database.'
+            )
+
 
         # If all tests pass, continue
 
@@ -4008,7 +4039,7 @@ class panelGUI(QMainWindow):
         )
 
         # Enable wire tensioner button
-        self.setWidgetsEnabled([self.ui.launch_wire_tensioner, self.ui.launchHVpro3])
+        self.setWidgetsEnabled([self.ui.launch_wire_tensioner, self.ui.launchHVpro3,self.ui.initialWireWeightLE])
 
         # Enable all widgets in the continuity table
         self.setWidgetsEnabled(self.continuity + self.wire_align)
@@ -4019,6 +4050,15 @@ class panelGUI(QMainWindow):
 
         # Save data
         self.saveData()
+
+
+    # connected to finished editing signal for initialWireWeightLE
+    def pro3part2(self):
+        # Ensure that panel number is valid
+        if not self.validateInput(indices=[2]):
+            return
+
+        self.ui.finalWireWeightLE.setEnabled(True)
 
     """
     resetpro3(self)
