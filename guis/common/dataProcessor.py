@@ -1615,13 +1615,17 @@ class SQLDataProcessor(DataProcessor):
         # Get data from GUI
         data = self.getProData()
 
-        # Call all getters to store data in sql database
-        self.callMethod(
-            self.procedure.recordWireSpool, self.stripNumber(data[1])
-        )  # Sense Wire Batch
-        self.callMethod(
-            self.procedure.recordSenseWireInsertionTime, *self.parseTimeTuple(data[2])
-        )  # Sense Wire Insertion Time
+        # Call all setters to store data in sql database
+        # Sense Wire Batch
+        self.callMethod(self.procedure.recordWireSpool, self.stripNumber(data[1]))  
+        # Sense Wire Insertion Time
+        self.callMethod(self.procedure.recordSenseWireInsertionTime, *self.parseTimeTuple(data[2]))
+        # initial_weight
+        self.callMethod(self.procedure.recordInitialWireWeight, data[3])
+        # final_weight
+        self.callMethod(self.procedure.recordFinalWireWeight, data[4])
+
+
 
     # Pin Protectors
     def saveDataProcess4(self):
@@ -2374,6 +2378,8 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getSenseWireInsertionTime(),
                 self.procedure.getSenseWireInsertionTimeRunning(),
             ),  # Sense Wire Insertion Time
+            self.procedure.getInitialWireWeight(), # initial wire spool weight
+            self.procedure.getFinalWireWeight()# final wire spool weight
         ]
 
     # Pin Protectors
