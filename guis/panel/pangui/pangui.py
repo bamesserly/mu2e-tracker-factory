@@ -527,6 +527,8 @@ class panelGUI(QMainWindow):
         # Disable all
         self.setWidgetsDisabled(self.continuity + self.wire_align)
         self.ui.launch_wire_tensioner.setDisabled(True)
+        self.ui.launch_tension_box.setDisabled(True)
+        
         # bind launch hv w/ corresponding function
         self.ui.launchHVpro3.clicked.connect(self.hvMeasurementsPopup)
         self.ui.launchHVpro3.setDisabled(True)
@@ -4039,7 +4041,14 @@ class panelGUI(QMainWindow):
         )
 
         # Enable wire tensioner button
-        self.setWidgetsEnabled([self.ui.launch_wire_tensioner, self.ui.launchHVpro3,self.ui.initialWireWeightLE])
+        self.setWidgetsEnabled(
+            [
+                self.ui.launch_wire_tensioner,
+                self.ui.launchHVpro3,
+                self.ui.initialWireWeightLE,
+                self.ui.launch_tension_box
+            ]
+        )
 
         # Enable all widgets in the continuity table
         self.setWidgetsEnabled(self.continuity + self.wire_align)

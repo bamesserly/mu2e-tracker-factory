@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1800, 756)
+        MainWindow.resize(1792, 727)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1436,7 +1436,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 531, 601))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 514, 572))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setHorizontalSpacing(3)
@@ -1599,6 +1599,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.saveButton3.setFont(font)
         self.saveButton3.setObjectName("saveButton3")
+        self.saveButtons.addButton(self.saveButton3)
         self.gridLayout_32.addWidget(self.saveButton3, 1, 0, 1, 1)
         self.gridLayout_64.addWidget(self.groupBox_8, 9, 0, 1, 4)
         self.gridLayout_30.addLayout(self.gridLayout_64, 1, 0, 1, 1)
