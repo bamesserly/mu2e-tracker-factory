@@ -10,6 +10,7 @@ from sklearn.linear_model import LinearRegression
 import datetime
 import os
 import re
+from guis.common.getresources import GetProjectPaths
 
 ################################################################################
 # Constants
@@ -298,9 +299,7 @@ def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
 ################################################################################
 # main
 ################################################################################
-def main():
-    options = GetOptions()
-
+def main(options):
     # read raw data files into a dataframe
     df = ReadLeakRateFile(options.infile, options.is_new_format)
 
@@ -397,9 +396,8 @@ def main():
 
     # Create outdir for panel pdfs
     panel_id = GetPanelIDFromFilename(options.infile)
-    plots_dir = "../Data/Panel data/FinalQC/Leak/Plots/" + panel_id
-    if not os.path.exists(plots_dir):
-        os.makedirs(plots_dir)
+    plots_dir = GetProjectPaths()['panelleak'] / panel_id
+    plots_dir.mkdir(exist_ok=True, parents=True)
 
     # fit start/endtime tag
     fit_start_tag = (
@@ -411,7 +409,7 @@ def main():
 
     # create plot filename
     title = "{0}{1}{2}.pdf".format(title, fit_start_tag, fit_end_tag)
-    full_path = plots_dir + "/" + title
+    full_path = plots_dir / title
 
     # save plot
     print("Saving image", full_path)
@@ -421,5 +419,18 @@ def main():
     plt.show()
 
 
+def RunInteractive():
+    options = GetOptions()
+    print("Specify options. Press <return> to skip an option and use the default.")
+    options.infile = input("Input data file> ").strip('"')
+    options.fit_start_time = input("Fit start> ")
+    options.fit_end_time = input("Fit end> ")
+    options.min_diff_pressure = input("Differential pressure y-axis min> ")
+    options.max_diff_pressure = input("Differential pressure y-axis max> ")
+    options.min_ref_pressure  = input("Reference pressure y-axis min> ")
+    options.max_ref_pressure  = input("Reference pressure y-axis max> ")
+    main(options)
+
 if __name__ == "__main__":
-    main()
+    options = GetOptions()
+    main(options)

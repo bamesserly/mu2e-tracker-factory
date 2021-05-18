@@ -19,7 +19,8 @@ listsDirectory,data/Panel Data/Lists/
 moldReleasePath,data/Panel Data/Mold Release/Mold Release.csv
 pallets,data/Pallets
 panelDirectory,data/Panel Data
-panelresistancedata,/data/Panel Data/FinalQC/Resistance
+panelresistancedata,data/Panel Data/FinalQC/Resistance
+panelleak,data/Panel data/FinalQC/Leak/Plots
 prepdata,data/Straw Prep Data
 prepworkers,data/workers/straw workers/straw prep
 resistanceworkers,data/workers/straw workers/resistance
