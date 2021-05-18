@@ -319,7 +319,7 @@
             <item row="0" column="0">
              <widget class="QStackedWidget" name="suppliesList">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="page_14">
                <layout class="QGridLayout" name="gridLayout_17" rowstretch="1,0">
@@ -4214,8 +4214,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>484</width>
-                       <height>539</height>
+                       <width>466</width>
+                       <height>510</height>
                       </rect>
                      </property>
                     </widget>
@@ -12189,7 +12189,7 @@ Tension Box</string>
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QPushButton" name="proy8Select">
+         <widget class="QPushButton" name="pro8Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -12379,7 +12379,7 @@ Tension Box</string>
   <tabstop>pro9Select</tabstop>
   <tabstop>nextButton_2</tabstop>
   <tabstop>pro2Select</tabstop>
-  <tabstop>proy8Select</tabstop>
+  <tabstop>pro8Select</tabstop>
   <tabstop>portal3</tabstop>
   <tabstop>portal2</tabstop>
   <tabstop>pro3Select</tabstop>
