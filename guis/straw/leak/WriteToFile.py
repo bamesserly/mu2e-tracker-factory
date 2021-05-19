@@ -1,6 +1,7 @@
 # Functions to save straw data to appropriate file
 
 import os, time, datetime, csv
+from guis.common.getresources import GetProjectPaths
 
 
 class StrawNotFoundError(Exception):
@@ -40,18 +41,18 @@ def FindCPAL(strawname):
     # If a straw is associated with more than one CPALID, use the largest (i.e.
     # most recent) one.
     cpal_return_pairs = []
-    database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
+    database_path = GetProjectPaths()["pallets"]
     for i in range(1, 25):
         files = []
         cpalid = "CPALID" + str(i).zfill(2)
-        path = os.path.join(database_path, cpalid)
+        path = database_path / cpalid
 
         for (dirpath, dirnames, filenames) in os.walk(path):
             files.extend(filenames)
             break
 
         for filename in files:
-            f = open(os.path.join(path, filename), "r")
+            f = open(path / filename, "r")
 
             line = f.readline()
 
@@ -77,11 +78,11 @@ def FindCPAL(strawname):
 
 def UpdateStrawInfo(test, workers, strawname, result):
     # Save data to appropriate CPAL file
-    database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
+    database_path = GetProjectPaths()["pallets"]
 
     (cpalid, cpal) = FindCPAL(strawname)
 
-    path = os.path.join(database_path, os.path.join(cpalid, cpal + ".csv"))
+    path = database_path / cpalid / str(cpal + ".csv")
 
     previous_test, straw_list, pf = ExtractPreviousStrawData(path)
 
@@ -239,11 +240,11 @@ def checkPass(path, strawname, current_test):
 
 
 def checkStraw(strawname, expected_previous_test, current_test):
-    database_path = os.path.dirname(__file__) + "\\..\\..\\..\\Data\\Pallets\\"
+    database_path = GetProjectPaths()["pallets"]
 
     (cpalid, cpal) = FindCPAL(strawname)
 
-    path = os.path.join(database_path, os.path.join(cpalid, cpal + ".csv"))
+    path = database_path / cpalid / str(cpal + ".csv")
 
     print(cpal, "found for straw", strawname, "with file", path)
 
