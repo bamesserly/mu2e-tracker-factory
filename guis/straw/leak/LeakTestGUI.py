@@ -1287,6 +1287,12 @@ class LeakTestStatus(QMainWindow):
                     cpal = FindCPAL(strawname)[1]
                     if cpal not in self.cpals:
                         self.cpals.append(cpal)
+                except MultipleStrawsFoundError:
+                    QMessageBox.critical(
+                        self,
+                        "Testing Error",
+                        "Unable to test straw:\nStraw was found more than once in a single pallet file",
+                    )
                 except StrawNotFoundError:
                     continue
 
@@ -1295,9 +1301,7 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
-            rem = removeStraw(
-                self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
-            )
+            rem = removeStraw(self.cpals, paths["pallets"])
             rem.exec_()
         else:
             self.openLogInDialog()
@@ -1535,10 +1539,8 @@ class StrawSelect(QDialog):
 
     def StrawInput(self):
         self.straw_load = self.ui.lineEdit.text().upper()
-        if (
-            self.straw_load[:2] == "st"
-            or self.straw_load[:2] == "ST"
-            and all(ch.isdigit() for ch in self.straw_load[2:])
+        if self.straw_load[:2].lower() == "st" and all(
+            ch.isdigit() for ch in self.straw_load[2:]
         ):
             try:
                 checkStraw(self.straw_load, "C-O2", "leak")
@@ -1548,6 +1550,12 @@ class StrawSelect(QDialog):
             except StrawRemovedError:
                 QMessageBox.critical(
                     self, "Testing Error", "Unable to test straw:\nStraw was removed"
+                )
+            except MultipleStrawsFoundError:
+                QMessageBox.critical(
+                    self,
+                    "Testing Error",
+                    "Unable to test straw:\nStraw was found more than once in a single pallet file",
                 )
             except StrawNotFoundError:
                 QMessageBox.critical(

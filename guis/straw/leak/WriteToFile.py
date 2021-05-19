@@ -9,6 +9,13 @@ class StrawNotFoundError(Exception):
     pass
 
 
+class MultipleStrawsFoundError(Exception):
+    # Raised when a CPAL file contains a straw more than once
+    def __init__(self, message=None):
+        super().__init__(self, message)
+        self.message = message
+
+
 class StrawRemovedError(Exception):
     # Raised when a tested straw was removed in previous step
     pass
@@ -36,45 +43,107 @@ def ExtractPreviousStrawData(path):
     return test_name, names, pf
 
 
-def FindCPAL(strawname):
-    # Returns (CPALID, CPAL) of straw number
-    # If a straw is associated with more than one CPALID, use the largest (i.e.
-    # most recent) one.
+# Get list of all CPALs (CPALID, CPAL#), whose files contain strawname
+def FindAllCPALs(strawname):
     cpal_return_pairs = []
     database_path = GetProjectPaths()["pallets"]
     for i in range(1, 25):
         files = []
         cpalid = "CPALID" + str(i).zfill(2)
         path = database_path / cpalid
-
         for (dirpath, dirnames, filenames) in os.walk(path):
             files.extend(filenames)
             break
-
         for filename in files:
             f = open(path / filename, "r")
-
             line = f.readline()
-
             while line != "":
                 if strawname.lower() in line.lower():
                     cpal_return_pairs.append((cpalid, filename[:-4]))
-
                 line = f.readline()
-
             f.close()
+    return cpal_return_pairs
 
-    # return the (cpalid,cpal) pair that has the highest cpal.
-    # e.g. max([('CPAL01', 'CPAL0123'), ('CPAL01, 'CPAL6798')]), the max
-    # function is performed on 'CPAL0123' vs 'CPAL6789', and 'CPAL6789' wins.
-    if cpal_return_pairs:
-        cpal_return_pairs = [i for i in cpal_return_pairs if i[1] != "CPAL9999"]
-        ret = max(cpal_return_pairs, key=lambda pair: pair[1])
-        # print(ret)
-        # print("CPAL", ret[1],"for straw", strawname, "found")
-        return ret
 
-    raise StrawNotFoundError
+# Check each CPAL file to see if strawname is in the last test in the file and
+# passed. If multiple good CPALs are found, raise/prompt user.
+def GetBestCPAL(strawname, cpal_return_pairs):
+    if not cpal_return_pairs:
+        print("GetBestCPAL: no cpals given for", strawname)
+        return None
+    good_cpal_pairs = []
+    for c in cpal_return_pairs:
+        path = GetProjectPaths()["pallets"] / c[0] / str(c[1] + ".csv")
+        with open(
+            path, "r"
+        ) as f:  # Files are only a handful of lines, so OK to read last line like this.
+            last_line = f.readlines()[-1]
+        last_line = last_line.split(",")
+
+        # Find strawname in the final last line of the CPAL file.
+        # Ensure exactly 1 straw with strawname is found.
+        indices = [i for i, x in enumerate(last_line) if x.lower() == strawname.lower()]
+        pass_fail_removed = None
+        if len(indices) == 0:
+            print(
+                "GetBestCPAL: test straw",
+                strawname,
+                "not found in CPAL file",
+                path,
+                ".\nShouldn't be here.",
+            )
+            return None
+        elif len(indices) > 1:
+            raise MultipleStrawsFoundError(
+                "Straw found more than once in CPAL file " + path
+            )
+        else:
+            pass_fail_removed = last_line[
+                indices[0] + 1
+            ]  # P/F/R status comes after straw in the line
+
+        # If pass, add it to good list
+        if pass_fail_removed == "P":
+            good_cpal_pairs.append(c)
+        elif pass_fail_removed == "_" or pass_fail_removed == "F":
+            pass
+        else:
+            print("WARNING: Unexpected straw status.", strawname, c)
+
+    # make sure exactly one good cpal
+    n = len(good_cpal_pairs)
+    if n == 1:
+        return good_cpal_pairs[0]
+    elif n == 0 and cpal_return_pairs:
+        print(
+            "GetBestCPAL: cpals for",
+            strawname,
+            "were found, but straw didn't pass any of its latest tests.",
+        )
+        return None
+    elif n > 1:
+        print("GetBestCPAL:", strawname, "is in multiple CPALs", good_cpal_pairs)
+        print("GetBestCPAL: remove straw from the old CPAL to resolve ambiguity.")
+        return None
+
+
+# Find the (CPALID, CPAL#) whose file contains strawname.
+# In the case that multiple CPALs contain the straw, take the one with the
+# largest value.
+def FindCPAL(strawname):
+    cpal_return_pairs = FindAllCPALs(strawname)
+
+    if not cpal_return_pairs:
+        raise StrawNotFoundError
+
+    cpal_return_pairs = [
+        i for i in cpal_return_pairs if i[1] != "CPAL9999"
+    ]  # in case straw was added to bogus CPAL
+    cpal_return_pairs = list(set(cpal_return_pairs))  # remove duplicates
+
+    ret_pair = GetBestCPAL(strawname, cpal_return_pairs)
+    # ret_pair = max(cpal_return_pairs, key=lambda pair: pair[1]) # Take the largest CPAL#
+    return ret_pair
 
 
 def UpdateStrawInfo(test, workers, strawname, result):
@@ -240,32 +309,34 @@ def checkPass(path, strawname, current_test):
     return failed
 
 
+# Make sure straw can (1) be found in a CPAL file and (2) attempted and passed
+# its latest expected test.
+#
+# Redundant checks on (a) existance of the CPAL file, (b) existence of an
+# attempt at the latest expected test, (c) did not fail last test, and (d) was
+# indeed not removed from the pallet
 def checkStraw(strawname, expected_previous_test, current_test):
-    database_path = GetProjectPaths()["pallets"]
-
     (cpalid, cpal) = FindCPAL(strawname)
 
-    path = database_path / cpalid / str(cpal + ".csv")
+    path = GetProjectPaths()["pallets"] / cpalid / str(cpal + ".csv")
 
     try:
         assert path.is_file()
     except AssertionError:
-        print("cannot find pallet file", path)
+        print("Found a CPAL w/ this straw, but can't locate the CPAL file", path)
+        raise StrawNotFoundError
 
     print(cpal, "found for straw", strawname, "with file", path)
 
-    straw_list = ExtractPreviousStrawData(path)[1]
-
     previous_test = findPreviousStep(path, expected_previous_test)
-
-    failed = checkPass(path, strawname, current_test)
-
     if not previous_test:
         raise StrawNotTestedError
 
+    failed = checkPass(path, strawname, current_test)
     if failed != []:
         raise StrawFailedError("Straw failed test(s): " + ", ".join(failed))
 
+    straw_list = ExtractPreviousStrawData(path)[1]
     for straw in straw_list:
         if straw.lower() == strawname.lower():
             return
