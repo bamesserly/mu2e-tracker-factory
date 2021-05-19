@@ -57,7 +57,7 @@ def FindCPAL(strawname):
             line = f.readline()
 
             while line != "":
-                if strawname in line:
+                if strawname.lower() in line.lower():
                     cpal_return_pairs.append((cpalid, filename[:-4]))
 
                 line = f.readline()
@@ -70,6 +70,7 @@ def FindCPAL(strawname):
     if cpal_return_pairs:
         cpal_return_pairs = [i for i in cpal_return_pairs if i[1] != "CPAL9999"]
         ret = max(cpal_return_pairs, key=lambda pair: pair[1])
+        # print(ret)
         # print("CPAL", ret[1],"for straw", strawname, "found")
         return ret
 
@@ -98,7 +99,7 @@ def UpdateStrawInfo(test, workers, strawname, result):
             write_line += date + "," + test + ","
 
             for straw in straw_list:
-                if strawname != straw:
+                if strawname.lower() != straw.lower():
                     write_line += straw + ",_,"
                 else:
                     write_line += strawname + "," + result + ","
@@ -246,6 +247,11 @@ def checkStraw(strawname, expected_previous_test, current_test):
 
     path = database_path / cpalid / str(cpal + ".csv")
 
+    try:
+        assert path.is_file()
+    except AssertionError:
+        print("cannot find pallet file", path)
+
     print(cpal, "found for straw", strawname, "with file", path)
 
     straw_list = ExtractPreviousStrawData(path)[1]
@@ -261,7 +267,7 @@ def checkStraw(strawname, expected_previous_test, current_test):
         raise StrawFailedError("Straw failed test(s): " + ", ".join(failed))
 
     for straw in straw_list:
-        if straw == strawname:
+        if straw.lower() == strawname.lower():
             return
 
     print("CPAL file", path)
