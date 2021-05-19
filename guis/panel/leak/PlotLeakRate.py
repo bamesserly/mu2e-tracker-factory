@@ -11,6 +11,8 @@ import datetime
 import os
 import re
 from guis.common.getresources import GetProjectPaths
+from pathlib import Path
+from sys import exit
 
 ################################################################################
 # Constants
@@ -419,17 +421,35 @@ def main(options):
     plt.show()
 
 
+def SetFloatOption(prompt, default_option):
+    try:
+        return float(input(prompt))
+    except ValueError:
+        return default_option
+
+
 def RunInteractive():
     options = GetOptions()
     print("Specify options. Press <return> to skip an option and use the default.")
-    options.infile = input("Input data file> ").strip('"')
-    options.fit_start_time = input("Fit start> ")
-    options.fit_end_time = input("Fit end> ")
-    options.min_diff_pressure = input("Differential pressure y-axis min> ")
-    options.max_diff_pressure = input("Differential pressure y-axis max> ")
-    options.min_ref_pressure  = input("Reference pressure y-axis min> ")
-    options.max_ref_pressure  = input("Reference pressure y-axis max> ")
+    options.infile = input("Input data file> ").strip(' \'\t\n"')
+    try:
+        assert options.infile
+    except AssertionError:
+        exit("Must provide input data file.")
+    try:
+        print(Path(options.infile).resolve())
+        assert Path(options.infile).is_file()
+    except AssertionError:
+        exit("Input file not found.")
+    options.fit_start_time = SetFloatOption("Fit start> ", options.fit_start_time)
+    options.fit_end_time = SetFloatOption("Fit end> ", options.fit_end_time)
+    options.min_diff_pressure = SetFloatOption("Differential pressure y-axis min> ", options.min_diff_pressure)
+    options.max_diff_pressure = SetFloatOption("Differential pressure y-axis max> ", options.max_diff_pressure)
+    options.min_ref_pressure = SetFloatOption("Reference pressure y-axis min> ", options.min_ref_pressure)
+    options.max_ref_pressure = SetFloatOption("Reference pressure y-axis max> ", options.max_ref_pressure)
+    print(options)
     main(options)
+
 
 if __name__ == "__main__":
     options = GetOptions()
