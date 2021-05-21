@@ -22,17 +22,18 @@ from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
     QLabel,
-    QTableWidget,
-    QGridLayout,
-    QScrollArea,
+    #QTableWidget,
+    #QGridLayout,
+    #QScrollArea,
     QWidget,
-    QComboBox,
-    QListWidget,
-    QListWidgetItem,
-    QCheckBox,
-    QPushButton,
-    QTableWidgetItem,
+    #QComboBox,
+    #QListWidget,
+    #QListWidgetItem,
+    #QCheckBox,
+    #QPushButton,
+    #QTableWidgetItem,
     QMessageBox,
+    QStyleFactory
 )
 
 # mostly for gui window management, QPen and QSize are for plotting
@@ -129,6 +130,10 @@ class facileDBGUI(QMainWindow):
         # it might not be feasible, all the heat measurements would have
         # to go somewhere, and nobody cares about individual heat measurements
         self.data = PanelData()
+
+
+        #self.changeColor((122, 0, 25), (255, 204, 51))
+        #self.changeColor((50,50,50),(0,255,0))
 
     # override close button event (see comments in function)
     # parameters: event = close window button clicked signal(?)
@@ -645,6 +650,55 @@ class facileDBGUI(QMainWindow):
                 )
             )   
             return 0
+
+
+    def changeColor(self, background_color, text_color):
+        tuple_min = lambda t: tuple(min(x, 255) for x in t)
+        tuple_max = lambda t: tuple(max(x, 0) for x in t)
+        tuple_add = lambda t, i: tuple((x + i) for x in t)
+        invert = lambda t: tuple(255 - x for x in t)
+
+        lighter = tuple_min(tuple_add(background_color, 20))
+        darker = tuple_max(tuple_add(background_color, -11))
+
+        text_color_invert = invert(text_color)
+        background_color_invert = invert(background_color)
+
+        stylesheet = (
+
+            "QMainWindow, QWidget, QDialog, QMessageBox, QListWidget, QVBoxLayout{ background-color: rgb"
+            + f"{background_color}; color: rgb{text_color};"
+            + " }\n"
+            "QLineEdit { "
+            + f"color: rgb{text_color}; background-color: rgb{lighter};"
+            + " }\n"
+            "QPlainTextEdit, QTextEdit, QLabel { " + f"color: rgb{text_color};" + " }\n"
+            "QGroupBox, QTabWidget, QSpinBox { "
+            + f"color: rgb{text_color}; background-color: rgb{darker};"
+            + " }\n"
+            "QPushButton, QScrollArea, QPlainTextEdit, QTextEdit { "
+            + f"color: rgb{text_color}; background-color: rgb{darker}"
+            + " }\n"
+            "QCheckBox { color: "
+            + f"rgb{text_color}"
+            + "; "
+            + f"background-color: rgb{darker}"
+            + "; }\n"
+            "QLCDNumber { color: white; }\n"
+            "QComboBox, QComboBox QAbstractItemView { "
+            + f"color: rgb{text_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
+            + " }"
+            f'QStatusBar {"{"}color: rgb{text_color}{"}"}'
+
+        )
+
+        self.setStyleSheet(stylesheet)
+        for wid in self.findChildren(QWidget):
+            print(wid)
+            wid.setStyleSheet(stylesheet)
+
+        print(self.styleSheet())
+
 
     # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔════╝██║████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -1820,7 +1874,7 @@ class facileDBGUI(QMainWindow):
 
 def run():
     app = QApplication(sys.argv)  # make an app
-    # app.setStyleSheet(qdarkstyle.load_stylesheet()) # darkmodebestmode
+    app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     window = facileDBGUI(Ui_MainWindow())  # make a window
     database = ""
     # Access network DB
