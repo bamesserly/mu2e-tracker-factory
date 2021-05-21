@@ -20,7 +20,7 @@ List of repetitive widgets:
 * indicates the presence of another widget with the same name but _2 added to the end, the doppleganger widget does the same
 thing but on a different tab in the dataTabs widget.
 
-<data> ∈ [heat, hv, straw, wire]
+<data> ∈ [heat, hv, straw, wire, tb]
 <data>ListWidget*	QListWidget	List of <data> measurements.  List of statistics (instead of measurements) for heat data.
 <data>ExportButton*	QPushButton	Button that exports <data> data to a CSV file when clicked
 <data>PlotButton*	QPushButton	Button that plots data on graph in new window when clicked
@@ -28,6 +28,7 @@ thing but on a different tab in the dataTabs widget.
 
 heatProBox*		QComboBox	Controls the current heat process data that's being displayed
 hvProBox*		QComboBox	Controls the current hv process/voltage data that's being displayed
+tbProBox*		QComboBox	Controls the current tensionbox process data that's being displayed
 
 <pan> ∈ [pan1, pan2, pan3, pan4, pan5, pan6, pan7]
 <pan>ComList		QListWidget	List of comments for the <pro> process

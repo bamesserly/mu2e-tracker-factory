@@ -1,7 +1,7 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 04/20/2021 /
+#  -   / ______  _/____)       /  Last Update 05/18/2021 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
@@ -207,7 +207,6 @@ class facileDBGUI(QMainWindow):
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
         )
 
-
     # initialize lists of widgets for organization and easy access
     # parameters: no parameters
     # returns: nothing returned
@@ -327,6 +326,22 @@ class facileDBGUI(QMainWindow):
             )
         )
 
+        # tb buttons
+        self.ui.tbExportButton.clicked.connect(
+            lambda: self.exportData(
+                f'{self.ui.tbProBox.currentText()}_TB_Data',
+                getattr(self.data, f'p{self.ui.tbProBox.currentText()[8]}tbData'),
+                ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+            )
+        )
+        self.ui.tbExportButton_2.clicked.connect(
+            lambda: self.exportData(
+                f'{self.ui.tbProBox_2.currentText()}_TB_Data',
+                getattr(self.data, f'p{self.ui.tbProBox_2.currentText()[8]}tbData'),
+                ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+            )
+        )
+
         # straw buttons
         self.ui.strawExportButton.clicked.connect(
             lambda: self.exportData(
@@ -401,6 +416,14 @@ class facileDBGUI(QMainWindow):
         )
         self.ui.hvProBox_2.currentIndexChanged.connect(
             lambda: self.comboBoxChanged(self.ui.hvProBox_2.currentText())
+        )
+
+        # tb combo boxes
+        self.ui.tbProBox.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.tbProBox.currentText())
+        )
+        self.ui.tbProBox_2.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.tbProBox_2.currentText())
         )
 
     # utility, get any widget by name
@@ -564,7 +587,9 @@ class facileDBGUI(QMainWindow):
             "Process 1, Inner Rings": (lambda: self.updateCombo(1,0)),
             "Process 2, Straws"     : (lambda: self.updateCombo(2,0)),
             "Process 6, Manifold"   : (lambda: self.updateCombo(6,0)),
-            "Select"                : (lambda: 0)
+            "Process 3"         : (lambda: self.updateCombo(3,-1)),
+            "Process 6"         : (lambda: self.updateCombo(6,-1)),
+            "Select"            : (lambda: 0)
         }
         
         boool = callDict[text]()
@@ -578,10 +603,10 @@ class facileDBGUI(QMainWindow):
     # called in comboBoxChanged.  Does the heavy lifting when it comes to showing the
     # correct data in the list widgets and graphs.
     # parameters:   pro, int representing the process being shown
-    #               volts, int representing the voltage for hv, if updating heat, volts = 0
+    #               volts, int representing the voltage for hv, if updating heat volts = 0, tb volts = -1
     # returns: 0 if success, 1 if failure
     def updateCombo(self, pro, volts):
-        if not volts:
+        if volts == 0:
             # update heat
             self.displaySpecificHeat(
                 pro,
@@ -593,6 +618,16 @@ class facileDBGUI(QMainWindow):
                 self.ui.heatListWidget_2,
                 (self.ui.heatExportButton_2, self.ui.heatPlotButton_2),
                 self.ui.heatGraphLayout
+            )
+            return 0
+        # ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+        elif volts == -1:
+            self.displayOnLists(
+                pro,
+                getattr(self.data,f'p{pro}tbData'),
+                [("Position",18),("Length",13),("Pulse Freq",13),("Pulse Wid",13),("Tension",13),("S/W",0),("timestamp",-1)],
+                [self.ui.tbListWidget, self.ui.tbListWidget_2],
+                [self.ui.tbExportButton, self.ui.tbExportButton_2, self.ui.tbPlotButton, self.ui.tbPlotButton_2]
             )
             return 0
         else:
@@ -674,7 +709,12 @@ class facileDBGUI(QMainWindow):
         funcRetIII = self.findSpecificHeat(6)
         hasData = hasData or funcRetI or funcRetII or funcRetIII
 
-        #print(str(self.data))
+        # find heat data
+        funcRetI = self.findSpecificTB(3)
+        funcRetII = self.findSpecificTB(6)
+        hasData = hasData or funcRetI or funcRetII
+
+        print(str(self.data))
         return hasData
 
     # finds and returns the database id for the panel in question
@@ -915,7 +955,6 @@ class facileDBGUI(QMainWindow):
     # LPALs have their own find function because they are different than the other parts
     # parameters: no parameters
     # returns: nothing returned (yet)
-    # TODO: CHECK TO MAKE SURE THIS FINDS CORRECT DATA
     def findLPALs(self):
         # LPALs are found differently than regular parts
         # straw_location(MN type) --> procedures(this panel) --> 
@@ -1191,6 +1230,47 @@ class facileDBGUI(QMainWindow):
 
         return (len(heatList) > 0)
 
+    # finds tuberculosis and puts it in self.data.pXtbData
+    # parameters: int, pro is the process to find data for (3 or 6)
+    # returns: bool, true if any data found, false otherwise
+    def findSpecificTB(self, pro):
+        # check if desired pro exists
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            return False
+
+        panelTension = sqla.Table(
+            "measurement_tensionbox", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        tbQuery = sqla.select(
+            [
+                panelTension.columns.position,      # position on panel
+                panelTension.columns.length,        # length of...?
+                panelTension.columns.frequency,     # pulse frequency
+                panelTension.columns.pulse_width,   # pulse width I guess
+                panelTension.columns.tension,       # the actual tension measurement
+                panelTension.columns.straw_wire,    # straw/wire designation
+                panelTension.columns.timestamp      # time measurement taken
+            ]
+        ).where(panelTension.columns.procedure == self.data.proIDs[f'pan{pro}'])
+
+        resultProxy = self.connection.execute(tbQuery)  # make proxy
+        rawTBData = resultProxy.fetchall()  # get data from db
+
+        # build a list since rawTBData isn't technically a list (?)
+        tbList = [ [0,0,0,0,0,0,-1] for i in range(96)]
+        for toop in rawTBData:
+            # if this data is newer
+            if toop[6] > tbList[toop[0]][6]:
+                # put it into the list
+                tbList[toop[0]] = [toop[0],toop[1],toop[2],toop[3],toop[4],toop[5],toop[6]]
+
+        # assign built list to self.data
+        listPointer = getattr(self.data,f'p{pro}tbData')
+        listPointer += tbList
+
+        return (len(tbList) > 0)
+
 
     # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔══██╗██║██╔════╝██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -1409,7 +1489,8 @@ class facileDBGUI(QMainWindow):
             # for each piece of data (position, tension, etc.)
             for i in range(len(dataCols)):
                 if dataCols[i][1] != -1:
-                    itemString += f'{str(dataToop[i]).ljust(dataCols[i][1])}'
+                    trimmed = str(dataToop[i])[:8]
+                    itemString += f'{trimmed.ljust(dataCols[i][1])}'
             if "No Data" not in itemString:
                 noData = False
             for lst in listWidgets:
@@ -1692,13 +1773,18 @@ class facileDBGUI(QMainWindow):
     # ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║       ██████╔╝██║  ██║   ██║   ██║  ██║
     # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝       ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 
+    # graph heat data in pop up window
+    # parameters:   dataName, string used in making file name
+    #               dataType, pointer to whatever self.data list is being used
+    #               dataCols, tuple of strings to name columns in csv
+    # returns: nothing returned
     def exportData(self,dataName,dataType,dataCols):
         # if there are very few data points...
         if len(dataType) < 10:
             # make a question popup
             qM = QMessageBox()
             answer = qM.question(
-                self,'',f'{len(dataType)} data points were found.  Do you still want to export the data?', qM.Yes | qM.No
+                self,'',f'{len(dataType)} data point(s) were found.  Do you still want to export the data?', qM.Yes | qM.No
             )
             # if the user doesn't want to plot len(dataType) points, then don't!
             if answer == qM.No:

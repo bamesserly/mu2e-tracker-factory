@@ -179,323 +179,415 @@
           </property>
           <widget class="QWidget" name="summaryTab">
            <attribute name="title">
-            <string>Summary</string>
+            <string>All Types</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_23">
             <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QGroupBox" name="heatBox">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="title">
-                 <string>Heating Data</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_15">
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QComboBox" name="heatProBox">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="currentIndex">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>Select</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 1, Inner Rings</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 2, Straws</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 6, Manifold</string>
-                    </property>
-                   </item>
-                  </widget>
+             <widget class="QGroupBox" name="heatBox">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>Heating Data</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_15">
+               <item row="0" column="0" colspan="2">
+                <widget class="QComboBox" name="heatProBox">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Select</string>
+                  </property>
                  </item>
-                 <item row="1" column="0" colspan="2">
-                  <widget class="QListWidget" name="heatListWidget">
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 1, Inner Rings</string>
+                  </property>
                  </item>
-                 <item row="2" column="1">
-                  <widget class="QPushButton" name="heatPlotButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Plot On Graph</string>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 2, Straws</string>
+                  </property>
                  </item>
-                 <item row="2" column="0">
-                  <widget class="QPushButton" name="heatExportButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Export To CSV</string>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 6, Manifold</string>
+                  </property>
                  </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="hvCurrentBox">
-                <property name="minimumSize">
-                 <size>
-                  <width>150</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="title">
-                 <string>HV Current Data</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_12">
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QComboBox" name="hvProBox">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="currentIndex">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>Select</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 3, 1100V</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 3, 1500V</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 5</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Process 6, 1500V</string>
-                    </property>
-                   </item>
-                  </widget>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QListWidget" name="heatListWidget">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="heatPlotButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Plot On Graph</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="heatExportButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Export To CSV</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QGroupBox" name="hvCurrentBox">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>HV Current Data</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_12">
+               <item row="0" column="0" colspan="2">
+                <widget class="QComboBox" name="hvProBox">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Select</string>
+                  </property>
                  </item>
-                 <item row="1" column="0" colspan="2">
-                  <widget class="QListWidget" name="hvListWidget">
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 3, 1100V</string>
+                  </property>
                  </item>
-                 <item row="2" column="0">
-                  <widget class="QPushButton" name="hvExportButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Export To CSV</string>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 3, 1500V</string>
+                  </property>
                  </item>
-                 <item row="2" column="1">
-                  <widget class="QPushButton" name="hvPlotButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Plot On Graph</string>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 5</string>
+                  </property>
                  </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="strawTensionBox">
-                <property name="minimumSize">
-                 <size>
-                  <width>150</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="title">
-                 <string>Straw Tension</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_13">
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QListWidget" name="strawListWidget">
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 6, 1500V</string>
+                  </property>
                  </item>
-                 <item row="2" column="0">
-                  <widget class="QPushButton" name="strawExportButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Export To CSV</string>
-                   </property>
-                  </widget>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QListWidget" name="hvListWidget">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="hvExportButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Export To CSV</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="hvPlotButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Plot On Graph</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QGroupBox" name="tbBox">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>500</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>Tension Box Data</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_33">
+               <item row="0" column="0" colspan="2">
+                <widget class="QComboBox" name="tbProBox">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Select</string>
+                  </property>
                  </item>
-                 <item row="2" column="1">
-                  <widget class="QPushButton" name="strawPlotButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Plot On Graph</string>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 3</string>
+                  </property>
                  </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="wireTensionBox">
-                <property name="minimumSize">
-                 <size>
-                  <width>150</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="title">
-                 <string>Wire Tension</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_14">
-                 <item row="2" column="0">
-                  <widget class="QPushButton" name="wireExportButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Export To CSV</string>
-                   </property>
-                  </widget>
+                 <item>
+                  <property name="text">
+                   <string>Process 6</string>
+                  </property>
                  </item>
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QListWidget" name="wireListWidget">
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QPushButton" name="wirePlotButton">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Plot On Graph</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QListWidget" name="tbListWidget">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="tbExportButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Export To CSV</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="tbPlotButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Plot On Graph</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QGroupBox" name="strawTensionBox">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>Straw Tension</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0" colspan="2">
+                <widget class="QListWidget" name="strawListWidget">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="strawExportButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Export To CSV</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="strawPlotButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Plot On Graph</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <widget class="QGroupBox" name="wireTensionBox">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>Wire Tension</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_14">
+               <item row="2" column="0">
+                <widget class="QPushButton" name="wireExportButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Export To CSV</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" colspan="2">
+                <widget class="QListWidget" name="wireListWidget">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="wirePlotButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Plot On Graph</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -784,7 +876,7 @@
           </widget>
           <widget class="QWidget" name="tab_8">
            <attribute name="title">
-            <string>High Voltage Testing</string>
+            <string>High Voltage</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_31">
             <item row="0" column="0">
@@ -906,6 +998,135 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Tension Box</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_34">
+            <item row="0" column="0">
+             <widget class="QSplitter" name="splitter_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="handleWidth">
+               <number>10</number>
+              </property>
+              <widget class="QGroupBox" name="tbBox_2">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>500</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="title">
+                <string>Tension Box Data</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_32">
+                <item row="0" column="0" colspan="2">
+                 <widget class="QComboBox" name="tbProBox_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="currentIndex">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>Select</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Process 3, 1100V</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Process 3, 1500V</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Process 5</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Process 6, 1500V</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QListWidget" name="tbListWidget_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QPushButton" name="tbExportButton_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Export To CSV</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="tbPlotButton_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Plot On Graph</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="layoutWidget_6">
+               <layout class="QVBoxLayout" name="strawGraphLayout_2"/>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>Miscellaneous</string>
+           </attribute>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -953,7 +1174,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="ringsTab">
            <attribute name="title">
@@ -2085,6 +2306,51 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1600</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionDefaultColor"/>
+     <addaction name="actionCyberpunkColor"/>
+     <addaction name="actionDarkColor"/>
+     <addaction name="actionGopher_PrideColor"/>
+    </widget>
+    <widget class="QMenu" name="menuData_Highlighting">
+     <property name="title">
+      <string>Data Highlighting</string>
+     </property>
+     <addaction name="actionFailures"/>
+     <addaction name="actionMissing_Data"/>
+     <addaction name="actionOutliers"/>
+    </widget>
+    <widget class="QMenu" name="menuExport_Location">
+     <property name="title">
+      <string>Export Location</string>
+     </property>
+     <addaction name="actionDesktop"/>
+     <addaction name="actionProduction"/>
+     <addaction name="actionCustom"/>
+    </widget>
+    <addaction name="menuExport_Location"/>
+    <addaction name="separator"/>
+    <addaction name="menuData_Highlighting"/>
+    <addaction name="menuTheme"/>
+   </widget>
+   <addaction name="menuSettings"/>
+  </widget>
   <action name="actionHVCSV">
    <property name="text">
     <string>HV Data</string>
@@ -2213,6 +2479,131 @@
   <action name="actionLatest_Changes">
    <property name="text">
     <string>Latest Changes</string>
+   </property>
+  </action>
+  <action name="actionDefaultColor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionDarkColor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionGopher_PrideColor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Gopher Pride</string>
+   </property>
+  </action>
+  <action name="actionCyberpunkColor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Cyberpunk</string>
+   </property>
+  </action>
+  <action name="actionFailures">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Failures</string>
+   </property>
+  </action>
+  <action name="actionMissing_Data">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Missing Data</string>
+   </property>
+  </action>
+  <action name="actionOutliers">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Outliers</string>
+   </property>
+  </action>
+  <action name="actionDesktop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Desktop</string>
+   </property>
+  </action>
+  <action name="actionProduction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Production</string>
+   </property>
+  </action>
+  <action name="actionCustom">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Custom...</string>
    </property>
   </action>
  </widget>
