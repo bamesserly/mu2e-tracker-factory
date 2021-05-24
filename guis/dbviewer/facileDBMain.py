@@ -442,7 +442,9 @@ class facileDBGUI(QMainWindow):
             lambda: self.comboBoxChanged(self.ui.tbProBox_2.currentText())
         )
 
-
+    # link menu actions (settings in upper left) with corrsponding funcitons
+    # parameters: no parameters
+    # returns: nothing returned
     def initMenuActions(self):
         self.ui.actionDefaultColor.triggered.connect(
             lambda: self.changeColor(0,0,default=True)
@@ -1356,7 +1358,13 @@ class facileDBGUI(QMainWindow):
 
         # assign built list to self.data
         listPointer = getattr(self.data,f'p{pro}tbData')
-        listPointer += tbList
+        for toop in tbList:
+            if toop != [0,0,0,0,0,0,-1]:
+                listPointer += [toop]
+        try:
+            print(listPointer[0],listPointer[1])
+        except:
+            print("noice")
 
         return (len(tbList) > 0)
 
@@ -1617,6 +1625,101 @@ class facileDBGUI(QMainWindow):
         targetLayout.addWidget(QLabel("Graph coming soon!"))
         return
 
+    # puts heat data in the gui
+    # parameters:   pro, int representing which pro to get data for (1,2,or 6)
+    #               listWidget, QListWidget to put data in
+    #               listWidget, tuple of QPushButtons: the export/plot buttons under the list
+    #               targetLayout, QVBoxLayout to put graph or "error" label in
+    # returns: nothing returned
+    def displaySpecificHeat(self, pro, listWidget=None, buttons=None, targetLayout=None):
+        # check if relevant procedure exists, if not display errors
+        noPro = False
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            noPro = True
+        # disable buttons
+        for button in buttons:
+            button.setDisabled(True)
+        # get list of data to use (self.data.p2HeatData if pro = 2)
+        heatData = getattr(self.data, f'p{pro}HeatData')
+
+
+        # add data to list widget
+        if listWidget is not None:
+            #Logistic sorts of things:
+            ###################################################
+            # clear list
+            listWidget.clear()
+            # check for presence of data
+            if noPro:
+                listWidget.addItem("No data found :(")
+                return
+            # enable buttons
+            for button in buttons:
+                button.setEnabled(True)
+            ###################################################
+            # make lists of temps for paas A and B/C in order to calculate
+            # statistics. Remove Nones for this purpose.
+            paasATemps = [toop[2] for toop in heatData if toop[2]]
+            paasBCTemps = [toop[3] for toop in heatData if toop[3]]
+
+            if len(paasATemps) > 0:  # if paas A data exits
+                # make a list of stats
+                paasAStats = [
+                    "PAAS A (Blue on graph) Statistics",
+                    f'Mean: {str(statistics.mean(paasATemps))[:8]}',  # mean of paas A
+                    f'Min: {str(min(paasATemps))[:8]}',  # min of paas A
+                    f'Max: {str(max(paasATemps))[:8]}',  # max of paas A
+                    f'Std Dev: {str(statistics.stdev(paasATemps))[:8]}',  # standard dev of paas A
+                    f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
+                    f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
+                ]
+            if len(paasBCTemps) > 0 and pro != 1:  # if paas B/C exists
+                # make a list of stats
+                paasBCStats = [
+                    '', # empty line
+                    f'PAAS {"B" if pro == 2 else "C"} (Green on graph) Statistics',
+                    f'Mean: {str(statistics.mean(paasBCTemps))[:8]}',  # mean of paas BC
+                    f'Min: {str(min(paasBCTemps))[:8]}',  # min of paas BC
+                    f'Max: {str(max(paasBCTemps))[:8]}',  # max of paas BC
+                    f'Std Dev: {str(statistics.stdev(paasBCTemps))[:8]}',  # standard dev of paas BC
+                    f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
+                    f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
+                ]
+            
+            # make a list of heat timestamps
+            heatTimes = [toop[1] for toop in heatData if (toop[2] or toop[3])]
+            # if we have that data
+            if len(heatTimes) > 0:
+                # find the total time it took
+                rawHeatTime = max(heatTimes) - min(heatTimes)
+                heatTotalTime = timedelta(seconds=rawHeatTime)
+                listWidget.addItem(f'Total heating time: {heatTotalTime}')
+                for item in paasAStats:
+                    listWidget.addItem(item)
+                if pro != 1:
+                    for item in paasBCStats:
+                        listWidget.addItem(item)
+
+            # add stuff to list
+            listWidget.addItem(f'{len(paasATemps)} measurements found for PAAS A')
+            if pro != 1:
+                listWidget.addItem(f'{len(paasBCTemps)} measurements found for PAAS BC')
+
+        # make graph
+        if targetLayout is not None:
+            #Logistic sorts of things:
+            ###################################################
+            # clear layout
+            for i in reversed(range(targetLayout.count())):
+                targetLayout.itemAt(i).widget().setParent(None)
+            # check for presence of data
+            #if noPro:
+            #    listWidget.addItem("No data found :(")
+            ###################################################
+            # add graph
+            self.displayOnGraphHEAT(pro)
+        return
+
     def displayOnGraphHEAT(self,pro):
         # clear current plot
         for i in reversed(range(self.ui.heatGraphLayout.count())): 
@@ -1677,101 +1780,6 @@ class facileDBGUI(QMainWindow):
 
         plot.replot()
         self.ui.heatGraphLayout.addWidget(plot)
-
-    # puts heat data in the gui
-    # parameters:   pro, int representing which pro to get data for (1,2,or 6)
-    #               listWidget, QListWidget to put data in
-    #               listWidget, tuple of QPushButtons: the export/plot buttons under the list
-    #               targetLayout, QVBoxLayout to put graph or "error" label in
-    # returns: nothing returned
-    def displaySpecificHeat(self, pro, listWidget=None, buttons=None, targetLayout=None):
-        # check if relevant procedure exists, if not display errors
-        noPro = False
-        if self.data.proIDs[f'pan{pro}'] == -1:
-            noPro = True
-        # disable buttons
-        for button in buttons:
-            button.setDisabled(True)
-        # get list of data to use (self.data.p2HeatData if pro = 2)
-        heatData = getattr(self.data, f'p{pro}HeatData')
-
-
-        # add data to list widget
-        if listWidget is not None:
-            #Logistic sorts of things:
-            ###################################################
-            # clear list
-            listWidget.clear()
-            # check for presence of data
-            if noPro:
-                listWidget.addItem("No data found :(")
-                return
-            # enable buttons
-            for button in buttons:
-                button.setEnabled(True)
-            ###################################################
-            # make lists of temps for paas A and B/C in order to calculate
-            # statistics. Remove Nones for this purpose.
-            paasATemps = [toop[2] for toop in heatData if toop[2]]
-            paasBCTemps = [toop[3] for toop in heatData if toop[3]]
-
-            if len(paasATemps) > 0:  # if paas A data exits
-                # make a list of stats
-                paasAStats = [
-                    "PAAS A (Blue on graph) Statistics",
-                    f'Mean: {statistics.mean(paasATemps)}',  # mean of paas A
-                    f'Min: {min(paasATemps)}',  # min of paas A
-                    f'Max: {max(paasATemps)}',  # max of paas A
-                    f'Std Dev: {statistics.stdev(paasATemps)}',  # standard dev of paas A
-                    f'Upper σ: {statistics.mean(paasATemps)- statistics.stdev(paasATemps)}',  # upper std dev
-                    f'Lower σ: {statistics.mean(paasATemps) + statistics.stdev(paasATemps)}',  # lower std dev
-                ]
-            if len(paasBCTemps) > 0 and pro != 1:  # if paas B/C exists
-                # make a list of stats
-                paasBCStats = [
-                    '', # empty line
-                    f'PAAS {"B" if pro == 2 else "C"} (Green on graph) Statistics',
-                    f'Mean: {statistics.mean(paasBCTemps)}',  # mean of paas BC
-                    f'Min: {min(paasBCTemps)}',  # min of paas BC
-                    f'Max: {max(paasBCTemps)}',  # max of paas BC
-                    f'Std Dev: {statistics.stdev(paasBCTemps)}',  # standard dev of paas BC
-                    f'Upper σ: {statistics.mean(paasBCTemps)- statistics.stdev(paasBCTemps)}',  # upper std dev
-                    f'Lower σ: {statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)}',  # lower std dev
-                ]
-            
-            # make a list of heat timestamps
-            heatTimes = [toop[1] for toop in heatData if (toop[2] or toop[3])]
-            # if we have that data
-            if len(heatTimes) > 0:
-                # find the total time it took
-                rawHeatTime = max(heatTimes) - min(heatTimes)
-                heatTotalTime = timedelta(seconds=rawHeatTime)
-                listWidget.addItem(f'Total heating time: {heatTotalTime}')
-                for item in paasAStats:
-                    listWidget.addItem(item)
-                if pro != 1:
-                    for item in paasBCStats:
-                        listWidget.addItem(item)
-
-            # add stuff to list
-            listWidget.addItem(f'{len(paasATemps)} measurements found for PAAS A')
-            if pro != 1:
-                listWidget.addItem(f'{len(paasBCTemps)} measurements found for PAAS BC')
-
-        # make graph
-        if targetLayout is not None:
-            #Logistic sorts of things:
-            ###################################################
-            # clear layout
-            for i in reversed(range(targetLayout.count())):
-                targetLayout.itemAt(i).widget().setParent(None)
-            # check for presence of data
-            #if noPro:
-            #    listWidget.addItem("No data found :(")
-            ###################################################
-            # add graph
-            self.displayOnGraphHEAT(pro)
-        return
 
 
     #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗    ██████╗  █████╗ ████████╗ █████╗ 
