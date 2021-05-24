@@ -20,6 +20,7 @@ import pandas as pd  # even more plotting
 
 from PyQt5.QtWidgets import (
     QApplication,
+    QListWidgetItem,
     QMainWindow,
     QLabel,
     #QTableWidget,
@@ -1484,14 +1485,29 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def displayComments(self):
+        '''
+        labelBrush = QBrush(Qt.red)  # make a red brush
+            labelItem = QListWidgetItem(
+                "This panel was created before HV data was recorded in the database"
+            )
+            # make a list item with text ^
+            labelItem.setBackground(labelBrush)  # paint the list item background red
+            self.ui.hvListWidget.addItem(labelItem)  # add the item to the list
+        '''
+        # make brush to highlight failures
+        failBrush = QBrush(Qt.red)
         # goes through each pro and adds each pro's comments to the
         # corresponding list widget
         for key in self.data.comLists:
             listWidget = self.getWid(f'{key}ComList')
             for comment in self.data.comLists[key]:
-                listWidget.addItem(
+                newItem = QListWidgetItem(
                     f'{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(comment[1]))}\n{comment[0]}'
                 )
+                if self.ui.actionFailures.isChecked():
+                    if "Failure:" in comment[0]:
+                        newItem.setBackground(failBrush)
+                listWidget.addItem(newItem)
 
     # puts part IDs on the gui
     # parameters: no parameters
