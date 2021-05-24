@@ -340,21 +340,28 @@ class facileDBGUI(QMainWindow):
         )
 
         # tb buttons
-        #self.ui.tbExportButton.clicked.connect(
-        #    lambda: self.exportData(
-        #        f'{self.ui.tbProBox.currentText()}_TB_Data',
-        #        getattr(self.data, f'p{self.ui.tbProBox.currentText()[8]}tbData'),
-        #        ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
-        #    )
-        #)
         self.ui.tbExportButton.clicked.connect(
-            lambda: self.changeColor((50,50,50),(0,255,0),(225,45,255))
+            lambda: self.exportData(
+                f'{self.ui.tbProBox.currentText()}_TB_Data',
+                getattr(self.data, f'p{self.ui.tbProBox.currentText()[8]}tbData'),
+                ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+            )
         )
         self.ui.tbExportButton_2.clicked.connect(
             lambda: self.exportData(
                 f'{self.ui.tbProBox_2.currentText()}_TB_Data',
                 getattr(self.data, f'p{self.ui.tbProBox_2.currentText()[8]}tbData'),
                 ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+            )
+        )
+        self.ui.tbPlotButton.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.tbProBox.currentText()
+            )
+        )
+        self.ui.tbPlotButton_2.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.tbProBox_2.currentText()
             )
         )
 
@@ -597,6 +604,25 @@ class facileDBGUI(QMainWindow):
             except:
                 return 1
 
+        # local funciton to graph tubriculosis
+        def graphTB(self, dataType):
+            try:
+                graphMe = []
+                for toop in dataType:
+                    if toop[4] is not None:
+                        graphMe += [[0,toop[4]]]
+                    else:
+                        graphMe += [[0,-1]]
+
+                self.graphSimple(
+                    graphMe,
+                    "Tension (g)",
+                    1000,
+                )
+                return 0
+            except:
+                return 1
+
         callDict = {
             "Process 3, 1100V"  : (lambda: graphHV(self, self.data.hv1100P3)),
             "Process 3, 1500V"  : (lambda: graphHV(self, self.data.hv1500P3)),
@@ -605,6 +631,8 @@ class facileDBGUI(QMainWindow):
             "Process 1, Inner Rings": (lambda: graphHeat(self, 1)),
             "Process 2, Straws"     : (lambda: graphHeat(self, 2)),
             "Process 6, Manifold"   : (lambda: graphHeat(self, 6)),
+            "Process 3"             : (lambda: graphTB(self, self.data.p3tbData)),
+            "Process 6"             : (lambda: graphTB(self, self.data.p6tbData)),
             "Select"                : (lambda: 0)
         }
         boool = callDict[text]()
