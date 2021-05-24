@@ -100,6 +100,8 @@ from guis.panel.wiretensioner.wire_tension import WireTensionWindow
 from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
+from guis.panel.resistance.run_test import run_test
+from guis.panel.leak.PlotLeakRate import run_from_pangui
 
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
@@ -249,6 +251,7 @@ class panelGUI(QMainWindow):
         self._init_pro5_setup()  # process 5: high voltage tests
         self._init_pro6_setup()
         self._init_pro7_setup()
+        self._init_pro8_setup()
         self._init_failure_setup()
 
         # Pro 5 "re-enable"
@@ -303,7 +306,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5}
+        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 13}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -780,6 +783,14 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_mixed5_3.clicked.connect(self.pro7part3)
         self.ui.epoxy_applied5_3.clicked.connect(self.pro7part3_2)
 
+    def _init_pro8_setup(self):
+        self.ui.panelInput_8.installEventFilter(self)
+        self.ui.rest_test_pro8.clicked.connect(self.run_test)
+        self.ui.broken_tap.clicked.connect(self.broken_tap_form)
+        self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
+        self.ui.leak_form_submit.clicked.connect(self.leak_form)
+        self.ui.plot_leak.clicked.connect(self.run_plot_leak)
+
     def _init_timers(self):
         self.timers = [
             # Main timer
@@ -1090,6 +1101,7 @@ class panelGUI(QMainWindow):
             self.ui.startButton5,
             self.ui.startButton6,
             self.ui.startButton7,
+            self.ui.startButton_8,
         ]
 
         # without the loop it would look like self.ui.startButton1.clicked.connect(self.pro1part1)
@@ -1103,6 +1115,7 @@ class panelGUI(QMainWindow):
                     5: self.pro5part0,
                     6: self.pro6part1,
                     7: self.pro7part1,
+                    8: self.pro8part1,
                 }[self.pro]()
             )
 
@@ -1201,6 +1214,16 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch5_3,
                 self.ui.epoxy_applied5_3,
             ],
+            # pro 8 Widgets
+            [
+                self.ui.panelInput_8,
+                self.ui.left_cover_6,
+                self.ui.right_cover_6,
+                self.ui.center_ring_6,
+                self.ui.center_cover_6,
+                self.ui.left_ring_6,
+                self.ui.right_ring_6,
+            ],
         ]
 
     def _init_panel_input(self):
@@ -1212,6 +1235,7 @@ class panelGUI(QMainWindow):
             self.ui.panelInput5,
             self.ui.panelInput6,
             self.ui.panelInput7,
+            self.ui.panelInput_8,
         ]
 
         # Lambda expression that gets text from the panel input line.
@@ -1670,6 +1694,7 @@ class panelGUI(QMainWindow):
             self.resetPro5,
             self.resetpro6,
             self.resetpro7,
+            self.resetpro8,
         ][self.pro_index]()
 
         # Reset data and dataTime lists to lists of None
@@ -2365,6 +2390,7 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox5,
                 self.ui.commentBox6,
                 self.ui.commentBox7,
+                self.ui.commentBox8_6,
             ][self.pro_index]
             # Extract text
             comments = box.document().toPlainText()
@@ -2428,6 +2454,7 @@ class panelGUI(QMainWindow):
             self.updateDataProcess5,
             self.updateDataProcess6,
             self.updateDataProcess7,
+            self.updateDataProcess8,
         ][self.pro_index]()
 
         # Process the updated data list by replacing all elements in the list that don't pass bool(el) with None
@@ -2595,6 +2622,15 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
+    def updateDataProcess8(self):
+        self.data[self.pro_index][0] = self.ui.panelInput_8.text()
+        self.data[self.pro_index][1] = self.ui.left_cover_6.text()
+        self.data[self.pro_index][2] = self.ui.right_cover_6.text()
+        self.data[self.pro_index][3] = self.ui.center_ring_6.text()
+        self.data[self.pro_index][4] = self.ui.center_cover_6.text()
+        self.data[self.pro_index][5] = self.ui.left_ring_6.text()
+        self.data[self.pro_index][6] = self.ui.right_ring_6.text()
+
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
     # ██║     ██╔═══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -2650,8 +2686,8 @@ class panelGUI(QMainWindow):
             self.parsePro5Data,
             self.parsepro6Data,
             self.parsepro7Data,
+            self.parsepro8Data,
         ]
-
         # Call method giving 'data' as input.
         parse_pro[self.pro_index](data)
 
@@ -3395,6 +3431,7 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro6Data(self, data):
+        logger.info("Parse 6")
         if data[0] is not None:
             self.ui.panelInput6.setText(data[0])
             self.ui.panelInput6.setDisabled(True)
@@ -3517,6 +3554,7 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro7Data(self, data):
+
         # print("data passed to parsepro7Data is", data)
         # if data[0] is not None:
         #     self.ui.panelInput7.setText(str(data[0]))
@@ -3578,6 +3616,39 @@ class panelGUI(QMainWindow):
             else:
                 self.ui.epoxy_applied5_3.setDisabled(True)
 
+        self.displayComments()
+
+    """
+    parsepro8Data(self, data)
+
+        Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
+                    UI elements to ensure the GUI state is consistent with normal use.
+
+        Parameter: data - A list of the parsed input data
+    """
+
+    def parsepro8Data(self, data):
+        if data[0] is not None:
+            self.ui.panelInput_8.setText(str(data[0]))
+            self.ui.panelInput_8.setDisabled(True)
+        if data[1] is not None:
+            self.ui.left_cover_6.setText(str(data[1]))
+            self.ui.left_cover_6.setDisabled(True)
+        if data[2] is not None:
+            self.ui.right_cover_6.setText(str(data[2]))
+            self.ui.right_cover_6.setDisabled(True)
+        if data[3] is not None:
+            self.ui.center_ring_6.setText(str(data[3]))
+            self.ui.center_ring_6.setDisabled(True)
+        if data[4] is not None:
+            self.ui.center_cover_6.setText(str(data[4]))
+            self.ui.center_cover_6.setDisabled(True)
+        if data[5] is not None:
+            self.ui.left_ring_6.setText(str(data[5]))
+            self.ui.left_ring_6.setDisabled(True)
+        if data[6] is not None:
+            self.ui.right_ring_6.setText(str(data[6]))
+            self.ui.right_ring_6.setDisabled(True)
         self.displayComments()
 
     # fmt: off
@@ -4761,6 +4832,54 @@ class panelGUI(QMainWindow):
         self.ui.panelInput7.setEnabled(True)
 
     # fmt: off
+    # ██████╗ ██████╗  ██████╗      ██████╗
+    # ██╔══██╗██╔══██╗██╔═══██╗    ██╔═══██╗
+    # ██████╔╝██████╔╝██║   ██║    ╚██████╔╝
+    # ██╔═══╝ ██╔══██╗██║   ██║    ██╔═══██╗
+    # ██║     ██║  ██║╚██████╔╝    ╚██████╔╝
+    # ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝
+    # fmt: on
+
+    def pro8part1(self):
+
+        # Ensure that all parts have been checked off
+        if not (self.checkSupplies() or DEBUG):
+            return
+
+        # Ensure that all input data is valid
+        if not self.validateInput(indices=range(1)):
+            return
+
+        # Disable start button, panel input, and part inputs
+        self.setWidgetsDisabled(
+            [
+                self.ui.startButton_8,
+                self.ui.panelInput_8,
+                self.ui.left_cover_6,
+                self.ui.right_cover_6,
+                self.ui.center_cover_6,
+                self.ui.left_ring_6,
+                self.ui.right_ring_6,
+                self.ui.center_ring_6,
+            ]
+        )
+
+        self.startRunning()
+        self.saveData()
+
+    # not tested
+    def resetpro8(self):
+        self.data[4] = [None for x in self.data[4]]
+        self.ui.left_cover_6.setText("")
+        self.ui.right_cover_6.setText("")
+        self.ui.center_cover_6.setText("")
+        self.ui.left_ring_6.setText("")
+        self.ui.right_ring_6.setText("")
+        self.ui.center_ring_6.setText("")
+        self.ui.startButton7.setEnabled(True)
+        self.ui.panelInput7.setEnabled(True)
+
+    # fmt: off
     # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
     # ██╔════╝██║   ██║██╔══██╗    ██╔════╝ ██║   ██║██║██╔════╝
     # ███████╗██║   ██║██████╔╝    ██║  ███╗██║   ██║██║███████╗
@@ -4987,6 +5106,97 @@ class panelGUI(QMainWindow):
                 "background-color: rgb(122, 0, 25);"
             )
             logger.info("HV GUI launched")
+
+    # Creates a new terminal window and runs the run_test.py script
+    def run_test(self):
+        script_dir = os.getcwd() + "\guis\panel\\resistance\\run_test\\"
+        subprocess.call("start /wait python run_test.py", shell=True, cwd=script_dir)
+
+    # record broken tap from the broken tap form in pro8
+    # broken_taps is a column in the pan8 table that stores an integer value
+    # This integer value represents a hexadecimal number that reprensents the tab that has been broken
+    # e.g. 0 means 0 taps are broken -> 0000
+    #      12 means taps 3 and 4 are broken -> 1100
+    #      1 means tap 1 is broken -> 0001
+    def broken_tap_form(self):
+        tap_value = self.ui.tap_id_txt.text()
+        if tap_value == "1":
+            self.DP.saveTapForm(1)
+        elif tap_value == "2":
+            self.DP.saveTapForm(2)
+        elif tap_value == "3":
+            self.DP.saveTapForm(4)
+        elif tap_value == "4":
+            self.DP.saveTapForm(8)
+        # invalid number
+        else:
+            return
+
+        # clear form data
+        self.ui.tap_id_txt.setText("")
+
+    # record bad wire/straw from the bad straw/wire form in pro8
+    def bad_wire_form(self):
+        number = int(self.ui.bad_number.text())
+        failure = self.ui.bad_failure.text()
+        process = str(self.ui.bad_wire_process.currentText())
+        wire_check = self.ui.wireCheck.isChecked()
+        self.DP.saveBadWire(number, failure, int(process[-1]), wire_check)
+
+        # clear form data
+        self.ui.wireCheck.setChecked(False)
+        self.ui.bad_number.setText("")
+        self.ui.bad_failure.setText("")
+        self.ui.bad_wire_process.setCurrentIndex(0)
+
+    def leak_form(self):
+        reinstalled = ""
+        # check if anything has been reinstalled
+        if self.ui.re_left.isChecked():
+            reinstalled = "left"
+        elif self.ui.re_center.isChecked():
+            reinstalled = "center"
+        elif self.ui.re_right.isChecked:
+            reinstalled = "right"
+
+        inflated = True
+        if self.ui.inflated_no.isChecked():
+            inflated = False
+
+        location = self.ui.leak_location.text()
+        confidence = str(self.ui.leak_confidence.currentText())
+        size = int(self.ui.leak_size.text())
+        resolution = self.ui.leak_resolution.document().toPlainText()
+        next_step = str(self.ui.leak_next.currentText())
+        self.DP.saveLeakForm(
+            reinstalled, inflated, location, confidence, size, resolution, next_step
+        )
+
+        # clear form data
+        self.ui.re_left.setChecked(False)
+        self.ui.re_center.setChecked(False)
+        self.ui.re_right.setChecked(False)
+        self.ui.inflated_yes.setChecked(False)
+        self.ui.inflated_no.setChecked(False)
+        self.ui.leak_location.setText("")
+        self.ui.leak_confidence.setCurrentIndex(0)
+        self.ui.leak_size.setText("")
+        self.ui.leak_resolution.setPlainText("")
+        self.ui.leak_next.setCurrentIndex(0)
+
+    # Creates a new terminal window and runs the run_test.py script
+    def run_plot_leak(self):
+        filename = (
+            os.getcwd()
+            + "\data\Panel data\FinalQC\Leak\RawData\\"
+            + self.ui.csv_leak_file.text()
+        )
+        script_dir = os.getcwd() + "\guis\panel\leak\\"
+        subprocess.call(
+            "start /wait python PlotLeakRate.py {}".format(filename),
+            shell=True,
+            cwd=script_dir,
+        )
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗

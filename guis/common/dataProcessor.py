@@ -22,6 +22,8 @@ from guis.common.databaseClasses import (
     MoldReleaseItemsChecked,
     MoldReleaseItems,
     TensionboxMeasurement,
+    BadWire,
+    LeakFinalForm,
 )
 
 import logging
@@ -621,6 +623,22 @@ class MultipleDataProcessor(DataProcessor):
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
 
+    def saveBadWire(self, position, failure, process, wire_check):
+        for dp in self.processors:
+            dp.saveBadWire(position, failure, process, wire_check)
+
+    def saveLeakForm(
+        self, reinstalled, inflated, location, confidence, size, resolution, next_step
+    ):
+        for dp in self.processors:
+            dp.saveLeakForm(
+                reinstalled, inflated, location, confidence, size, resolution, next_step
+            )
+
+    def saveTapForm(self, tap_id):
+        for dp in self.processors:
+            dp.saveTapForm(tap_id)
+
     def handleClose(self):
         for dp in self.processors:
             dp.handleClose()
@@ -762,6 +780,7 @@ class TxtDataProcessor(DataProcessor):
             5: self._pro5header,
             6: self._pro6header,
             7: self._pro7header,
+            8: self._pro8header,
         }[self.getPro()]()
 
         # Count number of steps
@@ -824,6 +843,7 @@ class TxtDataProcessor(DataProcessor):
             5: self._pro5header,
             6: self._pro6header,
             7: self._pro7header,
+            8: self._pro8header,
         }[self.getPro()]()
 
         # steps are automatically saved periodically while gui is running
@@ -1162,6 +1182,17 @@ class TxtDataProcessor(DataProcessor):
     def saveMoldRelease(self, item, state):
         return "", 0
 
+    def saveTapForm(self, tap_id):
+        pass
+
+    def saveBadWire(self, number, failure, process, wire_check):
+        pass
+
+    def saveLeakForm(
+        self, reinstalled, inflated, location, confidence, size, resolution, next_step
+    ):
+        pass
+
     #  _                     _  ___  ___     _   _               _
     # | |                   | | |  \/  |    | | | |             | |
     # | |     ___   __ _  __| | | .  . | ___| |_| |__   ___   __| |___
@@ -1409,6 +1440,18 @@ class TxtDataProcessor(DataProcessor):
             "Flood Epoxy Work Time (H:M:S) (Right)",
         ]
 
+    def _pro8header(self):
+        return [
+            7,
+            "Panel ID",
+            "Left Cover",
+            "Right Cover",
+            "Center Ring",
+            "Center Cover",
+            "Left Ring",
+            "Right Ring",
+        ]
+
     # ___  ____            _   _      _
     # |  \/  (_)          | | | |    | |
     # | .  . |_ ___  ___  | |_| | ___| |_ __   ___ _ __ ___
@@ -1526,6 +1569,7 @@ class SQLDataProcessor(DataProcessor):
             5: self.saveDataProcess5,
             6: self.saveDataProcess6,
             7: self.saveDataProcess7,
+            8: self.saveDataProcess8,
         }[self.getPro()]()
 
     # IR
@@ -1762,6 +1806,29 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             self.procedure.recordEpoxyTimeRight, *self.parseTimeTuple(data[4])
         )  # Flood Epoxy Work Time (Right)
+
+    # FinalQC
+    def saveDataProcess8(self):
+        data = self.getProData()
+
+        self.callMethod(
+            self.procedure.recordLeftCover, self.stripNumber(data[1])
+        )  # Left Cover
+        self.callMethod(
+            self.procedure.recordRightCover, self.stripNumber(data[2])
+        )  # Right Cover
+        self.callMethod(
+            self.procedure.recordCenterRing, self.stripNumber(data[3])
+        )  # Center Ring
+        self.callMethod(
+            self.procedure.recordCenterCover, self.stripNumber(data[4])
+        )  # Center Cover
+        self.callMethod(
+            self.procedure.recordLeftRing, self.stripNumber(data[5])
+        )  # Left Ring
+        self.callMethod(
+            self.procedure.recordRightRing, self.stripNumber(data[6])
+        )  # Right Ring
 
     ## TIME EVENTS ##
 
@@ -2011,6 +2078,35 @@ class SQLDataProcessor(DataProcessor):
                     position, side, current, voltage, is_tripped
                 )
 
+    def saveTapForm(self, tap_value):
+        if self.ensureProcedure():
+            self.procedure.recordBrokenTaps(tap_value)
+
+    def saveBadWire(self, position, failure, process, wire_check):
+        if self.ensureProcedure():
+            BadWire(
+                position=position,
+                failure=failure,
+                process=process,
+                procedure=self.procedure.id,
+                wire_check=wire_check,
+            )
+
+    def saveLeakForm(
+        self, reinstalled, inflated, location, confidence, size, resolution, next_step
+    ):
+        if self.ensureProcedure():
+            LeakFinalForm(
+                procedure=self.procedure.id,
+                cover_reinstalled=reinstalled,
+                inflated=inflated,
+                leak_location=location,
+                confidence=confidence,
+                leak_size=size,
+                resolution=resolution,
+                next_step=next_step,
+            )
+
     def wireQCd(self, wire):
         id = self.stripNumber(wire)
         spool = WireSpool.queryWithId(id)
@@ -2037,6 +2133,7 @@ class SQLDataProcessor(DataProcessor):
                 5: self.loadDataProcess5,
                 6: self.loadDataProcess6,
                 7: self.loadDataProcess7,
+                8: self.loadDataProcess8,
             }[self.getPro()]()
 
             # Elapsed Time
@@ -2497,6 +2594,19 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getEpoxyTimeRight(),
                 self.procedure.getEpoxyTimeRightRunning(),
             ),  # Flood Epoxy Work Time (Right)
+        ]
+
+    # Final QC
+    def loadDataProcess8(self):
+        panel = self.panel()
+        return [
+            self.getBarcode(panel),
+            self.procedure.getLeftCover(),
+            self.procedure.getRightCover(),
+            self.procedure.getCenterCover(),
+            self.procedure.getCenterRing(),
+            self.procedure.getLeftRing(),
+            self.procedure.getRightRing(),
         ]
 
 
