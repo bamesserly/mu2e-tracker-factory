@@ -37,7 +37,7 @@ from PyQt5.QtWidgets import (
 )
 
 # mostly for gui window management, QPen and QSize are for plotting
-from PyQt5.QtGui import QBrush, QIcon, QPen
+from PyQt5.QtGui import QBrush, QIcon, QPen, QColor
 from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize
 
 # for time formatting
@@ -83,7 +83,10 @@ class TimeScaleDraw(qwt.QwtScaleDraw):
 # Gets the QMainWindow class from facileDB.py
 # Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
 # Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
-ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
+ISLAB = (
+    getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e" or
+    getpass.getuser() == "Mu2e" or getpass.getuser() == ".\Mu2e"
+)
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
 
 
@@ -125,6 +128,9 @@ class facileDBGUI(QMainWindow):
         # initialize widget lists
         self.initWidgetLists()
 
+        # initialize menu bar actions
+        self.initMenuActions()
+
         # create panelData member, pretty much all data is stored here
         # would it be more efficient to store data only in the widgets?
         # it might not be feasible, all the heat measurements would have
@@ -133,7 +139,9 @@ class facileDBGUI(QMainWindow):
 
 
         #self.changeColor((122, 0, 25), (255, 204, 51))
-        #self.changeColor((50,50,50),(0,255,0))
+        #self.changeColor((25,25,25),(0,255,159),(214,0,255))
+        #self.changeColor((25,25,25),(200,200,200))
+        #self.changeColor(0,0,default=True)
 
     # override close button event (see comments in function)
     # parameters: event = close window button clicked signal(?)
@@ -265,7 +273,6 @@ class facileDBGUI(QMainWindow):
             self.ui.partlpal_top_LE
         )
 
-
     # link buttons with respective funcitons and panel line edit enter
     # parameters: no parameters
     # returns: nothing returned
@@ -332,12 +339,15 @@ class facileDBGUI(QMainWindow):
         )
 
         # tb buttons
+        #self.ui.tbExportButton.clicked.connect(
+        #    lambda: self.exportData(
+        #        f'{self.ui.tbProBox.currentText()}_TB_Data',
+        #        getattr(self.data, f'p{self.ui.tbProBox.currentText()[8]}tbData'),
+        #        ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+        #    )
+        #)
         self.ui.tbExportButton.clicked.connect(
-            lambda: self.exportData(
-                f'{self.ui.tbProBox.currentText()}_TB_Data',
-                getattr(self.data, f'p{self.ui.tbProBox.currentText()[8]}tbData'),
-                ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
-            )
+            lambda: self.changeColor((50,50,50),(0,255,0),(225,45,255))
         )
         self.ui.tbExportButton_2.clicked.connect(
             lambda: self.exportData(
@@ -431,6 +441,22 @@ class facileDBGUI(QMainWindow):
             lambda: self.comboBoxChanged(self.ui.tbProBox_2.currentText())
         )
 
+
+    def initMenuActions(self):
+        self.ui.actionDefaultColor.triggered.connect(
+            lambda: self.changeColor(0,0,default=True)
+        )
+        self.ui.actionDarkColor.triggered.connect(
+            lambda: self.changeColor((25,25,25),(200,200,200))
+        )
+        self.ui.actionCyberpunkColor.triggered.connect(
+            lambda: self.changeColor((25,25,25),(0,255,159),(214,0,255))
+        )
+        self.ui.actionGopher_PrideColor.triggered.connect(
+            lambda: self.changeColor((122, 0, 25), (255, 204, 51))
+        )
+
+
     # utility, get any widget by name
     # parameters: widgetName, name of the desired widget as a string
     # returns: requested widget, will always be a child of self.ui
@@ -463,6 +489,12 @@ class facileDBGUI(QMainWindow):
         self.ui.heatPlotButton_2.setDisabled(True)
         self.ui.heatProBox_2.setDisabled(True)
         self.ui.hvProBox_2.setDisabled(True)
+        self.ui.tbExportButton.setDisabled(True)
+        self.ui.tbExportButton_2.setDisabled(True)
+        self.ui.tbPlotButton.setDisabled(True)
+        self.ui.tbPlotButton_2.setDisabled(True)
+        self.ui.tbProBox.setDisabled(True)
+        self.ui.tbProBox_2.setDisabled(True)
 
     # remove data from all widgets
     # parameters: no parameters
@@ -501,7 +533,6 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def submitClicked(self):
-        print("debug - submit clicked")
         # get new human readable panel id, if a bad id was entered
         # show an error and return
         try:
@@ -538,6 +569,8 @@ class facileDBGUI(QMainWindow):
         self.ui.hvProBox_2.setEnabled(True)
         self.ui.heatProBox.setEnabled(True)
         self.ui.heatProBox_2.setEnabled(True)
+        self.ui.tbProBox.setEnabled(True)
+        self.ui.tbProBox_2.setEnabled(True)
 
     # parameters: ???
     # returns: nothing returned
@@ -596,7 +629,6 @@ class facileDBGUI(QMainWindow):
             "Process 6"         : (lambda: self.updateCombo(6,-1)),
             "Select"            : (lambda: 0)
         }
-        
         boool = callDict[text]()
         if boool:
             tkinter.messagebox.showerror(
@@ -625,7 +657,6 @@ class facileDBGUI(QMainWindow):
                 self.ui.heatGraphLayout
             )
             return 0
-        # ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
         elif volts == -1:
             self.displayOnLists(
                 pro,
@@ -652,7 +683,12 @@ class facileDBGUI(QMainWindow):
             return 0
 
 
-    def changeColor(self, background_color, text_color):
+    def changeColor(self, background_color, text_color, third_color=False, fourth_color=False, default=False):
+        if default:
+            self.stylesheet = ""
+            self.setStyleSheet(self.stylesheet)
+            return
+
         tuple_min = lambda t: tuple(min(x, 255) for x in t)
         tuple_max = lambda t: tuple(max(x, 0) for x in t)
         tuple_add = lambda t, i: tuple((x + i) for x in t)
@@ -664,20 +700,23 @@ class facileDBGUI(QMainWindow):
         text_color_invert = invert(text_color)
         background_color_invert = invert(background_color)
 
-        stylesheet = (
+        self.stylesheet = (
 
-            "QMainWindow, QWidget, QDialog, QMessageBox, QListWidget, QVBoxLayout{ background-color: rgb"
+            "QMainWindow, QDialog, QMessageBox, QMenuBar { background-color: rgb"
             + f"{background_color}; color: rgb{text_color};"
             + " }\n"
-            "QLineEdit { "
-            + f"color: rgb{text_color}; background-color: rgb{lighter};"
+            "QWidget#summaryTab { background-color: rgb"
+            + f"{background_color}; color: rgb{text_color};"
             + " }\n"
-            "QPlainTextEdit, QTextEdit, QLabel { " + f"color: rgb{text_color};" + " }\n"
-            "QGroupBox, QTabWidget, QSpinBox { "
+            "QLineEdit, QPlainTextEdit, QTextEdit, QScrollArea, QListWidget { "
+            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{lighter};"
+            + " }\n"
+            "QLabel { " + f"color: rgb{text_color};" + " }\n"
+            "QGroupBox, QTabWidget, QTabBar, QScrollBar { "
             + f"color: rgb{text_color}; background-color: rgb{darker};"
             + " }\n"
-            "QPushButton, QScrollArea, QPlainTextEdit, QTextEdit { "
-            + f"color: rgb{text_color}; background-color: rgb{darker}"
+            "QPushButton { "
+            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{darker}"
             + " }\n"
             "QCheckBox { color: "
             + f"rgb{text_color}"
@@ -686,18 +725,14 @@ class facileDBGUI(QMainWindow):
             + "; }\n"
             "QLCDNumber { color: white; }\n"
             "QComboBox, QComboBox QAbstractItemView { "
-            + f"color: rgb{text_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
+            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
             + " }"
             f'QStatusBar {"{"}color: rgb{text_color}{"}"}'
 
         )
 
-        self.setStyleSheet(stylesheet)
-        for wid in self.findChildren(QWidget):
-            print(wid)
-            wid.setStyleSheet(stylesheet)
+        self.setStyleSheet(self.stylesheet)
 
-        print(self.styleSheet())
 
 
     # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗ 
@@ -768,7 +803,6 @@ class facileDBGUI(QMainWindow):
         funcRetII = self.findSpecificTB(6)
         hasData = hasData or funcRetI or funcRetII
 
-        print(str(self.data))
         return hasData
 
     # finds and returns the database id for the panel in question
@@ -1586,8 +1620,14 @@ class facileDBGUI(QMainWindow):
                 QDateTime.fromMSecsSinceEpoch(localHeat[0][1])
             )
         )
+
+        # make pens
+        bluePen = QPen(QColor("cyan"))
+        greenPen = QPen(QColor("lime"))
+        whiteDotsPen = QPen(QColor("white"), 0, Qt.DotLine)
+
         plot.setAxisTitle(0,"Temperature (°C)")
-        #plot.setCanvasBackground(Qt.black)
+        plot.setCanvasBackground(Qt.black)
         # y axis is temperature
         # first remove tuples where no measurements for A or B/C
         localHeat = [toop for toop in localHeat if (toop[2] or toop[3])]
@@ -1595,24 +1635,29 @@ class facileDBGUI(QMainWindow):
         paasBC = [toop[3] if toop[3] else 1 for toop in localHeat]
         time = [toop[1] for toop in localHeat]
         curveA = qwt.QwtPlotCurve("PAAS A")
-        curveA.setPen(QPen(Qt.darkBlue))
+        curveA.setPen(bluePen)
         curveA.setData(time, paasA)
+        curveA.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
         curveA.attach(plot)
 
         if pro == 2:
             curveB = qwt.QwtPlotCurve("PAAS B")
-            curveB.setPen(QPen(Qt.red))
+            curveB.setPen(greenPen)
             curveB.setData(time, paasBC)
+            curveB.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
             curveB.attach(plot)
         if pro == 6:
             curveB = qwt.QwtPlotCurve("PAAS C")
-            curveB.setPen(QPen(Qt.red))
+            curveB.setPen(greenPen)
             curveB.setData(time, paasBC)
+            curveB.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
             curveB.attach(plot)
 
         grid = qwt.QwtPlotGrid()
         grid.attach(plot)
-        grid.setPen(QPen(Qt.black, 0, Qt.DotLine))
+        grid.setPen(whiteDotsPen)
+
+        
 
         plot.replot()
         self.ui.heatGraphLayout.addWidget(plot)
@@ -1668,7 +1713,8 @@ class facileDBGUI(QMainWindow):
             if len(paasBCTemps) > 0 and pro != 1:  # if paas B/C exists
                 # make a list of stats
                 paasBCStats = [
-                    f'\nPAAS {"B" if pro == 2 else "C"} (Red on graph) Statistics',
+                    '', # empty line
+                    f'PAAS {"B" if pro == 2 else "C"} (Green on graph) Statistics',
                     f'Mean: {statistics.mean(paasBCTemps)}',  # mean of paas BC
                     f'Min: {min(paasBCTemps)}',  # min of paas BC
                     f'Max: {max(paasBCTemps)}',  # max of paas BC
@@ -1701,7 +1747,7 @@ class facileDBGUI(QMainWindow):
             #Logistic sorts of things:
             ###################################################
             # clear layout
-            for i in reversed(range(targetLayout.count())): 
+            for i in reversed(range(targetLayout.count())):
                 targetLayout.itemAt(i).widget().setParent(None)
             # check for presence of data
             #if noPro:
