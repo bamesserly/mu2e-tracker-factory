@@ -1,13 +1,17 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 04/20/2021 /
+#  -   / ______  _/____)       /  Last Update 05/18/2021 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
+
+import logging
+
+logger = logging.getLogger("root")
 
 # time formatting
 
@@ -20,23 +24,25 @@ import pandas as pd  # even more plotting
 
 from PyQt5.QtWidgets import (
     QApplication,
+    QListWidgetItem,
     QMainWindow,
     QLabel,
-    QTableWidget,
-    QGridLayout,
-    QScrollArea,
+    # QTableWidget,
+    # QGridLayout,
+    # QScrollArea,
     QWidget,
-    QComboBox,
-    QListWidget,
-    QListWidgetItem,
-    QCheckBox,
-    QPushButton,
-    QTableWidgetItem,
+    # QComboBox,
+    # QListWidget,
+    # QListWidgetItem,
+    # QCheckBox,
+    # QPushButton,
+    # QTableWidgetItem,
     QMessageBox,
+    QStyleFactory,
 )
 
 # mostly for gui window management, QPen and QSize are for plotting
-from PyQt5.QtGui import QBrush, QIcon, QPen
+from PyQt5.QtGui import QBrush, QIcon, QPen, QColor
 from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize
 
 # for time formatting
@@ -82,7 +88,9 @@ class TimeScaleDraw(qwt.QwtScaleDraw):
 # Gets the QMainWindow class from facileDB.py
 # Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
 # Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
-ISLAB = (getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e")
+ISLAB = 'mu2e' in getpass.getuser().lower()
+
+
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
 
 
@@ -124,11 +132,20 @@ class facileDBGUI(QMainWindow):
         # initialize widget lists
         self.initWidgetLists()
 
+        # initialize menu bar actions
+        self.initMenuActions()
+
         # create panelData member, pretty much all data is stored here
         # would it be more efficient to store data only in the widgets?
         # it might not be feasible, all the heat measurements would have
         # to go somewhere, and nobody cares about individual heat measurements
         self.data = PanelData()
+
+
+        #self.changeColor((122, 0, 25), (255, 204, 51))
+        #self.changeColor((25,25,25),(0,255,159),(214,0,255))
+        #self.changeColor((25,25,25),(200,200,200))
+        #self.changeColor(0,0,default=True)
 
     # override close button event (see comments in function)
     # parameters: event = close window button clicked signal(?)
@@ -207,7 +224,6 @@ class facileDBGUI(QMainWindow):
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
         )
 
-
     # initialize lists of widgets for organization and easy access
     # parameters: no parameters
     # returns: nothing returned
@@ -260,7 +276,6 @@ class facileDBGUI(QMainWindow):
             self.ui.partlpal_top_LE,
             self.ui.partlpal_top_LE
         )
-
 
     # link buttons with respective funcitons and panel line edit enter
     # parameters: no parameters
@@ -324,6 +339,32 @@ class facileDBGUI(QMainWindow):
         self.ui.hvPlotButton_2.clicked.connect(
             lambda: self.graphComboPressed(
                 self.ui.hvProBox_2.currentText()
+            )
+        )
+
+        # tb buttons
+        self.ui.tbExportButton.clicked.connect(
+            lambda: self.exportData(
+                f'{self.ui.tbProBox.currentText()}_TB_Data',
+                getattr(self.data, f'p{self.ui.tbProBox.currentText()[8]}tbData'),
+                ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+            )
+        )
+        self.ui.tbExportButton_2.clicked.connect(
+            lambda: self.exportData(
+                f'{self.ui.tbProBox_2.currentText()}_TB_Data',
+                getattr(self.data, f'p{self.ui.tbProBox_2.currentText()[8]}tbData'),
+                ("Position","Length","Pulse Frequency","Pulse Width","Tension","Straw/Wire","Epoch Timestamp")
+            )
+        )
+        self.ui.tbPlotButton.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.tbProBox.currentText()
+            )
+        )
+        self.ui.tbPlotButton_2.clicked.connect(
+            lambda: self.graphComboPressed(
+                self.ui.tbProBox_2.currentText()
             )
         )
 
@@ -403,6 +444,32 @@ class facileDBGUI(QMainWindow):
             lambda: self.comboBoxChanged(self.ui.hvProBox_2.currentText())
         )
 
+        # tb combo boxes
+        self.ui.tbProBox.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.tbProBox.currentText())
+        )
+        self.ui.tbProBox_2.currentIndexChanged.connect(
+            lambda: self.comboBoxChanged(self.ui.tbProBox_2.currentText())
+        )
+
+    # link menu actions (settings in upper left) with corrsponding funcitons
+    # parameters: no parameters
+    # returns: nothing returned
+    def initMenuActions(self):
+        self.ui.actionDefaultColor.triggered.connect(
+            lambda: self.changeColor(0,0,default=True)
+        )
+        self.ui.actionDarkColor.triggered.connect(
+            lambda: self.changeColor((25,25,25),(200,200,200))
+        )
+        self.ui.actionCyberpunkColor.triggered.connect(
+            lambda: self.changeColor((25,25,25),(0,255,159),(214,0,255))
+        )
+        self.ui.actionGopher_PrideColor.triggered.connect(
+            lambda: self.changeColor((122, 0, 25), (255, 204, 51))
+        )
+
+
     # utility, get any widget by name
     # parameters: widgetName, name of the desired widget as a string
     # returns: requested widget, will always be a child of self.ui
@@ -435,6 +502,12 @@ class facileDBGUI(QMainWindow):
         self.ui.heatPlotButton_2.setDisabled(True)
         self.ui.heatProBox_2.setDisabled(True)
         self.ui.hvProBox_2.setDisabled(True)
+        self.ui.tbExportButton.setDisabled(True)
+        self.ui.tbExportButton_2.setDisabled(True)
+        self.ui.tbPlotButton.setDisabled(True)
+        self.ui.tbPlotButton_2.setDisabled(True)
+        self.ui.tbProBox.setDisabled(True)
+        self.ui.tbProBox_2.setDisabled(True)
 
     # remove data from all widgets
     # parameters: no parameters
@@ -473,7 +546,6 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def submitClicked(self):
-        print("debug - submit clicked")
         # get new human readable panel id, if a bad id was entered
         # show an error and return
         try:
@@ -510,6 +582,8 @@ class facileDBGUI(QMainWindow):
         self.ui.hvProBox_2.setEnabled(True)
         self.ui.heatProBox.setEnabled(True)
         self.ui.heatProBox_2.setEnabled(True)
+        self.ui.tbProBox.setEnabled(True)
+        self.ui.tbProBox_2.setEnabled(True)
 
     # parameters: ???
     # returns: nothing returned
@@ -533,6 +607,43 @@ class facileDBGUI(QMainWindow):
             except:
                 return 1
 
+        # local funciton to graph tubriculosis
+        def graphTB(self, data):
+            fig, axS = plt.subplots()
+            axS.set_xlabel("wire/straw", fontweight = "bold")
+            axS.set_ylabel("straw tension (g)", fontweight = "bold")
+            axS.yaxis.label.set_color("b")
+            axW = axS.twinx()
+            axW.set_ylabel("wire tension (g)", fontweight = "bold")
+            axW.yaxis.label.set_color("r")
+
+            def plot(axis, x_data, y_data, color, label):
+                axis.plot(
+                    np.array(x_data),
+                    np.array(y_data),
+                    "o",
+                    color=color,
+                    #markersize=markersize,
+                    label=label,
+                )
+                for i in range(len(x_data)):
+                    plt.annotate(x_data[i], xy=(x_data[i], y_data[i]), fontsize=8)
+
+                axis.relim()
+                axis.autoscale_view()
+
+            straw_x_data = [x[0] for x in data if x[5] == "straw"]
+            straw_y_data = [x[4] for x in data if x[5] == "straw"]
+
+            wire_x_data = [x[0] for x in data if x[5] == "wire"]
+            wire_y_data = [x[4] for x in data if x[5] == "wire"]
+
+            plot(axS, straw_x_data, straw_y_data, "b", "straw")
+            plot(axW, wire_x_data, wire_y_data, "r", "wire")
+
+            #plt.tight_layout()
+            plt.show()
+
         callDict = {
             "Process 3, 1100V"  : (lambda: graphHV(self, self.data.hv1100P3)),
             "Process 3, 1500V"  : (lambda: graphHV(self, self.data.hv1500P3)),
@@ -541,6 +652,8 @@ class facileDBGUI(QMainWindow):
             "Process 1, Inner Rings": (lambda: graphHeat(self, 1)),
             "Process 2, Straws"     : (lambda: graphHeat(self, 2)),
             "Process 6, Manifold"   : (lambda: graphHeat(self, 6)),
+            "Process 3"             : (lambda: graphTB(self, self.data.p3tbData)),
+            "Process 6"             : (lambda: graphTB(self, self.data.p6tbData)),
             "Select"                : (lambda: 0)
         }
         boool = callDict[text]()
@@ -564,9 +677,10 @@ class facileDBGUI(QMainWindow):
             "Process 1, Inner Rings": (lambda: self.updateCombo(1,0)),
             "Process 2, Straws"     : (lambda: self.updateCombo(2,0)),
             "Process 6, Manifold"   : (lambda: self.updateCombo(6,0)),
-            "Select"                : (lambda: 0)
+            "Process 3"         : (lambda: self.updateCombo(3,-1)),
+            "Process 6"         : (lambda: self.updateCombo(6,-1)),
+            "Select"            : (lambda: 0)
         }
-        
         boool = callDict[text]()
         if boool:
             tkinter.messagebox.showerror(
@@ -578,10 +692,10 @@ class facileDBGUI(QMainWindow):
     # called in comboBoxChanged.  Does the heavy lifting when it comes to showing the
     # correct data in the list widgets and graphs.
     # parameters:   pro, int representing the process being shown
-    #               volts, int representing the voltage for hv, if updating heat, volts = 0
+    #               volts, int representing the voltage for hv, if updating heat volts = 0, tb volts = -1
     # returns: 0 if success, 1 if failure
     def updateCombo(self, pro, volts):
-        if not volts:
+        if volts == 0:
             # update heat
             self.displaySpecificHeat(
                 pro,
@@ -593,6 +707,15 @@ class facileDBGUI(QMainWindow):
                 self.ui.heatListWidget_2,
                 (self.ui.heatExportButton_2, self.ui.heatPlotButton_2),
                 self.ui.heatGraphLayout
+            )
+            return 0
+        elif volts == -1:
+            self.displayOnLists(
+                pro,
+                getattr(self.data,f'p{pro}tbData'),
+                [("Position",18),("Length",13),("Pulse Freq",13),("Pulse Wid",13),("Tension",13),("S/W",0),("timestamp",-1)],
+                [self.ui.tbListWidget, self.ui.tbListWidget_2],
+                [self.ui.tbExportButton, self.ui.tbExportButton_2, self.ui.tbPlotButton, self.ui.tbPlotButton_2]
             )
             return 0
         else:
@@ -610,6 +733,59 @@ class facileDBGUI(QMainWindow):
                 )
             )   
             return 0
+
+
+    def changeColor(self, background_color, text_color, third_color=False, fourth_color=False, default=False):
+        if default:
+            self.stylesheet = ""
+            self.setStyleSheet(self.stylesheet)
+            return
+
+        tuple_min = lambda t: tuple(min(x, 255) for x in t)
+        tuple_max = lambda t: tuple(max(x, 0) for x in t)
+        tuple_add = lambda t, i: tuple((x + i) for x in t)
+        invert = lambda t: tuple(255 - x for x in t)
+
+        lighter = tuple_min(tuple_add(background_color, 20))
+        darker = tuple_max(tuple_add(background_color, -11))
+
+        text_color_invert = invert(text_color)
+        background_color_invert = invert(background_color)
+
+        self.stylesheet = (
+
+            "QMainWindow, QDialog, QMessageBox, QMenuBar { background-color: rgb"
+            + f"{background_color}; color: rgb{text_color};"
+            + " }\n"
+            "QWidget#summaryTab { background-color: rgb"
+            + f"{background_color}; color: rgb{text_color};"
+            + " }\n"
+            "QLineEdit, QPlainTextEdit, QTextEdit, QScrollArea, QListWidget { "
+            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{lighter};"
+            + " }\n"
+            "QLabel { " + f"color: rgb{text_color};" + " }\n"
+            "QGroupBox, QTabWidget, QTabBar, QScrollBar { "
+            + f"color: rgb{text_color}; background-color: rgb{darker};"
+            + " }\n"
+            "QPushButton { "
+            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{darker}"
+            + " }\n"
+            "QCheckBox { color: "
+            + f"rgb{text_color}"
+            + "; "
+            + f"background-color: rgb{darker}"
+            + "; }\n"
+            "QLCDNumber { color: white; }\n"
+            "QComboBox, QComboBox QAbstractItemView { "
+            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
+            + " }"
+            f'QStatusBar {"{"}color: rgb{text_color}{"}"}'
+
+        )
+
+        self.setStyleSheet(self.stylesheet)
+
+
 
     # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔════╝██║████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -674,7 +850,11 @@ class facileDBGUI(QMainWindow):
         funcRetIII = self.findSpecificHeat(6)
         hasData = hasData or funcRetI or funcRetII or funcRetIII
 
-        #print(str(self.data))
+        # find heat data
+        funcRetI = self.findSpecificTB(3)
+        funcRetII = self.findSpecificTB(6)
+        hasData = hasData or funcRetI or funcRetII
+
         return hasData
 
     # finds and returns the database id for the panel in question
@@ -915,7 +1095,6 @@ class facileDBGUI(QMainWindow):
     # LPALs have their own find function because they are different than the other parts
     # parameters: no parameters
     # returns: nothing returned (yet)
-    # TODO: CHECK TO MAKE SURE THIS FINDS CORRECT DATA
     def findLPALs(self):
         # LPALs are found differently than regular parts
         # straw_location(MN type) --> procedures(this panel) --> 
@@ -1191,6 +1370,49 @@ class facileDBGUI(QMainWindow):
 
         return (len(heatList) > 0)
 
+    # finds tuberculosis and puts it in self.data.pXtbData
+    # parameters: int, pro is the process to find data for (3 or 6)
+    # returns: bool, true if any data found, false otherwise
+    def findSpecificTB(self, pro):
+        # check if desired pro exists
+        if self.data.proIDs[f'pan{pro}'] == -1:
+            return False
+
+        panelTension = sqla.Table(
+            "measurement_tensionbox", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        tbQuery = sqla.select(
+            [
+                panelTension.columns.position,      # position on panel
+                panelTension.columns.length,        # length of...?
+                panelTension.columns.frequency,     # pulse frequency
+                panelTension.columns.pulse_width,   # pulse width I guess
+                panelTension.columns.tension,       # the actual tension measurement
+                panelTension.columns.straw_wire,    # straw/wire designation
+                panelTension.columns.timestamp      # time measurement taken
+            ]
+        ).where(panelTension.columns.procedure == self.data.proIDs[f'pan{pro}'])
+
+        resultProxy = self.connection.execute(tbQuery)  # make proxy
+        rawTBData = resultProxy.fetchall()  # get data from db
+
+        # make a pointer to the self.data.pXtbData and fill it
+        tbDataPointer = getattr(self.data,f'p{pro}tbData')
+
+        # keep only the latest data point for each straw and wire
+        # 0 -> position, 5 -> is_straw, 6 -> time
+        key = lambda x :(x[0], x[5])
+        for position, data in itertools.groupby(sorted(rawTBData, key=key), key=key):
+            tbDataPointer += [max(list(data), key = lambda x: x[6])]
+
+        try:
+            assert len(tbDataPointer) > 0
+        except AssertionError:
+            logger.error("Neither straw nor wire TB data could not be found.")
+
+        return 0
+
 
     # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔══██╗██║██╔════╝██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -1316,14 +1538,29 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def displayComments(self):
+        '''
+        labelBrush = QBrush(Qt.red)  # make a red brush
+            labelItem = QListWidgetItem(
+                "This panel was created before HV data was recorded in the database"
+            )
+            # make a list item with text ^
+            labelItem.setBackground(labelBrush)  # paint the list item background red
+            self.ui.hvListWidget.addItem(labelItem)  # add the item to the list
+        '''
+        # make brush to highlight failures
+        failBrush = QBrush(Qt.red)
         # goes through each pro and adds each pro's comments to the
         # corresponding list widget
         for key in self.data.comLists:
             listWidget = self.getWid(f'{key}ComList')
             for comment in self.data.comLists[key]:
-                listWidget.addItem(
+                newItem = QListWidgetItem(
                     f'{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(comment[1]))}\n{comment[0]}'
                 )
+                if self.ui.actionFailures.isChecked():
+                    if "Failure:" in comment[0]:
+                        newItem.setBackground(failBrush)
+                listWidget.addItem(newItem)
 
     # puts part IDs on the gui
     # parameters: no parameters
@@ -1409,7 +1646,8 @@ class facileDBGUI(QMainWindow):
             # for each piece of data (position, tension, etc.)
             for i in range(len(dataCols)):
                 if dataCols[i][1] != -1:
-                    itemString += f'{str(dataToop[i]).ljust(dataCols[i][1])}'
+                    trimmed = str(dataToop[i])[:8]
+                    itemString += f'{trimmed.ljust(dataCols[i][1])}'
             if "No Data" not in itemString:
                 noData = False
             for lst in listWidgets:
@@ -1431,56 +1669,6 @@ class facileDBGUI(QMainWindow):
     def displayOnGraph(self,dataType,xAxis,yAxis,graphType,targetLayout):
         targetLayout.addWidget(QLabel("Graph coming soon!"))
         return
-
-    def displayOnGraphHEAT(self,pro):
-        # clear current plot
-        for i in reversed(range(self.ui.heatGraphLayout.count())): 
-            self.ui.plotLayout.itemAt(i).widget().setParent(None)
-
-        if len(getattr(self.data,f'p{pro}HeatData')) == 0:
-            self.ui.heatGraphLayout.addWidget(QLabel("Insufficient Data."))
-            return
-        else:
-            localHeat = getattr(self.data,f'p{pro}HeatData')
-
-        plot = qwt.QwtPlot(self)
-        plot.setTitle(f"MN{self.data.humanID} Pro {pro} Heat Data")
-
-        plot.setAxisScaleDraw(
-            qwt.QwtPlot.xBottom, TimeScaleDraw(
-                QDateTime.fromMSecsSinceEpoch(localHeat[0][1])
-            )
-        )
-        plot.setAxisTitle(0,"Temperature (°C)")
-        #plot.setCanvasBackground(Qt.black)
-        # y axis is temperature
-        # first remove tuples where no measurements for A or B/C
-        localHeat = [toop for toop in localHeat if (toop[2] or toop[3])]
-        paasA = [toop[2] if toop[2] else 1 for toop in localHeat]
-        paasBC = [toop[3] if toop[3] else 1 for toop in localHeat]
-        time = [toop[1] for toop in localHeat]
-        curveA = qwt.QwtPlotCurve("PAAS A")
-        curveA.setPen(QPen(Qt.darkBlue))
-        curveA.setData(time, paasA)
-        curveA.attach(plot)
-
-        if pro == 2:
-            curveB = qwt.QwtPlotCurve("PAAS B")
-            curveB.setPen(QPen(Qt.red))
-            curveB.setData(time, paasBC)
-            curveB.attach(plot)
-        if pro == 6:
-            curveB = qwt.QwtPlotCurve("PAAS C")
-            curveB.setPen(QPen(Qt.red))
-            curveB.setData(time, paasBC)
-            curveB.attach(plot)
-
-        grid = qwt.QwtPlotGrid()
-        grid.attach(plot)
-        grid.setPen(QPen(Qt.black, 0, Qt.DotLine))
-
-        plot.replot()
-        self.ui.heatGraphLayout.addWidget(plot)
 
     # puts heat data in the gui
     # parameters:   pro, int representing which pro to get data for (1,2,or 6)
@@ -1523,23 +1711,24 @@ class facileDBGUI(QMainWindow):
                 # make a list of stats
                 paasAStats = [
                     "PAAS A (Blue on graph) Statistics",
-                    f'Mean: {statistics.mean(paasATemps)}',  # mean of paas A
-                    f'Min: {min(paasATemps)}',  # min of paas A
-                    f'Max: {max(paasATemps)}',  # max of paas A
-                    f'Std Dev: {statistics.stdev(paasATemps)}',  # standard dev of paas A
-                    f'Upper σ: {statistics.mean(paasATemps)- statistics.stdev(paasATemps)}',  # upper std dev
-                    f'Lower σ: {statistics.mean(paasATemps) + statistics.stdev(paasATemps)}',  # lower std dev
+                    f'Mean: {str(statistics.mean(paasATemps))[:8]}',  # mean of paas A
+                    f'Min: {str(min(paasATemps))[:8]}',  # min of paas A
+                    f'Max: {str(max(paasATemps))[:8]}',  # max of paas A
+                    f'Std Dev: {str(statistics.stdev(paasATemps))[:8]}',  # standard dev of paas A
+                    f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
+                    f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
                 ]
             if len(paasBCTemps) > 0 and pro != 1:  # if paas B/C exists
                 # make a list of stats
                 paasBCStats = [
-                    f'\nPAAS {"B" if pro == 2 else "C"} (Red on graph) Statistics',
-                    f'Mean: {statistics.mean(paasBCTemps)}',  # mean of paas BC
-                    f'Min: {min(paasBCTemps)}',  # min of paas BC
-                    f'Max: {max(paasBCTemps)}',  # max of paas BC
-                    f'Std Dev: {statistics.stdev(paasBCTemps)}',  # standard dev of paas BC
-                    f'Upper σ: {statistics.mean(paasBCTemps)- statistics.stdev(paasBCTemps)}',  # upper std dev
-                    f'Lower σ: {statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps)}',  # lower std dev
+                    '', # empty line
+                    f'PAAS {"B" if pro == 2 else "C"} (Green on graph) Statistics',
+                    f'Mean: {str(statistics.mean(paasBCTemps))[:8]}',  # mean of paas BC
+                    f'Min: {str(min(paasBCTemps))[:8]}',  # min of paas BC
+                    f'Max: {str(max(paasBCTemps))[:8]}',  # max of paas BC
+                    f'Std Dev: {str(statistics.stdev(paasBCTemps))[:8]}',  # standard dev of paas BC
+                    f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
+                    f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
                 ]
             
             # make a list of heat timestamps
@@ -1566,7 +1755,7 @@ class facileDBGUI(QMainWindow):
             #Logistic sorts of things:
             ###################################################
             # clear layout
-            for i in reversed(range(targetLayout.count())): 
+            for i in reversed(range(targetLayout.count())):
                 targetLayout.itemAt(i).widget().setParent(None)
             # check for presence of data
             #if noPro:
@@ -1575,6 +1764,67 @@ class facileDBGUI(QMainWindow):
             # add graph
             self.displayOnGraphHEAT(pro)
         return
+
+    def displayOnGraphHEAT(self,pro):
+        # clear current plot
+        for i in reversed(range(self.ui.heatGraphLayout.count())): 
+            self.ui.plotLayout.itemAt(i).widget().setParent(None)
+
+        if len(getattr(self.data,f'p{pro}HeatData')) == 0:
+            self.ui.heatGraphLayout.addWidget(QLabel("Insufficient Data."))
+            return
+        else:
+            localHeat = getattr(self.data,f'p{pro}HeatData')
+
+        plot = qwt.QwtPlot(self)
+        plot.setTitle(f"MN{self.data.humanID} Pro {pro} Heat Data")
+
+        plot.setAxisScaleDraw(
+            qwt.QwtPlot.xBottom, TimeScaleDraw(
+                QDateTime.fromMSecsSinceEpoch(localHeat[0][1])
+            )
+        )
+
+        # make pens
+        bluePen = QPen(QColor("cyan"))
+        greenPen = QPen(QColor("lime"))
+        whiteDotsPen = QPen(QColor("white"), 0, Qt.DotLine)
+
+        plot.setAxisTitle(0,"Temperature (°C)")
+        plot.setCanvasBackground(Qt.black)
+        # y axis is temperature
+        # first remove tuples where no measurements for A or B/C
+        localHeat = [toop for toop in localHeat if (toop[2] or toop[3])]
+        paasA = [toop[2] if toop[2] else 1 for toop in localHeat]
+        paasBC = [toop[3] if toop[3] else 1 for toop in localHeat]
+        time = [toop[1] for toop in localHeat]
+        curveA = qwt.QwtPlotCurve("PAAS A")
+        curveA.setPen(bluePen)
+        curveA.setData(time, paasA)
+        curveA.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
+        curveA.attach(plot)
+
+        if pro == 2:
+            curveB = qwt.QwtPlotCurve("PAAS B")
+            curveB.setPen(greenPen)
+            curveB.setData(time, paasBC)
+            curveB.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
+            curveB.attach(plot)
+        if pro == 6:
+            curveB = qwt.QwtPlotCurve("PAAS C")
+            curveB.setPen(greenPen)
+            curveB.setData(time, paasBC)
+            curveB.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
+            curveB.attach(plot)
+
+        grid = qwt.QwtPlotGrid()
+        grid.attach(plot)
+        grid.setPen(whiteDotsPen)
+
+        
+
+        plot.replot()
+        self.ui.heatGraphLayout.addWidget(plot)
 
 
     #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗    ██████╗  █████╗ ████████╗ █████╗ 
@@ -1692,13 +1942,18 @@ class facileDBGUI(QMainWindow):
     # ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║       ██████╔╝██║  ██║   ██║   ██║  ██║
     # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝       ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 
+    # graph heat data in pop up window
+    # parameters:   dataName, string used in making file name
+    #               dataType, pointer to whatever self.data list is being used
+    #               dataCols, tuple of strings to name columns in csv
+    # returns: nothing returned
     def exportData(self,dataName,dataType,dataCols):
         # if there are very few data points...
         if len(dataType) < 10:
             # make a question popup
             qM = QMessageBox()
             answer = qM.question(
-                self,'',f'{len(dataType)} data points were found.  Do you still want to export the data?', qM.Yes | qM.No
+                self,'',f'{len(dataType)} data point(s) were found.  Do you still want to export the data?', qM.Yes | qM.No
             )
             # if the user doesn't want to plot len(dataType) points, then don't!
             if answer == qM.No:
@@ -1734,7 +1989,7 @@ class facileDBGUI(QMainWindow):
 
 def run():
     app = QApplication(sys.argv)  # make an app
-    # app.setStyleSheet(qdarkstyle.load_stylesheet()) # darkmodebestmode
+    app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     window = facileDBGUI(Ui_MainWindow())  # make a window
     database = ""
     # Access network DB

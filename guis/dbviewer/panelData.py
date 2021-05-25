@@ -143,14 +143,17 @@ class PanelData:
         for key in self.parts:
             self.parts[key] = []
 
+        self.p1HeatData = []
+        self.p2HeatData = []
+        self.p6HeatData = []
+
         self.hv1100P3 = []
         self.hv1500P3 = []
         self.hvXXXXP5 = []
         self.hv1500P6 = []
 
-        self.p1HeatData = []
-        self.p2HeatData = []
-        self.p6HeatData = []
+        self.p3tbData = []
+        self.p6tbData = []
 
         self.strawData = []
 
@@ -176,18 +179,22 @@ PANEL: {self.humanID}
 
     Wires: {self.wireData}
 
+    Heat P1: {self.p1HeatData}
+
+    Heat P2: {self.p2HeatData}
+
+    Heat P6: {self.p6HeatData}
+    
     HV P3 1.1kV: {self.hv1100P3}
 
     HV P3 1.5kV: {self.hv1500P3}
 
     HV P5 ???kV: {self.hvXXXXP5}
 
-    HV P6 1.5kV: {self.hv1500P6}
+    HV P6 1.5kV: {self.hv1500P6}   
 
-    Heat P1: {self.p1HeatData}
+    TB P3: {self.p3tbData}
 
-    Heat P2: {self.p2HeatData}
-
-    Heat P6: {self.p6HeatData}
+    TB P6: {self.p6tbData}
 """
 
