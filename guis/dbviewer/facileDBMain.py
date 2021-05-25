@@ -9,6 +9,10 @@ import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, stat
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
 
+import logging
+
+logger = logging.getLogger("root")
+
 # time formatting
 
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
@@ -23,18 +27,18 @@ from PyQt5.QtWidgets import (
     QListWidgetItem,
     QMainWindow,
     QLabel,
-    #QTableWidget,
-    #QGridLayout,
-    #QScrollArea,
+    # QTableWidget,
+    # QGridLayout,
+    # QScrollArea,
     QWidget,
-    #QComboBox,
-    #QListWidget,
-    #QListWidgetItem,
-    #QCheckBox,
-    #QPushButton,
-    #QTableWidgetItem,
+    # QComboBox,
+    # QListWidget,
+    # QListWidgetItem,
+    # QCheckBox,
+    # QPushButton,
+    # QTableWidgetItem,
     QMessageBox,
-    QStyleFactory
+    QStyleFactory,
 )
 
 # mostly for gui window management, QPen and QSize are for plotting
@@ -84,10 +88,9 @@ class TimeScaleDraw(qwt.QwtScaleDraw):
 # Gets the QMainWindow class from facileDB.py
 # Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
 # Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
-ISLAB = (
-    getpass.getuser() == "mu2e" or getpass.getuser() == ".\mu2e" or
-    getpass.getuser() == "Mu2e" or getpass.getuser() == ".\Mu2e"
-)
+ISLAB = 'mu2e' in getpass.getuser().lower()
+
+
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
 
 
@@ -605,23 +608,41 @@ class facileDBGUI(QMainWindow):
                 return 1
 
         # local funciton to graph tubriculosis
-        def graphTB(self, dataType):
-            try:
-                graphMe = []
-                for toop in dataType:
-                    if toop[4] is not None:
-                        graphMe += [[0,toop[4]]]
-                    else:
-                        graphMe += [[0,-1]]
+        def graphTB(self, data):
+            fig, axS = plt.subplots()
+            axS.set_xlabel("wire/straw", fontweight = "bold")
+            axS.set_ylabel("straw tension (g)", fontweight = "bold")
+            axS.yaxis.label.set_color("b")
+            axW = axS.twinx()
+            axW.set_ylabel("wire tension (g)", fontweight = "bold")
+            axW.yaxis.label.set_color("r")
 
-                self.graphSimple(
-                    graphMe,
-                    "Tension (g)",
-                    1000,
+            def plot(axis, x_data, y_data, color, label):
+                axis.plot(
+                    np.array(x_data),
+                    np.array(y_data),
+                    "o",
+                    color=color,
+                    #markersize=markersize,
+                    label=label,
                 )
-                return 0
-            except:
-                return 1
+                for i in range(len(x_data)):
+                    plt.annotate(x_data[i], xy=(x_data[i], y_data[i]), fontsize=8)
+
+                axis.relim()
+                axis.autoscale_view()
+
+            straw_x_data = [x[0] for x in data if x[5] == "straw"]
+            straw_y_data = [x[4] for x in data if x[5] == "straw"]
+
+            wire_x_data = [x[0] for x in data if x[5] == "wire"]
+            wire_y_data = [x[4] for x in data if x[5] == "wire"]
+
+            plot(axS, straw_x_data, straw_y_data, "b", "straw")
+            plot(axW, wire_x_data, wire_y_data, "r", "wire")
+
+            #plt.tight_layout()
+            plt.show()
 
         callDict = {
             "Process 3, 1100V"  : (lambda: graphHV(self, self.data.hv1100P3)),
@@ -1376,25 +1397,21 @@ class facileDBGUI(QMainWindow):
         resultProxy = self.connection.execute(tbQuery)  # make proxy
         rawTBData = resultProxy.fetchall()  # get data from db
 
-        # build a list since rawTBData isn't technically a list (?)
-        tbList = [ [0,0,0,0,0,0,-1] for i in range(96)]
-        for toop in rawTBData:
-            # if this data is newer
-            if toop[6] > tbList[toop[0]][6]:
-                # put it into the list
-                tbList[toop[0]] = [toop[0],toop[1],toop[2],toop[3],toop[4],toop[5],toop[6]]
+        # make a pointer to the self.data.pXtbData and fill it
+        tbDataPointer = getattr(self.data,f'p{pro}tbData')
 
-        # assign built list to self.data
-        listPointer = getattr(self.data,f'p{pro}tbData')
-        for toop in tbList:
-            if toop != [0,0,0,0,0,0,-1]:
-                listPointer += [toop]
+        # keep only the latest data point for each straw and wire
+        # 0 -> position, 5 -> is_straw, 6 -> time
+        key = lambda x :(x[0], x[5])
+        for position, data in itertools.groupby(sorted(rawTBData, key=key), key=key):
+            tbDataPointer += [max(list(data), key = lambda x: x[6])]
+
         try:
-            print(listPointer[0],listPointer[1])
-        except:
-            print("noice")
+            assert len(tbDataPointer) > 0
+        except AssertionError:
+            logger.error("Neither straw nor wire TB data could not be found.")
 
-        return (len(tbList) > 0)
+        return 0
 
 
     # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
