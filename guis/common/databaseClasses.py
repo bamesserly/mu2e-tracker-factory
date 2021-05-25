@@ -579,7 +579,6 @@ class Procedure(BASE, OBJECT):
     def PanelProcedure(cls, day, panel_number):
         # Get Station
         station = Station.panelStation(day=day)
-        assert station is not None, f"Unable to find a panel station for day {day}."
 
         # Get panel
         panel = StrawLocation.Panel(panel_number)
@@ -1951,13 +1950,16 @@ class Station(BASE, OBJECT):
         # print(PanelStation.query().first()) # None!
         # print(PanelStation.query().filter(PanelStation.production_step == day))
         try:
-            return (
-                PanelStation.query()
-                .filter(PanelStation.production_step == day)
-                .one_or_none()
-            )
-        except sqlalchemy.exc.OperationalError:
-            logger.error("DB Locked. Panel station query failed.")
+            ret = PanelStation.query().filter(PanelStation.production_step == day).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            logger.error(f"No production stage/step not found for {day}.")
+            logger.error("This indicates a structural problem with the DB.")
+            exit()
+        except sqlalchemy.orm.exc.MultipleResultsFound:
+            logger.error(f"More than one production stage/step not found for {day}.")
+            logger.error("This indicates a structural problem with the DB.")
+            sys.exit()
+        return ret
 
     def startSession(self):
         # Start new session and return

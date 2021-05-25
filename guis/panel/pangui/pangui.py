@@ -37,7 +37,8 @@ from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root")
 
-from guis.common.getresources import GetProjectPaths
+from guis.common.getresources import GetProjectPaths, pkg_resources
+import resources
 
 import inspect
 import pyautogui
@@ -100,8 +101,9 @@ from guis.panel.wiretensioner.wire_tension import WireTensionWindow
 from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
-from guis.panel.resistance.run_test import run_test
-from guis.panel.leak.PlotLeakRate import run_from_pangui
+
+# from guis.panel.resistance.run_test import run_test
+# from guis.panel.leak.PlotLeakRate import RunInteractive
 
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
@@ -785,7 +787,7 @@ class panelGUI(QMainWindow):
 
     def _init_pro8_setup(self):
         self.ui.panelInput_8.installEventFilter(self)
-        self.ui.rest_test_pro8.clicked.connect(self.run_test)
+        self.ui.rest_test_pro8.clicked.connect(self.run_resistance)
         self.ui.broken_tap.clicked.connect(self.broken_tap_form)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
         self.ui.leak_form_submit.clicked.connect(self.leak_form)
@@ -5107,10 +5109,10 @@ class panelGUI(QMainWindow):
             )
             logger.info("HV GUI launched")
 
-    # Creates a new terminal window and runs the run_test.py script
-    def run_test(self):
-        script_dir = os.getcwd() + "\guis\panel\\resistance\\run_test\\"
-        subprocess.call("start /wait python run_test.py", shell=True, cwd=script_dir)
+    # Creates a new terminal window and runs the resistance run_test.py script
+    def run_resistance(self):
+        root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
+        subprocess.call("start /wait python run_test.py", shell=True, cwd=root_dir)
 
     # record broken tap from the broken tap form in pro8
     # broken_taps is a column in the pan8 table that stores an integer value
@@ -5184,18 +5186,13 @@ class panelGUI(QMainWindow):
         self.ui.leak_resolution.setPlainText("")
         self.ui.leak_next.setCurrentIndex(0)
 
-    # Creates a new terminal window and runs the run_test.py script
+    # Creates a new terminal window and runs the PlotLeakRate.py script
     def run_plot_leak(self):
-        filename = (
-            os.getcwd()
-            + "\data\Panel data\FinalQC\Leak\RawData\\"
-            + self.ui.csv_leak_file.text()
-        )
-        script_dir = os.getcwd() + "\guis\panel\leak\\"
+        root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start /wait python PlotLeakRate.py {}".format(filename),
+            "start /wait python -m guis.panel.leak",
             shell=True,
-            cwd=script_dir,
+            cwd=root_dir,
         )
 
 
