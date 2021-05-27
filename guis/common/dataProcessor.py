@@ -2604,9 +2604,15 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.getLeftCover(),
             self.procedure.getRightCover(),
             self.procedure.getCenterCover(),
-            self.procedure.getCenterRing(),
-            self.procedure.getLeftRing(),
-            self.procedure.getRightRing(),
+            self.procedure.getLeftRing()[:7] if self.procedure.getLeftRing() is not None else None,
+            self.procedure.getLeftRing()[7:18] if self.procedure.getLeftRing() is not None else None,
+            self.procedure.getLeftRing()[18:] if self.procedure.getLeftRing() is not None else None,
+            self.procedure.getRightRing()[:7] if self.procedure.getRightRing() is not None else None,
+            self.procedure.getRightRing()[7:18] if self.procedure.getRightRing() is not None else None,
+            self.procedure.getRightRing()[18:] if self.procedure.getRightRing() is not None else None,
+            self.procedure.getCenterRing()[:7] if self.procedure.getCenterRing() is not None else None,
+            self.procedure.getCenterRing()[7:18] if self.procedure.getCenterRing() is not None else None,
+            self.procedure.getCenterRing()[18:] if self.procedure.getCenterRing() is not None else None,
         ]
 
 
