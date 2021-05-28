@@ -26,13 +26,16 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QLineEdit,
     QMessageBox,
+    QStyleFactory
 )
 
 # for GUI label and upper left icon management
-from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator
+from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator, QPen
 
 # for GUI window management
 from PyQt5.QtCore import Qt, QRect, QRegExp
+
+import qwt
 
 # import UI
 from guis.panel.hv.hvGUI import (
@@ -155,6 +158,19 @@ class highVoltageGUI(QMainWindow):
         self.ui.positionBox.setDisabled(True)
         self.ui.ampsLE.setDisabled(True)
         self.ui.tripBox.setDisabled(True)
+
+        # setup graph
+        self.plot = qwt.QwtPlot()
+        self.plot.setCanvasBackground(Qt.black)
+        # how set axis label colors??????
+        self.plot.setAxisScale(qwt.QwtPlot.xBottom, 0, 95, 5)
+        self.plot.setAxisTitle(qwt.QwtPlot.xBottom, "Position")
+        self.plot.setAxisScale(qwt.QwtPlot.yLeft, 0, 1, 0.1)
+        self.plot.setAxisTitle(qwt.QwtPlot.yLeft, "Current")
+        pen = QPen(Qt.white, 2)
+        
+        self.plot.replot()
+        self.ui.graphLayout.addWidget(self.plot)
 
         # disable panel line edit if launched from gui
         if panel is not None:
@@ -457,6 +473,7 @@ def run():
 
     # make app
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create("Fusion"))
     # make window, give it "blank" window to use
     window = highVoltageGUI()
     # set window name
