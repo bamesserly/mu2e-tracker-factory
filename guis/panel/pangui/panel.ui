@@ -7241,7 +7241,7 @@ Heater GUI</string>
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QPushButton" name="pro8Select_">
+         <widget class="QPushButton" name="pro8Select">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -7439,7 +7439,7 @@ Heater GUI</string>
   <tabstop>pro9Select</tabstop>
   <tabstop>nextButton_2</tabstop>
   <tabstop>pro2Select</tabstop>
-  <tabstop>pro8Select_</tabstop>
+  <tabstop>pro8Select</tabstop>
   <tabstop>portal3</tabstop>
   <tabstop>portal2</tabstop>
   <tabstop>pro3Select</tabstop>

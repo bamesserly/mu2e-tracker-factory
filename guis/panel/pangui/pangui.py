@@ -1389,17 +1389,29 @@ class panelGUI(QMainWindow):
             self.generateBox(
                 "warning",
                 "Process 5 Disabled",
-                'Process 5 has been replaced by the HV popup GUI.  Please use the "Launch HV GUI" button in process 3 or 6 instead.',
+                "Process 5 has been replaced by the HV popup GUI.  "
+                'Please use the "Launch HV GUI" button in process 3 or 6 '
+                "instead.",
             )
             return
 
         # Get pro Information
-        self.pro = int(btn.objectName()[3:-6])
-        logger.info("pro selected: %s" % self.pro)
-        self.pro_index = self.pro - 1
-        self.ui.proSelection.setCurrentIndex(0)
-        self.ui.GUIpro.setCurrentIndex(self.pro_index)
-        self.panelInput[self.pro_index].setEnabled(True)
+        try:
+            self.pro = int(btn.objectName()[3:-6])
+            logger.info("pro selected: %s" % self.pro)
+            self.pro_index = self.pro - 1
+            self.panelInput[self.pro_index].setEnabled(True)
+            self.ui.proSelection.setCurrentIndex(0)
+            self.ui.GUIpro.setCurrentIndex(self.pro_index)
+        except IndexError:
+            if btn.text() == "Process 8 - Final QC":
+                logger.warning("Process 8 is under construction.")
+                self.generateBox(
+                    "warning",
+                    "Process 8 Not Ready",
+                    "Please select another process.",
+                )
+            return
 
         # Data Processor
         self.DP = DataProcessor(
@@ -1709,7 +1721,7 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        """ Constrain steps to be checked off in order """
+        """Constrain steps to be checked off in order"""
         step = self.stepsList.getCurrentStep()  # Latest unchecked step
         checkbox1 = step.getCheckbox()
         checkbox1.setDisabled(True)
