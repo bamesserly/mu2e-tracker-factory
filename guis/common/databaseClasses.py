@@ -1065,6 +1065,8 @@ class Pan3Procedure(PanelProcedure):
             sense_wire_insertion_time = Column(REAL)
             sense_wire_insertion_time_running = Column(BOOLEAN)
             wire_spool = Column(Integer, ForeignKey("wire_spool.id"))
+            wire_weight_initial = Column(REAL)
+            wire_weight_final = Column(REAL)
 
         return Details
 
@@ -1088,6 +1090,18 @@ class Pan3Procedure(PanelProcedure):
             return False  # Return false if wire spool can't be found in database
         self.details.wire_spool = spool.id
         return True
+
+    def getInitialWireWeight(self):
+        return self.details.wire_weight_initial
+
+    def recordInitialWireWeight(self, weight):
+        self.details.wire_weight_initial = weight
+
+    def getFinalWireWeight(self):
+        return self.details.wire_weight_final
+
+    def recordFinalWireWeight(self, weight):
+        self.details.wire_weight_final = weight
 
     # Continuity Measurements
     class MeasurementPan3(BASE, OBJECT):

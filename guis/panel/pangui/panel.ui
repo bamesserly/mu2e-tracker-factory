@@ -506,7 +506,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>7</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -2806,8 +2806,8 @@ Heater GUI</string>
                </layout>
               </widget>
               <widget class="QWidget" name="p3Wire">
-               <layout class="QGridLayout" name="gridLayout_32">
-                <item row="0" column="0" colspan="3">
+               <layout class="QGridLayout" name="gridLayout_30">
+                <item row="0" column="0">
                  <widget class="QLabel" name="label_6">
                   <property name="font">
                    <font>
@@ -2821,128 +2821,8 @@ Heater GUI</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <layout class="QFormLayout" name="formLayout">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_5">
-                    <property name="text">
-                     <string>Panel:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="panelInput3">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="maxLength">
-                     <number>5</number>
-                    </property>
-                    <property name="placeholderText">
-                     <string>MN***</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_12">
-                    <property name="text">
-                     <string>Wire Spool:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="wireInput">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="maxLength">
-                     <number>11</number>
-                    </property>
-                    <property name="placeholderText">
-                     <string>WIRE.******</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="startbutton3">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Start</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QPushButton" name="launch_wire_tensioner">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Launch Wire 
-Tensioner</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="3">
-                 <widget class="QPushButton" name="launchHVpro3">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Launch HV GUI</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0" colspan="4">
-                 <layout class="QGridLayout" name="gridLayout_30">
+                <item row="0" column="1" rowspan="2">
+                 <layout class="QGridLayout" name="gridLayout_31">
                   <item row="0" column="0">
                    <widget class="QLabel" name="label_22">
                     <property name="text">
@@ -2950,31 +2830,16 @@ Tensioner</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
-                   <widget class="QLabel" name="label_34">
-                    <property name="text">
-                     <string>Continuity Checks</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_32">
-                    <property name="text">
-                     <string>Position in Pins</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="3">
-                   <widget class="QLabel" name="label_35">
-                    <property name="text">
-                     <string>Wire Resistance</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0" colspan="4">
                    <widget class="QScrollArea" name="scrollArea">
                     <property name="enabled">
                      <bool>true</bool>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>550</width>
+                      <height>0</height>
+                     </size>
                     </property>
                     <property name="layoutDirection">
                      <enum>Qt::LeftToRight</enum>
@@ -2996,8 +2861,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>81</width>
-                       <height>28</height>
+                       <width>531</width>
+                       <height>710</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -3008,24 +2873,92 @@ Tensioner</string>
                     </widget>
                    </widget>
                   </item>
+                  <item row="0" column="1" alignment="Qt::AlignLeft">
+                   <widget class="QLabel" name="label_34">
+                    <property name="text">
+                     <string>Continuity Checks</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <widget class="QLabel" name="label_32">
+                    <property name="text">
+                     <string>Position in Pins</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
-                <item row="3" column="0" colspan="2">
+                <item row="1" column="0">
                  <layout class="QGridLayout" name="gridLayout_64">
-                  <item row="0" column="0">
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_5">
+                    <property name="text">
+                     <string>Panel:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0" colspan="3">
+                   <widget class="Line" name="line">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_41">
+                    <property name="text">
+                     <string>Initial Wire Spool Weight</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1" colspan="2">
+                   <widget class="QLineEdit" name="initialWireWeightLE">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="label_42">
+                    <property name="text">
+                     <string>Final Wire Spool Weight</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1" colspan="2">
+                   <widget class="QLineEdit" name="finalWireWeightLE">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="0">
                    <widget class="QLabel" name="label_15">
                     <property name="text">
                      <string>Calibration Factor:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item row="8" column="1" colspan="2">
                    <widget class="QLineEdit" name="panelInput3_2">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
                     </property>
                     <property name="text">
                      <string/>
@@ -3035,7 +2968,123 @@ Tensioner</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
+                  <item row="2" column="2">
+                   <widget class="QLineEdit" name="panelInput3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="maxLength">
+                     <number>5</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>MN***</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_12">
+                    <property name="text">
+                     <string>Wire Spool:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="3" rowspan="2">
+                   <widget class="QPushButton" name="startbutton3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Start</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="2">
+                   <widget class="QLineEdit" name="wireInput">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="maxLength">
+                     <number>11</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>WIRE.******</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <layout class="QGridLayout" name="gridLayout_69"/>
+                  </item>
+                  <item row="6" column="3">
+                   <widget class="QPushButton" name="launch_wire_tensioner">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Launch Wire 
+Tensioner</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="3">
                    <widget class="QPushButton" name="launch_tension_box">
                     <property name="font">
                      <font>
@@ -3045,19 +3094,37 @@ Tensioner</string>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Tension Box</string>
+                     <string>Launch
+Tension Box</string>
                     </property>
                    </widget>
                   </item>
-                 </layout>
-                </item>
-                <item row="4" column="0" colspan="4">
-                 <layout class="QHBoxLayout" name="horizontalLayout_19">
-                  <item>
+                  <item row="8" column="3">
+                   <widget class="QPushButton" name="launchHVpro3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Launch HV
+GUI</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="0" colspan="4">
                    <widget class="QGroupBox" name="groupBox_8">
                     <property name="font">
                      <font>
-                      <pointsize>10</pointsize>
+                      <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -3065,7 +3132,7 @@ Tensioner</string>
                     <property name="title">
                      <string>Comments</string>
                     </property>
-                    <layout class="QGridLayout" name="gridLayout_31">
+                    <layout class="QGridLayout" name="gridLayout_32">
                      <item row="0" column="0">
                       <widget class="QPlainTextEdit" name="commentBox3">
                        <property name="font">
@@ -3075,30 +3142,27 @@ Tensioner</string>
                        </property>
                       </widget>
                      </item>
+                     <item row="1" column="0">
+                      <widget class="QPushButton" name="saveButton3">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>14</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Save</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="saveButton3">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>14</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Save</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">saveButtons</string>
-                    </attribute>
                    </widget>
                   </item>
                  </layout>
@@ -4143,8 +4207,8 @@ Tensioner</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>28</height>
+                       <width>484</width>
+                       <height>646</height>
                       </rect>
                      </property>
                     </widget>
@@ -7337,11 +7401,6 @@ Heater GUI</string>
   <tabstop>heat_start</tabstop>
   <tabstop>temp4</tabstop>
   <tabstop>temp4_2</tabstop>
-  <tabstop>panelInput3</tabstop>
-  <tabstop>wireInput</tabstop>
-  <tabstop>startbutton3</tabstop>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>launch_wire_tensioner</tabstop>
   <tabstop>panelInput4</tabstop>
   <tabstop>startButton4</tabstop>
   <tabstop>epoxy_batch_3</tabstop>
@@ -7399,8 +7458,6 @@ Heater GUI</string>
   <tabstop>commentBox1</tabstop>
   <tabstop>saveButton1</tabstop>
   <tabstop>timer_instructions</tabstop>
-  <tabstop>commentBox3</tabstop>
-  <tabstop>saveButton3</tabstop>
   <tabstop>picfour1_2</tabstop>
   <tabstop>picfour2_2</tabstop>
   <tabstop>picfour3_2</tabstop>
@@ -7428,7 +7485,6 @@ Heater GUI</string>
   <tabstop>FinishButton</tabstop>
   <tabstop>proReturnButton</tabstop>
   <tabstop>portal1</tabstop>
-  <tabstop>panelInput3_2</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>previousButton</tabstop>
   <tabstop>picfour2</tabstop>
@@ -7454,8 +7510,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
-  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>
