@@ -1,5 +1,5 @@
 # for creating app, using paths, writing/reading csvs, fetting current date
-import sys, os, inspect, getpass, csv, datetime
+import sys, os, inspect, getpass, csv, datetime, numpy as np
 
 from tkinter import messagebox, Tk
 
@@ -160,17 +160,7 @@ class highVoltageGUI(QMainWindow):
         self.ui.tripBox.setDisabled(True)
 
         # setup graph
-        self.plot = qwt.QwtPlot()
-        self.plot.setCanvasBackground(Qt.black)
-        # how set axis label colors??????
-        self.plot.setAxisScale(qwt.QwtPlot.xBottom, 0, 95, 5)
-        self.plot.setAxisTitle(qwt.QwtPlot.xBottom, "Position")
-        self.plot.setAxisScale(qwt.QwtPlot.yLeft, 0, 1, 0.1)
-        self.plot.setAxisTitle(qwt.QwtPlot.yLeft, "Current")
-        pen = QPen(Qt.white, 2)
-        
-        self.plot.replot()
-        self.ui.graphLayout.addWidget(self.plot)
+        self._init_plot()
 
         # disable panel line edit if launched from gui
         if panel is not None:
@@ -230,6 +220,38 @@ class highVoltageGUI(QMainWindow):
     # input validation.  TODO
     def _init_validation(self):
         pass
+
+            # graph on right side
+    
+    # graph on right
+    def _init_plot(self):
+        # setup graph
+        self.plot = qwt.QwtPlot()
+        self.plot.setCanvasBackground(Qt.black)
+        # how set axis label colors??????
+        self.plot.setAxisScale(qwt.QwtPlot.xBottom, 0, 95, 5)
+        self.plot.setAxisTitle(qwt.QwtPlot.xBottom, "Position")
+        self.plot.setAxisScale(qwt.QwtPlot.yLeft, 0, 1, 0.1)
+        self.plot.setAxisTitle(qwt.QwtPlot.yLeft, "Current")
+        pen = QPen(Qt.white, 2)
+        self.dataCurve = qwt.QwtPlotCurve("")
+        self.dataCurve.setPen(pen)
+        self.dataCurve.attach(self.plot)
+        
+        self.plot.replot()
+        self.ui.graphLayout.addWidget(self.plot)
+        return
+
+    # update graph
+    def replot(self):
+        dataList = [None for x in range(96)]
+        for x in range(96):
+            if dataList[x] == None and self.getAmp(x) is not "":
+                dataList[x] = float(self.getAmp(x))
+
+        self.dataCurve.setData(np.arange(96), dataList * np.ones(96))
+        self.plot.replot()
+        return
 
     # linked to the submit panel button
     def submitPanel(self):
@@ -310,6 +332,7 @@ class highVoltageGUI(QMainWindow):
             1 if self.isTripped[self.straw].isChecked() else 0
         )
         self.ui.ampsLE.setFocus()
+        self.replot()
 
     # Save to DB, takes one position at a time, or saves a CSV
     def saveHVMeasurement(self, index, side, current, volts, isTrip):
