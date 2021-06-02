@@ -16,6 +16,7 @@ pyparsing==2.4.7
 pyperclip==1.8.0
 PyQt5==5.15.0
 PyQt5-sip==12.8.0
+pyqtgraph==0.12.1
 PyRect==0.1.4
 PyScreeze==0.1.26
 pyserial==3.4
