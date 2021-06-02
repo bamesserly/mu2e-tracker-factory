@@ -1,7 +1,9 @@
 # for creating app, using paths, writing/reading csvs, fetting current date
-import sys, os, inspect, getpass, csv, datetime
+import sys, os, inspect, getpass, csv, datetime, numpy as np
 
 from tkinter import messagebox, Tk
+
+import pyqtgraph as pg
 
 # for using paths
 from pathlib import Path, PurePath
@@ -26,13 +28,16 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QLineEdit,
     QMessageBox,
+    QStyleFactory
 )
 
 # for GUI label and upper left icon management
-from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator
+from PyQt5.QtGui import QBrush, QIcon, QRegExpValidator, QPen
 
 # for GUI window management
 from PyQt5.QtCore import Qt, QRect, QRegExp
+
+import qwt
 
 # import UI
 from guis.panel.hv.hvGUI import (
@@ -156,6 +161,9 @@ class highVoltageGUI(QMainWindow):
         self.ui.ampsLE.setDisabled(True)
         self.ui.tripBox.setDisabled(True)
 
+        # setup graph
+        self._init_plot()
+
         # disable panel line edit if launched from gui
         if panel is not None:
             self.ui.panelNumLE.setText(panel)
@@ -214,6 +222,37 @@ class highVoltageGUI(QMainWindow):
     # input validation.  TODO
     def _init_validation(self):
         pass
+
+            # graph on right side
+    
+    # graph on right
+    def _init_plot(self):
+        self.plot = pg.plot()
+
+        self.scatter = pg.ScatterPlotItem(
+            size=10,
+            brush=pg.mkBrush(255, 255, 255, 120)
+        )
+  
+        self.plot.addItem(self.scatter)
+        self.ui.graphLayout.addWidget(self.plot)
+
+    # update graph
+    def replot(self):
+        self.scatter.clear()
+        
+        numPoints = 0
+        xs = []
+        ys = []
+        for z in range(96):
+            if self.getAmp(z) != "":
+                numPoints += 1
+                xs.append(float(self.getAmp(z))) 
+                ys.append(float(z))
+        
+        points = [{'pos': [ys[z],xs[z]], 'data':1} for z in range(numPoints)]
+
+        self.scatter.addPoints(points)
 
     # linked to the submit panel button
     def submitPanel(self):
@@ -294,6 +333,7 @@ class highVoltageGUI(QMainWindow):
             1 if self.isTripped[self.straw].isChecked() else 0
         )
         self.ui.ampsLE.setFocus()
+        self.replot()
 
     # Save to DB, takes one position at a time, or saves a CSV
     def saveHVMeasurement(self, index, side, current, volts, isTrip):
@@ -349,6 +389,8 @@ class highVoltageGUI(QMainWindow):
                         tSList[toop[4]] = toop[5]
                         self.setAmp(toop[4], str(toop[side]))
                         self.setTrip(toop[4], toop[3])
+            
+            self.replot()
 
     # Save one HV measurement, append CSV file
     def saveCSV(self, position, side, current, voltage, is_tripped):
@@ -457,6 +499,7 @@ def run():
 
     # make app
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create("Fusion"))
     # make window, give it "blank" window to use
     window = highVoltageGUI()
     # set window name

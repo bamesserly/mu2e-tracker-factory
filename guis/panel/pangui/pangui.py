@@ -30,6 +30,7 @@ Date of Last Update: 10/9/2020
 
 import sys, time, os, tkinter, traceback, serial, platform
 from pathlib import Path, PurePath
+import subprocess  ## run straw and wire tensioner GUIs as subprocesses
 
 # Import logger from Modules (only do this once)
 from guis.common.panguilogger import SetupPANGUILogger
@@ -43,7 +44,7 @@ import pyautogui
 from PIL import Image
 from datetime import datetime
 from threading import Thread, enumerate as enumerateThreads
-import subprocess  ## run straw and wire tensioner GUIs as subprocesses
+
 from PyQt5.Qt import PYQT_VERSION_STR  # used for version checking
 from PyQt5.QtCore import (
     QCoreApplication,
@@ -76,6 +77,30 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QGridLayout,
 )
+
+#####################################################################
+# pyqtgraph is used by the hv gui, but none of the computers
+# have is as of 6/2/2021, so it must be installed in order to
+# import the hv gui and not crash.  This little block and 
+# installPG() can be removed after a while, but not until
+# most if not all of the computers have pyqtgraph on them
+def installPG():
+    logger.info("Attempting to install pyqtgraph...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtgraph", "--user"])
+    except:
+        logger.critical("Unable to install pyqtgraph, please contact a member of the software team for help.")
+        #logger.critical("Run 'pip install pyqtgraph --user' on the command line to fix this error")
+        exit()
+    logger.info("Successfully installed pyqtgraph.")
+    print("Heyyyyy it worked!")
+    import pyqtgraph
+
+try:
+    import pyqtgraph
+except:
+    installPG()
+#####################################################################
 
 # the next import is the class for the ui
 # edit it via Qt Designer
@@ -4964,7 +4989,6 @@ def except_hook(exctype, exception, tb):
     logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
     sys.exit()
 
-
 def checkPackages():
     # list of packages to check, each tuple has the name of the package and a
     # boolean to determine if the version is correct
@@ -5012,6 +5036,7 @@ def checkPackages():
 
 
 def run():
+
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
