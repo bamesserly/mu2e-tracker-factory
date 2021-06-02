@@ -1118,11 +1118,13 @@ class facileDBGUI(QMainWindow):
         resultProxy = self.connection.execute(lpal1Query)
         resultSet = resultProxy.fetchall()
         # if we have stuff for pro 1, set that as the lpal data and return
+        print(resultSet)
         if len(resultSet ) > 0:
             if resultSet[0][0] is not None:
                 self.data.parts["lpal_top_"] = resultSet[0][0]
-            if resultSet[1][0] is not None:
-                self.data.parts["lpal_bot_"] = resultSet[1][0]
+            if len(resultSet) > 1:
+                if resultSet[1][0] is not None:
+                    self.data.parts["lpal_bot_"] = resultSet[1][0]
         # if both LPALs have been found, return early
         if self.data.parts["lpal_bot_"] != [] and self.data.parts["lpal_top_"] != []:
             return

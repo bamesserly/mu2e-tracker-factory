@@ -12,8 +12,8 @@ This file is the class definition for the panel GUI. The whole GUI is run out of
 UI elements come from the file panel.py, which is generated from panel.ui, which is edited from
 Qt Creator.
 
-Using [Ctrl] + K + 0 collapses all functions and sections, making it much easier to navigate
-(On VS Code at least)
+Ctrl + k + 0 --> collapse sections (VS Code)
+Ctrl + k + 2 --> collapse sections (Sublime)
 
 Original Authors: Jacob Christy, Kate Ciampa, Ben Hiltbrand
 Updated/Expanded by: Adam Arnett, Himanshu Joshi
@@ -1146,7 +1146,7 @@ class panelGUI(QMainWindow):
                 self.ui.panelInput3,
                 self.ui.wireInput,
                 self.ui.initialWireWeightLE,
-                self.ui.finalWireWeightLE
+                self.ui.finalWireWeightLE,
             ],
             # Pro 4 Widgets --> can't be entered randomly
             [
@@ -4030,16 +4030,14 @@ class panelGUI(QMainWindow):
         if not self.validateInput(indices=[0]):
             return
 
-
         # Verify that wire has been QCd with DataProcessor
         wire = self.ui.wireInput.text()
         if not self.DP.wireQCd(wire):
             self.generateBox(
-                'warning',
-                'Wire Spool Not Found',
-                'Either a wire spool was not entered, or it is not recorded in the database.'
+                "warning",
+                "Wire Spool Not Found",
+                "Either a wire spool was not entered, or it is not recorded in the database.",
             )
-
 
         # If all tests pass, continue
 
@@ -4058,7 +4056,7 @@ class panelGUI(QMainWindow):
                 self.ui.launchHVpro3,
                 self.ui.initialWireWeightLE,
                 self.ui.finalWireWeightLE,
-                self.ui.launch_tension_box
+                self.ui.launch_tension_box,
             ]
         )
 

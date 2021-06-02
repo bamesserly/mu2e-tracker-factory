@@ -2862,7 +2862,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>710</height>
+                       <height>712</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -3160,6 +3160,9 @@ GUI</string>
                        <property name="text">
                         <string>Save</string>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">saveButtons</string>
+                       </attribute>
                       </widget>
                      </item>
                     </layout>
@@ -4207,8 +4210,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>484</width>
-                       <height>646</height>
+                       <width>281</width>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
