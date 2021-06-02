@@ -3,6 +3,8 @@ import sys, os, inspect, getpass, csv, datetime, numpy as np
 
 from tkinter import messagebox, Tk
 
+import pyqtgraph as pg
+
 # for using paths
 from pathlib import Path, PurePath
 
@@ -225,33 +227,32 @@ class highVoltageGUI(QMainWindow):
     
     # graph on right
     def _init_plot(self):
-        # setup graph
-        self.plot = qwt.QwtPlot()
-        self.plot.setCanvasBackground(Qt.black)
-        # how set axis label colors??????
-        self.plot.setAxisScale(qwt.QwtPlot.xBottom, 0, 95, 5)
-        self.plot.setAxisTitle(qwt.QwtPlot.xBottom, "Position")
-        self.plot.setAxisScale(qwt.QwtPlot.yLeft, 0, 1, 0.1)
-        self.plot.setAxisTitle(qwt.QwtPlot.yLeft, "Current")
-        pen = QPen(Qt.white, 2)
-        self.dataCurve = qwt.QwtPlotCurve("")
-        self.dataCurve.setPen(pen)
-        self.dataCurve.attach(self.plot)
-        
-        self.plot.replot()
+        self.plot = pg.plot()
+
+        self.scatter = pg.ScatterPlotItem(
+            size=10,
+            brush=pg.mkBrush(255, 255, 255, 120)
+        )
+  
+        self.plot.addItem(self.scatter)
         self.ui.graphLayout.addWidget(self.plot)
-        return
 
     # update graph
     def replot(self):
-        dataList = [None for x in range(96)]
-        for x in range(96):
-            if dataList[x] == None and self.getAmp(x) is not "":
-                dataList[x] = float(self.getAmp(x))
+        self.scatter.clear()
+        
+        numPoints = 0
+        xs = []
+        ys = []
+        for z in range(96):
+            if self.getAmp(z) != "":
+                numPoints += 1
+                xs.append(float(self.getAmp(z))) 
+                ys.append(float(z))
+        
+        points = [{'pos': [ys[z],xs[z]], 'data':1} for z in range(numPoints)]
 
-        self.dataCurve.setData(np.arange(96), dataList * np.ones(96))
-        self.plot.replot()
-        return
+        self.scatter.addPoints(points)
 
     # linked to the submit panel button
     def submitPanel(self):
@@ -388,6 +389,8 @@ class highVoltageGUI(QMainWindow):
                         tSList[toop[4]] = toop[5]
                         self.setAmp(toop[4], str(toop[side]))
                         self.setTrip(toop[4], toop[3])
+            
+            self.replot()
 
     # Save one HV measurement, append CSV file
     def saveCSV(self, position, side, current, voltage, is_tripped):
