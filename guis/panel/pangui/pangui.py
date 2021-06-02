@@ -85,18 +85,20 @@ from PyQt5.QtWidgets import (
 # installPG() can be removed after a while, but not until
 # most if not all of the computers have pyqtgraph on them
 def installPG():
+    logger.info("Attempting to install pyqtgraph...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtraph", "--user"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtgraph", "--user"])
     except:
-        logger.critical("Unable to install pyqtgraph.")
-        logger.critical("Run 'pip install pyqtgraph --user' on the command line to fix this error.")
+        logger.critical("Unable to install pyqtgraph, please contact a member of the software team for help.")
+        #logger.critical("Run 'pip install pyqtgraph --user' on the command line to fix this error")
         exit()
+    logger.info("Successfully installed pyqtgraph.")
     print("Heyyyyy it worked!")
+    import pyqtgraph
 
 try:
     import pyqtgraph
 except:
-    print("Error importing pyqtgraph.  Attempting to install.")
     installPG()
 #####################################################################
 
