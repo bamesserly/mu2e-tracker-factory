@@ -10,6 +10,7 @@ import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, stat
 from datetime import timedelta
 
 import logging
+from matplotlib import cm
 
 logger = logging.getLogger("root")
 
@@ -44,7 +45,7 @@ from PyQt5.QtWidgets import (
 
 # mostly for gui window management, QPen and QSize are for plotting
 from PyQt5.QtGui import QBrush, QIcon, QPen, QColor
-from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize
+from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize, QPointF
 
 # for time formatting
 from datetime import datetime
@@ -1805,6 +1806,7 @@ class facileDBGUI(QMainWindow):
             self.displayOnGraphHEAT(pro)
         return
 
+
     def displayOnGraphHEAT(self,pro):
         # clear current plot
         for i in reversed(range(self.ui.heatGraphLayout.count())): 
@@ -1816,52 +1818,36 @@ class facileDBGUI(QMainWindow):
         else:
             localHeat = getattr(self.data,f'p{pro}HeatData')
 
-        plot = qwt.QwtPlot(self)
-        plot.setTitle(f"MN{self.data.humanID} Pro {pro} Heat Data")
 
-        plot.setAxisScaleDraw(
-            qwt.QwtPlot.xBottom, TimeScaleDraw(
-                QDateTime.fromMSecsSinceEpoch(localHeat[0][1])
-            )
-        )
+        plot = pg.PlotWidget(axisItems = {'bottom': pg.DateAxisItem()})
+        plot.setLabel("left","Temperature (°C)")
 
-        # make pens
-        bluePen = QPen(QColor("cyan"))
-        greenPen = QPen(QColor("lime"))
-        whiteDotsPen = QPen(QColor("white"), 0, Qt.DotLine)
+        numPoints = 0
+        paasaYs = []
+        paasbcYs = []
+        xs = []
+        for toop in localHeat:
+            if toop[2] != None:
+                paasaYs.append(float(toop[2]))
+                numPoints += 1
+                xs.append(float(toop[1]))
+            if toop[3] != None:
+                paasbcYs.append(float(toop[3]))
+                if toop[2] == None:
+                    numPoints += 1
+                    xs.append(int(toop[1]))
+        
+        cMap = pg.colormap.get('CET-L8')
+        #cMap.reverse()
+        #penA = cMap.getPen(span=(15.0,60.0), width = 5)
+        brush = QBrush(cMap.getGradient(p1=QPointF(0.,15.0), p2=QPointF(0.,60.0)))
+        penA = QPen(brush,3.0)
+        penA.setCosmetic(True)
 
-        plot.setAxisTitle(0,"Temperature (°C)")
-        plot.setCanvasBackground(Qt.black)
-        # y axis is temperature
-        # first remove tuples where no measurements for A or B/C
-        localHeat = [toop for toop in localHeat if (toop[2] or toop[3])]
-        paasA = [toop[2] if toop[2] else 1 for toop in localHeat]
-        paasBC = [toop[3] if toop[3] else 1 for toop in localHeat]
-        time = [toop[1] for toop in localHeat]
-        curveA = qwt.QwtPlotCurve("PAAS A")
-        curveA.setPen(bluePen)
-        curveA.setData(time, paasA)
-        curveA.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
-        curveA.attach(plot)
+        curveA = pg.PlotDataItem(x=xs,y=paasaYs, pen=penA, hoverable=True)
+        plot.addItem(curveA)
+        plot.showGrid(x=True,y=True)
 
-        if pro == 2:
-            curveB = qwt.QwtPlotCurve("PAAS B")
-            curveB.setPen(greenPen)
-            curveB.setData(time, paasBC)
-            curveB.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
-            curveB.attach(plot)
-        if pro == 6:
-            curveB = qwt.QwtPlotCurve("PAAS C")
-            curveB.setPen(greenPen)
-            curveB.setData(time, paasBC)
-            curveB.setRenderHint(qwt.QwtPlotItem.RenderAntialiased)
-            curveB.attach(plot)
-
-        grid = qwt.QwtPlotGrid()
-        grid.attach(plot)
-        grid.setPen(whiteDotsPen)
-
-        plot.replot()
         self.ui.heatGraphLayout.addWidget(plot)
 
 
