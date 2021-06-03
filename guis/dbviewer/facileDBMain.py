@@ -18,9 +18,10 @@ logger = logging.getLogger("root")
 # import qdarkstyle  # commented out since most machines don't have this and it has to be installed with pip
 import sqlalchemy as sqla  # for interacting with db
 import sqlite3  # for connecting with db
-import matplotlib.pyplot as plt  # for plotting
-import matplotlib as mpl  # also for plotting
-import pandas as pd  # even more plotting
+import matplotlib.pyplot as plt  # for plotting (in popups)
+import matplotlib as mpl  # also for plotting (in popups)
+import numpy as np # for multiple things, mostly plotting (in gui)
+import pyqtgraph as pg # for plotting (in gui)
 
 from PyQt5.QtWidgets import (
     QApplication,
@@ -50,7 +51,6 @@ from datetime import datetime
 
 # all for plotting apparently...
 import sip
-import numpy as np
 import qwt
 
 from guis.dbviewer.facileDB import Ui_MainWindow  # import raw UI
@@ -469,7 +469,6 @@ class facileDBGUI(QMainWindow):
             lambda: self.changeColor((122, 0, 25), (255, 204, 51))
         )
 
-
     # utility, get any widget by name
     # parameters: widgetName, name of the desired widget as a string
     # returns: requested widget, will always be a child of self.ui
@@ -734,7 +733,13 @@ class facileDBGUI(QMainWindow):
             )   
             return 0
 
-
+    # used to change the color of the gui.  Adapted from the function in pangui
+    # parameters:   background_color, int tuple that represents a color via RGB value
+    #               text_color, int tuple that represents a color via RGB value
+    #               third_color, optional int tuple that represents a color via RGB value
+    #               fourth_color, optional int tuple that represents a color via RGB value
+    #               default, bool that's true if resetting to default black on white colors
+    # returns: nothing
     def changeColor(self, background_color, text_color, third_color=False, fourth_color=False, default=False):
         if default:
             self.stylesheet = ""
@@ -753,7 +758,6 @@ class facileDBGUI(QMainWindow):
         background_color_invert = invert(background_color)
 
         self.stylesheet = (
-
             "QMainWindow, QDialog, QMessageBox, QMenuBar { background-color: rgb"
             + f"{background_color}; color: rgb{text_color};"
             + " }\n"
@@ -780,7 +784,6 @@ class facileDBGUI(QMainWindow):
             + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
             + " }"
             f'QStatusBar {"{"}color: rgb{text_color}{"}"}'
-
         )
 
         self.setStyleSheet(self.stylesheet)
@@ -1441,6 +1444,12 @@ class facileDBGUI(QMainWindow):
                 self.ui.wirePlotButton,self.ui.wirePlotButton_2
             )
         )
+        self.displayOnGraph(
+            self.data.wireData,
+            "Position",0,
+            "Tension",1,
+            self.ui.wireGraphLayout
+        )
         self.displayOnLists(
             2,
             self.data.strawData,
@@ -1668,8 +1677,37 @@ class facileDBGUI(QMainWindow):
 
     # general function to graph any data on the main window
     # TODO: actually write the function lol
-    def displayOnGraph(self,dataType,xAxis,yAxis,graphType,targetLayout):
-        targetLayout.addWidget(QLabel("Graph coming soon!"))
+    def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout):
+        # clear current plot
+        for i in reversed(range(targetLayout.count())): 
+            self.ui.plotLayout.itemAt(i).widget().setParent(None)
+        
+        # new plot
+        plot = pg.plot()
+        plot.setLabel("bottom",xAxis)
+        plot.setLabel("left",yAxis)
+
+        scatter = pg.ScatterPlotItem(
+            size = 10,
+            brush=pg.mkBrush(255,255,255,120)
+        )
+
+        numPoints = 0
+        xs = []
+        ys = []
+        for toop in dataType:
+            if toop[yIndex] != "No Data" and toop[yIndex] != None:
+                numPoints += 1
+                xs.append(float(toop[xIndex])) 
+                ys.append(float(toop[yIndex]))
+
+        points = [{'pos': [xs[z],ys[z]], 'data':1} for z in range(numPoints)]
+        scatter.addPoints(points, hoverable=True)
+        plot.addItem(scatter)
+        plot.setXRange(0,96)
+
+        targetLayout.addWidget(plot)
+        #targetLayout.addWidget(QLabel("Graph coming soon!"))
         return
 
     # puts heat data in the gui
@@ -1822,8 +1860,6 @@ class facileDBGUI(QMainWindow):
         grid = qwt.QwtPlotGrid()
         grid.attach(plot)
         grid.setPen(whiteDotsPen)
-
-        
 
         plot.replot()
         self.ui.heatGraphLayout.addWidget(plot)
