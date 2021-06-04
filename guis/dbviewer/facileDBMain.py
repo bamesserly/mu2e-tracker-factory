@@ -730,7 +730,14 @@ class facileDBGUI(QMainWindow):
                     self.ui.hvExportButton,self.ui.hvExportButton_2,
                     self.ui.hvPlotButton,self.ui.hvPlotButton_2
                 )
-            )   
+            )
+            self.displayOnGraph(
+                getattr(self.data,f'hv{volts}P{pro}'),
+                "Position",0,
+                "Current (μA)",1,
+                self.ui.hvGraphLayout,
+                microScale=True
+            )
             return 0
 
     # used to change the color of the gui.  Adapted from the function in pangui
@@ -964,6 +971,9 @@ class facileDBGUI(QMainWindow):
 
         # for each procedure one to seven...
         for key in self.data.proIDs:
+            if key == "pan8":
+                logger.error("pan8 key appeared in self.data.proIDs")
+                break
             # for each tuple (time event for procedure)...
             for toop in proSpecificQuery(self, key):
                 # add the event to the list associated with this procedure
@@ -1090,6 +1100,7 @@ class facileDBGUI(QMainWindow):
 
         # lpals are slightly different, so they have their own function
         self.findLPALs()
+        self.findSpool()
 
         # return bool
         return (len(retList) > 0)
@@ -1097,7 +1108,7 @@ class facileDBGUI(QMainWindow):
     # finds LPALs and stores them in self.data.parts, called by findParts
     # LPALs have their own find function because they are different than the other parts
     # parameters: no parameters
-    # returns: nothing returned (yet)
+    # returns: nothing returned
     def findLPALs(self):
         # LPALs are found differently than regular parts
         # straw_location(MN type) --> procedures(this panel) --> 
@@ -1121,7 +1132,6 @@ class facileDBGUI(QMainWindow):
         resultProxy = self.connection.execute(lpal1Query)
         resultSet = resultProxy.fetchall()
         # if we have stuff for pro 1, set that as the lpal data and return
-        print(resultSet)
         if len(resultSet ) > 0:
             if resultSet[0][0] is not None:
                 self.data.parts["lpal_top_"] = resultSet[0][0]
@@ -1157,6 +1167,39 @@ class facileDBGUI(QMainWindow):
                 self.data.parts["lpal_top_"] = resultSet[0][0]
             if resultSet[1][0] is not None and self.data.parts["lpal_bot_"] == []:
                 self.data.parts["lpal_bot_"] = resultSet[1][0]
+
+    # finds wire spool id and weights and stores them in self.data.parts, called by findParts
+    # wire spool stuff has its own find function because it's different than the other parts
+    # parameters: no parameters
+    # returns: nothing returned
+    def findSpool(self):
+        # check if pro 3 exists
+        if self.data.proIDs["pan3"] == -1:
+            return False
+
+        pan3Pros = sqla.Table(
+            "procedure_details_pan3", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        spoolQuery = sqla.select([
+            pan3Pros.columns.wire_spool,
+            pan3Pros.columns.wire_weight_initial,
+            pan3Pros.columns.wire_weight_final
+            ]
+        ).where(pan3Pros.columns.procedure == self.data.proIDs["pan3"])
+
+        resultProxy = self.connection.execute(spoolQuery)
+        resultSet = resultProxy.fetchall()
+
+        if len(resultSet) != 1:
+            return
+        
+        if resultSet[0][0] is not None:
+            self.data.parts["wire_spool"] = resultSet[0][0]
+        if resultSet[0][1] is not None:
+            self.data.parts["wire_weight_initial"] = resultSet[0][1]
+        if resultSet[0][2] is not None:
+            self.data.parts["wire_weight_final"] = resultSet[0][2]
 
     # finds straw tension data and stores it in self.data.strawData
     # parameters: no parameters
@@ -1590,16 +1633,20 @@ class facileDBGUI(QMainWindow):
             try:
                 return self.getWid(f"part{widget}LE")
             except:
-                tkinter.messagebox.showerror(
-                    title="Error",
-                    message=f'Key Error: No part found with name "{widget}".\nPerhaps an L/R or A/B/C was not found in the database?',
-                )
-                return self.ui.label_2
+                if widget not in ["wire_weight_initial","wire_weight_final"]:
+                    tkinter.messagebox.showerror(
+                        title="Error",
+                        message=f'Key Error: No part found with name "{widget}".\nPerhaps an L/R or A/B/C was not found in the database?',
+                    )
+                    logger.error(f'Key Error: No part found with name "{widget}".\nPerhaps an L/R or A/B/C was not found in the database?')
+                    return self.ui.error_label
+                else:
+                    return self.ui.error_label
             
         # for each type of part,
         for key in self.data.parts:
             # make sure we actually have an id
-            if self.data.parts[key] == []:
+            if self.data.parts[key] == [] or self.data.parts[key] == None:
                 # if not, let it know we don't
                 self.data.parts[key] = -1
             # set the corresponding widget to the key's number
@@ -1609,6 +1656,22 @@ class facileDBGUI(QMainWindow):
             else:
                 getPartWidget(self, key).setText("Not found")
                 self.ui.label_2.setText(f"MN{str(self.data.humanID).zfill(3)}")
+
+        # special case: wire spool weights
+        boolList = [
+            self.data.parts["wire_weight_initial"] != [],
+            self.data.parts["wire_weight_initial"] != None,
+            self.data.parts["wire_weight_initial"] != -1,
+            self.data.parts["wire_weight_final"] != [],
+            self.data.parts["wire_weight_final"] != None,
+            self.data.parts["wire_weight_final"] != -1
+        ]
+        if not False in boolList:
+            weightUsed = str(float(self.data.parts["wire_weight_initial"]) - float(self.data.parts["wire_weight_final"]))
+            self.ui.partWireWeightLE.setText(f'{weightUsed[:5]}g')
+        else:
+            self.ui.partWireWeightLE.setText("Not found")
+
 
     # put data into QListWidgets
     # parameters:   pro, int representing which pro to check for data in
@@ -1685,10 +1748,10 @@ class facileDBGUI(QMainWindow):
 
     # general function to graph any data on the main window
     # TODO: actually write the function lol
-    def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout,errorBars=False,eIndex=0):
+    def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout,errorBars=False,eIndex=0,microScale=False):
         # clear current plot
         for i in reversed(range(targetLayout.count())): 
-            self.ui.plotLayout.itemAt(i).widget().setParent(None)
+            targetLayout.itemAt(i).widget().setParent(None)
         
         # new plot
         plot = pg.plot()
@@ -1720,7 +1783,7 @@ class facileDBGUI(QMainWindow):
 
         plotToAdd = pg.ScatterPlotItem(
             size = 10,
-            brush=pg.mkBrush(255,255,255,120)
+            brush=pg.mkBrush(255,255,255,190)
         )
         points = [{'pos': [xs[z],ys[z]], 'data':1} for z in range(numPoints)]
         plotToAdd.addPoints(points, hoverable=True)
@@ -1729,6 +1792,8 @@ class facileDBGUI(QMainWindow):
         if errorBars:
             plot.addItem(errorPlot)
         plot.setXRange(0,96)
+        if microScale:
+            plot.setYRange(0,0.01)
         plot.showGrid(x=True,y=True)
 
         targetLayout.addWidget(plot)
@@ -1775,7 +1840,7 @@ class facileDBGUI(QMainWindow):
             if len(paasATemps) > 0:  # if paas A data exits
                 # make a list of stats
                 paasAStats = [
-                    "PAAS A (Blue on graph) Statistics",
+                    "PAAS A Statistics",
                     f'Mean: {str(statistics.mean(paasATemps))[:8]}',  # mean of paas A
                     f'Min: {str(min(paasATemps))[:8]}',  # min of paas A
                     f'Max: {str(max(paasATemps))[:8]}',  # max of paas A
@@ -1787,7 +1852,7 @@ class facileDBGUI(QMainWindow):
                 # make a list of stats
                 paasBCStats = [
                     '', # empty line
-                    f'PAAS {"B" if pro == 2 else "C"} (Green on graph) Statistics',
+                    f'PAAS {"B" if pro == 2 else "C"} Statistics',
                     f'Mean: {str(statistics.mean(paasBCTemps))[:8]}',  # mean of paas BC
                     f'Min: {str(min(paasBCTemps))[:8]}',  # min of paas BC
                     f'Max: {str(max(paasBCTemps))[:8]}',  # max of paas BC
@@ -1861,15 +1926,31 @@ class facileDBGUI(QMainWindow):
                     numPoints += 1
                     xs.append(int(toop[1]))
         
-        cMap = pg.colormap.get('CET-L8')
-        #cMap.reverse()
-        #penA = cMap.getPen(span=(15.0,60.0), width = 5)
-        brush = QBrush(cMap.getGradient(p1=QPointF(0.,15.0), p2=QPointF(0.,60.0)))
-        penA = QPen(brush,3.0)
+        if pro == 1:
+            cMapA = pg.colormap.get('CET-L8')
+        else:
+            cMapA = pg.colormap.get('CET-L4')
+        brushA = QBrush(cMapA.getGradient(p1=QPointF(0.,15.0), p2=QPointF(0.,60.0)))
+        penA = QPen(brushA,3.0)
         penA.setCosmetic(True)
 
+        theLegend27 = pg.LegendItem(pen=QPen(Qt.white)) # I think I'm funny
         curveA = pg.PlotDataItem(x=xs,y=paasaYs, pen=penA, hoverable=True)
         plot.addItem(curveA)
+
+        if pro != 1:
+            cMapB = pg.colormap.get('CET-L7')
+            brushB = QBrush(cMapB.getGradient(p1=QPointF(0.,15.0), p2=QPointF(0.,60.0)))
+            penB = QPen(brushB,3.0)
+            penB.setCosmetic(True)
+            curveB = pg.PlotDataItem(x=xs,y=paasbcYs,pen=penB,hoverable=True)
+            plot.addItem(curveB)
+            theLegend27.addItem(curveA, "PAAS A - Red/Yellow")
+            theLegend27.addItem(curveB, f'PAAS {"B" if pro == 2 else "C"} - Blue/Pink')
+        else:
+            theLegend27.addItem(curveA, "PAAS A")
+        
+        theLegend27.setParentItem(plot.getPlotItem())
         plot.showGrid(x=True,y=True)
 
         self.ui.heatGraphLayout.addWidget(plot)

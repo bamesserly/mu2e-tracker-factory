@@ -96,6 +96,10 @@ class PanelData:
             # lowercse because that's how it is in the database
             "lpal_bot_": -1,
             "lpal_top_": -1,
+            # wire spool ids, and pro 3 before/after weight
+            "wire_spool": -1,
+            "wire_weight_initial": -1,
+            "wire_weight_final": -1
         }
 
         # HV data: list of hv data where list index = straw
