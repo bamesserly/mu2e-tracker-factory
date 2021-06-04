@@ -662,7 +662,6 @@ class facileDBGUI(QMainWindow):
                 title="Error",
                 message=f'An error was encountered while attempting to graph {text}.',
             )
-
     
     # called when a combo box index changes, calls functions to update relevant data
     # parameters:   type, a string either "hv" or "heat"
@@ -1461,6 +1460,14 @@ class facileDBGUI(QMainWindow):
                 self.ui.strawPlotButton,self.ui.strawPlotButton_2
             )
         )
+        self.displayOnGraph(
+            self.data.strawData,
+            "Position",0,
+            "Tesnion",1,
+            self.ui.strawGraphLayout,
+            errorBars=True,
+            eIndex=3
+        )
         return
 
     # puts part IDs on the gui
@@ -1678,7 +1685,7 @@ class facileDBGUI(QMainWindow):
 
     # general function to graph any data on the main window
     # TODO: actually write the function lol
-    def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout):
+    def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout,errorBars=False,eIndex=0):
         # clear current plot
         for i in reversed(range(targetLayout.count())): 
             self.ui.plotLayout.itemAt(i).widget().setParent(None)
@@ -1688,24 +1695,41 @@ class facileDBGUI(QMainWindow):
         plot.setLabel("bottom",xAxis)
         plot.setLabel("left",yAxis)
 
-        scatter = pg.ScatterPlotItem(
-            size = 10,
-            brush=pg.mkBrush(255,255,255,120)
-        )
-
         numPoints = 0
         xs = []
         ys = []
+        erTops = []
+        erBots = []
         for toop in dataType:
             if toop[yIndex] != "No Data" and toop[yIndex] != None:
                 numPoints += 1
                 xs.append(float(toop[xIndex])) 
                 ys.append(float(toop[yIndex]))
 
+        if errorBars:
+            for toop in dataType:
+                if toop[yIndex] != "No Data" and toop[yIndex] != None:
+                    if toop[eIndex] != None:
+                        erTops.append(toop[eIndex])
+                        erBots.append(toop[eIndex])
+            xs = np.array(xs)
+            ys = np.array(ys)
+            erTops = np.array(erTops)
+            erBots = np.array(erBots)
+            errorPlot = pg.ErrorBarItem(x=xs,y=ys,top=erTops,bottom=erBots)
+
+        plotToAdd = pg.ScatterPlotItem(
+            size = 10,
+            brush=pg.mkBrush(255,255,255,120)
+        )
         points = [{'pos': [xs[z],ys[z]], 'data':1} for z in range(numPoints)]
-        scatter.addPoints(points, hoverable=True)
-        plot.addItem(scatter)
+        plotToAdd.addPoints(points, hoverable=True)
+        
+        plot.addItem(plotToAdd)
+        if errorBars:
+            plot.addItem(errorPlot)
         plot.setXRange(0,96)
+        plot.showGrid(x=True,y=True)
 
         targetLayout.addWidget(plot)
         #targetLayout.addWidget(QLabel("Graph coming soon!"))
