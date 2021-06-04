@@ -119,7 +119,7 @@ class CompletionTrack(QDialog):
         self.meas_type_labels_apprev = {0: "ii", 1: "io", 2: "oi", 3: "oo"}
 
         self.meas_type_eval = {  # Evaluates each type of measurement
-            0: lambda meas: (40.0 <= meas <= 250.0),  # i-i
+            0: lambda meas: (40.0 <= meas <= 300.0),  # i-i
             1: lambda meas: (meas >= 1000.0),  # i-o
             2: lambda meas: (meas >= 1000.0),  # o-i
             3: lambda meas: (40.0 <= meas <= 250.0),  # o-o
