@@ -6,6 +6,30 @@
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
 
+###########################################################################
+# pyqtgraph is used by the hv gui and dbviewer but none of the computers
+# have is as of 6/2/2021, so it must be installed in order to
+# import the hv gui and not crash.  This little block and 
+# installPG() can be removed after a while, but not until
+# most if not all of the computers have pyqtgraph on them
+def installPG():
+    logger.info("Attempting to install pyqtgraph...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtgraph", "--user"])
+    except:
+        logger.critical("Unable to install pyqtgraph, please contact a member of the software team for help.")
+        #logger.critical("Run 'pip install pyqtgraph --user' on the command line to fix this error")
+        exit()
+    logger.info("Successfully installed pyqtgraph.")
+    print("Heyyyyy it worked!")
+    import pyqtgraph
+
+try:
+    import pyqtgraph
+except:
+    installPG()
+###########################################################################
+
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
 
