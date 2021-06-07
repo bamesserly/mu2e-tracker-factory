@@ -44,6 +44,10 @@ from guis.straw.leak.remove import Ui_DialogBox
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 
+# Import logger from Modules (only do this once)
+from guis.common.panguilogger import SetupPANGUILogger
+logger = SetupPANGUILogger("root", tag="Leak_Test")
+
 import threading
 
 
@@ -2480,6 +2484,7 @@ to permanently remove "
 
 
 def except_hook(cls, exception, traceback):
+    logger.error("Logging an uncaught exception", exc_info=(cls, exception, traceback))
     sys.__excepthook__(cls, exception, traceback)
     sys.exit()
 

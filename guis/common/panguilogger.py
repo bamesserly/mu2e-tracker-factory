@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 
 # the order that these lines appear in is important!
-def SetupPANGUILogger(name="root"):
+def SetupPANGUILogger(name="root", tag="PANGUI"):
     sformatter = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
     fformatter = logging.Formatter(
         "[%(asctime)s][%(levelname)-8s][%(threadName)-10s][%(module)-11s] %(message)s",
@@ -14,7 +14,7 @@ def SetupPANGUILogger(name="root"):
     shandler.setLevel(logging.INFO)
 
     logfile = "./logfiles/" + datetime.strftime(
-        datetime.now(), "%Y%m%d_%H%M%S_PANGUI_log.txt"
+        datetime.now(), f"%Y%m%d_%H%M%S_{tag}_log.txt"
     )
     fhandler = logging.FileHandler(logfile)
     fhandler.setFormatter(fformatter)
