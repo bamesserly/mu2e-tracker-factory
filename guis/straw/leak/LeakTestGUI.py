@@ -1029,8 +1029,9 @@ class LeakTestStatus(QMainWindow):
         chamber = int(btn.objectName().strip("ActionButton"))
         ROW = int(chamber / 5)
         COL = chamber % 5
-
+        # if chamber is empty...
         if self.chambers_status[ROW][COL][:5] == "empty":
+            # ensure a credentialed worker is logged in
             if self.checkCredentials():
                 self.chambers_status[ROW][COL] = "Processing"
                 self.ChamberLabels[chamber].setText(self.chambers_status[ROW][COL])
@@ -1047,26 +1048,49 @@ class LeakTestStatus(QMainWindow):
                         "background-color: rgb(149, 186, 255)"
                     )
                     self.NoStraw(ROW, COL)
+            # otherwise prompt log in
             else:
                 self.openLogInDialog()
+        # if chamber is not empty...
         elif self.chambers_status[ROW][COL][:5] != "empty":
             if self.passed[chamber] == "U":
-                msg = f"This straw has not finished leak testing. Unloading now will NOT record leak data for this straw.\n\nAre you sure you want to unload {self.Choosenames[ROW][COL][:7]}?"
-                reply = QMessageBox.warning(
+                msg = f'You are attempting to unload {self.Choosenames[ROW][COL][:7]}, which has not finished leak testing.  Would you like to save leak data for this straw?'
+                reply = QMessageBox.question(
                     self,
                     "Straw Not Finished Leak Testing",
                     msg,
                     QMessageBox.Yes,
                     QMessageBox.No,
+                    QMessageBox.Cancel,
                 )
+                reply.setDefaultButton(QMessageBox.yes)
 
                 if reply == QMessageBox.Yes:
                     thread = threading.Thread(
-                        target=self.unloadActionNoSaving, args=(ROW, COL, chamber, btn)
+                        target=self.unloadAction, args=(ROW, COL, chamber, btn)
                     )
                     thread.daemon = True  # Daemonize thread
                     thread.start()
                     return
+                if reply == QMessageBox.No:
+                    msg = f'You are about to unload {self.Choosenames[ROW][COL][:7]} without saving.  Continue?'
+                    reply = QMessageBox.warning(
+                    self,
+                    "Straw Not Finished Leak Testing",
+                    msg,
+                    QMessageBox.Yes,
+                    QMessageBox.Abort
+                    )
+                    reply.setDefaultButton(QMessageBox.Abort)
+                    if reply == QMessageBox.Yes:
+                        thread = threading.Thread(
+                            target=self.unloadActionNoSaving, args=(ROW, COL, chamber, btn)
+                        )
+                        thread.daemon = True  # Daemonize thread
+                        thread.start()
+                        return
+                    else:
+                        return
                 else:
                     return
 
