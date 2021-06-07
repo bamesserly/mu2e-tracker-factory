@@ -1252,7 +1252,7 @@ class Pan3Procedure(PanelProcedure):
             current_left=current if side == "Left" else None,
             current_right=current if side == "Right" else None,
             voltage=voltage,
-            is_tripped=is_tripped
+            is_tripped=is_tripped,
         ).commit()
 
 
@@ -1812,11 +1812,14 @@ class Station(BASE, OBJECT):
     def panelStation(day):
         # print(PanelStation.query().first()) # None!
         # print(PanelStation.query().filter(PanelStation.production_step == day))
-        return (
-            PanelStation.query()
-            .filter(PanelStation.production_step == day)
-            .one_or_none()
-        )
+        try:
+            return (
+                PanelStation.query()
+                .filter(PanelStation.production_step == day)
+                .one_or_none()
+            )
+        except sqlalchemy.exc.OperationalError:
+            logger.error("DB Locked. Panel station query failed.")
 
     def startSession(self):
         # Start new session and return

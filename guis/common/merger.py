@@ -1,6 +1,7 @@
 import sqlite3, os, time, sys
 from pathlib import Path
 from datetime import datetime
+import sqlalchemy as sqla
 
 from guis.common.advancedthreading import LoopingReusableThread
 
@@ -142,7 +143,10 @@ class Merger:
             """
 
     def main(self):
-        return self.mergeAll()
+        try:
+            return self.mergeAll()
+        except sqla.exc.OperationalError:
+            logger.error("DB Locked. Failed to attach local DB in executeScript.")
 
 
 class AutoMerger(Merger, LoopingReusableThread):

@@ -7,7 +7,7 @@
 #
 
 from sqlalchemy.orm import sessionmaker as dbconnection
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, exc
 
 import logging
 
