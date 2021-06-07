@@ -81,7 +81,7 @@ from PyQt5.QtWidgets import (
 try:
     import pyqtgraph
 except:
-    logger.warning("pyqtgraph not installed.  Run the following output line on the terminal")
+    logger.warning("pyqtgraph not installed, run the following output line on the terminal")
     logger.info("pip install pyqtgraph --user")
 
 # the next import is the class for the ui
@@ -1345,7 +1345,7 @@ class panelGUI(QMainWindow):
             except KeyError:
                 logger.warning(f'Key error in input validation (caught exception)')
                 pass
-            
+
         return all(results)
 
     """
