@@ -2068,7 +2068,8 @@ class panelGUI(QMainWindow):
             pass
         except Exception:
             # If saving the failure is unsuccessful, display message and return early.
-            logger.warning(f'Unable to submit failure (caught exception)')
+            logger.error(f'Unable to submit failure (caught exception)')
+            logger.info(f'Previous unsaved failure for panel {self.getCurrentPanel()}, pro {self.pro}: {comment}')
             self.ui.failStatus.setText("Unable to submit failure")
             return
 
@@ -2263,7 +2264,8 @@ class panelGUI(QMainWindow):
         try:
             pass
         except Exception:
-            logger.warning(f'Unable to save panel data (caught exception)')
+            logger.error(f'Unable to save panel data (caught exception)')
+            logger.info(f'Previous unsaved data for panel {self.getCurrentPanel()}, pro {self.pro}: {self.data}')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save data."
             )
@@ -2336,7 +2338,8 @@ class panelGUI(QMainWindow):
         try:
             self.DP.saveStep(name)
         except Exception:
-            logger.warning(f'Unable to save step completion (caught exception)')
+            logger.error(f'Unable to save step completion (caught exception)')
+            logger.info(f'Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {name}')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
