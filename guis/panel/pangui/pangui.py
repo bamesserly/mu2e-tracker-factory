@@ -81,7 +81,7 @@ from PyQt5.QtWidgets import (
 try:
     import pyqtgraph
 except:
-    logger.error("pyqtgraph not installed.  Run the following output line on the terminal.")
+    logger.warning("pyqtgraph not installed.  Run the following output line on the terminal")
     logger.info("pip install pyqtgraph --user")
 
 # the next import is the class for the ui
@@ -1343,7 +1343,9 @@ class panelGUI(QMainWindow):
                     widget.setStyleSheet("")
 
             except KeyError:
+                logger.warning(f'Key error in input validation (caught exception)')
                 pass
+            
         return all(results)
 
     """
@@ -1431,7 +1433,7 @@ class panelGUI(QMainWindow):
             self.ui.GUIpro.setCurrentIndex(self.pro_index)
         except IndexError:
             if btn.text() == "Process 8 - Final QC":
-                logger.warning("Process 8 is under construction.")
+                logger.warning("Process 8 is under construction")
                 self.generateBox(
                     "warning",
                     "Process 8 Not Ready",
@@ -1514,7 +1516,7 @@ class panelGUI(QMainWindow):
 
             if reply == QMessageBox.Yes:
                 self.closeGUI()
-
+                logger.info("GUI closed")
                 event.accept()
                 sys.exit(0)
             else:
@@ -1551,6 +1553,8 @@ class panelGUI(QMainWindow):
         self.finishButton.setText("Pause")
 
         self.displayComments()
+
+        logger.info(f'Panel {self.getCurrentPanel()} pro {self.pro} now running')
 
     """
     stopRunning(self)
@@ -1592,6 +1596,8 @@ class panelGUI(QMainWindow):
             self.ui.proReturnButton.setDisabled(False)
             self.finishButton.setDisabled(True)
 
+            logger.info(f'Panel {self.getCurrentPanel()} pro {self.pro} finished')
+
             # Go back to the pro select page
             self.backToproSelect()
 
@@ -1610,6 +1616,7 @@ class panelGUI(QMainWindow):
         # Save pause with data processor
         self.DP.savePause()
         # Include a comment
+        logger.info(f"pro {self.pro} Paused by {self.dialogBox.pauseWorker}")
         self.DP.saveComment(
             f"pro {self.pro} Paused by {self.dialogBox.pauseWorker}\nReason: {self.dialogBox.getComment()}",
             self.getCurrentPanel(),
@@ -1643,6 +1650,8 @@ class panelGUI(QMainWindow):
             if self.pro == 1 and not self.data[0][22]:
                 return
             self.finishButton.setText("Finish")
+        
+        logger.info(f'Panel {self.getCurrentPanel()} pro {self.pro} resumed')
 
     """
     backToproSelect(self)
@@ -2059,6 +2068,7 @@ class panelGUI(QMainWindow):
             pass
         except Exception:
             # If saving the failure is unsuccessful, display message and return early.
+            logger.warning(f'Unable to submit failure (caught exception)')
             self.ui.failStatus.setText("Unable to submit failure")
             return
 
@@ -2168,6 +2178,7 @@ class panelGUI(QMainWindow):
                     )
                 else:
                     # Record login with data processor
+                    logger.info(f'{Current_worker} logged in')
                     self.DP.saveLogin(Current_worker)
                     # Gui Operations
                     self.Current_workers[portalNum].setText(Current_worker)
@@ -2179,7 +2190,9 @@ class panelGUI(QMainWindow):
             Current_worker = self.Current_workers[portalNum].text().strip().upper()
 
             if Current_worker != "":
+                logger.info(f'{Current_worker} logged out')
                 self.DP.saveLogout(Current_worker)
+                
 
             self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
@@ -2250,6 +2263,7 @@ class panelGUI(QMainWindow):
         try:
             pass
         except Exception:
+            logger.warning(f'Unable to save panel data (caught exception)')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save data."
             )
@@ -2322,6 +2336,7 @@ class panelGUI(QMainWindow):
         try:
             self.DP.saveStep(name)
         except Exception:
+            logger.warning(f'Unable to save step completion (caught exception)')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
@@ -2365,6 +2380,8 @@ class panelGUI(QMainWindow):
             )  # try to save comment
         except Exception:
             # If it fails, generate a message box and return
+            logger.warning(f'Unable to save comment (caught exception)')
+            logger.info(f'Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {comments}')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save comments."
             )
@@ -2751,14 +2768,21 @@ class panelGUI(QMainWindow):
     # Each of the next four functions displays measurements that go in scroll areas
 
     def parseContinuityMeasurements(self, data):
+        # keep track of exceptions
+        exCaught = False
         # Display the given data
         for index, measurements in enumerate(data):
             cont_str, wire_align_str = measurements
             if cont_str is not None and wire_align_str is not None:
-                self.displayContinuityMeasurement(index, cont_str, wire_align_str)
+                exCaught = exCaught or self.displayContinuityMeasurement(index, cont_str, wire_align_str)
+        
+        if exCaught:
+            logger.info(f'Old panel data loaded in process 3 (caught exception)')
 
     def displayContinuityMeasurement(self, index, continuity_str, wire_align_str):
-
+        # keep track of exceptions, if we logged one in the try/except it would
+        # log up to 96 exceptions at a time (if a complete, old panel was loaded)
+        exCaught = False
         # older panels will have three position options instead of nine
         # this if statement checks if old data needs to be displayed and if it does
         # it adds that old data as another selection option to allow it to be displayed
@@ -2771,6 +2795,7 @@ class panelGUI(QMainWindow):
             # an out of bounds exception will be thrown if it doesn't exist, in that case
             # add a new item with the old data as it's text
             except:
+                exCaught = True
                 self.wire_align[index].addItem(wire_align_str)
 
         # Finds index of string, then sets index to that number
@@ -2781,6 +2806,8 @@ class panelGUI(QMainWindow):
         # Call method to update both continuity and wire alignment displays at this index
         setText(self.continuity[index], continuity_str)
         setText(self.wire_align[index], wire_align_str)
+
+        return exCaught
 
     def displayAllHVMeasurements(self, data):
         for index, measurements in enumerate(data):
@@ -3405,6 +3432,7 @@ class panelGUI(QMainWindow):
                     "Data Processor Error",
                     "SQL Processor inactive, BP/IR epoxy timer may not function.",
                 )
+                logger.warning(f'SQL processor inactive, timers may not funciton (caught exception)')
             self.timers[6].setElapsedTime(elapsed_time)
             if running:
                 self.startTimer(6)
@@ -3432,6 +3460,7 @@ class panelGUI(QMainWindow):
                     "Data Processor Error",
                     "SQL Processor inactive, Frame epoxy timer may not function.",
                 )
+                logger.warning(f'SQL processor inactive, timers may not funciton (caught exception)')
             self.timers[7].setElapsedTime(elapsed_time)
             if running:
                 self.startTimer(7)
@@ -3460,6 +3489,7 @@ class panelGUI(QMainWindow):
                     "Data Processor Error",
                     "SQL Processor inactive, heating timer may not function.",
                 )
+                logger.warning(f'SQL processor inactive, timers may not funciton (caught exception)')
             self.timers[8].setElapsedTime(elapsed_time)
             if running:
                 self.startTimer(8)
@@ -4826,10 +4856,12 @@ class panelGUI(QMainWindow):
                     self.ui.panelInput2.text()[2:]
                 ),  # let the tensioner gui know what panel it's being used for
             )
-        self.strawTensionWindow.show()  # show the window
-        self.strawTensionWindow.resize(
-            1600, 1200
-        )  # resize for readability (default is 400x200?)
+        # show the window
+        self.strawTensionWindow.show()  
+        # resize for readability (default is 400x200?)
+        self.strawTensionWindow.resize(1600, 1200)
+        # log launch
+        logger.info("Straw tensioner launched")
 
     # creates wire tensioner gui window
     # uses wireTensionWindow from GUIs/current/tension_devices/wire_tensioner/wire_tensioner.py
@@ -4852,6 +4884,8 @@ class panelGUI(QMainWindow):
 
             # Show the window
             self.wireTensionWindow.show()
+            # log launch
+            logger.info("Wire tensioner launched")
 
     # creates tension box gui window
     # uses TensionBox from GUIs/current/tension_devices/tension_box/tensionbox_window.py
@@ -4873,7 +4907,11 @@ class panelGUI(QMainWindow):
                     panel=self.getCurrentPanel(),
                     pro=self.pro,
                 )
+
+            # show window
             self.tensionBoxWindow.show()
+            # log launch
+            logger.info("Tensionbox launched")
 
     # creates panel heater gui window
     # uses HeatControl from GUIs/current/tension_devices/panel_heater/PanelHeater.py
@@ -4908,6 +4946,7 @@ class panelGUI(QMainWindow):
                 ),
             )
             self.panelHeaterWindow.show()
+            logger.info("Heater launched")
 
     # creates HV measurements gui window
     # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain
@@ -4943,6 +4982,7 @@ class panelGUI(QMainWindow):
             self.hvMeasurementsWindow.ui.scrollAreaHV.setStyleSheet(
                 "background-color: rgb(122, 0, 25);"
             )
+            logger.info("HV GUI launched")
 
 
 # ██████╗ ███████╗    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗
@@ -4995,12 +5035,12 @@ def checkPackages():
     ]
     # loop through list of package tuples
     for package in packageList:
-        if not package[
-            1
-        ]:  # if the boolean statement is false (if the version is incorrect)
+        if not package[1]:
+            # if the boolean statement is false (if the version is incorrect)
             # display a tkinter error with the following string as it's message (I apologize for putting 200+ characters on one line)
             # package[0] gets the name of the package, and platform.node() gets the name of the computer
             message = f"An incompatible version of {package[0]} is installed on this computer.  The GUI may not function normally, and DATA MAY NOT BE SAVED.  Contact a member of the software team for help, and mention that {package[0]} needs updating on {platform.node()}"
+            logger.warning(f"An incompatible version of {package[0]} is installed on this computer")
             packageErrorRoot = tkinter.Tk()  # create a tkinter root
             packageErrorRoot.withdraw()  # hide the root (hide the tiny blank window that tkinter wants)
             tkinter.messagebox.showerror(  # show error message
@@ -5012,6 +5052,7 @@ def checkPackages():
     if sys.version[:3] != "3.7":  # if python version is wrong
         # just like above, display a tkinter error (except with different text)
         message = f"The wrong version of python is installed on this computer.  The GUI will not function normally, and DATA MAY NOT BE SAVED.  Contact a member of the software team immediately, and mention that the wrong version of python is installed on {platform.node()}"
+        logger.warning(f"An incompatible version of python is installed on this computer")
         pythonErrorRoot = tkinter.Tk()
         pythonErrorRoot.withdraw()
         tkinter.messagebox.showerror(title="Version Error", message=message)
