@@ -45,13 +45,19 @@ def passedLeakTest(strawID):
     leak_error = -1
     data_found = False
     leaktest_dir = GetProjectPaths()["strawleakdata"]
+    summary_file = leaktest_dir / "LeakTestResults.csv"
+
+    try:
+        assert summary_file.is_file()
+    except AssertionError:
+        logger.error(f"Leak summary file {summary_file} not found!")
 
     # first attempt: look at the leak rate summary file
-    with open(leaktest_dir / "LeakTestResults.csv", "r") as leak_rate_data:
+    with open(summary_file, "r") as leak_rate_data:
         for line in leak_rate_data:
             if strawID.upper() in str(line).upper():
                 print("\nLeak rate data found!")
-                logger.info(line)
+                logger.debug(line)
                 try:
                     leak_rate = float(line.split(",")[5])
                     leak_error = float(line.split(",")[6])
@@ -66,6 +72,9 @@ def passedLeakTest(strawID):
 
     # second attempt: manually look at the PDF
     if not data_found:
+        logger.info(
+            f"Straw {strawID} not found in LeakTestResults.csv. Checking in raw_data."
+        )
         leak_dir = GetProjectPaths()["strawleakdata"] / "raw_data"
 
         for file_name in os.listdir(leak_dir):
@@ -144,9 +153,20 @@ def passedLeakTest(strawID):
     if not data_found:  # Couldn't find it
         leak_rate = "*missing"
         leak_error = "*missing"
+        logger.info("Straw not found in LeakTestResults.csv, nor in raw_data.")
+        print(
+            "If straw was tested recently, you may need to mergedown on the "
+            "leak computer, and then on this computer."
+        )
         return False
 
-    return (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
+    logger.debug(f"Leak rate found is {leak_rate} +/- {leak_error}")
+    passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
+    if passes:
+        logger.info("Straw is good!")
+    else:
+        logger.info(f"Leak rate {leak_rate} +- {leak_error} is not good enough!")
+    return passes
 
 
 def run():
@@ -163,7 +183,8 @@ def run():
     directory = GetProjectPaths()["pallets"] / f"CPALID{cpal_id}"
     cfile = directory / f"CPAL{cpal_num}.csv"
     logger.info(
-        f"Saving leak and length status for CPALID{cpal_id}, CPAL#{cpal_num} to file {cfile}"
+        f"Saving leak and length status for CPALID{cpal_id}, CPAL#{cpal_num} "
+        f"to file {cfile}"
     )
 
     # Scan-in straws
@@ -175,7 +196,10 @@ def run():
                 straws_passed += straw + ",P,"
                 break
             else:
-                logger.info(f"Straw {straw} was no good. Scan another straw #{i+1}")
+                logger.info(
+                    f"Straw {straw} couldn't be found or it was no "
+                    f"good. Scan another straw #{i+1}."
+                )
     logger.debug(straws_passed)
 
     # Record straws as all having passed length and laser steps in CPAL file
