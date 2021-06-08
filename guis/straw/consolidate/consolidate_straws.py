@@ -44,6 +44,7 @@ def passedLeakTest(strawID):
     leak_rate = -1
     leak_error = -1
     data_found = False
+    passes = False
     leaktest_dir = GetProjectPaths()["strawleakdata"]
     summary_file = leaktest_dir / "LeakTestResults.csv"
 
@@ -62,6 +63,7 @@ def passedLeakTest(strawID):
                     leak_rate = float(line.split(",")[5])
                     leak_error = float(line.split(",")[6])
                     data_found = True  # won't get here if ValueError
+                    passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
                     break
                 except ValueError:
                     logger.warning(
@@ -71,9 +73,10 @@ def passedLeakTest(strawID):
                     pass
 
     # second attempt: manually look at the PDF
-    if not data_found:
+    if not data_found or (data_found and not passes):
         logger.info(
-            f"Straw {strawID} not found in LeakTestResults.csv. Checking in raw_data."
+            f"Straw {strawID} not found in LeakTestResults.csv or leak result "
+            "is bad. Checking in raw_data for the plot."
         )
         leak_dir = GetProjectPaths()["strawleakdata"] / "raw_data"
 
@@ -140,6 +143,8 @@ def passedLeakTest(strawID):
                             + input("Where did you find the leak rate data?")
                         )  # Comments
 
+                    passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
+
                 # data in PDF looks bad!
                 else:
                     logger.warning(
@@ -161,7 +166,6 @@ def passedLeakTest(strawID):
         return False
 
     logger.debug(f"Leak rate found is {leak_rate} +/- {leak_error}")
-    passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
     if passes:
         logger.info("Straw is good!")
     else:
