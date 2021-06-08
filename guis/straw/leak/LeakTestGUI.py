@@ -1054,7 +1054,10 @@ class LeakTestStatus(QMainWindow):
         # if chamber is not empty...
         elif self.chambers_status[ROW][COL][:5] != "empty":
             if self.passed[chamber] == "U":
-                msg = f'You are attempting to unload {self.Choosenames[ROW][COL][:7]}, which has not finished leak testing.  Would you like to save leak data for this straw?'
+                msg = (f'You are attempting to unload '
+                        '{self.Choosenames[ROW][COL][:7]}, which has not '
+                        'finished leak testing.  Would you like to save leak '
+                        'data for this straw?')
                 reply = QMessageBox.question(
                     self,
                     "Straw Not Finished Leak Testing",
@@ -1073,7 +1076,9 @@ class LeakTestStatus(QMainWindow):
                     thread.start()
                     return
                 if reply == QMessageBox.No:
-                    msg = f'You are about to unload {self.Choosenames[ROW][COL][:7]} without saving.  Continue?'
+                    msg = (f'You are about to unload '
+                            '{self.Choosenames[ROW][COL][:7]} without saving. '
+                            'Continue?')
                     reply = QMessageBox.warning(
                     self,
                     "Straw Not Finished Leak Testing",
@@ -1292,29 +1297,6 @@ class LeakTestStatus(QMainWindow):
                 result.write("CO2" + ",")
                 result.write(Current_worker + ",")
                 result.write("chamber" + str(chamber) + ",")
-                # print(self.leak_rate)
-                result.write(str(self.leak_rate[chamber]) + ",")
-                result.write(str(self.leak_rate_err[chamber]))
-                # result.close()
-
-            # Write to network
-            with open(path, "r+", 1) as result:
-                begining = result.read(1)
-                first = False
-                if begining == "":
-                    first = True
-                result.close()
-            with open(path, "a+", 1) as result:
-                if not first:
-                    result.write("\n")
-                print("Saving chamber %s data to CSV file" % chamber)
-                result.write(self.Choosenames[ROW][COL][:7] + ",")
-                # result.write(self.StrawLabels[chamber].text() + ",")
-                result.write(currenttime + ",")
-                result.write("CO2" + ",")
-                result.write(Current_worker + ",")
-                result.write("chamber" + str(chamber) + ",")
-                # print(self.leak_rate)
                 result.write(str(self.leak_rate[chamber]) + ",")
                 result.write(str(self.leak_rate_err[chamber]))
 
