@@ -819,7 +819,11 @@ class LeakTestStatus(QMainWindow):
                                 outfile = self.leakDirectoryRaw / str(
                                     self.Choosenames[ROW][COL] + "_rawdata.txt"
                                 )
-                                with open(outfile, "r+", 1,) as readfile:
+                                with open(
+                                    outfile,
+                                    "r+",
+                                    1,
+                                ) as readfile:
                                     for line in readfile:
                                         numbers_float = line.split()[:3]
                                         if numbers_float[2] == "0.00":
@@ -1007,7 +1011,11 @@ class LeakTestStatus(QMainWindow):
                                         + currenttime
                                     )
                                     plt.figtext(
-                                        0.49, 0.80, info_string, fontsize=12, color="r",
+                                        0.49,
+                                        0.80,
+                                        info_string,
+                                        fontsize=12,
+                                        color="r",
                                     )
                                     outfig = self.leakDirectoryRaw / str(
                                         self.Choosenames[ROW][COL] + "_fit.pdf"
@@ -1054,10 +1062,12 @@ class LeakTestStatus(QMainWindow):
         # if chamber is not empty...
         elif self.chambers_status[ROW][COL][:5] != "empty":
             if self.passed[chamber] == "U":
-                msg = (f'You are attempting to unload '
-                        '{self.Choosenames[ROW][COL][:7]}, which has not '
-                        'finished leak testing.  Would you like to save leak '
-                        'data for this straw?')
+                msg = (
+                    f"You are attempting to unload "
+                    "{self.Choosenames[ROW][COL][:7]}, which has not "
+                    "finished leak testing.  Would you like to save leak "
+                    "data for this straw?"
+                )
                 reply = QMessageBox.question(
                     self,
                     "Straw Not Finished Leak Testing",
@@ -1076,20 +1086,23 @@ class LeakTestStatus(QMainWindow):
                     thread.start()
                     return
                 if reply == QMessageBox.No:
-                    msg = (f'You are about to unload '
-                            '{self.Choosenames[ROW][COL][:7]} without saving. '
-                            'Continue?')
+                    msg = (
+                        f"You are about to unload "
+                        "{self.Choosenames[ROW][COL][:7]} without saving. "
+                        "Continue?"
+                    )
                     reply = QMessageBox.warning(
-                    self,
-                    "Straw Not Finished Leak Testing",
-                    msg,
-                    QMessageBox.Yes,
-                    QMessageBox.Abort
+                        self,
+                        "Straw Not Finished Leak Testing",
+                        msg,
+                        QMessageBox.Yes,
+                        QMessageBox.Abort,
                     )
                     reply.setDefaultButton(QMessageBox.Abort)
                     if reply == QMessageBox.Yes:
                         thread = threading.Thread(
-                            target=self.unloadActionNoSaving, args=(ROW, COL, chamber, btn)
+                            target=self.unloadActionNoSaving,
+                            args=(ROW, COL, chamber, btn),
                         )
                         thread.daemon = True  # Daemonize thread
                         thread.start()
