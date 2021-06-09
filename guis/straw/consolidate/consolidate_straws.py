@@ -43,6 +43,7 @@ def openFile(filename):
         opener = "open" if sys.platform == "darwin" else "xdg-open"
         subprocess.call([opener, filename])
 
+
 def getYN(message):
     response = ""
     while response not in ["y", "n"]:
@@ -50,12 +51,14 @@ def getYN(message):
         response = input(message + " (y/n)").strip().lower()
     return response == "y"
 
+
 ################################################################################
 # Functions to determine whether a straw passed leak rate
 ################################################################################
 # rate and error within acceptable limits
 def rateIsAcceptable(leak_rate, leak_error):
     return (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
+
 
 # search LeakTestResults for leak info
 def checkSummaryFile(straw):
@@ -82,17 +85,20 @@ def checkSummaryFile(straw):
         logger.info(f"{straw} NOT found in LeakTestResults.csv.")
         return False
     else:
-        if rateIsAcceptable(leak_rate, leak_error): # data found and it's good
+        if rateIsAcceptable(leak_rate, leak_error):  # data found and it's good
             return True
-        else: # data found and it is NOT good
+        else:  # data found and it is NOT good
             logger.info(
                 f"{straw} found in LeakTestResults.csv, but leak rate "
                 f"({leak_rate} +/- {leak_error}) isn't considered passing."
             )
             return False
 
-# if acceptable, record info in summary LeakTestResults.csv 
-def checkAndRecord(summary_file, straw, worker, chamber, leak_rate, leak_error, data_location):
+
+# if acceptable, record info in summary LeakTestResults.csv
+def checkAndRecord(
+    summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
+):
     passed = rateIsAcceptable(leak_rate, leak_error)
 
     # option to override an unusual, manually-inputted rate
@@ -113,19 +119,12 @@ def checkAndRecord(summary_file, straw, worker, chamber, leak_rate, leak_error, 
                 )  # Date and Time
                 leak_rate_file.write("con" + ",")  # Where data is from
                 leak_rate_file.write(worker + ",")  # Worker ID
-                leak_rate_file.write(
-                    "chamber" + str(chamber) + ","
-                )  # Leak chamber
-                leak_rate_file.write(
-                    format(leak_rate, ".2E") + ","
-                )  # Leak rate
+                leak_rate_file.write("chamber" + str(chamber) + ",")  # Leak chamber
+                leak_rate_file.write(format(leak_rate, ".2E") + ",")  # Leak rate
                 leak_rate_file.write(
                     format(leak_error, ".2E") + ","
                 )  # Leak rate measurement error
-                leak_rate_file.write(
-                    "DataLocation:"
-                    + data_location
-                )  # Comments
+                leak_rate_file.write("DataLocation:" + data_location)  # Comments
                 leak_rate_file.write("\n")
             except Exception as e:
                 leak_rate_file.write("\n")
@@ -137,15 +136,14 @@ def checkAndRecord(summary_file, straw, worker, chamber, leak_rate, leak_error, 
 
     return passed
 
+
 # prompt user for leak rate info
 def getLeakInfoFromUser():
     # Get leak rate
     leak_rate = None
     while not leak_rate:
         try:
-            leak_rate = float(
-                input("Enter leak rate (ex: '8.888e-5'): ").strip()
-            )
+            leak_rate = float(input("Enter leak rate (ex: '8.888e-5'): ").strip())
             leak_rate = leak_rate
             break
         except ValueError:
@@ -155,22 +153,19 @@ def getLeakInfoFromUser():
     leak_error = None
     while not leak_error:
         try:
-            leak_error = float(
-                input("Enter leak rate error(ex: '9.999e-6'): ").strip()
-            )
+            leak_error = float(input("Enter leak rate error(ex: '9.999e-6'): ").strip())
             leak_error = leak_error
             break
         except ValueError:
             logger.info(f"Invalid leak error input {leak_error}.")
 
     # Get chamber
-    chamber = input(
-        "What chamber was the straw tested in? (If unknown, enter '??')"
-    )
+    chamber = input("What chamber was the straw tested in? (If unknown, enter '??')")
 
     data_location = input("Where did you find the leak rate data?")
 
     return leak_rate, leak_error, chamber, data_location
+
 
 # search for leak plots, open them, and prompt user for containing info
 def checkPlots(straw):
@@ -189,6 +184,7 @@ def checkPlots(straw):
         rate, err, chamber, data_location = getLeakInfoFromUser()
         return data_found, rate, err, chamber, data_location
 
+
 ################################################################################
 # Check whether straw passed leak rate
 ################################################################################
@@ -200,12 +196,16 @@ def passedLeakTest(straw, worker):
     # Next try plots in the raw_data folder.
     found_plot, leak_rate, leak_err, chamber = checkPlots(straw)
     if found_plot:
-        passed = checkAndRecord(summary_file, straw, worker, chamber, leak_rate, leak_error, data_location)
+        passed = checkAndRecord(
+            summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
+        )
         if passed:
             return True
         else:
-            logger.info("The data you entered manually is not acceptable, and "
-                        "you chose not to override.")
+            logger.info(
+                "The data you entered manually is not acceptable, and "
+                "you chose not to override."
+            )
     else:
         logger.info(f"{straw} plots NOT found {str(leaktest_dir)}.")
         print(
@@ -220,11 +220,14 @@ def passedLeakTest(straw, worker):
     )
     if use_other_data:
         leak_rate, leak_error, chamber, data_location = getLeakInfoFromUser()
-        passed = checkAndRecord(summary_file, straw, worker, chamber, leak_rate, leak_error, data_location)
+        passed = checkAndRecord(
+            summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
+        )
         if passed:
-           return False
+            return False
 
     return False
+
 
 ################################################################################
 # Main
