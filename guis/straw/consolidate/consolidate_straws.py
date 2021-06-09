@@ -149,8 +149,6 @@ def passedLeakTest(strawID, workerID):
                         ):
                             passes = True
 
-                    passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
-
                 # data in PDF looks bad!
                 else:
                     logger.warning(
@@ -217,7 +215,7 @@ def run():
         myfile.write(date + ",lasr," + straws_passed + worker + "\n")
         myfile.write(date + ",leng," + straws_passed + worker + "\n")
 
-    logger.debug("Finished")
+    logger.info("Finished")
 
 
 if __name__ == "__main__":
