@@ -57,18 +57,29 @@ class Merger:
     """
 
     def merge(self, table, execute=True):
+        # debug statement to record which tables are merged and when
+        logger.debug(f'merge() called on {table}, execute is {execute}')
+
+
         # Generate merge script
         script = self.mergeScript(
             table=table, attached_alias=self.attach_alias, into_attached=False
         )
 
+        if table == "panel_heat":
+            logger.debug(f'panel_heat merge script: \n{script}')
+
         # Execute or return script
         if execute:
+            logger.debug(f'Calling __execute on {table}')
             return self.__execute(script)
         else:
             return script
 
     def mergeAll(self):
+        dateTimeObj = datetime.now()
+        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
+        logger.info("Beginning automerge: %s" % timestampStr)
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
