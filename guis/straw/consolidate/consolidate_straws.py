@@ -40,7 +40,7 @@ def getYN(message):
 
 
 # Look in the leak summary file for whether this straw passed leak
-def passedLeakTest(strawID):
+def passedLeakTest(strawID, workerID):
     leak_rate = -1
     leak_error = -1
     data_found = False
@@ -120,9 +120,7 @@ def passedLeakTest(strawID):
                     )
 
                     # Record findings in leak_ratefile.csv
-                    with open(
-                        GetProjectPaths()["strawleakdata"] / "LeakTestResults.csv", "a"
-                    ) as leak_rate_file:
+                    with open(summary_file, "a") as leak_rate_file:
                         leak_rate_file.write(strawID + ",")  # Straw ID
                         leak_rate_file.write(
                             datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ","
@@ -142,6 +140,14 @@ def passedLeakTest(strawID):
                             "DataLocation:"
                             + input("Where did you find the leak rate data?")
                         )  # Comments
+                        leak_rate_file.write("\n")
+
+                    passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
+                    if not passes:
+                        if getYN(
+                            "The leak rate entered is unusual, proceed anyway? (otherwise enter a new straw)"
+                        ):
+                            passes = True
 
                     passes = (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
 
@@ -196,7 +202,7 @@ def run():
     for i in range(24):
         while True:
             straw = input("Scan barcode #" + str(i + 1) + " ")
-            if passedLeakTest(straw):
+            if passedLeakTest(straw, worker):
                 straws_passed += straw + ",P,"
                 break
             else:
