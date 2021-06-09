@@ -62,18 +62,16 @@ def rateIsAcceptable(leak_rate, leak_error):
 
 # search LeakTestResults for leak info
 def checkSummaryFile(straw):
-    leak_rate = -1
-    leak_error = -1
-    data_found = False
+    found_data = []
     with open(summary_file, "r") as leak_rate_data:
         for line in leak_rate_data:
             if straw.upper() in str(line).upper():
-                logger.debug(line)
                 try:
-                    leak_rate = float(line.split(",")[5])
-                    leak_error = float(line.split(",")[6])
-                    data_found = True
-                    break
+                    line = line.split(",")
+                    dt = datetime.strptime(line[1], "%Y-%m-%d %H:%M:%S")
+                    leak_rate = float(line[5])
+                    leak_error = float(line[6])
+                    found_data.append([leak_rate, leak_error, dt])
                 except ValueError:
                     logger.warning(
                         f"Invalid leak data found for {straw} in "
@@ -81,10 +79,13 @@ def checkSummaryFile(straw):
                     )
                     pass
 
-    if not data_found:
+    if not found_data:
         logger.info(f"{straw} NOT found in LeakTestResults.csv.")
         return False
     else:
+        most_recent_test = max(found_data, key=lambda data: data[2])
+        logger.info(f"Most recent leak test found: {most_recent_test}")
+        leak_rate, leak_error = most_recent_test[0], most_recent_test[1]
         if rateIsAcceptable(leak_rate, leak_error):  # data found and it's good
             return True
         else:  # data found and it is NOT good
@@ -103,8 +104,8 @@ def checkAndRecord(
 
     # option to override an unusual, manually-inputted rate
     if not passed and getYN(
-        "The leak rate entered is unusual, proceed anyway? (otherwise "
-        "enter a new straw)"
+        "The leak rate entered is unusual, want to mark it as good anyway? "
+        "(otherwise you can enter a new straw)"
     ):
         passed = True
 
@@ -194,7 +195,7 @@ def passedLeakTest(straw, worker):
         return True
 
     # Next try plots in the raw_data folder.
-    found_plot, leak_rate, leak_err, chamber = checkPlots(straw)
+    found_plot, leak_rate, leak_error, chamber, data_location = checkPlots(straw)
     if found_plot:
         passed = checkAndRecord(
             summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
@@ -215,8 +216,8 @@ def passedLeakTest(straw, worker):
 
     # Last chance – old data? old straw new name?
     use_other_data = getYN(
-        "Do you want to manually input leak rate info (e.g. b/c this straw or "
-        "its ancestor has been previously tested)?"
+        "Do you want to manually input leak rate info?\n(e.g. b/c this straw "
+        "or its ancestor has been previously tested)"
     )
     if use_other_data:
         leak_rate, leak_error, chamber, data_location = getLeakInfoFromUser()
@@ -261,7 +262,7 @@ def run():
                 break
             else:
                 logger.info(
-                    f"Straw {straw} couldn't be found or it was no "
+                    f"Straw {straw} couldn't be found or its data was no "
                     f"good. Scan another straw #{i+1}."
                 )
     logger.debug(straws_passed)
