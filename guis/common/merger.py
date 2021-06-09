@@ -99,7 +99,9 @@ class Merger:
     @staticmethod
     def executeScript(dst_db, src_db, script, attach_alias, fetchall=False):
         # Open connection
+        logger.debug("Creating DB connection...")
         con = sqlite3.connect(dst_db)
+        logger.debug("...Connected")
 
         # Attach db2
         # print(src_db, attach_alias)
@@ -112,10 +114,14 @@ class Merger:
         }[fetchall](script)
 
         # Commit script
+        logger.debug("Committing script...")
         con.commit()
+        logger.debug("...Committed")
 
         # Close connection
+        logger.debug("Closing connection...")
         con.close()
+        logger.debug("...Connection closed")
 
         # Return ret
         return ret
