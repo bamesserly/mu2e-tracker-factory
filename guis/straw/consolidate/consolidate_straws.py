@@ -237,6 +237,49 @@ def passedLeakTest(straw, worker):
 
 
 ################################################################################
+# Give user a chance to review the straws
+################################################################################
+def finalizeStraws(straws_passed, worker):
+    finalized = False
+    while not finalized:
+        # show the user the current state of the CPAL
+        for i in range(len(straws_passed)):
+            print(f"#{i+1} {straws_passed[i]}")
+
+        # check done
+        finalized = getYN("Is this CPAL ready to go?")
+        if finalized:
+            continue
+
+        # User wants to make changes - get which straw should be replaced from
+        # user input.
+        while True:
+            try:
+                replace_straw_idx = (
+                    int(input("Which straw do you want to replace? (1-24) ")) - 1
+                )
+                assert replace_straw_idx in range(24)
+                break
+            except AssertionError:
+                logger.warning("Invalid straw. Must be #1-#24")
+            except ValueError:
+                logger.warning("Invalid straw. Just looking for a number 1-24")
+
+        # Enter the new straw and make sure it passes
+        replace_straw = input("Enter or scan new straw> ")
+        if passedLeakTest(replace_straw, worker):
+            logger.info(f"Straw {replace_straw} is good!")
+            straws_passed[replace_straw_idx] = replace_straw
+        else:
+            logger.info(
+                f"Straw {replace_straw} couldn't be found or its data was no "
+                f"good. Scan another replace_straw #{i+1}."
+            )
+
+    return straws_passed
+
+
+################################################################################
 # Main
 ################################################################################
 def run():
@@ -258,25 +301,42 @@ def run():
     )
 
     # Scan-in straws
-    straws_passed = ""
+    straws_passed = []
     for i in range(24):
         while True:
             straw = input("Scan barcode #" + str(i + 1) + " ")
             if passedLeakTest(straw, worker):
                 logger.info(f"Straw {straw} is good!")
-                straws_passed += straw + ",P,"
+                straws_passed.append(straw)
                 break
             else:
                 logger.info(
                     f"Straw {straw} couldn't be found or its data was no "
                     f"good. Scan another straw #{i+1}."
                 )
-    logger.debug(straws_passed)
+
+    # Finalize this CPAL
+    logger.debug(f"Initial straws submitted: {straws_passed}")
+
+    straws_passed = finalizeStraws(straws_passed, worker)
+
+    logger.debug(f"Finalized straws: {straws_passed}")
+
+    straws_passed_str = ",P,".join(straws_passed) + ",P,"
+
+    logger.debug(straws_passed_str)
 
     # Record straws as all having passed length and laser steps in CPAL file
-    with open(cfile, "a") as myfile:
-        myfile.write(date + ",lasr," + straws_passed + worker + "\n")
-        myfile.write(date + ",leng," + straws_passed + worker + "\n")
+    with open(cfile, "r+") as myfile:
+        text = (
+            myfile.readlines()
+        )  # read whole file so next write will be at end of file
+        if (
+            text[-1][-1] != "\n"
+        ):  # if last character of last line is not newline, add it
+            myfile.write("\n")
+        myfile.write(date + ",lasr," + straws_passed_str + worker + "\n")
+        myfile.write(date + ",leng," + straws_passed_str + worker + "\n")
 
     logger.info("Finished")
 
