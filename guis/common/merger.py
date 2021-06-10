@@ -1,6 +1,6 @@
 import sqlite3, os, time, sys
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from guis.common.advancedthreading import LoopingReusableThread
 
@@ -57,35 +57,28 @@ class Merger:
     """
 
     def merge(self, table, execute=True):
-        # debug statement to record which tables are merged and when
-        logger.debug(f'merge() called on {table}, execute is {execute}')
-
 
         # Generate merge script
         script = self.mergeScript(
             table=table, attached_alias=self.attach_alias, into_attached=False
         )
 
-        if table == "panel_heat":
-            logger.debug(f'panel_heat merge script: \n{script}')
-
         # Execute or return script
         if execute:
-            logger.debug(f'Calling __execute on {table}')
             return self.__execute(script)
         else:
             return script
 
     def mergeAll(self):
         dateTimeObj = datetime.now()
-        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        logger.info("Beginning automerge: %s" % timestampStr)
+        timestampStrI = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
+        logger.info("Beginning automerge: %s" % timestampStrI)
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
         dateTimeObj = datetime.now()
-        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        logger.info("Automerge complete: %s" % timestampStr)
+        timestampStrF = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
+        logger.info(f"Automerge completed in: {timestampStrF-timestampStrF}, completed at: {timestampStrF}")
 
     def __execute(self, script, fetchall=False):
         return self.executeScript(
@@ -99,9 +92,12 @@ class Merger:
     @staticmethod
     def executeScript(dst_db, src_db, script, attach_alias, fetchall=False):
         # Open connection
-        logger.debug("Creating DB connection...")
-        con = sqlite3.connect(dst_db)
-        logger.debug("...Connected")
+        try:
+            con = sqlite3.connect(dst_db)
+        except Exception as e:
+            logger.critical(f'FAILED TO CONNECT TO DATABASE, Exception: {e}')
+            raise ConnectionError("Failed to connect to database")
+        
 
         # Attach db2
         # print(src_db, attach_alias)
@@ -114,14 +110,17 @@ class Merger:
         }[fetchall](script)
 
         # Commit script
-        logger.debug("Committing script...")
-        con.commit()
-        logger.debug("...Committed")
+        try:
+            con.commit()
+        except Exception as e:
+            logger.error(f'Failed to commit merge script, Exception: {e}')
+        
 
         # Close connection
-        logger.debug("Closing connection...")
-        con.close()
-        logger.debug("...Connection closed")
+        try:
+            con.close()
+        except Exception as e:
+            logger.error(f'Failed to close database connection, Exception: {e}')
 
         # Return ret
         return ret
