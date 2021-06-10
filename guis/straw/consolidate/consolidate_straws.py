@@ -66,9 +66,14 @@ def checkSummaryFile(straw):
     with open(summary_file, "r") as leak_rate_data:
         for line in leak_rate_data:
             if straw.upper() in str(line).upper():
+                line = line.split(",")
                 try:
-                    line = line.split(",")
+                    dt = datetime.strptime(
+                        line[1], "%m/%d/%Y %H:%M"
+                    )  # "%Y-%m-%d %H:%M:%S")
+                except ValueError:
                     dt = datetime.strptime(line[1], "%Y-%m-%d %H:%M:%S")
+                try:
                     leak_rate = float(line[5])
                     leak_error = float(line[6])
                     found_data.append([leak_rate, leak_error, dt])
@@ -78,6 +83,7 @@ def checkSummaryFile(straw):
                         "LeakTestResults.csv."
                     )
                     pass
+    logger.debug(f"All results found: {found_data}")
 
     if not found_data:
         logger.info(f"{straw} NOT found in LeakTestResults.csv.")
@@ -180,7 +186,7 @@ def checkPlots(straw):
             logger.info(f"Opening pdf {f}")
             openFile(f)
     if not data_found:
-        return False, None, None, None
+        return False, None, None, None, None
     else:
         rate, err, chamber, data_location = getLeakInfoFromUser()
         return data_found, rate, err, chamber, data_location
@@ -214,7 +220,7 @@ def passedLeakTest(straw, worker):
             "the leak computer, and then on this computer."
         )
 
-    # Last chance – old data? old straw new name?
+    # Last chance old data? old straw new name?
     use_other_data = getYN(
         "Do you want to manually input leak rate info?\n(e.g. b/c this straw "
         "or its ancestor has been previously tested)"
@@ -225,7 +231,7 @@ def passedLeakTest(straw, worker):
             summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
         )
         if passed:
-            return False
+            return True
 
     return False
 
