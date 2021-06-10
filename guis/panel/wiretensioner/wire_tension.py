@@ -30,6 +30,10 @@ from guis.panel.wiretensioner.wire_tensioner_window import (
     Ui_Dialog,
 )  ## edit via QTDesigner
 
+import logging
+
+logger = logging.getLogger("root")
+
 
 class WireTensionWindow(QMainWindow):
     """ GUI to interface with load cell / stepper motor wire tensioner  """
@@ -76,12 +80,18 @@ class WireTensionWindow(QMainWindow):
         self.micro.write(b"c")
         self.micro.write(b"\n")
         x = self.micro.readline()
-        print(x)
-        self.initcal = float(x.split()[1])
-        print(self.initcal)
+        try:
+            self.initcal = float(x.split()[1])
+        except IndexError:
+            logger.debug(x)
+            logger.error("ERROR: Probably a power issue! Try swapping cables!"
+                    "If that doesn't work, try unplugging the arduino from the"
+                    "computer and plugging it back in!")
+
+        logger.info(self.initcal)
         self.micro.close()
         self.ui.calibfactor.setText(str(self.initcal))
-        print("testing")
+        logger.debug("testing")
         self.ui.statuslabel.setText(
             "Initialized. Ready to work harden and tension wire."
         )
