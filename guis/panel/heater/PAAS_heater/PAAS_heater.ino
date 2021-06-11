@@ -23,8 +23,19 @@ float tempA;
 float temp2;
 float initial_temp2;
 float usrsp;  // user choice setpoint temperature 
-float max_temp = -9;
-float time_of_max_temp = -1;
+
+// Save key metrics in case monitor crashes
+float tempA_max = -99; // max temp
+uint32_t tempA_max_timestamp = 0; // time at which max temp was reached
+uint32_t tempA_setpt_timestamp = 0; // time setpoint was reaches
+uint32_t tempA_50_up_timestamp = 0; // time 50c was reached on the way up
+uint32_t tempA_40_dn_timestamp = 0; // time 40c was reached on the way down
+
+float temp2_max = -99;
+uint32_t temp2_max_timestamp = 0;
+uint32_t temp2_setpt_timestamp = 0;
+uint32_t temp2_50_up_timestamp = 0;
+uint32_t temp2_40_dn_timestamp = 0;
 
 float setpoint2;  
 char paas2='x'; // placeholder for user choice of 2nd PAAS type
@@ -154,18 +165,61 @@ void temp_control(){
 	FastPwm(valA,valB); 
 }
 
+void set_key_metrics(float temp_A, float temp_2, uint32_t now){
+	if(tempA_max < temp_A){ // A max temp
+		tempA_max_timestamp = now;
+		tempA_max = temp_A;
+	}
+	if(temp2_max < temp_2){ // 2 max temp
+		temp2_max_timestamp = now;
+		temp2_max = temp_2;
+	}
+	if(temp_A == setpointA){ // A set point time
+		tempA_setpt_timestamp = now;
+	}
+	if(temp_2 == setpoint2){ // 2 set point time
+		temp2_setpt_timestamp = now;
+	}
+	if(temp_A > 50 && tempA_setpt_timestamp <= 1){ // A rises to 50
+		tempA_50_up_timestamp  = now;
+	}
+	if(temp_2 > 50 && temp2_setpt_timestamp <= 1){ // 2 rises to 50
+		temp2_50_up_timestamp  = now;
+	}
+	if(temp_A < 40 && tempA_setpt_timestamp > 1 && tempA_40_dn_timestamp <= 1){ // A falls to 40
+		tempA_40_dn_timestamp  = now;
+	}
+	if(temp_2 < 40 && temp2_setpt_timestamp > 1 && temp2_40_dn_timestamp <= 1){ // 2 falls to 40
+		temp2_40_dn_timestamp  = now;
+	}
+}
+
 void display_status(){
 	//Serial.println("PAAS-B: RTD in corner -> expect lower temperature than surface");
 	//Serial.println("PAAS-C: testing calibration -> expect apparent temp. diff. up to 5C");
-	if(max_temp < maxamp.temperature(RNOMINAL_PTCO, RREF)){
-		max_temp = maxamp.temperature(RNOMINAL_PTCO, RREF)
+	float temp_A = maxamp.temperature(RNOMINAL_PTCO, RREF);
+	float temp_2 = -99;
+	uint32_t now = millis();
+	if(paas2!='0'){
+		temp_2 = maxamp2.temperature(RNOMINAL_PTCO2, RREF);
 	}
-	Serial.print("Temperature 1: "); Serial.println(maxamp.temperature(RNOMINAL_PTCO, RREF));
-	Serial.print("Temperature 2: "); Serial.println(maxamp2.temperature(RNOMINAL_PTCO2, RREF));
-	Serial.print("Max Temp: "); Serial.println(max_temp);
+	set_key_metrics(temp_A, temp_2, now);
+	Serial.print("Temperature 1: "); Serial.println(temp_A);
+	Serial.print("Temperature 2: "); Serial.println(temp_2);
 	Serial.print("Time = ");Serial.println(millis());
 	//Serial.print("state = ");Serial.println(state); // test for software timer fix
+
+	Serial.print("Temp A max = "); Serial.println(tempA_max);
+	Serial.print("Temp A max timestamp = "); Serial.println(tempA_max_timestamp);
+	Serial.print("Temp A reach setpoint timestamp = "); Serial.println(tempA_setpt_timestamp);
+	Serial.print("Temp A rises to 50 timestamp = "); Serial.println(tempA_50_up_timestamp);
+	Serial.print("Temp A falls to 40 timestamp = "); Serial.println(tempA_40_dn_timestamp);
+
+	Serial.print("Temp 2 max = "); Serial.println(temp2_max);
+	Serial.print("Temp 2 max timestamp = "); Serial.println(temp2_max_timestamp);
+	Serial.print("Temp 2 reach setpoint timestamp = "); Serial.println(temp2_setpt_timestamp);
+	Serial.print("Temp 2 rises to 50 timestamp = "); Serial.println(temp2_50_up_timestamp);
+	Serial.print("Temp 2 falls to 40 timestamp = "); Serial.println(temp2_40_dn_timestamp);
+
 	delay(10);
 }
-
-

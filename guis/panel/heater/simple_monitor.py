@@ -8,8 +8,6 @@ import numpy as np
 import traceback
 import threading
 
-# from PyQt5.QtCore import QTimer
-
 import logging
 
 logger = logging.getLogger("root")
@@ -38,40 +36,12 @@ class HeatControl:
         self.tempArec = []  # PAAS-A temperature [C]
         self.temp2rec = []  # 2nd PAAS temperature [C]
 
-        """
-        ## set up GUI
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-        self.ui.start_button.clicked.connect(self.start_data)
-
-        ## 2nd PAAS type selection required before start of data collection
-        self.ui.paas2_box.currentIndexChanged.connect(self.selectpaas)
-        self.ui.setpt_box.currentIndexChanged.connect(self.selectpaas)
-        self.ui.start_button.setDisabled(True)
-        self.ui.end_data.clicked.connect(self.endtest)
-
-        ## user choice temperature setpoint
-        self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
-        """
         logger.info("initialized")
 
     def saveMethod_placeholder(self):
         ## self.tempArec = PAAS-A temperatures
         ## self.temp2rec = PAAS-B or PAAS-C temperatures
         print("last temperature measurements:", self.tempArec[-1], self.temp2rec[-1])
-
-    '''
-    def selectpaas(self):
-        """ Enable start data collection if both 2nd PAAS and setpoint selected """
-        if (
-            self.ui.paas2_box.currentText() != "Select..."
-            and self.ui.setpt_box.currentText() != "Select..."
-            and self.ui.paas2_box.isEnabled()
-        ):
-            self.ui.start_button.setEnabled(True)
-        else:
-            self.ui.start_button.setDisabled(True)
-    '''
 
     def update_setpoint(self):
         """Get initial user choice temperature setpoint, or change setpoint
@@ -280,7 +250,7 @@ def getport(hardwareID):
 def run():
     from guis.common.panguilogger import SetupPANGUILogger
 
-    logger = SetupPANGUILogger("root", "HeaterStandalone")
+    logger = SetupPANGUILogger("root", "HeaterMonitor")
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
     logger.info("Arduino Micro at {}".format(port))

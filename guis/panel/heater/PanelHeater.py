@@ -33,7 +33,7 @@ from matplotlib.figure import Figure
 
 
 class HeatControl(QMainWindow):
-    """ Python interface to collect and visualize data from PAAS heater control system """
+    """Python interface to collect and visualize data from PAAS heater control system"""
 
     def __init__(
         self, port, panel, wait=120000, ndatapts=450, parent=None, saveMethod=None
@@ -76,7 +76,7 @@ class HeatControl(QMainWindow):
         print("last temperature measurements:", self.tempArec[-1], self.temp2rec[-1])
 
     def selectpaas(self):
-        """ Enable start data collection if both 2nd PAAS and setpoint selected """
+        """Enable start data collection if both 2nd PAAS and setpoint selected"""
         if (
             self.ui.paas2_box.currentText() != "Select..."
             and self.ui.setpt_box.currentText() != "Select..."
@@ -101,7 +101,7 @@ class HeatControl(QMainWindow):
             self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
 
     def start_data(self):
-        """ Start serial interface and data collection thread """
+        """Start serial interface and data collection thread"""
         self.ui.start_button.setDisabled(True)
         self.ui.paas2_box.setDisabled(True)
         self.ui.setpt_box.removeItem(0)  # cannot revert to 'Select...'
@@ -132,7 +132,7 @@ class HeatControl(QMainWindow):
 
     # In this function: pass temperatures out to PANGUI
     def next(self):
-        """ Add next data to the GUI display """
+        """Add next data to the GUI display"""
         ## get the most recent measurement held in thread
         data_list = list(self.hct.transfer())
         if len(data_list) > 0:  # should only have one set of measurements
@@ -158,7 +158,7 @@ class HeatControl(QMainWindow):
             self.saveMethod(self.tempArec[-1], self.temp2rec[-1])
 
     def testplot3(self):
-        """ Set up canvas for plotting temperature vs. time """
+        """Set up canvas for plotting temperature vs. time"""
         self.ui.data_widget = QWidget(self.ui.graphicsView)
         layout = QHBoxLayout(self.ui.graphicsView)
         self.z = np.array([[-10, -10]])
@@ -175,17 +175,17 @@ class HeatControl(QMainWindow):
         self.ui.data_widget.repaint()
 
     def testplot2(self):
-        """ Update plot: new [time,temperature] array """
+        """Update plot: new [time,temperature] array"""
         self.z = np.array([self.timerec, self.tempArec, self.temp2rec]).T
         self.canvas.read_data(self.z, self.paas2input)
         self.ui.data_widget.repaint()
 
     def closeEvent(self, event):
-        """ Prevent timer and thread from outliving main window, close serial """
+        """Prevent timer and thread from outliving main window, close serial"""
         self.endtest()
 
     def endtest(self):
-        """ Join data collection thread to end or reset test """
+        """Join data collection thread to end or reset test"""
         self.interval.stop()
         if self.hct:  ## must stop thread if it's running
             self.hct.join(0.1)  ## make thread timeout
@@ -193,7 +193,7 @@ class HeatControl(QMainWindow):
 
 
 class DataThread(threading.Thread):
-    """ Read data from Arduino in temperature control box """
+    """Read data from Arduino in temperature control box"""
 
     def __init__(self, micro, panel, paastype, setpoint):
         threading.Thread.__init__(self)
@@ -235,7 +235,7 @@ class DataThread(threading.Thread):
                     continue
                 if "val" in test:  # duty cycle 0-255 for voltage control
                     logger.info(test.strip())
-                elif "Temp" in test:  # temperature reading
+                elif "Temperature" in test:  # temperature reading
                     test = test.strip().split()
                     try:
                         float(test[-1])
@@ -377,4 +377,7 @@ def run():
 
 
 if __name__ == "__main__":
+    from guis.common.panguilogger import SetupPANGUILogger
+
+    logger = SetupPANGUILogger("root", "HeaterStandalone")
     run()
