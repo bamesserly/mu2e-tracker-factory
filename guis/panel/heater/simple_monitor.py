@@ -1,23 +1,12 @@
-#### run_heat_control.py
-#### python interface to collect and visualize data from [PAAS_heater_1009.ino]
-#### variable temperature setpoint input
+#### Simply read heater box output, assuming it's currently running
 
 import serial  ## from pyserial
 import serial.tools.list_ports
 import time, csv, sys, os
 from datetime import datetime as dt
 import numpy as np
-import matplotlib.pyplot as plt
 import traceback
 import threading
-
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-
-from guis.panel.heater.heat_control_window import (
-    Ui_MainWindow,
-)  ## edit via heat_control_window.ui in Qt Designer
 
 import logging
 
@@ -25,20 +14,13 @@ logger = logging.getLogger("root")
 
 from guis.common.getresources import GetProjectPaths
 
-import matplotlib
 
-matplotlib.use("Qt5Agg")
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-
-class HeatControl(QMainWindow):
+class HeatControl:
     """Python interface to collect and visualize data from PAAS heater control system"""
 
     def __init__(
         self, port, panel, wait=120000, ndatapts=450, parent=None, saveMethod=None
     ):
-        super(HeatControl, self).__init__(parent)
         if port == "GUI":  # PANGUI doesn't have a get port function
             port = getport("VID:PID=2341:8037")  # opened in PANGUI w/ port = "GUI"
         self.port = port
@@ -46,7 +28,7 @@ class HeatControl(QMainWindow):
         self.wait = wait  # wait interval between data points (ms)
         self.ndatapts = ndatapts  # number data points to collect
         self.hct = None  # heater control data thread
-        self.interval = QTimer()  # timer for interval between data points
+        # self.interval = QTimer()  # timer for interval between data points
         self.saveMethod = saveMethod  # pass data to PANGUI
 
         ## records for realtime plot
@@ -54,20 +36,6 @@ class HeatControl(QMainWindow):
         self.tempArec = []  # PAAS-A temperature [C]
         self.temp2rec = []  # 2nd PAAS temperature [C]
 
-        ## set up GUI
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-        self.ui.start_button.clicked.connect(self.start_data)
-        self.testplot3()
-
-        ## 2nd PAAS type selection required before start of data collection
-        self.ui.paas2_box.currentIndexChanged.connect(self.selectpaas)
-        self.ui.setpt_box.currentIndexChanged.connect(self.selectpaas)
-        self.ui.start_button.setDisabled(True)
-        self.ui.end_data.clicked.connect(self.endtest)
-
-        ## user choice temperature setpoint
-        self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
         logger.info("initialized")
 
     def saveMethod_placeholder(self):
@@ -75,37 +43,20 @@ class HeatControl(QMainWindow):
         ## self.temp2rec = PAAS-B or PAAS-C temperatures
         print("last temperature measurements:", self.tempArec[-1], self.temp2rec[-1])
 
-    def selectpaas(self):
-        """Enable start data collection if both 2nd PAAS and setpoint selected"""
-        if (
-            self.ui.paas2_box.currentText() != "Select..."
-            and self.ui.setpt_box.currentText() != "Select..."
-            and self.ui.paas2_box.isEnabled()
-        ):
-            self.ui.start_button.setEnabled(True)
-        else:
-            self.ui.start_button.setDisabled(True)
-
     def update_setpoint(self):
         """Get initial user choice temperature setpoint, or change setpoint
         partway through heat cycle, e.g. after funnels removed"""
-        if self.ui.setpt_box.currentText() != "Select...":
-            self.setpt = int(self.ui.setpt_box.currentText())
-            self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
-            # if thread already running, send it the new setpoint
-            if self.hct:
-                logger.info("sending sp %s" % self.setpt)
-                self.hct.setpt = self.setpt
-        else:  # for case with 'Select...' option (start will be disabled)
-            self.setpt = 0
-            self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
+        self.setpt = int(55)
+        # if thread already running, send it the new setpoint
+        if self.hct:
+            logger.info("sending sp %s" % self.setpt)
+            self.hct.setpt = self.setpt
 
     def start_data(self):
-        """Start serial interface and data collection thread"""
-        self.ui.start_button.setDisabled(True)
-        self.ui.paas2_box.setDisabled(True)
-        self.ui.setpt_box.removeItem(0)  # cannot revert to 'Select...'
-        self.paas2input = self.ui.paas2_box.currentText().split()[0]
+        logger.info("HeatControl::start_data")
+        """ Start serial interface and data collection thread """
+        # paas2dict = {"PAAS-B": "b", "PAAS-C": "c", "None": "0"}
+        self.paas2input = "PAAS-B"
         logger.info("2nd PAAS type: %s" % self.paas2input)
         self.update_setpoint()  # initial temperature setpoint
         ## map combobox entries to character to send via serial
@@ -125,10 +76,11 @@ class HeatControl(QMainWindow):
         self.t0 = time.time()
 
         ## run data collection from separate thread to avoid freezing GUI
-        self.interval.timeout.connect(self.next)
+        # self.interval.timeout.connect(self.next) # every timeout calls the next function
         self.hct = DataThread(self.micro, self.panel, self.paastype, self.setpt)
         self.hct.start()
-        self.interval.start(self.wait)  # get data at every timeout
+        time.sleep(60)  # don't join (?) for 60 seconds
+        # self.interval.start(self.wait)  # timeout every wait seconds
 
     # In this function: pass temperatures out to PANGUI
     def next(self):
@@ -137,11 +89,11 @@ class HeatControl(QMainWindow):
         data_list = list(self.hct.transfer())
         if len(data_list) > 0:  # should only have one set of measurements
             ## display values in GUI, include values in record (for realtime plot)
-            self.ui.tempPA.setText(str(data_list[0][0]))
+            # self.ui.tempPA.setText(str(data_list[0][0]))
             self.tempArec.append(float(data_list[0][0]))
             if self.paas2input != "None":
                 self.temp2rec.append(float(data_list[0][1]))
-                self.ui.tempP2.setText(str(data_list[0][1]))
+                # self.ui.tempP2.setText(str(data_list[0][1]))
             else:  # PAAS-A only
                 self.temp2rec.append(0.0)  # (avoid -242 or 988)
             self.timerec.append((time.time() - self.t0) / 60.0)
@@ -150,35 +102,11 @@ class HeatControl(QMainWindow):
             else:
                 self.hct.savedata()
                 ## update plot display
-                self.testplot2()
 
             # Pass the data to the parent PANGUI
             # self.tempArec = PAAS-A temperatures
             # self.temp2rec = NULL or PAAS-B or PAAS-C temperature
             self.saveMethod(self.tempArec[-1], self.temp2rec[-1])
-
-    def testplot3(self):
-        """Set up canvas for plotting temperature vs. time"""
-        self.ui.data_widget = QWidget(self.ui.graphicsView)
-        layout = QHBoxLayout(self.ui.graphicsView)
-        self.z = np.array([[-10, -10]])
-        self.canvas = DataCanvas(
-            self.ui.data_widget,
-            data=self.z,
-            width=5,
-            height=4,
-            dpi=100,
-            xlabel="Time since start [minutes]",
-            ylabel="Temperature [C]",
-        )
-        layout.addWidget(self.canvas)
-        self.ui.data_widget.repaint()
-
-    def testplot2(self):
-        """Update plot: new [time,temperature] array"""
-        self.z = np.array([self.timerec, self.tempArec, self.temp2rec]).T
-        self.canvas.read_data(self.z, self.paas2input)
-        self.ui.data_widget.repaint()
 
     def closeEvent(self, event):
         """Prevent timer and thread from outliving main window, close serial"""
@@ -186,9 +114,10 @@ class HeatControl(QMainWindow):
 
     def endtest(self):
         """Join data collection thread to end or reset test"""
-        self.interval.stop()
+        # self.interval.stop()
         if self.hct:  ## must stop thread if it's running
-            self.hct.join(0.1)  ## make thread timeout
+            # self.hct.join(0.1)  ## make thread timeout
+            self.hct.join(10)  ## make thread timeout
             self.hct = None
 
 
@@ -196,6 +125,7 @@ class DataThread(threading.Thread):
     """Read data from Arduino in temperature control box"""
 
     def __init__(self, micro, panel, paastype, setpoint):
+        logger.info("DataThread::__init__")
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
@@ -215,7 +145,10 @@ class DataThread(threading.Thread):
     def run(self):
         logger.info("thread running")
         n, nmax = 0, 40
+        # flag = self.running.wait(10)
+        # print(flag)
         while self.running.isSet():
+            logger.info("HERE")
             self.micro.write(self.paastype)
             self.micro.write(str(self.setpt).encode("utf8"))
             self.micro.write(b"\n")
@@ -229,13 +162,17 @@ class DataThread(threading.Thread):
                     self.micro.write(str(self.setpt).encode("utf8"))
                     self.micro.write(b"\n")
                     continue
-                # print(repr(test))
+                print(repr(test))  # print all output from arduino
                 if len(test.strip().split()) < 2:  # skip split line error
                     logger.info("skipping fragment of split line")
                     continue
                 if "val" in test:  # duty cycle 0-255 for voltage control
                     logger.info(test.strip())
-                elif "Temperature" in test:  # temperature reading
+                elif "Time" in test:  # time since start in milliseconds
+                    duration = float(test.strip().split()[-1])
+                    duration = round(duration / 3600000, 3)
+                    logger.info(f"Time since start {duration} hours")
+                elif "Temp" in test:  # temperature reading
                     test = test.strip().split()
                     try:
                         float(test[-1])
@@ -294,57 +231,6 @@ class DataThread(threading.Thread):
         logger.info("thread joined")
 
 
-class DataCanvas(FigureCanvas):
-    """Each canvas class will use this to embed a matplotlib in the PyQt5 GUI"""
-
-    def __init__(
-        self,
-        parent=None,
-        data=None,
-        width=2,
-        height=2,
-        dpi=100,
-        xlabel="xlabel",
-        ylabel="ylabel",
-    ):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
-        self.axes.clear()
-        FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-        self.axes.grid(True)
-        self.axes.set_ylabel(ylabel)
-        self.axes.set_xlabel(xlabel)
-        box = self.axes.get_position()
-        self.axes.set_position(
-            [
-                box.x0 + box.width * 0.05,
-                box.y0 + box.height * 0.05,
-                box.width * 1.0,
-                box.height * 1.0,
-            ]
-        )
-        self.prev = None
-        self.prev2 = None
-
-    def read_data(self, data, p2):
-        if p2 == "None":  # only PAAS-A
-            if self.prev:
-                self.prev.remove()
-            (self.prev,) = self.axes.plot(data[:, 0], data[:, 1], "g.")
-        else:  # plot temperature for 2 PAAS plates
-            if self.prev:
-                self.prev.remove()
-                self.prev2.remove()
-            (self.prev,) = self.axes.plot(data[:, 0], data[:, 1], "g.", label="PAAS-A")
-            (self.prev2,) = self.axes.plot(data[:, 0], data[:, 2], "b.", label=p2)
-            self.axes.legend()
-        self.fig.canvas.draw()
-        self.fig.canvas.flush_events()
-
-
 ######################################################################################
 
 
@@ -362,6 +248,9 @@ def getport(hardwareID):
 
 
 def run():
+    from guis.common.panguilogger import SetupPANGUILogger
+
+    logger = SetupPANGUILogger("root", "HeaterMonitor")
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
     logger.info("Arduino Micro at {}".format(port))
@@ -370,14 +259,9 @@ def run():
     sys.excepthook = traceback.print_exception
 
     # GUI
-    app = QApplication(sys.argv)
-    ctr = HeatControl(port, panel="MN000")
-    ctr.show()
-    app.exec_()
+    h = HeatControl(port, panel="MN000")
+    h.start_data()
 
 
 if __name__ == "__main__":
-    from guis.common.panguilogger import SetupPANGUILogger
-
-    logger = SetupPANGUILogger("root", "HeaterStandalone")
     run()
