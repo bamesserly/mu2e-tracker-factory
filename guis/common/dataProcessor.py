@@ -26,7 +26,7 @@ from guis.common.databaseClasses import (
 
 import logging
 
-logger = logging.getLogger("root")
+logger = logging.getLogger("root", tag="Data_Processor")
 
 from guis.common.getresources import GetProjectPaths
 
@@ -594,7 +594,9 @@ class MultipleDataProcessor(DataProcessor):
             dp.saveStrawTensionMeasurement(position, tension, uncertainty)
 
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        logger.debug(f'MULTIPROCESSOR - Attempting to save pos {position}, ten {tension}, tim {wire_timer}, cal {calib_factor}')
         for dp in self.processors:
+            logger.debug(f'Saving with {dp}...')
             dp.saveWireTensionMeasurement(position, tension, wire_timer, calib_factor)
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
@@ -1113,6 +1115,8 @@ class TxtDataProcessor(DataProcessor):
     # update all wire tension measurements for panel
     # parameters are lists of data
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        logger.debug(f'TXTPROCESSOR - Attempting to save pos {position}, ten {tension}, tim {wire_timer}, cal {calib_factor}')
+
         headers = ["Position", "Tension", "WireTimer", "CalibrationFactor", "Timestamp"]
 
         outfile = self.getWireTensionerPath()
@@ -1918,6 +1922,7 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordStrawTension(position, tension, uncertainty)
 
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        logger.debug(f'SQLPROCESSOR - Attempting to save pos {position}, ten {tension}, tim {wire_timer}, cal {calib_factor}')
         if self.ensureProcedure():
             self.procedure.recordWireTension(
                 position, tension, wire_timer, calib_factor

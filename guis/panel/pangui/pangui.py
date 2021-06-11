@@ -4871,6 +4871,7 @@ class panelGUI(QMainWindow):
     def wireTensionPopup(self):
         # Method to save the wire tension measurements
         def saveWireTensionMeasurement(position, tension, timer, calibration):
+            logger.debug(f'PANGUI - Attempting to save pos {position}, ten {tension}, tim {timer}, cal {calibration}')
             self.ui.panelInput3_2.setText(str(calibration))
             self.DP.saveWireTensionMeasurement(position, tension, timer, calibration)
 
