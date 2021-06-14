@@ -98,22 +98,6 @@ class LeakTestStatus(QMainWindow):
             serial.Serial(port=self.COM_con[9], baudrate=115200, timeout=0.08),
         ]
 
-        self.baudrate = [
-            115200,
-            115200,
-            115200,
-            115200,
-            115200,
-            115200,
-            115200,
-            115200,
-            115200,
-            115200,
-        ]
-        self.cutOffTime = 27000  # Makes a decision on pass/fail after this time, even if the uncertainty is not low enough
-        self.number_of_chambers = 5
-        self.max_chambers = 50
-
         self.leakDirectory = paths["strawleakdata"]
         self.leakDirectoryRaw = self.leakDirectory / "raw_data"
         self.workerDirectory = paths["leakworkers"]
@@ -171,167 +155,72 @@ class LeakTestStatus(QMainWindow):
             0,
         ]
 
-        self.chamber_id = {
-            "ch0": 0,
-            "ch1": 1,
-            "ch2": 2,
-            "ch3": 3,
-            "ch4": 4,
-            "ch5": 5,
-            "ch6": 6,
-            "ch7": 7,
-            "ch8": 8,
-            "ch9": 9,
-            "ch10": 10,
-            "ch11": 11,
-            "ch12": 12,
-            "ch13": 13,
-            "ch14": 14,
-            "ch15": 15,
-            "ch16": 16,
-            "ch17": 17,
-            "ch18": 18,
-            "ch19": 19,
-            "ch20": 20,
-            "ch21": 21,
-            "ch22": 22,
-            "ch23": 23,
-            "ch24": 24,
-            "ch25": 25,
-            "ch26": 26,
-            "ch27": 27,
-            "ch28": 28,
-            "ch29": 29,
-            "ch30": 30,
-            "ch31": 31,
-            "ch32": 32,
-            "ch33": 33,
-            "ch34": 34,
-            "ch35": 35,
-            "ch36": 36,
-            "ch37": 37,
-            "ch38": 38,
-            "ch39": 39,
-            "ch40": 40,
-            "ch41": 41,
-            "ch42": 42,
-            "ch43": 43,
-            "ch44": 44,
-            "ch45": 45,
-            "ch46": 46,
-            "ch47": 47,
-            "ch48": 48,
-            "ch49": 49,
-        }
-
-        self.Choosenames1 = ["empty0", "empty1", "empty2", "empty3", "empty4"]
-        self.Choosenames2 = ["empty5", "empty6", "empty7", "empty8", "empty9"]
-        self.Choosenames3 = ["empty10", "empty11", "empty12", "empty13", "empty14"]
-        self.Choosenames4 = ["empty15", "empty16", "empty17", "empty18", "empty19"]
-        self.Choosenames5 = ["empty20", "empty21", "empty22", "empty23", "empty24"]
-        self.Choosenames6 = ["empty25", "empty26", "empty27", "empty28", "empty29"]
-        self.Choosenames7 = ["empty30", "empty31", "empty32", "empty33", "empty34"]
-        self.Choosenames8 = ["empty35", "empty36", "empty37", "empty38", "empty39"]
-        self.Choosenames9 = ["empty40", "empty41", "empty45", "empty46", "empty47"]
-        self.Choosenames10 = ["empty45", "empty46", "empty47", "empty48", "empty49"]
         self.Choosenames = [
-            self.Choosenames1,
-            self.Choosenames2,
-            self.Choosenames3,
-            self.Choosenames4,
-            self.Choosenames5,
-            self.Choosenames6,
-            self.Choosenames7,
-            self.Choosenames8,
-            self.Choosenames9,
-            self.Choosenames10,
+            ["empty0", "empty1", "empty2", "empty3", "empty4"],
+            ["empty5", "empty6", "empty7", "empty8", "empty9"],
+            ["empty10", "empty11", "empty12", "empty13", "empty14"],
+            ["empty15", "empty16", "empty17", "empty18", "empty19"],
+            ["empty20", "empty21", "empty22", "empty23", "empty24"],
+            ["empty25", "empty26", "empty27", "empty28", "empty29"],
+            ["empty30", "empty31", "empty32", "empty33", "empty34"],
+            ["empty35", "empty36", "empty37", "empty38", "empty39"],
+            ["empty40", "empty41", "empty45", "empty46", "empty47"],
+            ["empty45", "empty46", "empty47", "empty48", "empty49"]
         ]
 
-        self.chambers_status1 = ["empty0", "empty1", "empty2", "empty3", "empty4"]
-        self.chambers_status2 = ["empty5", "empty6", "empty7", "empty8", "empty9"]
-        self.chambers_status3 = ["empty10", "empty11", "empty12", "empty13", "empty14"]
-        self.chambers_status4 = ["empty15", "empty16", "empty17", "empty18", "empty19"]
-        self.chambers_status5 = ["empty20", "empty21", "empty22", "empty23", "empty24"]
-        self.chambers_status6 = ["empty25", "empty26", "empty27", "empty28", "empty29"]
-        self.chambers_status7 = ["empty30", "empty31", "empty32", "empty33", "empty34"]
-        self.chambers_status8 = ["empty35", "empty36", "empty37", "empty38", "empty39"]
-        self.chambers_status9 = ["empty40", "empty41", "empty42", "empty43", "empty44"]
-        self.chambers_status10 = ["empty45", "empty46", "empty47", "empty48", "empty49"]
         self.chambers_status = [
-            self.chambers_status1,
-            self.chambers_status2,
-            self.chambers_status3,
-            self.chambers_status4,
-            self.chambers_status5,
-            self.chambers_status6,
-            self.chambers_status7,
-            self.chambers_status8,
-            self.chambers_status9,
-            self.chambers_status10,
+            ["empty0", "empty1", "empty2", "empty3", "empty4"],
+            ["empty5", "empty6", "empty7", "empty8", "empty9"],
+            ["empty10", "empty11", "empty12", "empty13", "empty14"],
+            ["empty15", "empty16", "empty17", "empty18", "empty19"],
+            ["empty20", "empty21", "empty22", "empty23", "empty24"],
+            ["empty25", "empty26", "empty27", "empty28", "empty29"],
+            ["empty30", "empty31", "empty32", "empty33", "empty34"],
+            ["empty35", "empty36", "empty37", "empty38", "empty39"],
+            ["empty40", "empty41", "empty42", "empty43", "empty44"],
+            ["empty45", "empty46", "empty47", "empty48", "empty49"]
         ]
 
+        # dict of <chamber> : "<straw name>_rawdata.txt"
         self.files = {}
-        self.straw_list = []  ## Passed straws with saved data
+        # Passed straws with saved data
+        self.straw_list = []
         self.result = self.leakDirectory / "LeakTestResults.csv"
+
+        # what are these next two lines for??
         result = open(self.result, "a+", 1)
         result.close()
 
-        self.chamber_volume1 = [594, 607, 595, 605, 595]  ## For row 1 chambers
-        self.chamber_volume2 = [606, 609, 612, 606, 595]
-        self.chamber_volume3 = [592, 603, 612, 606, 567]
-        self.chamber_volume4 = [585, 575, 610, 615, 587]
-        self.chamber_volume5 = [611, 600, 542, 594, 591]
-        self.chamber_volume6 = [598, 451, 627, 588, 649]
-        self.chamber_volume7 = [544, 600, 534, 594, 612]
-        self.chamber_volume8 = [606, 594, 515, 583, 601]
-        self.chamber_volume9 = [557, 510, 550, 559, 527]
-        self.chamber_volume10 = [567, 544, 572, 561, 578]
         self.chamber_volume = [
-            self.chamber_volume1,
-            self.chamber_volume2,
-            self.chamber_volume3,
-            self.chamber_volume4,
-            self.chamber_volume5,
-            self.chamber_volume6,
-            self.chamber_volume7,
-            self.chamber_volume8,
-            self.chamber_volume9,
-            self.chamber_volume10,
+            [594, 607, 595, 605, 595],
+            [606, 609, 612, 606, 595],
+            [592, 603, 612, 606, 567],
+            [585, 575, 610, 615, 587],
+            [611, 600, 542, 594, 591],
+            [598, 451, 627, 588, 649],
+            [544, 600, 534, 594, 612],
+            [606, 594, 515, 583, 601],
+            [557, 510, 550, 559, 527],
+            [567, 544, 572, 561, 578]
         ]
 
-        self.chamber_volume_err1 = [13, 31, 15, 10, 21]
-        self.chamber_volume_err2 = [37, 7, 12, 17, 15]
-        self.chamber_volume_err3 = [15, 12, 7, 4, 2]
-        self.chamber_volume_err4 = [8, 15, 6, 10, 11]
-        self.chamber_volume_err5 = [4, 3, 8, 6, 9]
-        self.chamber_volume_err6 = [31, 11, 25, 20, 16]
-        self.chamber_volume_err7 = [8, 8, 11, 8, 6]
-        self.chamber_volume_err8 = [6, 10, 8, 10, 8]
-        self.chamber_volume_err9 = [6, 8, 6, 9, 6]
-        self.chamber_volume_err10 = [7, 6, 8, 7, 6]
         self.chamber_volume_err = [
-            self.chamber_volume_err1,
-            self.chamber_volume_err2,
-            self.chamber_volume_err3,
-            self.chamber_volume_err4,
-            self.chamber_volume_err5,
-            self.chamber_volume_err6,
-            self.chamber_volume_err6,
-            self.chamber_volume_err8,
-            self.chamber_volume_err9,
-            self.chamber_volume_err10,
+            [13, 31, 15, 10, 21],
+            [37, 7, 12, 17, 15],
+            [15, 12, 7, 4, 2],
+            [8, 15, 6, 10, 11],
+            [4, 3, 8, 6, 9],
+            [31, 11, 25, 20, 16],
+            [8, 8, 11, 8, 6],
+            [6, 10, 8, 10, 8],
+            [6, 8, 6, 9, 6],
+            [7, 6, 8, 7, 6]
         ]
 
-        # self.leak_rate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        # self.leak_rate_err = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        self.leak_rate = [0] * 50
+        self.leak_rate_err = [0] * 50
 
-        self.leak_rate = [0] * self.max_chambers
-        self.leak_rate_err = [0] * self.max_chambers
-
-        # self.passed = ['U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U',
-        #'U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U','U']
-
-        self.passed = ["U"] * self.max_chambers
+        self.passed = ["U"] * 50
 
         self.straw_volume = 26.0
         for n in range(len(self.chamber_volume)):
@@ -345,10 +234,7 @@ class LeakTestStatus(QMainWindow):
         # Multiplied by 1.4 for the argon gas leaking as well conservative estimate (should we reduce?
         self.conversion_rate = 0.14
         # max leak rate for straws
-        straws_in_detector = 20736
-        total_leak_detector = 6  # cc/min
-        max_leakrate = float(total_leak_detector) / float(straws_in_detector)  # CC/min
-        self.max_leakrate = max_leakrate / 3
+        self.max_leakrate = 0.00009645060 # cc/min
 
         self.excluded_time = 120  # wait 2 minutes before using data for fit
         self.max_time = (
@@ -672,7 +558,7 @@ class LeakTestStatus(QMainWindow):
                     < (5 * (ROW + 1))
                 ):
                     x.setEnabled(True)
-            for COL in range(self.number_of_chambers):
+            for COL in range(5):
                 self.update_name(ROW, COL)
             thread = threading.Thread(
                 target=self.ReadinBuffer, args=(ROW,), name=("Buffer" + str(ROW))
@@ -805,7 +691,7 @@ class LeakTestStatus(QMainWindow):
                             slope_err = {}
                             intercept = {}
                             intercept_err = {}
-                            for COL in range(self.number_of_chambers):
+                            for COL in range(5):
                                 # cycles through columns
                                 chamber = ROW * 5 + COL
                                 PPM[chamber] = []
@@ -943,7 +829,7 @@ class LeakTestStatus(QMainWindow):
                                     elif (
                                         len(PPM[chamber]) > 20
                                         and self.leak_rate[chamber] < self.max_leakrate
-                                        and eventtime > self.cutOffTime
+                                        and eventtime > 27000 # cut off after... 7.5 hours???
                                     ):
                                         # print("Straw in chamber %.0f has Passed, Please remove" % chamber)
                                         straw_status = "Passed leak requirement"
@@ -965,7 +851,7 @@ class LeakTestStatus(QMainWindow):
                                     elif (
                                         len(PPM[chamber]) > 20
                                         and self.leak_rate[chamber] > self.max_leakrate
-                                        and eventtime > self.cutOffTime
+                                        and eventtime > 27000
                                     ):
                                         # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
                                         straw_status = "Failed leak requirement"
@@ -1370,7 +1256,7 @@ class LeakTestStatus(QMainWindow):
                 line = f.readline()
                 line = line.translate({ord(c): None for c in "\n"})
 
-        for chamber in range(0, self.max_chambers):
+        for chamber in range(0, 50):
             ROW = int(chamber / 5)
             COL = chamber % 5
 
@@ -1397,7 +1283,7 @@ class LeakTestStatus(QMainWindow):
             self.openLogInDialog()
 
     def strawsTesting(self):
-        for chamber in range(0, self.max_chambers):
+        for chamber in range(0, 50):
             ROW = int(chamber / 5)
             COL = chamber % 5
 
