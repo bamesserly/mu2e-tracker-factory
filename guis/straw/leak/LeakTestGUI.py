@@ -31,7 +31,7 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from guis.straw.leak.least_square_linear import *  ## Contributes fit functions
-from guis.straw.leak.N0202a import Ui_MainWindow  ## Main GUI window
+from guis.straw.leak.leakUI import Ui_MainWindow  ## Main GUI window
 from guis.straw.leak.N0207a import Ui_Dialog  ## Pop-up GUI window for straw selection
 from guis.straw.leak.WORKER import Ui_Dialogw
 import inspect
