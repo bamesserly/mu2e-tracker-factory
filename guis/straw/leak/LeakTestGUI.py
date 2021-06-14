@@ -1460,6 +1460,8 @@ class LeakTestStatus(QMainWindow):
             if int(x.objectName().strip("PdfButton")) == chamber:
                 x.setDisabled(True)
 
+    # this function has it's own thread (called "thread")
+    # deals with locking/unlocking the gui and responding to the removal of CPALs
     def signalChecking(self):
         changed = False
         signal = False
@@ -1467,12 +1469,14 @@ class LeakTestStatus(QMainWindow):
             self.getCPALS()
             pallets_testing = self.cpals != []
 
+            # XOR(pallets_testing, signal)
             if pallets_testing and not signal or (not pallets_testing and signal):
                 self.ToggleRemoved.emit(pallets_testing)
                 signal = not signal
 
             credentials = self.checkCredentials()
 
+            # keeps gui locked when started up and until someone logs in or an arduino is running
             if (
                 (credentials and not changed) or (not credentials and changed)
             ) and not any(self._running):

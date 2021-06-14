@@ -57,6 +57,7 @@ class Merger:
     """
 
     def merge(self, table, execute=True):
+
         # Generate merge script
         script = self.mergeScript(
             table=table, attached_alias=self.attach_alias, into_attached=False
@@ -69,12 +70,14 @@ class Merger:
             return script
 
     def mergeAll(self):
+        start = datetime.now()
+        logger.info("Beginning Automerge")
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
-        dateTimeObj = datetime.now()
-        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        logger.info("Automerge complete: %s" % timestampStr)
+        finish = datetime.now()
+        dt = (finish - start).total_seconds()
+        logger.info(f"Automerge complete ({dt}s)")
 
     def __execute(self, script, fetchall=False):
         return self.executeScript(
@@ -88,7 +91,11 @@ class Merger:
     @staticmethod
     def executeScript(dst_db, src_db, script, attach_alias, fetchall=False):
         # Open connection
-        con = sqlite3.connect(dst_db)
+        try:
+            con = sqlite3.connect(dst_db)
+        except Exception as e:
+            logger.critical(f"FAILED TO CONNECT TO DATABASE, Exception: {e}")
+            raise ConnectionError("Failed to connect to database")
 
         # Attach db2
         # print(src_db, attach_alias)
@@ -101,10 +108,16 @@ class Merger:
         }[fetchall](script)
 
         # Commit script
-        con.commit()
+        try:
+            con.commit()
+        except Exception as e:
+            logger.error(f"Failed to commit merge script, Exception: {e}")
 
         # Close connection
-        con.close()
+        try:
+            con.close()
+        except Exception as e:
+            logger.error(f"Failed to close database connection, Exception: {e}")
 
         # Return ret
         return ret

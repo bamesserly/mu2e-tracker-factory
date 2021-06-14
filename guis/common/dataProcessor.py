@@ -594,7 +594,11 @@ class MultipleDataProcessor(DataProcessor):
             dp.saveStrawTensionMeasurement(position, tension, uncertainty)
 
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        logger.debug(
+            f"MULTIPROCESSOR - Attempting to save pos {position}, ten {tension}, tim {wire_timer}, cal {calib_factor}"
+        )
         for dp in self.processors:
+            logger.debug(f"Saving with {dp}...")
             dp.saveWireTensionMeasurement(position, tension, wire_timer, calib_factor)
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
@@ -1113,6 +1117,10 @@ class TxtDataProcessor(DataProcessor):
     # update all wire tension measurements for panel
     # parameters are lists of data
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        logger.debug(
+            f"TXTPROCESSOR - Attempting to save pos {position}, ten {tension}, tim {wire_timer}, cal {calib_factor}"
+        )
+
         headers = ["Position", "Tension", "WireTimer", "CalibrationFactor", "Timestamp"]
 
         outfile = self.getWireTensionerPath()
@@ -1617,14 +1625,15 @@ class SQLDataProcessor(DataProcessor):
 
         # Call all setters to store data in sql database
         # Sense Wire Batch
-        self.callMethod(self.procedure.recordWireSpool, self.stripNumber(data[1]))  
+        self.callMethod(self.procedure.recordWireSpool, self.stripNumber(data[1]))
         # Sense Wire Insertion Time
-        self.callMethod(self.procedure.recordSenseWireInsertionTime, *self.parseTimeTuple(data[2]))
+        self.callMethod(
+            self.procedure.recordSenseWireInsertionTime, *self.parseTimeTuple(data[2])
+        )
         # initial_weight
         self.callMethod(self.procedure.recordInitialWireWeight, data[3])
         # final_weight
         self.callMethod(self.procedure.recordFinalWireWeight, data[4])
-        
 
     # Pin Protectors
     def saveDataProcess4(self):
@@ -1918,6 +1927,9 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordStrawTension(position, tension, uncertainty)
 
     def saveWireTensionMeasurement(self, position, tension, wire_timer, calib_factor):
+        logger.debug(
+            f"SQLPROCESSOR - Attempting to save pos {position}, ten {tension}, tim {wire_timer}, cal {calib_factor}"
+        )
         if self.ensureProcedure():
             self.procedure.recordWireTension(
                 position, tension, wire_timer, calib_factor
@@ -2377,8 +2389,8 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getSenseWireInsertionTime(),
                 self.procedure.getSenseWireInsertionTimeRunning(),
             ),  # Sense Wire Insertion Time
-            self.procedure.getInitialWireWeight(), # initial wire spool weight
-            self.procedure.getFinalWireWeight()# final wire spool weight
+            self.procedure.getInitialWireWeight(),  # initial wire spool weight
+            self.procedure.getFinalWireWeight(),  # final wire spool weight
         ]
 
     # Pin Protectors
