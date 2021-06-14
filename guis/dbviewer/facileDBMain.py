@@ -308,6 +308,7 @@ class facileDBGUI(QMainWindow):
     def initInputWidgets(self):
         # submit push button
         self.ui.submitPB.clicked.connect(self.submitClicked)
+        self.ui.panelLE.returnPressed.connect(self.submitClicked)
 
         # heat buttons
         self.ui.heatExportButton.clicked.connect(
@@ -1428,14 +1429,15 @@ class facileDBGUI(QMainWindow):
         # (<human timestamp>, <epoch timestamp>, <PAAS A temp>, <PAAS B/C temp>)
         heatList = []
         for toop in rawHeatData:
-            heatList.append(
-                    (
-                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])),
-                        toop[0],
-                        toop[1] if (0 < toop[1] and toop[1] < 150) else None,
-                        toop[2] if (0 < toop[2] and toop[2] < 150) else None,
-                    )
-                )
+            appendMe = []
+            if toop[0] is not None:
+                appendMe.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(toop[0])))
+            for thing in toop:
+                if thing != None:
+                    appendMe.append(thing)
+            if appendMe[0] is not None and appendMe[1] is not None and appendMe[2] is not None:
+                heatList.append(appendMe)
+            
         # assign built list to self.data
         listPointer = getattr(self.data,f'p{pro}HeatData')
         listPointer += heatList
@@ -1860,8 +1862,8 @@ class facileDBGUI(QMainWindow):
             # statistics. Remove Nones for this purpose.
             paasATemps = [toop[2] for toop in heatData if toop[2]]
             paasBCTemps = [toop[3] for toop in heatData if toop[3]]
-
-            if len(paasATemps) > 0:  # if paas A data exits
+            print(paasATemps)
+            if len(paasATemps) > 1:  # if paas A data exits
                 # make a list of stats
                 paasAStats = [
                     "PAAS A Statistics",
@@ -1872,7 +1874,9 @@ class facileDBGUI(QMainWindow):
                     f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
                     f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
                 ]
-            if len(paasBCTemps) > 0 and pro != 1:  # if paas B/C exists
+            else:
+                paasAStats = []
+            if len(paasBCTemps) > 1 and pro != 1:  # if paas B/C exists
                 # make a list of stats
                 paasBCStats = [
                     '', # empty line
@@ -1884,6 +1888,8 @@ class facileDBGUI(QMainWindow):
                     f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
                     f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
                 ]
+            else:
+                paasBCStats = []
             
             # make a list of heat timestamps
             heatTimes = [toop[1] for toop in heatData if (toop[2] or toop[3])]
