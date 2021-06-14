@@ -1,6 +1,6 @@
 import sqlite3, os, time, sys
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from guis.common.advancedthreading import LoopingReusableThread
 
@@ -70,15 +70,14 @@ class Merger:
             return script
 
     def mergeAll(self):
-        dateTimeObj = datetime.now()
-        timestampStrI = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        logger.info("Beginning automerge: %s" % timestampStrI)
+        start = datetime.now()
+        logger.info("Beginning Automerge")
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
-        dateTimeObj = datetime.now()
-        timestampStrF = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S)")
-        logger.info(f"Automerge completed in: {timestampStrF-timestampStrF}, completed at: {timestampStrF}")
+        finish = datetime.now()
+        dt = (finish - start).total_seconds()
+        logger.info(f"Automerge complete ({dt}s)")
 
     def __execute(self, script, fetchall=False):
         return self.executeScript(
@@ -95,9 +94,8 @@ class Merger:
         try:
             con = sqlite3.connect(dst_db)
         except Exception as e:
-            logger.critical(f'FAILED TO CONNECT TO DATABASE, Exception: {e}')
+            logger.critical(f"FAILED TO CONNECT TO DATABASE, Exception: {e}")
             raise ConnectionError("Failed to connect to database")
-        
 
         # Attach db2
         # print(src_db, attach_alias)
@@ -113,14 +111,13 @@ class Merger:
         try:
             con.commit()
         except Exception as e:
-            logger.error(f'Failed to commit merge script, Exception: {e}')
-        
+            logger.error(f"Failed to commit merge script, Exception: {e}")
 
         # Close connection
         try:
             con.close()
         except Exception as e:
-            logger.error(f'Failed to close database connection, Exception: {e}')
+            logger.error(f"Failed to close database connection, Exception: {e}")
 
         # Return ret
         return ret
