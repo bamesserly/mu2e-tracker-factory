@@ -100,6 +100,7 @@ class LeakTestStatus(QMainWindow):
 
         self.leakDirectory = paths["strawleakdata"]
         self.leakDirectoryRaw = self.leakDirectory / "raw_data"
+        self.leakDirectoryCom = self.leakDirectory / "comments"
         self.workerDirectory = paths["leakworkers"]
 
         self.starttime = [
@@ -1387,6 +1388,37 @@ class LeakTestStatus(QMainWindow):
             ) and not any(self._running):
                 self.LockGUI.emit(credentials)
                 changed = not changed
+
+    def makeComment(self):
+        row = -1
+        col = -1
+        for lst in self.Choosenames:
+            if self.ui.strawIDLE.text() in lst:
+                row = self.Choosenames.index(lst)
+                col = lst.index(self.ui.strawIDLE.text())
+        
+        if row == -1 or col == -1:
+            msg = "The entered straw ID does not correspond to a currently loaded straw.\nContinue?"
+            reply = QMessageBox.question(
+                self, "Message", msg, QMessageBox.Yes, QMessageBox.No
+            )
+            if reply == QMessageBox.No:
+                return
+        if self.ui.workerSelectCB.currentText() == "":
+            QMessageBox.warning(
+                self, "Message", "No worker is selected, unable to submit comment."
+            )
+
+        message = self.ui.commentPTE.document().toPlainText()
+
+
+        comment = f'{self.ui.strawIDLE.text()},chamber{5 * col + row},{self.ui.workerSelectCB.currentText()},message'
+
+        with open(f'{self.leakDirectory}/{self.ui.strawIDLE.text()}_comments.csv', 'a') as file:
+            inkAndQuill = csv.writer(file)
+            inkAndQuill.writerow(comment)
+        
+
 
 
 class StrawSelect(QDialog):
