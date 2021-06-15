@@ -1,6 +1,10 @@
 from threading import Thread, Event
 from datetime import datetime
 
+import logging
+
+logger = logging.getLogger("root")
+
 
 class StopThread(Thread):
     def stop(self):
@@ -81,15 +85,18 @@ class LoopingThread(StopThread):
 
     def run(self):
 
-        # Call target method right away
-        self._callable()
-
-        # Create new stop event
-        self._stop_event = Event()
-
-        # Begin loop waiting one execute_interval of time before running running again
-        while not self._stop_event.wait(self._execute_interval):
+        try:
+            # Call target method right away
             self._callable()
+
+            # Create new stop event
+            self._stop_event = Event()
+
+            # Begin loop waiting one execute_interval of time before running running again
+            while not self._stop_event.wait(self._execute_interval):
+                self._callable()
+        except Exception as e:
+            logger.warning(e)
 
 
 class LoopingReusableThread(ReusableThread, LoopingThread):

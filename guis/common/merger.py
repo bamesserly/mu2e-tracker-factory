@@ -1,6 +1,7 @@
 import sqlite3, os, time, sys
 from pathlib import Path
 from datetime import datetime
+import sqlalchemy as sqla
 
 from guis.common.advancedthreading import LoopingReusableThread
 
@@ -72,6 +73,7 @@ class Merger:
     def mergeAll(self):
         start = datetime.now()
         logger.info("Beginning Automerge")
+        # logger.debug("\n".join([self.merge(t,execute=False) for t in sorted(self.getTables())]))
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
@@ -92,7 +94,7 @@ class Merger:
     def executeScript(dst_db, src_db, script, attach_alias, fetchall=False):
         # Open connection
         try:
-            con = sqlite3.connect(dst_db)
+            con = sqlite3.connect(dst_db, timeout=15)
         except Exception as e:
             logger.critical(f"FAILED TO CONNECT TO DATABASE, Exception: {e}")
             raise ConnectionError("Failed to connect to database")
@@ -142,7 +144,10 @@ class Merger:
             """
 
     def main(self):
-        return self.mergeAll()
+        try:
+            return self.mergeAll()
+        except sqla.exc.OperationalError:
+            logger.error("DB Locked. Failed to attach local DB in executeScript.")
 
 
 class AutoMerger(Merger, LoopingReusableThread):
