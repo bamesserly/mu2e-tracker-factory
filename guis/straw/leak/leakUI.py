@@ -4383,4 +4383,4 @@ class Ui_MainWindow(object):
         self.label_45.setText(_translate("MainWindow", "Straw ID"))
         self.label_46.setText(_translate("MainWindow", "Worker ID"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Comment"))
-import images_rc
+import guis.straw.leak.images_rc

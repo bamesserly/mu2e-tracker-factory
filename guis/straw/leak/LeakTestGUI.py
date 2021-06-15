@@ -503,6 +503,8 @@ class LeakTestStatus(QMainWindow):
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.lockGUI(False)
 
+        self.ui.commentSubmitPB.clicked.connect(self.makeComment)
+
         # Connect Signals
         self.ArduinoStart.connect(self.setArduinoStart)
         self.StrawProcessing.connect(self.setStrawProcessing)
@@ -1138,6 +1140,10 @@ class LeakTestStatus(QMainWindow):
 
             self.sessionWorkers.append(Current_worker)
 
+            # update combo box with worker names (on comment tab)
+            self.ui.workerSelectCB.clear()
+            self.ui.workerSelectCB.addItems(self.sessionWorkers)
+
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log Out")
             # self.ui.tabWidget.setCurrentIndex(1)
@@ -1160,9 +1166,13 @@ class LeakTestStatus(QMainWindow):
         if credentials:
             self.ui.tabWidget.setTabText(1, "Leak Test")
             self.ui.tabWidget.setTabEnabled(1, True)
+            self.ui.tabWidget.setTabText(2, "Comments")
+            self.ui.tabWidget.setTabEnabled(2,True)
         else:
             self.ui.tabWidget.setTabText(1, "Leak Test *Locked*")
             self.ui.tabWidget.setTabEnabled(1, False)
+            self.ui.tabWidget.setTabText(2, "Comments *Locked*")
+            self.ui.tabWidget.setTabEnabled(2,False)
 
     def SaveCSV(self, chamber):
         """Save data to CSV file after straw passes or fails"""
@@ -1389,7 +1399,9 @@ class LeakTestStatus(QMainWindow):
                 self.LockGUI.emit(credentials)
                 changed = not changed
 
+    # connected to the comment submit button
     def makeComment(self):
+        # figure out which chamber the straw is in
         row = -1
         col = -1
         for lst in self.Choosenames:
@@ -1397,29 +1409,45 @@ class LeakTestStatus(QMainWindow):
                 row = self.Choosenames.index(lst)
                 col = lst.index(self.ui.strawIDLE.text())
         
+        # if unable to find a valid index, show a warning
         if row == -1 or col == -1:
             msg = "The entered straw ID does not correspond to a currently loaded straw.\nContinue?"
             reply = QMessageBox.question(
                 self, "Message", msg, QMessageBox.Yes, QMessageBox.No
             )
+            # option to abort comment submission
             if reply == QMessageBox.No:
                 return
+        # gotta select a worker, no anonymous comments
         if self.ui.workerSelectCB.currentText() == "":
             QMessageBox.warning(
                 self, "Message", "No worker is selected, unable to submit comment."
             )
+            return
 
+        # get comment text
         message = self.ui.commentPTE.document().toPlainText()
-
-
-        comment = f'{self.ui.strawIDLE.text()},chamber{5 * col + row},{self.ui.workerSelectCB.currentText()},message'
-
-        with open(f'{self.leakDirectory}/{self.ui.strawIDLE.text()}_comments.csv', 'a') as file:
-            inkAndQuill = csv.writer(file)
-            inkAndQuill.writerow(comment)
+        # remove commas, since it'll be saved in a csv
+        message = message.replace(",","")
+        message = message.replace('\n',"\\n")
         
+        # make sure there's a comment to save
+        print(len(message))
+        if len(message) < 1:
+            QMessageBox.warning(
+                self, "Message", "No text input, unable to submit comment"
+            )
 
+        # make row with f-string
+        comment = f'{self.ui.strawIDLE.text()},chamber{(5*col+row) if (5*col+row!=-6) else "NotFound"},{self.ui.workerSelectCB.currentText()},{message},{int(datetime.datetime.now().timestamp())},{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
 
+        # open file and append the comment row thingy
+        with open(f'{self.leakDirectory}/comments/{self.ui.strawIDLE.text()}_comments.csv', 'a') as file:
+            file.write("\n"+comment)
+
+        # clear out text edit
+        self.ui.commentPTE.clear()
+        
 
 class StrawSelect(QDialog):
     """Pop-up window for entering straw barcode"""
@@ -1653,8 +1681,7 @@ class removeStraw(QDialog):
         buttonReply = QMessageBox.question(
             self,
             "Straw Removal Confirmation",
-            "Are you sure you want \
-to permanently remove "
+            "Are you sure you want \nto permanently remove "
             + straws[pos]
             + " from "
             + CPAL
