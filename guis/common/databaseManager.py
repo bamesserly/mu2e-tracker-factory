@@ -3,11 +3,9 @@
 #
 #   DatabaseManager class establishes connection with SQL database to commit entries and run queries.
 #
-#   Author: Joe Dill
-#
 
 from sqlalchemy.orm import sessionmaker as dbconnection
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine
 
 import logging
 
