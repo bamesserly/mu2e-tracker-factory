@@ -1074,7 +1074,7 @@ class LeakTestStatus(QMainWindow):
         else:
             wasrunning == False
 
-        ctr = StrawSelect()  ## Generate pop-up window for straw selection
+        ctr = StrawSelect(self.leakDirectory)  ## Generate pop-up window for straw selection
         ctr.exec_()  ## windowModality = ApplicationModal. Main GUI blocked when pop-up is open
         straw = str(ctr.straw_load)
         self.StrawLabels[chamber].setText(straw)
@@ -1510,7 +1510,7 @@ class LeakTestStatus(QMainWindow):
 class StrawSelect(QDialog):
     """Pop-up window for entering straw barcode"""
 
-    def __init__(self):
+    def __init__(self, leakDirectory):
         super().__init__()
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
@@ -1520,6 +1520,7 @@ class StrawSelect(QDialog):
         self.straw_load = "empty"
         self.ui.okayButton.clicked.connect(self.StrawInput)
         self.ui.cancelButton.clicked.connect(self.Cancel)
+        self.leakDirectory = leakDirectory
 
     def StrawInput(self):
         self.straw_load = self.ui.lineEdit.text().upper()
@@ -1530,6 +1531,15 @@ class StrawSelect(QDialog):
         ):
             try:
                 checkStraw(self.straw_load, "C-O2", "leak")
+
+                # check for inflation failure
+                with open(f'{self.leakDirectory}/comments/{self.straw_load}_comments.csv', 'r') as file:
+                    for row in file:
+                        if "FAILED_INFLATION_TEST" in row:
+                            QMessageBox.warning(
+                            self, "Message", f'{self.straw_load} has previously failed the inflation test.'
+                            )
+
                 print("Straw", self.straw_load, "loaded")
                 self.deleteLater()
             except StrawRemovedError:
