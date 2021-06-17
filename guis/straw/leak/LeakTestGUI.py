@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QInputDialog,
+    QListWidgetItem
 )
 from PyQt5 import QtGui
 import serial  ## Takes this from pyserial, not serial
@@ -1473,6 +1474,11 @@ class LeakTestStatus(QMainWindow):
     # looks up comments for a straw and displays them on the right side of the comments page
     def readComments(self):
         self.ui.commentLW.clear()
+        failBrush = QtGui.QBrush(QtCore.Qt.red)
+        goodFont = QtGui.QFont()
+        goodFont.setPointSize(8)
+        goodFont.setBold(False)
+
         # check if a file exists
         if not os.path.exists((f'{self.leakDirectory}/comments/{(self.ui.lookupIDLE.text()).upper()}_comments.csv')):
             QMessageBox.warning(
@@ -1485,12 +1491,18 @@ class LeakTestStatus(QMainWindow):
             for row in file:
                 if row != ['']:
                     # com is a list: [strawID,chamber,worker,comment,epochTime,humanTime,inflationTestStatus]
-                    com = file.readline()
-                    print(f'com: {com}')
-                    comL = com.split(sep=",")
-                    print(f'com: {comL}')
-                    if com != ["strawID","chamber","worker","comment","epochTime","humanTime","inflationTestStatus"] and com != ['']:
-                        self.ui.commentLW.addItem(f'{com[2]}, {com[5]}' + '\n' + f'{com[3]}' + ("\nFAILED INFLATION TEST" if com[6] == "FAILED_INFLATION_TEST" else ""))
+                    #com = file.readline()
+                    com = row.split(sep=",")
+                    print(com)
+                    if com != ['strawID', 'chamber', 'worker', 'comment', 'epochTime', 'humanTime', 'inflationTestStatus\n'] and com != ['']:
+                        com3 = com[3].replace('\\n',"\n")
+                        newItem = QListWidgetItem(
+                            f'{com[2]}, {com[5]}' + '\n' + f'{com3}' + ("\nFAILED INFLATION TEST" if com[6] == "FAILED_INFLATION_TEST" else "")
+                        )
+                        newItem.setFont(goodFont)
+                        if len(com[6]) > 2:
+                                newItem.setBackground(failBrush)
+                        self.ui.commentLW.addItem(newItem)
                 
         return
         
