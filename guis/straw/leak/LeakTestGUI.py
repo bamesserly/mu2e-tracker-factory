@@ -504,6 +504,7 @@ class LeakTestStatus(QMainWindow):
         self.lockGUI(False)
 
         self.ui.commentSubmitPB.clicked.connect(self.makeComment)
+        self.ui.lookupSubmitPB.clicked.connect(self.readComments)
 
         # Connect Signals
         self.ArduinoStart.connect(self.setArduinoStart)
@@ -1418,12 +1419,25 @@ class LeakTestStatus(QMainWindow):
             # option to abort comment submission
             if reply == QMessageBox.No:
                 return
+        
         # gotta select a worker, no anonymous comments
         if self.ui.workerSelectCB.currentText() == "":
             QMessageBox.warning(
                 self, "Message", "No worker is selected, unable to submit comment."
             )
             return
+
+        # confirm inflation test failure (if applicable)
+        if self.ui.inflationCheckBox.isChecked():
+            msg = f'Are you sure you want to mark {self.ui.strawIDLE.text()} as having failed the inflation test?'
+            reply = QMessageBox.question(
+                self, "Message", msg, QMessageBox.Yes, QMessageBox.No
+            )
+            # option to abort comment submission
+            if reply == QMessageBox.No:
+                # uncheck and return
+                self.ui.inflationCheckBox.setChecked(False)
+                return
 
         # get comment text
         message = self.ui.commentPTE.document().toPlainText()
@@ -1432,7 +1446,6 @@ class LeakTestStatus(QMainWindow):
         message = message.replace('\n',"\\n")
         
         # make sure there's a comment to save
-        print(len(message))
         if len(message) < 1:
             QMessageBox.warning(
                 self, "Message", "No text input, unable to submit comment"
@@ -1440,13 +1453,46 @@ class LeakTestStatus(QMainWindow):
 
         # make row with f-string
         comment = f'{self.ui.strawIDLE.text()},chamber{(5*col+row) if (5*col+row!=-6) else "NotFound"},{self.ui.workerSelectCB.currentText()},{message},{int(datetime.datetime.now().timestamp())},{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+        if self.ui.inflationCheckBox.isChecked():
+            comment += ",FAILED_INFLATION_TEST"
+        else:
+            comment += ",_"
 
+        # Check if file exists, if not make it and add a header
+        if not os.path.exists((f'{self.leakDirectory}/comments/{(self.ui.strawIDLE.text()).upper()}_comments.csv')):
+            with open(f'{self.leakDirectory}/comments/{(self.ui.strawIDLE.text()).upper()}_comments.csv', 'a') as file:
+                file.write("strawID,chamber,worker,comment,epochTime,humanTime,inflationTestStatus")
+        
         # open file and append the comment row thingy
-        with open(f'{self.leakDirectory}/comments/{self.ui.strawIDLE.text()}_comments.csv', 'a') as file:
+        with open(f'{self.leakDirectory}/comments/{(self.ui.strawIDLE.text()).upper()}_comments.csv', 'a') as file:
             file.write("\n"+comment)
 
         # clear out text edit
         self.ui.commentPTE.clear()
+
+    # looks up comments for a straw and displays them on the right side of the comments page
+    def readComments(self):
+        self.ui.commentLW.clear()
+        # check if a file exists
+        if not os.path.exists((f'{self.leakDirectory}/comments/{(self.ui.lookupIDLE.text()).upper()}_comments.csv')):
+            QMessageBox.warning(
+                self, "Message", f'No comments file found for {self.ui.lookupIDLE.text()}.'
+            )
+            return
+
+        # a file exists, so open it
+        with open(f'{self.leakDirectory}/comments/{(self.ui.lookupIDLE.text()).upper()}_comments.csv', 'r') as file:
+            for row in file:
+                if row != ['']:
+                    # com is a list: [strawID,chamber,worker,comment,epochTime,humanTime,inflationTestStatus]
+                    com = file.readline()
+                    print(f'com: {com}')
+                    comL = com.split(sep=",")
+                    print(f'com: {comL}')
+                    if com != ["strawID","chamber","worker","comment","epochTime","humanTime","inflationTestStatus"] and com != ['']:
+                        self.ui.commentLW.addItem(f'{com[2]}, {com[5]}' + '\n' + f'{com[3]}' + ("\nFAILED INFLATION TEST" if com[6] == "FAILED_INFLATION_TEST" else ""))
+                
+        return
         
 
 class StrawSelect(QDialog):
