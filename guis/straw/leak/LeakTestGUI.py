@@ -1471,6 +1471,10 @@ class LeakTestStatus(QMainWindow):
         # clear out text edit
         self.ui.commentPTE.clear()
 
+        # update comment display
+        self.ui.lookupIDLE.setText(self.ui.strawIDLE.text())
+        self.readComments()
+
     # looks up comments for a straw and displays them on the right side of the comments page
     def readComments(self):
         self.ui.commentLW.clear()
