@@ -2081,6 +2081,12 @@ class facileDBGUI(QMainWindow):
     # returns: nothing returned
     def exportData(self,dataName,dataType,dataCols):
         # if there are very few data points...
+        if len(dataType) == 0:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message="No data points found, unable to export data.",
+            )
+            return
         if len(dataType) < 10:
             # make a question popup
             qM = QMessageBox()
