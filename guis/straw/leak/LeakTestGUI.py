@@ -1536,14 +1536,6 @@ class StrawSelect(QDialog):
             try:
                 checkStraw(self.straw_load, "C-O2", "leak")
 
-                # check for inflation failure
-                with open(f'{self.leakDirectory}/comments/{self.straw_load}_comments.csv', 'r') as file:
-                    for row in file:
-                        if "FAILED_INFLATION_TEST" in row:
-                            QMessageBox.warning(
-                            self, "Message", f'{self.straw_load} has previously failed the inflation test.'
-                            )
-
                 print("Straw", self.straw_load, "loaded")
                 self.deleteLater()
             except StrawRemovedError:
