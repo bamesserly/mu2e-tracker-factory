@@ -1835,7 +1835,6 @@ class facileDBGUI(QMainWindow):
             # statistics. Remove Nones for this purpose.
             paasATemps = [toop[2] for toop in heatData if toop[2]]
             paasBCTemps = [toop[3] for toop in heatData if toop[3]]
-            print(paasATemps)
             if len(paasATemps) > 1:  # if paas A data exits
                 # make a list of stats
                 paasAStats = [
@@ -2001,7 +2000,10 @@ class facileDBGUI(QMainWindow):
                     xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
                 )  # make a scatterplot out of the x and y data
             except:
-                print("Insufficient data to plot error bars.")
+                tkinter.messagebox.showwarning(
+                    title="Warning",
+                    message=f"Insufficient data to plot error bars.",
+                )
         else:
             plt.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
 
