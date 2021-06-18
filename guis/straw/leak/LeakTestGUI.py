@@ -959,15 +959,15 @@ class LeakTestStatus(QMainWindow):
                     "finished leak testing.  Would you like to save leak "
                     "data for this straw?"
                 )
-                reply = QMessageBox.question(
-                    self,
-                    "Straw Not Finished Leak Testing",
-                    msg,
-                    QMessageBox.Yes,
-                    QMessageBox.No,
-                    QMessageBox.Cancel,
+                reply = QMessageBox()
+                reply.setText("Incomplete test")
+                reply.setInformativeText(msg)
+                reply.setStandardButtons(
+                    QMessageBox.Yes|
+                    QMessageBox.No|
+                    QMessageBox.Cancel
                 )
-                reply.setDefaultButton(QMessageBox.yes)
+                reply.setDefaultButton(QMessageBox.Yes)
 
                 if reply == QMessageBox.Yes:
                     thread = threading.Thread(
