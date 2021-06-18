@@ -787,11 +787,11 @@ class panelGUI(QMainWindow):
 
     def _init_pro8_setup(self):
         self.ui.panelInput_8.installEventFilter(self)
-        self.ui.rest_test_pro8.clicked.connect(self.run_resistance)
+        self.ui.launch_resistance_test.clicked.connect(self.run_resistance)
+        self.ui.launch_leak_test.clicked.connect(self.run_plot_leak)
         self.ui.broken_tap.clicked.connect(self.broken_tap_form)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
         self.ui.leak_form_submit.clicked.connect(self.leak_form)
-        self.ui.plot_leak.clicked.connect(self.run_plot_leak)
 
     def _init_timers(self):
         self.timers = [
@@ -1217,14 +1217,25 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_3,
             ],
             # pro 8 Widgets
+            # 0 = panel input
+            # 1,2,3 = L,R,C covers
+            # 4,5,6 = L ring parts 1,2, and 3
+            # 7,8,9 = R ring parts 1,2, and 3
+            # 10,11,12 = C ring parts 1,2, and 3
             [
                 self.ui.panelInput_8,
                 self.ui.left_cover_6,
                 self.ui.right_cover_6,
-                self.ui.center_ring_6,
                 self.ui.center_cover_6,
-                self.ui.left_ring_6,
-                self.ui.right_ring_6,
+                self.ui.leftRing1LE,
+                self.ui.leftRing2DTE,
+                self.ui.leftRing3LE,
+                self.ui.rightRing1LE,
+                self.ui.rightRing2DTE,
+                self.ui.rightRing3LE,
+                self.ui.centerRing1LE,
+                self.ui.centerRing2DTE,
+                self.ui.centerRing3LE,
             ],
         ]
 
