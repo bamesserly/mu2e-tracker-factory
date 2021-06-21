@@ -1713,13 +1713,14 @@ class Pan8Procedure(PanelProcedure):
             __tablename__ = "procedure_details_pan8"
             id = Column(Integer, primary_key=True)
             procedure = Column(Integer, ForeignKey("procedure.id"))
+
             left_cover = Column(Integer)
-            right_cover = Column(Integer)
-            center_ring = Column(Integer)
             center_cover = Column(Integer)
-            left_ring = Column(Integer)
-            right_ring = Column(Integer)
-            broken_taps = Column(Integer)
+            right_cover = Column(Integer)
+
+            left_ring = Column(String)
+            center_ring = Column(String)
+            right_ring = Column(String)
 
         return Details
 
@@ -1763,13 +1764,6 @@ class Pan8Procedure(PanelProcedure):
 
     def recordRightRing(self, right_ring):
         self.details.right_ring = right_ring
-        self.commit()
-
-    def getBrokenTaps(self):
-        return self.details.broken_taps
-
-    def recordBrokenTaps(self, tap_value):
-        self.details.broken_taps += tap_value
         self.commit()
 
 

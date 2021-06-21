@@ -506,7 +506,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>7</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -2862,7 +2862,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>712</height>
+                       <height>710</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4210,8 +4210,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>28</height>
+                       <width>484</width>
+                       <height>646</height>
                       </rect>
                      </property>
                     </widget>
@@ -7513,8 +7513,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
+  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>

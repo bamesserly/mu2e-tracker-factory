@@ -49,12 +49,14 @@ from threading import Thread, enumerate as enumerateThreads
 from PyQt5.Qt import PYQT_VERSION_STR  # used for version checking
 from PyQt5.QtCore import (
     QCoreApplication,
+    QTime,
     pyqtSignal,
     Qt,
     QRegularExpression,
     QEvent,
     pyqtBoundSignal,
     pyqtSlot,
+    QDate
 )
 from PyQt5.QtGui import (
     QRegularExpressionValidator,
@@ -2638,11 +2640,17 @@ class panelGUI(QMainWindow):
     def updateDataProcess8(self):
         self.data[self.pro_index][0] = self.ui.panelInput_8.text()
         self.data[self.pro_index][1] = self.ui.left_cover_6.text()
-        self.data[self.pro_index][2] = self.ui.right_cover_6.text()
-        self.data[self.pro_index][3] = self.ui.center_ring_6.text()
-        self.data[self.pro_index][4] = self.ui.center_cover_6.text()
-        self.data[self.pro_index][5] = self.ui.left_ring_6.text()
-        self.data[self.pro_index][6] = self.ui.right_ring_6.text()
+        self.data[self.pro_index][2] = self.ui.center_cover_6.text()
+        self.data[self.pro_index][3] = self.ui.right_cover_6.text()
+        self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
+        self.data[self.pro_index][5] = self.ui.leftRing2DTE.date()
+        self.data[self.pro_index][6] = self.ui.leftRing3LE.text()
+        self.data[self.pro_index][7] = self.ui.rightRing1LE.text()
+        self.data[self.pro_index][8] = self.ui.rightRing2DTE.date()
+        self.data[self.pro_index][9] = self.ui.rightRing3LE.text()
+        self.data[self.pro_index][10] = self.ui.centerRing1LE.text()
+        self.data[self.pro_index][11] = self.ui.centerRing2DTE.date()
+        self.data[self.pro_index][12] = self.ui.centerRing3LE.text()
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -3651,17 +3659,56 @@ class panelGUI(QMainWindow):
             self.ui.right_cover_6.setText(str(data[2]))
             self.ui.right_cover_6.setDisabled(True)
         if data[3] is not None:
-            self.ui.center_ring_6.setText(str(data[3]))
-            self.ui.center_ring_6.setDisabled(True)
-        if data[4] is not None:
             self.ui.center_cover_6.setText(str(data[4]))
             self.ui.center_cover_6.setDisabled(True)
+        # left ring
+        if data[4] is not None:
+            self.ui.leftRing1LE.setText(str(data[4]))
+            self.ui.leftRing1LE.setDisabled(True)
         if data[5] is not None:
-            self.ui.left_ring_6.setText(str(data[5]))
-            self.ui.left_ring_6.setDisabled(True)
+            dd = data[5][:2]    # day
+            mMM = data[5][2:5]  # month
+            yy = data[5][5:7]   # year
+            hH = data[5][7:9]   # hour
+            mm = data[5][9:]    # minute
+            self.ui.leftRing2DTE.setDateTime(QDate(yy,mMM,dd), QTime(hH,mm))
+            self.ui.leftRing2DTE.setDisabled(True)
         if data[6] is not None:
-            self.ui.right_ring_6.setText(str(data[6]))
-            self.ui.right_ring_6.setDisabled(True)
+            self.ui.leftRing3LE.setText(str(data[6]))
+            self.ui.leftRing3LE.setDisabled(True)
+        
+        # right ring
+        if data[7] is not None:
+            self.ui.rightRing1LE.setText(str(data[7]))
+            self.ui.rightRing1LE.setDisabled(True)
+        if data[8] is not None:
+            dd = data[8][:2]    # day
+            mMM = data[8][2:5]  # month
+            yy = data[8][5:7]   # year
+            hH = data[8][7:9]   # hour
+            mm = data[8][9:]    # minute
+            self.ui.rightRing2DTE.setDateTime(QDate(yy,mMM,dd), QTime(hH,mm))
+            self.ui.rightRing2DTE.setDisabled(True)
+        if data[9] is not None:
+            self.ui.rightRing3LE.setText(str(data[9]))
+            self.ui.rightRing3LE.setDisabled(True)
+
+        # center ring
+        if data[10] is not None:
+            self.ui.centerRing1LE.setText(str(data[10]))
+            self.ui.centerRing1LE.setDisabled(True)
+        if data[11] is not None:
+            dd = data[11][:2]    # day
+            mMM = data[11][2:5]  # month
+            yy = data[11][5:7]   # year
+            hH = data[11][7:9]   # hour
+            mm = data[11][9:]    # minute
+            self.ui.centerRing2DTE.setDateTime(QDate(yy,mMM,dd), QTime(hH,mm))
+            self.ui.centerRing2DTE.setDisabled(True)
+        if data[12] is not None:
+            self.ui.centerRing3LE.setText(str(data[12]))
+            self.ui.centerRing3LE.setDisabled(True)
+
         self.displayComments()
 
     # fmt: off

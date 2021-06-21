@@ -103,6 +103,9 @@ class Merger:
         # print(src_db, attach_alias)
         con.executescript(f"ATTACH DATABASE '{src_db}' as {attach_alias};")
 
+        logger.debug(f"executing script for {script[48:59]}")
+        logger.debug(script)
+        
         # Execute input script
         ret = {
             True: lambda script: con.execute(script).fetchall(),
@@ -130,6 +133,19 @@ class Merger:
         dst_prefix = f"{attached_alias}." if into_attached else str()
         src_prefix = f"{attached_alias}." if not into_attached else str()
         # Generate script
+        #logger.debug(f'Script for {table}')
+        #logger.debug(f"""
+        #    INSERT OR REPLACE INTO
+        #    {dst_prefix}{table}
+        #    SELECT srct.* FROM
+        #    {src_prefix}{table} srct
+        #    LEFT OUTER JOIN
+        #    {dst_prefix}{table} t ON srct.id = t.id
+        #    WHERE
+        #    srct.timestamp > t.timestamp
+        #    OR
+        #    t.id IS NULL;
+        #    """)
         return f"""
             INSERT OR REPLACE INTO
             {dst_prefix}{table}

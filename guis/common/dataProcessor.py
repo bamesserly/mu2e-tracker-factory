@@ -1811,27 +1811,25 @@ class SQLDataProcessor(DataProcessor):
     def saveDataProcess8(self):
         data = self.getProData()
 
-        self.callMethod(
-            self.procedure.recordLeftCover, self.stripNumber(data[1])
-        )  # Left Cover
-        self.callMethod(
-            self.procedure.recordRightCover, self.stripNumber(data[2])
-        )  # Right Cover
-        self.callMethod(
-            self.procedure.recordCenterRing, self.stripNumber(data[3])
-        )  # Center Ring
-        self.callMethod(
-            self.procedure.recordCenterCover, self.stripNumber(data[4])
-        )  # Center Cover
-        self.callMethod(
-            self.procedure.recordLeftRing, self.stripNumber(data[5])
-        )  # Left Ring
-        self.callMethod(
-            self.procedure.recordRightRing, self.stripNumber(data[6])
-        )  # Right Ring
+        self.callMethod(self.procedure.recordLeftCover, self.stripNumber(data[1]))
+        self.callMethod(self.procedure.recordCenterCover, self.stripNumber(data[2]))
+        self.callMethod(self.procedure.recordRightCover, self.stripNumber(data[3]))
+
+        # rings consist of a line edit, then a date input, then another line edit
+        # left ring example: OL 15 38 25Oct19 0954 79042A
+        # lRing = data[4:7]
+        lRing = f'{data[4][2:]}{data[5].toString("ddMMMyyHHmm")}{data[6]}'
+        self.callMethod(self.procedure.recordLeftRing, lRing)
+        # rRing = data[7:10]
+        rRing = f'{data[7][2:]}{data[8].toString("ddMMMyyHHmm")}{data[9]}'
+        self.callMethod(self.procedure.recordRightRing, rRing)
+        # rRing = data[10:13]
+        cRing = f'{data[10][2:]}{data[11].toString("ddMMMyyHHmm")}{data[12]}'
+        self.callMethod(self.procedure.recordCenterRing, cRing)
+        
+        
 
     ## TIME EVENTS ##
-
     def saveStart(self):
         if self.ensureProcedure():
             self.procedure.start()
@@ -2612,7 +2610,7 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.getRightRing()[18:] if self.procedure.getRightRing() is not None else None,
             self.procedure.getCenterRing()[:7] if self.procedure.getCenterRing() is not None else None,
             self.procedure.getCenterRing()[7:18] if self.procedure.getCenterRing() is not None else None,
-            self.procedure.getCenterRing()[18:] if self.procedure.getCenterRing() is not None else None,
+            self.procedure.getCenterRing()[18:] if self.procedure.getCenterRing() is not None else None
         ]
 
 
