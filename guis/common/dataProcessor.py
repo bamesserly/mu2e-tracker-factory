@@ -2022,7 +2022,7 @@ class SQLDataProcessor(DataProcessor):
         # Make sure all data is defined
         if not all(el is not None for el in [position, continuity_str, wire_alignment]):
             return
-        if wire_alignment is "":
+        if wire_alignment == "":
             return
         # Save a continuity measurement
 
