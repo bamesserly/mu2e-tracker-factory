@@ -102,15 +102,17 @@ class Merger:
         # Attach db2
         # print(src_db, attach_alias)
         con.executescript(f"ATTACH DATABASE '{src_db}' as {attach_alias};")
-
-        logger.debug(f"executing script for {script[48:59]}")
-        logger.debug(script)
-        
-        # Execute input script
-        ret = {
-            True: lambda script: con.execute(script).fetchall(),
-            False: lambda script: con.executescript(script),
-        }[fetchall](script)
+        ret = {}
+        try:
+            # Execute input script
+            ret = {
+                True: lambda script: con.execute(script).fetchall(),
+                False: lambda script: con.executescript(script),
+            }[fetchall](script)
+        except Exception as e:
+            logger.error(f'Script execution failed, Exception: {e}')
+            logger.error(f'Failed script:')
+            logger.error(script)
 
         # Commit script
         try:
