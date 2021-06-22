@@ -92,15 +92,18 @@ def Main():
         print("... Checking if Data directory exists")
         if os.path.isdir("data"):
             print("    Data directory was found.")
-            print("    Setup script will continue running.")
-            with open("data/__init__.py", "w") as file:
-                pass
         else:
             print("    Data directory was not found.")
             print(
                 "    If you intend to run pangui, please, download the data "
                 "directory and add it to this folder."
             )
+            try:
+                os.mkdir("data")
+            except OSError as error:
+                pass
+        with open("data/__init__.py", "w") as file:
+            pass
 
     # ============================================================================
     # 3. Set locations of local and merge destination databases.
