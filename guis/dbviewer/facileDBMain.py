@@ -6,30 +6,6 @@
 #  - (_/  \_) - \_)            `-----------------------'
 import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
 
-###########################################################################
-# pyqtgraph is used by the hv gui and dbviewer but none of the computers
-# have is as of 6/2/2021, so it must be installed in order to
-# import the hv gui and not crash.  This little block and 
-# installPG() can be removed after a while, but not until
-# most if not all of the computers have pyqtgraph on them
-def installPG():
-    logger.info("Attempting to install pyqtgraph...")
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtgraph", "--user"])
-    except:
-        logger.critical("Unable to install pyqtgraph, please contact a member of the software team for help.")
-        #logger.critical("Run 'pip install pyqtgraph --user' on the command line to fix this error")
-        exit()
-    logger.info("Successfully installed pyqtgraph.")
-    print("Heyyyyy it worked!")
-    import pyqtgraph
-
-try:
-    import pyqtgraph
-except:
-    installPG()
-###########################################################################
-
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
 
@@ -45,8 +21,8 @@ import sqlalchemy as sqla  # for interacting with db
 import sqlite3  # for connecting with db
 import matplotlib.pyplot as plt  # for plotting (in popups)
 import matplotlib as mpl  # also for plotting (in popups)
-import numpy as np # for multiple things, mostly plotting (in gui)
-import pyqtgraph as pg # for plotting (in gui)
+import numpy as np  # for multiple things, mostly plotting (in gui)
+import pyqtgraph as pg  # for plotting (in gui)
 
 from PyQt5.QtWidgets import (
     QApplication,
@@ -111,9 +87,6 @@ class TimeScaleDraw(qwt.QwtScaleDraw):
 
 # Main class for a gui to make interacting with the database easy, and worry free (no fear of accidentally deleting anything)
 # Gets the QMainWindow class from facileDB.py
-# Accesses either network (X:\Data\database.db) or local (C:\Users\{getpass.getuser()}\Desktop\production\Data\database.db)
-# Using local is necessary if you're on a computer not connected to the network (personal laptop for development)
-ISLAB = 'mu2e' in getpass.getuser().lower()
 
 
 # the "fmt" comments prevent the black autoformatter from messing with comments and section headers
@@ -2150,15 +2123,30 @@ def run():
     app = QApplication(sys.argv)  # make an app
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     window = facileDBGUI(Ui_MainWindow())  # make a window
-    database = ""
-    # Access network DB
-    if ISLAB:
-        database = pkg_resources.read_text(resources, "networkDatabasePath.txt")
-    # Access local DB
-    else:
-        with pkg_resources.path(data, "database.db") as p:
-            database = p.resolve()
-    window.connectToDatabaseRO(database)  # link to database
+
+    # Read from the 'network' database
+    database = None
+    try:
+        database = pkg_resources.read_text(resources, "dbvDatabasePath.txt")
+    except FileNotFoundError:
+        print(
+            "Can't find resources/dbvDatabasePath.txt.\n"
+            "Running the python setup.py will (re)make it."
+        )
+        sys.exit()
+
+    database = database.rstrip()
+
+    try:
+        window.connectToDatabaseRO(database)  # link to database
+    except sqla.exc.OperationalError:  # unable to open database file
+        print(
+            "Problem accessing database,",
+            database,
+            "\nMake sure that the " "DB exists.",
+        )
+        sys.exit()
+
     window.setWindowTitle("Database Viewer, Connected to " + str(database))
     window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
 

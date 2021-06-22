@@ -6,6 +6,7 @@ Data/
 Database/localDatabasePath.txt
 Database/networkDatabasePath.txt
 resources/networkDatabasePath.txt
+resources/dbvDatabasePath.txt
 resources/rootDirectory.txt
 resources/rootDirectoryLocation.txt
 GUIS/straw/Prep GUI/dailytotal.txt
