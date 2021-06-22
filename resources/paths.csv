@@ -7,6 +7,7 @@ co2workers,data/workers/straw workers/CO2 endpiece insertion
 continuity_data,data/Panel Data/wire_stringing_continuity_data
 cpaldata,data/Leak test data/CPALS in Testing/CPALS.txt
 credentialsChecklist,data/workers/credentials/WorkerProficiencyChecklist.csv
+datatop,data
 heatdata,data/Panel Data/external_gui_data/heat_control_data
 hvdata,data/Panel Data/hv_data
 hvguiicon,guis/panel/hv/mu2e.jpg
