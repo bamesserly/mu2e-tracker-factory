@@ -101,7 +101,6 @@ def Main():
                 "    If you intend to run pangui, please, download the data "
                 "directory and add it to this folder."
             )
-            exit()
 
     # ============================================================================
     # 3. Set locations of local and merge destination databases.
@@ -153,17 +152,19 @@ def Main():
         print("... Finally, setting up autoformatter.")
         system = platform.system()
         cmd = 'cd "{0}"; pre-commit install'.format(root_dir)
-        if system == "Windows":
-            p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
-            p.communicate()
-        elif system == "Darwin" or system == "Linux":
-            p = Popen(cmd, stdout=sys.stdout, shell=True)
-            p.communicate()
-        else:
-            print("    Unknown operating system.")
-            print("    Please, contact a GUI developer if you see this message.")
-            exit()
-        print("    Done setting up autoformatter.")
+        try:
+            if system == "Windows":
+                p = Popen(["powershell.exe", cmd], stdout=sys.stdout)
+                p.communicate()
+            elif system == "Darwin" or system == "Linux":
+                p = Popen(cmd, stdout=sys.stdout, shell=True)
+                p.communicate()
+            else:
+                print("    Unknown operating system.")
+                print("    Please, contact a GUI developer if you see this message.")
+                exit()
+        except:
+            print("    pre-commit linter hook not setup.")
 
     # ===============================================================================
     # 5. Create an empty folder to dump logfiles in.
