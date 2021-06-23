@@ -506,7 +506,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>7</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -5557,7 +5557,7 @@ Heater GUI</string>
               </widget>
               <widget class="QWidget" name="p8FinalQC">
                <layout class="QGridLayout" name="gridLayout_66">
-                <item row="3" column="1" rowspan="2">
+                <item row="3" column="0">
                  <widget class="QGroupBox" name="badSWGroupBox">
                   <property name="title">
                    <string>Bad Straw/Wire</string>
@@ -5649,66 +5649,272 @@ Heater GUI</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="2" column="0" colspan="2">
-                 <layout class="QGridLayout" name="gridLayout_67">
+                <item row="3" column="1">
+                 <widget class="QGroupBox" name="groupBox_189">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Launch GUIs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_494">
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="launch_leak_test">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Leak Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="launch_resistance_test">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Resistance Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="QGroupBox" name="leakTestGroupBox">
+                  <property name="title">
+                   <string>Leak Test Form</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_446">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_501">
+                     <property name="text">
+                      <string>Cover</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="5">
+                    <widget class="QComboBox" name="leak_next">
+                     <item>
+                      <property name="text">
+                       <string>Reflood</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Patch</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Remove Cover</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Inspect</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Remove</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Success</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="3">
+                    <widget class="QCheckBox" name="re_left">
+                     <property name="text">
+                      <string>Re-installed Left</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <widget class="QLabel" name="label_508">
+                     <property name="text">
+                      <string>Confidence</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="2" colspan="2">
+                    <widget class="QLineEdit" name="leak_size"/>
+                   </item>
+                   <item row="6" column="0" colspan="2">
+                    <widget class="QLabel" name="label_505">
+                     <property name="text">
+                      <string>Leak Location</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="0">
+                    <widget class="QLabel" name="label_507">
+                     <property name="text">
+                      <string>Leak Size</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_504">
+                     <property name="text">
+                      <string>Inflated</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QCheckBox" name="inflated_yes">
+                     <property name="text">
+                      <string>Yes</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="5">
+                    <widget class="QPushButton" name="leak_form_submit">
+                     <property name="text">
+                      <string>Submit</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0" colspan="4">
+                    <widget class="QCheckBox" name="re_right">
+                     <property name="text">
+                      <string>Re-installed Right</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_503">
+                     <property name="text">
+                      <string>Methane</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0" colspan="4">
+                    <widget class="QCheckBox" name="re_center">
+                     <property name="text">
+                      <string>Re-installed Center</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="3">
+                    <widget class="QCheckBox" name="inflated_no">
+                     <property name="text">
+                      <string>No</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="2" colspan="2">
+                    <widget class="QComboBox" name="leak_confidence">
+                     <item>
+                      <property name="text">
+                       <string>High</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Low</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Medium</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="0" column="4" colspan="2">
+                    <widget class="QLabel" name="label_502">
+                     <property name="text">
+                      <string>Resolution of Leak</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="4" rowspan="4" colspan="2">
+                    <widget class="QPlainTextEdit" name="leak_resolution"/>
+                   </item>
+                   <item row="6" column="4">
+                    <widget class="QLabel" name="label_506">
+                     <property name="text">
+                      <string>Next</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="2" colspan="2">
+                    <widget class="QLineEdit" name="leak_location"/>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_438">
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="startButton_8">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>14</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Start</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="panelInput_8"/>
+                  </item>
                   <item row="0" column="0">
-                   <widget class="QLabel" name="label_491">
+                   <widget class="QLabel" name="label_490">
                     <property name="text">
-                     <string>Left Cover</string>
+                     <string>Panel:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="3">
-                   <widget class="QLabel" name="label_496">
-                    <property name="text">
-                     <string>Center O-Ring</string>
+                 </layout>
+                </item>
+                <item row="1" column="0" colspan="3">
+                 <layout class="QGridLayout" name="gridLayout_67">
+                  <item row="1" column="5">
+                   <widget class="QDateTimeEdit" name="centerRing2DTE">
+                    <property name="dateTime">
+                     <datetime>
+                      <hour>23</hour>
+                      <minute>59</minute>
+                      <second>0</second>
+                      <year>1969</year>
+                      <month>12</month>
+                      <day>31</day>
+                     </datetime>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="3">
-                   <widget class="QLabel" name="label_492">
-                    <property name="text">
-                     <string>Left O-Ring</string>
+                    <property name="displayFormat">
+                     <string>ddMMMyyHHmm</string>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="4">
-                   <widget class="QLineEdit" name="leftRing1LE">
-                    <property name="maxLength">
-                     <number>6</number>
-                    </property>
-                    <property name="placeholderText">
-                     <string>OLXXXX</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="4">
-                   <widget class="QLineEdit" name="centerRing1LE">
-                    <property name="maxLength">
-                     <number>6</number>
-                    </property>
-                    <property name="placeholderText">
-                     <string>OLXXXX</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="3">
-                   <widget class="QLabel" name="label_495">
-                    <property name="text">
-                     <string>Right O-Ring</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="6">
-                   <widget class="QLineEdit" name="leftRing3LE">
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="maxLength">
-                     <number>6</number>
-                    </property>
-                    <property name="placeholderText">
-                     <string>XXXXXY</string>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -5735,23 +5941,16 @@ Heater GUI</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="5">
-                   <widget class="QDateTimeEdit" name="centerRing2DTE">
-                    <property name="dateTime">
-                     <datetime>
-                      <hour>23</hour>
-                      <minute>59</minute>
-                      <second>0</second>
-                      <year>1969</year>
-                      <month>12</month>
-                      <day>31</day>
-                     </datetime>
+                  <item row="0" column="6">
+                   <widget class="QLineEdit" name="leftRing3LE">
+                    <property name="text">
+                     <string/>
                     </property>
-                    <property name="displayFormat">
-                     <string>ddMMMyyHHmm</string>
+                    <property name="maxLength">
+                     <number>6</number>
                     </property>
-                    <property name="calendarPopup">
-                     <bool>true</bool>
+                    <property name="placeholderText">
+                     <string>XXXXXY</string>
                     </property>
                    </widget>
                   </item>
@@ -5791,6 +5990,23 @@ Heater GUI</string>
                     </property>
                    </widget>
                   </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_494">
+                    <property name="text">
+                     <string>Right Cover</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="left_cover_6">
+                    <property name="maxLength">
+                     <number>7</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>LCOVXXX</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="5">
                    <widget class="QDateTimeEdit" name="leftRing2DTE">
                     <property name="dateTime">
@@ -5811,23 +6027,6 @@ Heater GUI</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="left_cover_6">
-                    <property name="maxLength">
-                     <number>7</number>
-                    </property>
-                    <property name="placeholderText">
-                     <string>LCOVXXX</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_494">
-                    <property name="text">
-                     <string>Right Cover</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="label_493">
                     <property name="text">
@@ -5835,23 +6034,51 @@ Heater GUI</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="right_cover_6">
+                  <item row="0" column="4">
+                   <widget class="QLineEdit" name="leftRing1LE">
                     <property name="maxLength">
-                     <number>7</number>
+                     <number>6</number>
                     </property>
                     <property name="placeholderText">
-                     <string>RCOVXXX</string>
+                     <string>OLXXXX</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="center_cover_6">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_491">
+                    <property name="text">
+                     <string>Left Cover</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <widget class="QLabel" name="label_492">
+                    <property name="text">
+                     <string>Left O-Ring</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QLabel" name="label_496">
+                    <property name="text">
+                     <string>Center O-Ring</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="4">
+                   <widget class="QLineEdit" name="centerRing1LE">
                     <property name="maxLength">
-                     <number>7</number>
+                     <number>6</number>
                     </property>
                     <property name="placeholderText">
-                     <string>CCOVXXX</string>
+                     <string>OSXXXX</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="3">
+                   <widget class="QLabel" name="label_495">
+                    <property name="text">
+                     <string>Right O-Ring</string>
                     </property>
                    </widget>
                   </item>
@@ -5868,349 +6095,127 @@ Heater GUI</string>
                     </property>
                    </spacer>
                   </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="center_cover_6">
+                    <property name="maxLength">
+                     <number>7</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>CCOVXXX</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="right_cover_6">
+                    <property name="maxLength">
+                     <number>7</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>RCOVXXX</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="7">
+                   <spacer name="horizontalSpacer_4">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                  </layout>
                 </item>
-                <item row="4" column="0">
-                 <spacer name="verticalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                <item row="2" column="2" rowspan="3">
+                 <widget class="QGroupBox" name="commentGroupBox8">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
                   </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>94</height>
-                   </size>
+                  <property name="title">
+                   <string>Comments</string>
                   </property>
-                 </spacer>
+                  <layout class="QGridLayout" name="gridLayout_442">
+                   <item row="0" column="0">
+                    <widget class="QPlainTextEdit" name="commentBox8_6">
+                     <property name="font">
+                      <font>
+                       <pointsize>12</pointsize>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="saveButton8_6">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>14</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">saveButtons</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
                 </item>
-                <item row="3" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_10">
-                  <item>
-                   <widget class="QGroupBox" name="tapsGroupBoc">
-                    <property name="title">
-                     <string>Broken Taps </string>
-                    </property>
-                    <layout class="QGridLayout" name="gridLayout_4">
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="label_497">
-                       <property name="text">
-                        <string>Tap ID</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QLineEdit" name="tap_id_txt"/>
-                     </item>
-                     <item row="0" column="2">
-                      <widget class="QPushButton" name="broken_tap">
-                       <property name="text">
-                        <string>Save</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QGroupBox" name="groupBox_189">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="title">
-                     <string>Launch GUIs</string>
-                    </property>
-                    <layout class="QGridLayout" name="gridLayout_494">
-                     <item row="1" column="1">
-                      <widget class="QPushButton" name="launch_leak_test">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Launch Leak Test</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QPushButton" name="launch_resistance_test">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Launch Resistance Test</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="5" column="0" colspan="2">
-                 <layout class="QHBoxLayout" name="horizontalLayout_14">
-                  <item>
-                   <widget class="QGroupBox" name="leakTestGroupBox">
-                    <property name="title">
-                     <string>Leak Test Form</string>
-                    </property>
-                    <layout class="QGridLayout" name="gridLayout_446">
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="label_501">
-                       <property name="text">
-                        <string>Cover</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="6" column="5">
-                      <widget class="QComboBox" name="leak_next">
-                       <item>
-                        <property name="text">
-                         <string>Reflood</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Patch</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Remove Cover</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Inspect</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Remove</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Success</string>
-                        </property>
-                       </item>
-                      </widget>
-                     </item>
-                     <item row="1" column="0" colspan="3">
-                      <widget class="QCheckBox" name="re_left">
-                       <property name="text">
-                        <string>Re-installed Left</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="7" column="0">
-                      <widget class="QLabel" name="label_508">
-                       <property name="text">
-                        <string>Confidence</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="8" column="2" colspan="2">
-                      <widget class="QLineEdit" name="leak_size"/>
-                     </item>
-                     <item row="6" column="0" colspan="2">
-                      <widget class="QLabel" name="label_505">
-                       <property name="text">
-                        <string>Leak Location</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="8" column="0">
-                      <widget class="QLabel" name="label_507">
-                       <property name="text">
-                        <string>Leak Size</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QLabel" name="label_504">
-                       <property name="text">
-                        <string>Inflated</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="1">
-                      <widget class="QCheckBox" name="inflated_yes">
-                       <property name="text">
-                        <string>Yes</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="8" column="5">
-                      <widget class="QPushButton" name="leak_form_submit">
-                       <property name="text">
-                        <string>Submit</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0" colspan="4">
-                      <widget class="QCheckBox" name="re_right">
-                       <property name="text">
-                        <string>Re-installed Right</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0">
-                      <widget class="QLabel" name="label_503">
-                       <property name="text">
-                        <string>Methane</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0" colspan="4">
-                      <widget class="QCheckBox" name="re_center">
-                       <property name="text">
-                        <string>Re-installed Center</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="3">
-                      <widget class="QCheckBox" name="inflated_no">
-                       <property name="text">
-                        <string>No</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="7" column="2" colspan="2">
-                      <widget class="QComboBox" name="leak_confidence">
-                       <item>
-                        <property name="text">
-                         <string>High</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Low</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Medium</string>
-                        </property>
-                       </item>
-                      </widget>
-                     </item>
-                     <item row="0" column="4" colspan="2">
-                      <widget class="QLabel" name="label_502">
-                       <property name="text">
-                        <string>Resolution of Leak</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="4" rowspan="4" colspan="2">
-                      <widget class="QPlainTextEdit" name="leak_resolution"/>
-                     </item>
-                     <item row="6" column="4">
-                      <widget class="QLabel" name="label_506">
-                       <property name="text">
-                        <string>Next</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="6" column="2" colspan="2">
-                      <widget class="QLineEdit" name="leak_location"/>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QGroupBox" name="commentGroupBox8">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="title">
-                     <string>Comments</string>
-                    </property>
-                    <layout class="QGridLayout" name="gridLayout_442">
-                     <item row="0" column="1">
-                      <widget class="QPushButton" name="saveButton8_6">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <pointsize>14</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Save</string>
-                       </property>
-                       <attribute name="buttonGroup">
-                        <string notr="true">saveButtons</string>
-                       </attribute>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QPlainTextEdit" name="commentBox8_6">
-                       <property name="font">
-                        <font>
-                         <pointsize>12</pointsize>
-                        </font>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="0">
-                 <layout class="QGridLayout" name="gridLayout_438">
-                  <item row="0" column="2">
-                   <widget class="QPushButton" name="startButton_8">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>14</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Start</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="panelInput_8"/>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_490">
-                    <property name="text">
-                     <string>Panel:</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QGroupBox" name="tapsGroupBoc">
+                  <property name="title">
+                   <string>Broken Taps </string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_4">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_497">
+                     <property name="text">
+                      <string>Tap ID</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QPushButton" name="broken_tap">
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLineEdit" name="tap_id_txt"/>
+                   </item>
+                   <item row="0" column="3">
+                    <spacer name="horizontalSpacer_3">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -6536,7 +6541,7 @@ Heater GUI</string>
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="page_12"/>
                    <widget class="QWidget" name="page_13">
@@ -7509,12 +7514,74 @@ Heater GUI</string>
   <tabstop>pro7Select</tabstop>
   <tabstop>pro1Select</tabstop>
   <tabstop>paasBInput</tabstop>
+  <tabstop>checkEmAllButton</tabstop>
+  <tabstop>pallet1code</tabstop>
+  <tabstop>pallet2code</tabstop>
+  <tabstop>validateStraws</tabstop>
+  <tabstop>pro1PanelHeater</tabstop>
+  <tabstop>heat_finished</tabstop>
+  <tabstop>picone2_2</tabstop>
+  <tabstop>paas_attach_2</tabstop>
+  <tabstop>pro2PanelHeater</tabstop>
+  <tabstop>launch_straw_tensioner</tabstop>
+  <tabstop>saveButton2</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>initialWireWeightLE</tabstop>
+  <tabstop>finalWireWeightLE</tabstop>
+  <tabstop>panelInput3_2</tabstop>
+  <tabstop>panelInput3</tabstop>
+  <tabstop>startbutton3</tabstop>
+  <tabstop>wireInput</tabstop>
+  <tabstop>launch_wire_tensioner</tabstop>
+  <tabstop>launch_tension_box</tabstop>
+  <tabstop>launchHVpro3</tabstop>
+  <tabstop>commentBox3</tabstop>
+  <tabstop>saveButton3</tabstop>
+  <tabstop>pro6TensionBox</tabstop>
+  <tabstop>pro6PanelHeater</tabstop>
+  <tabstop>launchHVpro6</tabstop>
+  <tabstop>bad_wire_process</tabstop>
+  <tabstop>bad_failure</tabstop>
+  <tabstop>bad_wire_form</tabstop>
+  <tabstop>bad_number</tabstop>
+  <tabstop>wireCheck</tabstop>
+  <tabstop>launch_leak_test</tabstop>
+  <tabstop>launch_resistance_test</tabstop>
+  <tabstop>leak_next</tabstop>
+  <tabstop>re_left</tabstop>
+  <tabstop>leak_size</tabstop>
+  <tabstop>inflated_yes</tabstop>
+  <tabstop>leak_form_submit</tabstop>
+  <tabstop>re_right</tabstop>
+  <tabstop>re_center</tabstop>
+  <tabstop>inflated_no</tabstop>
+  <tabstop>leak_confidence</tabstop>
+  <tabstop>leak_resolution</tabstop>
+  <tabstop>leak_location</tabstop>
+  <tabstop>startButton_8</tabstop>
+  <tabstop>panelInput_8</tabstop>
+  <tabstop>left_cover_6</tabstop>
+  <tabstop>leftRing1LE</tabstop>
+  <tabstop>leftRing2DTE</tabstop>
+  <tabstop>leftRing3LE</tabstop>
+  <tabstop>center_cover_6</tabstop>
+  <tabstop>centerRing1LE</tabstop>
+  <tabstop>centerRing2DTE</tabstop>
+  <tabstop>centerRing3LE</tabstop>
+  <tabstop>right_cover_6</tabstop>
+  <tabstop>rightRing1LE</tabstop>
+  <tabstop>rightRing2DTE</tabstop>
+  <tabstop>rightRing3LE</tabstop>
+  <tabstop>commentBox8_6</tabstop>
+  <tabstop>saveButton8_6</tabstop>
+  <tabstop>broken_tap</tabstop>
+  <tabstop>tap_id_txt</tabstop>
  </tabstops>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="saveButtons"/>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="proSelectButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>

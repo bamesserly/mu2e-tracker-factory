@@ -49,6 +49,7 @@ from threading import Thread, enumerate as enumerateThreads
 from PyQt5.Qt import PYQT_VERSION_STR  # used for version checking
 from PyQt5.QtCore import (
     QCoreApplication,
+    QDateTime,
     QTime,
     pyqtSignal,
     Qt,
@@ -1095,6 +1096,19 @@ class panelGUI(QMainWindow):
         self.ui.initialWireWeightLE.setValidator(valid_weight)
         self.ui.finalWireWeightLE.setValidator(valid_weight)
 
+        valid_cover = validator("\DCOV\d{3}")
+        valid_ring_1 = validator("O\D\d{4}")
+        valid_ring_3 = validator("\d{5}\D")
+        self.ui.left_cover_6.setValidator(valid_cover)
+        self.ui.right_cover_6.setValidator(valid_cover)
+        self.ui.center_cover_6.setValidator(valid_cover)
+        self.ui.leftRing1LE.setValidator(valid_ring_1)
+        self.ui.leftRing3LE.setValidator(valid_ring_3)
+        self.ui.rightRing1LE.setValidator(valid_ring_1)
+        self.ui.rightRing3LE.setValidator(valid_ring_3)
+        self.ui.centerRing1LE.setValidator(valid_ring_1)
+        self.ui.centerRing3LE.setValidator(valid_ring_3)
+
     def _init_widget_lists(self):
         # Start buttons
         self.startButtons = [
@@ -1376,6 +1390,8 @@ class panelGUI(QMainWindow):
             try:
                 results[listIndex] = passFailDict[typename](widget)
 
+                #print(results[listIndex])
+                print(passFailDict[typename])
                 if not results[listIndex]:
                     widget.setStyleSheet(errorStyleSheet)
                 else:
@@ -4905,37 +4921,73 @@ class panelGUI(QMainWindow):
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
-
-        # Ensure that all input data is valid
-        if not self.validateInput(indices=range(1)):
+        if self.ui.leftRing2DTE.dateTime() < QDateTime(QDate(2015,12,31), QTime(23,59)):
+            self.ui.leftRing2DTE.setFocus()
             return
+        if self.ui.rightRing2DTE.dateTime() < QDateTime(QDate(2015,12,31), QTime(23,59)):
+            self.ui.rightRing2DTE.setFocus()
+            return
+        if self.ui.centerRing2DTE.dateTime() < QDateTime(QDate(2015,12,31), QTime(23,59)):
+            self.ui.centerRing2DTE.setFocus()
+            return
+            
+        # Ensure that all input data is valid
+        if not self.validateInput(indices=[0,1,2,3,4,6,7,9,10,12]):
+            return
+        
 
         # Disable start button, panel input, and part inputs
         self.setWidgetsDisabled(
             [
-                self.ui.startButton_8,
                 self.ui.panelInput_8,
+                self.ui.startButton_8,
                 self.ui.left_cover_6,
                 self.ui.right_cover_6,
                 self.ui.center_cover_6,
-                self.ui.left_ring_6,
-                self.ui.right_ring_6,
-                self.ui.center_ring_6,
+                self.ui.leftRing1LE,
+                self.ui.leftRing2DTE,
+                self.ui.leftRing3LE,
+                self.ui.rightRing1LE,
+                self.ui.rightRing2DTE,
+                self.ui.rightRing3LE,
+                self.ui.centerRing1LE,
+                self.ui.centerRing2DTE,
+                self.ui.centerRing3LE
             ]
         )
 
         self.startRunning()
         self.saveData()
 
-    # not tested
     def resetpro8(self):
         self.data[4] = [None for x in self.data[4]]
         self.ui.left_cover_6.setText("")
         self.ui.right_cover_6.setText("")
         self.ui.center_cover_6.setText("")
-        self.ui.left_ring_6.setText("")
-        self.ui.right_ring_6.setText("")
-        self.ui.center_ring_6.setText("")
+        self.ui.leftRing1LE.setText("")
+        self.ui.leftRing2DTE.setDateTime(QDate(1969,12,31), QTime(23,59))
+        self.ui.leftRing3LE.setText("")
+        self.ui.rightRing1LE.setText("")
+        self.ui.rightRing2DTE.setDateTime(QDate(1969,12,31), QTime(23,59))
+        self.ui.rightRing3LE.setText("")
+        self.ui.centerRing1LE.setText("")
+        self.ui.centerRing2DTE.setDateTime(QDate(1969,12,31), QTime(23,59))
+        self.ui.centerRing3LE.setText("")
+        self.ui.tap_id_txt.setText("")
+        self.ui.bad_failure.setText("")
+        self.ui.bad_number.setText("")
+        self.ui.bad_wire_process.setCurrentIndex(0)
+        self.ui.re_left.setChecked(False)
+        self.ui.re_right.setChecked(False)
+        self.ui.re_center.setChecked(False)
+        self.ui.leak_resolution.clear()
+        self.ui.inflated_no.setChecked(False)
+        self.ui.inflated_yes.setChecked(False)
+        self.ui.leak_location.setText("")
+        self.ui.leak_size.setText("")
+        self.ui.leak_confidence.setCurrentIndex(0)
+        self.ui.leak_next.setCurrentIndex(0)
+        self.ui.wireCheck.setChecked(False)
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
 
