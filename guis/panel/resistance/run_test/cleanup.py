@@ -16,6 +16,7 @@ from guis.panel.resistance.run_test.parse_log import parse_log
 from guis.common.getresources import GetProjectPaths
 from pathlib import Path
 import os
+import pandas as pd
 
 # parse all logfiles into readable/analyzable csv files
 # this overwrites!
@@ -46,10 +47,31 @@ def IntermediateClean():
     for panel_dir in Path(topdir).glob("*"):
         if not panel_dir.is_dir() or panel_dir.name.startswith("."):
             continue
+        if panel_dir.name  != "MN115":
+            continue
         print(panel_dir.name)
+        panel_df = pd.DataFrame(columns = ["Position","wire/straw","ADC values...","resistance","PASS?"])
+        #dfs = []
+        for f in Path(panel_dir).rglob("*.csv"):
+            # skip empty files
+            try:
+                df = pd.read_csv(f,skiprows=4)
+            except pd.errors.EmptyDataError:
+                continue
+            print(df)
+            panel_df.append(df)
+        # df = pd.concat(dfs, join="outer", axis=1, sort=False) # this puts dfs side-by-side. Not what I want.
+        print(panel_df)
+        # merged_data_file = ...
+        # loop panel files
+            # extract pro and timestamp from filename
+            # df = from_csv
+            # df + panel | time | pro
+            # df[ADC] --> resistance
+            # df[res] --> unccertainty
 
 def main():
-    #ParseAll()
+    #ParseAll() # done
     IntermediateClean()
     #datafilename = parse_log(raw_data)
     #print("Data file and plots are at", datafilename)
