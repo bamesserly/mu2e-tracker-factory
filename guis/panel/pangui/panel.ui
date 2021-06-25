@@ -6401,7 +6401,7 @@ Heater GUI</string>
                  <item row="1" column="0">
                   <widget class="QStackedWidget" name="failSelectTab">
                    <property name="currentIndex">
-                    <number>3</number>
+                    <number>2</number>
                    </property>
                    <widget class="QWidget" name="page_7"/>
                    <widget class="QWidget" name="page_8">
@@ -6452,6 +6452,36 @@ Heater GUI</string>
                        <item>
                         <property name="text">
                          <string>Unable to attach to straw</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Other</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="page_3">
+                    <layout class="QGridLayout" name="gridLayout_4">
+                     <item row="0" column="0">
+                      <widget class="QComboBox" name="tapFail">
+                       <property name="font">
+                        <font>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <item>
+                        <property name="text">
+                         <string>Select failure mode</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Broken</string>
                         </property>
                        </item>
                        <item>
@@ -6567,6 +6597,11 @@ Heater GUI</string>
                    <item>
                     <property name="text">
                      <string>Straw</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Tap</string>
                     </property>
                    </item>
                    <item>

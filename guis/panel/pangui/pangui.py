@@ -963,6 +963,7 @@ class panelGUI(QMainWindow):
             self.ui.anchorFail,
             self.ui.strawFail,
             self.ui.pinFail,
+            self.ui.tapFail
         ]
         self.ui.failureComments.setDisabled(True)
         self.ui.failureComments.textChanged.connect(
@@ -2096,6 +2097,7 @@ class panelGUI(QMainWindow):
             self.ui.anchorFail.setCurrentIndex(0)
             self.ui.strawFail.setCurrentIndex(0)
             self.ui.pinFail.setCurrentIndex(0)
+            self.ui.tapFail.setCurrentIndex(0)
             self.ui.positionSelectTab.setCurrentIndex(0)
             self.ui.failureComments.setPlainText("")
             self.ui.failureComments.setDisabled(True)
