@@ -311,7 +311,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 13}
+        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 16}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -792,9 +792,20 @@ class panelGUI(QMainWindow):
         self.ui.panelInput_8.installEventFilter(self)
         self.ui.launch_resistance_test.clicked.connect(self.run_resistance)
         self.ui.launch_leak_test.clicked.connect(self.run_plot_leak)
-        self.ui.broken_tap.clicked.connect(self.broken_tap_form)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
         self.ui.leak_form_submit.clicked.connect(self.leak_form)
+        self.ui.wireCheck.toggled.connect(
+            lambda: self.ui.strawCheck.setChecked(not(self.ui.wireCheck.isChecked()))
+            )
+        self.ui.strawCheck.toggled.connect(
+            lambda: self.ui.wireCheck.setChecked(not(self.ui.strawCheck.isChecked()))
+            )
+        self.ui.inflated_no.toggled.connect(
+            lambda: self.ui.inflated_yes.setChecked(not(self.ui.inflated_no.isChecked()))
+            )
+        self.ui.inflated_yes.toggled.connect(
+            lambda: self.ui.inflated_no.setChecked(not(self.ui.inflated_yes.isChecked()))
+            )
 
     def _init_timers(self):
         self.timers = [
@@ -1103,11 +1114,11 @@ class panelGUI(QMainWindow):
         self.ui.right_cover_6.setValidator(valid_cover)
         self.ui.center_cover_6.setValidator(valid_cover)
         self.ui.leftRing1LE.setValidator(valid_ring_1)
-        self.ui.leftRing3LE.setValidator(valid_ring_3)
+        self.ui.leftRing4LE.setValidator(valid_ring_3)
         self.ui.rightRing1LE.setValidator(valid_ring_1)
-        self.ui.rightRing3LE.setValidator(valid_ring_3)
+        self.ui.rightRing4LE.setValidator(valid_ring_3)
         self.ui.centerRing1LE.setValidator(valid_ring_1)
-        self.ui.centerRing3LE.setValidator(valid_ring_3)
+        self.ui.centerRing4LE.setValidator(valid_ring_3)
 
     def _init_widget_lists(self):
         # Start buttons
@@ -1235,23 +1246,26 @@ class panelGUI(QMainWindow):
             # pro 8 Widgets
             # 0 = panel input
             # 1,2,3 = L,R,C covers
-            # 4,5,6 = L ring parts 1,2, and 3
-            # 7,8,9 = R ring parts 1,2, and 3
-            # 10,11,12 = C ring parts 1,2, and 3
+            # 4,5,6,7 = L ring parts 1,2,3, and 4
+            # 8,9,10,11 = R ring parts 1,2,3, and 4
+            # 12,13,14,15 = C ring parts 1,2,3, and 4
             [
                 self.ui.panelInput_8,
                 self.ui.left_cover_6,
                 self.ui.right_cover_6,
                 self.ui.center_cover_6,
                 self.ui.leftRing1LE,
-                self.ui.leftRing2DTE,
-                self.ui.leftRing3LE,
+                self.ui.leftRing2DE,
+                self.ui.leftRing3TE,
+                self.ui.leftRing4LE,
                 self.ui.rightRing1LE,
-                self.ui.rightRing2DTE,
-                self.ui.rightRing3LE,
+                self.ui.rightRing2DE,
+                self.ui.rightRing3TE,
+                self.ui.rightRing4LE,
                 self.ui.centerRing1LE,
-                self.ui.centerRing2DTE,
-                self.ui.centerRing3LE,
+                self.ui.centerRing2DE,
+                self.ui.centerRing3TE,
+                self.ui.centerRing4LE
             ],
         ]
 
@@ -1390,8 +1404,6 @@ class panelGUI(QMainWindow):
             try:
                 results[listIndex] = passFailDict[typename](widget)
 
-                #print(results[listIndex])
-                print(passFailDict[typename])
                 if not results[listIndex]:
                     widget.setStyleSheet(errorStyleSheet)
                 else:
@@ -2077,7 +2089,6 @@ class panelGUI(QMainWindow):
 
         # # If this is not a valid failure, don't record it.
         if not valid:
-            #     print('not valid')
             # Reset failure-relted widgets
             #     self.ui.failStatus.setText('Unable to submit failure, try again')
             self.ui.failSelect.setCurrentIndex(0)
@@ -2314,8 +2325,6 @@ class panelGUI(QMainWindow):
         self.updateData()
 
         # Save with DataProcessor
-        # print(datetime.now())
-        # print(self.data)
         self.DP.saveData()
         try:
             pass
@@ -2658,15 +2667,22 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][1] = self.ui.left_cover_6.text()
         self.data[self.pro_index][2] = self.ui.center_cover_6.text()
         self.data[self.pro_index][3] = self.ui.right_cover_6.text()
+
         self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
-        self.data[self.pro_index][5] = self.ui.leftRing2DTE.date()
-        self.data[self.pro_index][6] = self.ui.leftRing3LE.text()
-        self.data[self.pro_index][7] = self.ui.rightRing1LE.text()
-        self.data[self.pro_index][8] = self.ui.rightRing2DTE.date()
-        self.data[self.pro_index][9] = self.ui.rightRing3LE.text()
-        self.data[self.pro_index][10] = self.ui.centerRing1LE.text()
-        self.data[self.pro_index][11] = self.ui.centerRing2DTE.date()
-        self.data[self.pro_index][12] = self.ui.centerRing3LE.text()
+        self.data[self.pro_index][5] = self.ui.leftRing2DE.date()
+        self.data[self.pro_index][6] = self.ui.leftRing3TE.time()
+        self.data[self.pro_index][7] = self.ui.leftRing4LE.text()
+
+        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()
+        self.data[self.pro_index][9] = self.ui.rightRing2DE.date()
+        self.data[self.pro_index][10] = self.ui.rightRing3TE.time()
+        self.data[self.pro_index][11] = self.ui.rightRing4LE.text()
+
+        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()
+        self.data[self.pro_index][13] = self.ui.centerRing2DE.date()
+        self.data[self.pro_index][14] = self.ui.centerRing3TE.time()
+        self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
+
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -3642,7 +3658,6 @@ class panelGUI(QMainWindow):
 
         if data[4] is not None:
             self.ui.epoxy_batch5_3.setDisabled(True)
-            # print("data[4] is not None")
 
             # Process timer
             elapsed_time, running = data[4]
@@ -3665,9 +3680,22 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
+        # dict for converting month abbreviations to numbers
+        monthStrToInt = {
+            "Jan": "01", "Feb": "02",
+            "Mar": "03", "Apr": "04",
+            "May": "05", "Jun": "06",
+            "Jul": "07", "Aug": "08",
+            "Sep": "09", "Oct": "10",
+            "Nov": "11", "Dec": "12",
+        }
+
+        # panel id
         if data[0] is not None:
             self.ui.panelInput_8.setText(str(data[0]))
             self.ui.panelInput_8.setDisabled(True)
+
+        # covers
         if data[1] is not None:
             self.ui.left_cover_6.setText(str(data[1]))
             self.ui.left_cover_6.setDisabled(True)
@@ -3675,55 +3703,69 @@ class panelGUI(QMainWindow):
             self.ui.right_cover_6.setText(str(data[2]))
             self.ui.right_cover_6.setDisabled(True)
         if data[3] is not None:
-            self.ui.center_cover_6.setText(str(data[4]))
+            self.ui.center_cover_6.setText(str(data[3]))
             self.ui.center_cover_6.setDisabled(True)
+
         # left ring
+        # OL **** - data[4] is just the 4 digits, not the OL
         if data[4] is not None:
             self.ui.leftRing1LE.setText(str(data[4]))
             self.ui.leftRing1LE.setDisabled(True)
+        # ddMMMyy - days, months (string), year
         if data[5] is not None:
-            dd = data[5][:2]    # day
-            mMM = data[5][2:5]  # month
-            yy = data[5][5:7]   # year
-            hH = data[5][7:9]   # hour
-            mm = data[5][9:]    # minute
-            self.ui.leftRing2DTE.setDateTime(QDate(yy,mMM,dd), QTime(hH,mm))
-            self.ui.leftRing2DTE.setDisabled(True)
+            dd = int(data[5][:2])    # day
+            mMM = int(monthStrToInt[data[5][2:5]])  # month
+            yy = int(data[5][5:7]) + 2000   # year
+            self.ui.leftRing2DE.setDate(QDate(yy,mMM,dd))
+            self.ui.leftRing2DE.setDisabled(True)
+        # HHmm - hours and minutes
         if data[6] is not None:
-            self.ui.leftRing3LE.setText(str(data[6]))
-            self.ui.leftRing3LE.setDisabled(True)
+            hH = int(data[6][:2]) # hour
+            mm = int(data[6][2:]) # minute
+            self.ui.leftRing3TE.setTime(QTime(hH,mm))
+            self.ui.leftRing3TE.setDisabled(True)
+        # regex(dddddD) - five digits and a letter
+        if data[7] is not None:
+            self.ui.leftRing4LE.setText(str(data[7]))
+            self.ui.leftRing4LE.setDisabled(True)
         
         # right ring
-        if data[7] is not None:
-            self.ui.rightRing1LE.setText(str(data[7]))
-            self.ui.rightRing1LE.setDisabled(True)
         if data[8] is not None:
-            dd = data[8][:2]    # day
-            mMM = data[8][2:5]  # month
-            yy = data[8][5:7]   # year
-            hH = data[8][7:9]   # hour
-            mm = data[8][9:]    # minute
-            self.ui.rightRing2DTE.setDateTime(QDate(yy,mMM,dd), QTime(hH,mm))
-            self.ui.rightRing2DTE.setDisabled(True)
+            self.ui.rightRing1LE.setText(str(data[8]))
+            self.ui.rightRing1LE.setDisabled(True)
         if data[9] is not None:
-            self.ui.rightRing3LE.setText(str(data[9]))
-            self.ui.rightRing3LE.setDisabled(True)
+            dd = int(data[9][:2])    # day
+            mMM = int(monthStrToInt[data[9][2:5]])  # month
+            yy = int(data[9][5:7]) + 2000   # year
+            self.ui.rightRing2DE.setDate(QDate(yy,mMM,dd))
+            self.ui.rightRing2DE.setDisabled(True)
+        if data[10] is not None:
+            hH = int(data[10][:2]) # hour
+            mm = int(data[10][2:]) # minute
+            self.ui.rightRing3TE.setTime(QTime(hH,mm))
+            self.ui.rightRing3TE.setDisabled(True)
+        if data[11] is not None:
+            self.ui.rightRing4LE.setText(str(data[11]))
+            self.ui.rightRing4LE.setDisabled(True)
 
         # center ring
-        if data[10] is not None:
-            self.ui.centerRing1LE.setText(str(data[10]))
-            self.ui.centerRing1LE.setDisabled(True)
-        if data[11] is not None:
-            dd = data[11][:2]    # day
-            mMM = data[11][2:5]  # month
-            yy = data[11][5:7]   # year
-            hH = data[11][7:9]   # hour
-            mm = data[11][9:]    # minute
-            self.ui.centerRing2DTE.setDateTime(QDate(yy,mMM,dd), QTime(hH,mm))
-            self.ui.centerRing2DTE.setDisabled(True)
         if data[12] is not None:
-            self.ui.centerRing3LE.setText(str(data[12]))
-            self.ui.centerRing3LE.setDisabled(True)
+            self.ui.centerRing1LE.setText(str(data[12]))
+            self.ui.centerRing1LE.setDisabled(True)
+        if data[13] is not None:
+            dd = int(data[13][:2])    # day
+            mMM = int(monthStrToInt[data[13][2:5]])  # month
+            yy = int(data[13][5:7]) + 2000   # year
+            self.ui.centerRing2DE.setDate(QDate(yy,mMM,dd))
+            self.ui.centerRing2DE.setDisabled(True)
+        if data[14] is not None:
+            hH = int(data[14][:2]) # hour
+            mm = int(data[14][2:]) # minute
+            self.ui.centerRing3TE.setTime(QTime(hH,mm))
+            self.ui.centerRing3TE.setDisabled(True)
+        if data[15] is not None:
+            self.ui.centerRing4LE.setText(str(data[15]))
+            self.ui.centerRing4LE.setDisabled(True)
 
         self.displayComments()
 
@@ -3751,8 +3793,6 @@ class panelGUI(QMainWindow):
     """
 
     def pro1part1(self):
-        # print("pro 1 PART 1")
-
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
@@ -3950,8 +3990,6 @@ class panelGUI(QMainWindow):
     """
 
     def pro2part1(self):
-        # print("pro 2 PART 1")
-
         # Ensure supplies checked off
         if not (self.checkSupplies() or DEBUG):
             return
@@ -4207,8 +4245,6 @@ class panelGUI(QMainWindow):
     """
 
     def pro3part1(self):
-        # print("pro 3 PART 1")
-
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
@@ -4921,20 +4957,19 @@ class panelGUI(QMainWindow):
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
-        if self.ui.leftRing2DTE.dateTime() < QDateTime(QDate(2015,12,31), QTime(23,59)):
-            self.ui.leftRing2DTE.setFocus()
+        if self.ui.leftRing2DE.date() < QDate(QDate(2000,1,11)):
+            self.ui.leftRing2DE.setFocus()
             return
-        if self.ui.rightRing2DTE.dateTime() < QDateTime(QDate(2015,12,31), QTime(23,59)):
-            self.ui.rightRing2DTE.setFocus()
+        if self.ui.rightRing2DE.date() < QDate(QDate(2000,1,11)):
+            self.ui.rightRing2DE.setFocus()
             return
-        if self.ui.centerRing2DTE.dateTime() < QDateTime(QDate(2015,12,31), QTime(23,59)):
-            self.ui.centerRing2DTE.setFocus()
+        if self.ui.centerRing2DE.date() < QDate(QDate(2000,1,11)):
+            self.ui.centerRing2DE.setFocus()
             return
             
         # Ensure that all input data is valid
-        if not self.validateInput(indices=[0,1,2,3,4,6,7,9,10,12]):
+        if not self.validateInput(indices=[0,1,2,3,4,7,8,11,12,15]):
             return
-        
 
         # Disable start button, panel input, and part inputs
         self.setWidgetsDisabled(
@@ -4945,14 +4980,17 @@ class panelGUI(QMainWindow):
                 self.ui.right_cover_6,
                 self.ui.center_cover_6,
                 self.ui.leftRing1LE,
-                self.ui.leftRing2DTE,
-                self.ui.leftRing3LE,
+                self.ui.leftRing2DE,
+                self.ui.leftRing3TE,
+                self.ui.leftRing4LE,
                 self.ui.rightRing1LE,
-                self.ui.rightRing2DTE,
-                self.ui.rightRing3LE,
+                self.ui.rightRing2DE,
+                self.ui.rightRing3TE,
+                self.ui.rightRing4LE,
                 self.ui.centerRing1LE,
-                self.ui.centerRing2DTE,
-                self.ui.centerRing3LE
+                self.ui.centerRing2DE,
+                self.ui.centerRing3TE,
+                self.ui.centerRing4LE
             ]
         )
 
@@ -4965,15 +5003,17 @@ class panelGUI(QMainWindow):
         self.ui.right_cover_6.setText("")
         self.ui.center_cover_6.setText("")
         self.ui.leftRing1LE.setText("")
-        self.ui.leftRing2DTE.setDateTime(QDate(1969,12,31), QTime(23,59))
-        self.ui.leftRing3LE.setText("")
+        self.ui.leftRing2DE.setDate(QDate(1969,12,31))
+        self.ui.leftRing3TE.setTime(QTime(23,59))
+        self.ui.leftRing4LE.setText("")
         self.ui.rightRing1LE.setText("")
-        self.ui.rightRing2DTE.setDateTime(QDate(1969,12,31), QTime(23,59))
-        self.ui.rightRing3LE.setText("")
+        self.ui.rightRing2DE.setDate(QDate(1969,12,31))
+        self.ui.rightRing3TE.setTime(QTime(23,59))
+        self.ui.rightRing4LE.setText("")
         self.ui.centerRing1LE.setText("")
-        self.ui.centerRing2DTE.setDateTime(QDate(1969,12,31), QTime(23,59))
-        self.ui.centerRing3LE.setText("")
-        self.ui.tap_id_txt.setText("")
+        self.ui.centerRing2DE.setDate(QDate(1969,12,31))
+        self.ui.centerRing3TE.setTime(QTime(23,59))
+        self.ui.centerRing4LE.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_number.setText("")
         self.ui.bad_wire_process.setCurrentIndex(0)
@@ -4988,6 +5028,7 @@ class panelGUI(QMainWindow):
         self.ui.leak_confidence.setCurrentIndex(0)
         self.ui.leak_next.setCurrentIndex(0)
         self.ui.wireCheck.setChecked(False)
+        self.ui.strawCheck.setChecked(False)
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
 
@@ -5257,6 +5298,7 @@ class panelGUI(QMainWindow):
 
         # clear form data
         self.ui.wireCheck.setChecked(False)
+        self.ui.strawCheck.setChecked(False)
         self.ui.bad_number.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_wire_process.setCurrentIndex(0)
@@ -5277,7 +5319,10 @@ class panelGUI(QMainWindow):
 
         location = self.ui.leak_location.text()
         confidence = str(self.ui.leak_confidence.currentText())
-        size = int(self.ui.leak_size.text())
+        try:
+            size = int(self.ui.leak_size.text())
+        except ValueError:
+            self.generateBox("warning","Invalid literal","Please enter a base 10 number for leak size.")
         resolution = self.ui.leak_resolution.document().toPlainText()
         next_step = str(self.ui.leak_next.currentText())
         self.DP.saveLeakForm(
@@ -5288,7 +5333,7 @@ class panelGUI(QMainWindow):
         self.ui.re_left.setChecked(False)
         self.ui.re_center.setChecked(False)
         self.ui.re_right.setChecked(False)
-        self.ui.inflated_yes.setChecked(False)
+        self.ui.inflated_yes.setChecked(True)
         self.ui.inflated_no.setChecked(False)
         self.ui.leak_location.setText("")
         self.ui.leak_confidence.setCurrentIndex(0)

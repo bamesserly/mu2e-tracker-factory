@@ -1732,38 +1732,38 @@ class Pan8Procedure(PanelProcedure):
         self.commit()
 
     def getRightCover(self):
-        return self.details.left_cover
+        return self.details.right_cover
 
     def recordRightCover(self, right_cover):
         self.details.right_cover = right_cover
         self.commit()
 
-    def getCenterRing(self):
-        return self.details.left_cover
-
-    def recordCenterRing(self, center_ring):
-        self.details.center_ring = center_ring
-        self.commit()
-
     def getCenterCover(self):
-        return self.details.left_cover
+        return self.details.center_cover
 
     def recordCenterCover(self, center_cover):
         self.details.center_cover = center_cover
         self.commit()
 
     def getLeftRing(self):
-        return self.details.left_cover
+        return self.details.left_ring
 
     def recordLeftRing(self, left_ring):
         self.details.left_ring = left_ring
         self.commit()
 
     def getRightRing(self):
-        return self.details.left_cover
+        return self.details.right_ring
 
     def recordRightRing(self, right_ring):
         self.details.right_ring = right_ring
+        self.commit()
+
+    def getCenterRing(self):
+        return self.details.center_ring
+
+    def recordCenterRing(self, center_ring):
+        self.details.center_ring = center_ring
         self.commit()
 
 
