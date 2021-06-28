@@ -1946,22 +1946,17 @@ class facileDBGUI(QMainWindow):
             # if we want to hide false data (-255 or whatever) then it can't be < 1
             # (if toop[2] == None then it will be cast as 0 as an int, hence the < 1)
             if not(toop[2] == None or (hide and (toop[2] < 1))):
-                print(f'Appending {toop[2]}')
                 # append it, the time, and add one to num data points
                 paasaYs.append(float(toop[2]))
                 numPoints += 1
                 xs.append(float(toop[1]))
             # if there's a paas B/C measurement that meets the same criteria as before
             if not(toop[3] == None or (hide and (toop[3] < 1))):
-                print(f'Appending {toop[3]}')
                 # append it, and the time if there was no paas A measurement
                 paasbcYs.append(float(toop[3]))
                 if toop[2] == None or (hide and (toop[2] < 1)):
-                    print("adding a point")
                     numPoints += 1
                     xs.append(int(toop[1]))
-        print(f"Ys: {len(paasaYs)}")
-        print(f"Xs: {len(xs)}")
         # choose colormap for paas A
         if pro == 1:
             cMapA = pg.colormap.get('CET-L8')

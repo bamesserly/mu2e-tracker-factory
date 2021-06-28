@@ -1386,7 +1386,7 @@ class Ui_MainWindow(object):
         self.actionFailures.setObjectName("actionFailures")
         self.actionMissing_Data = QtWidgets.QAction(MainWindow)
         self.actionMissing_Data.setCheckable(True)
-        self.actionMissing_Data.setChecked(True)
+        self.actionMissing_Data.setChecked(False)
         self.actionMissing_Data.setEnabled(True)
         self.actionMissing_Data.setObjectName("actionMissing_Data")
         self.actionOutliers = QtWidgets.QAction(MainWindow)
