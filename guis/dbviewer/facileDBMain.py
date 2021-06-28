@@ -4,7 +4,7 @@
 #  -   / ______  _/____)       /  Last Update 05/18/2021 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
-import sys, time, csv, getpass, os, tkinter, tkinter.messagebox, itertools, statistics
+import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
@@ -29,23 +29,13 @@ from PyQt5.QtWidgets import (
     QListWidgetItem,
     QMainWindow,
     QLabel,
-    # QTableWidget,
-    # QGridLayout,
-    # QScrollArea,
-    QWidget,
-    # QComboBox,
-    # QListWidget,
-    # QListWidgetItem,
-    # QCheckBox,
-    # QPushButton,
-    # QTableWidgetItem,
     QMessageBox,
     QStyleFactory,
 )
 
 # mostly for gui window management, QPen and QSize are for plotting
-from PyQt5.QtGui import QBrush, QIcon, QPen, QColor
-from PyQt5.QtCore import Qt, QRect, QObject, QDateTime, QSize, QPointF
+from PyQt5.QtGui import QBrush, QIcon, QPen
+from PyQt5.QtCore import Qt, QPointF
 
 # for time formatting
 from datetime import datetime
@@ -139,11 +129,9 @@ class facileDBGUI(QMainWindow):
         # to go somewhere, and nobody cares about individual heat measurements
         self.data = PanelData()
 
-
-        #self.changeColor((122, 0, 25), (255, 204, 51))
-        #self.changeColor((25,25,25),(0,255,159),(214,0,255))
-        #self.changeColor((25,25,25),(200,200,200))
-        #self.changeColor(0,0,default=True)
+        # happy 4th of July :)
+        if datetime.today().month == 7 and datetime.today().day < 5:
+            self.changeColor((255,255,255), (10,49,97),(179,25,66), (179,25,66))
 
     # override close button event (see comments in function)
     # parameters: event = close window button clicked signal(?)
@@ -462,11 +450,25 @@ class facileDBGUI(QMainWindow):
             lambda: self.changeColor((25,25,25),(200,200,200))
         )
         self.ui.actionCyberpunkColor.triggered.connect(
-            lambda: self.changeColor((25,25,25),(0,255,159),(214,0,255))
+            lambda: self.changeColor((25,25,25),(0,255,159),(214,0,255),(214,0,255))
         )
         self.ui.actionGopher_PrideColor.triggered.connect(
             lambda: self.changeColor((122, 0, 25), (255, 204, 51))
         )
+        self.ui.actionForestColor.triggered.connect(
+            lambda: self.changeColor((3,37,2), (84,34,34), (84,34,34), (130,105,69))
+        )
+        self.ui.actionPatrioticColor.triggered.connect(
+            lambda: self.changeColor((255,255,255), (10,49,97),(179,25,66), (179,25,66))
+        )
+        self.ui.actionOceanColor.triggered.connect(
+            lambda: self.changeColor((29,162,216),(222,243,246))
+        )
+        self.ui.actionVolcanicColor.triggered.connect(
+            lambda: self.changeColor((10,10,10),(255,87,51), (255,215,0))
+        )
+
+        #self.ui.actionHide_False_Data.toggled.connect(self.submitClicked)
 
     # utility, get any widget by name
     # parameters: widgetName, name of the desired widget as a string
@@ -745,7 +747,7 @@ class facileDBGUI(QMainWindow):
     #               fourth_color, optional int tuple that represents a color via RGB value
     #               default, bool that's true if resetting to default black on white colors
     # returns: nothing
-    def changeColor(self, background_color, text_color, third_color=False, fourth_color=False, default=False):
+    def changeColor(self, background_color, text_color, third_color=False, fourth_color=False, default=False, third_back=False):
         if default:
             self.stylesheet = ""
             self.setStyleSheet(self.stylesheet)
@@ -770,14 +772,14 @@ class facileDBGUI(QMainWindow):
             + f"{background_color}; color: rgb{text_color};"
             + " }\n"
             "QLineEdit, QPlainTextEdit, QTextEdit, QScrollArea, QListWidget { "
-            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{lighter};"
+            + f"color: rgb{text_color if not fourth_color else fourth_color}; background-color: rgb{lighter if not third_back else third_color};"
             + " }\n"
             "QLabel { " + f"color: rgb{text_color};" + " }\n"
             "QGroupBox, QTabWidget, QTabBar, QScrollBar { "
             + f"color: rgb{text_color}; background-color: rgb{darker};"
             + " }\n"
             "QPushButton { "
-            + f"color: rgb{text_color if not third_color else third_color}; background-color: rgb{darker}"
+            + f"color: rgb{text_color if not fourth_color else fourth_color}; background-color: rgb{darker if not third_back else third_color};"
             + " }\n"
             "QCheckBox { color: "
             + f"rgb{text_color}"
@@ -792,8 +794,6 @@ class facileDBGUI(QMainWindow):
         )
 
         self.setStyleSheet(self.stylesheet)
-
-
 
     # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔════╝██║████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -1721,6 +1721,10 @@ class facileDBGUI(QMainWindow):
         for lst in listWidgets:
             lst.addItem(headerString)
 
+        # make brush to highlight "No Data"s
+        failBrush = QBrush(Qt.red)
+        highlight = self.ui.actionMissing_Data.isChecked()
+
         noData = True
         for dataToop in dataType:  # for each tuple in data
             itemString = "" # build a string
@@ -1729,19 +1733,30 @@ class facileDBGUI(QMainWindow):
                 if dataCols[i][1] != -1:
                     trimmed = str(dataToop[i])[:8]
                     itemString += f'{trimmed.ljust(dataCols[i][1])}'
+            # if data is good, mark that we have data and make the new item
             if "No Data" not in itemString:
                 noData = False
+                newItem = QListWidgetItem(itemString)
+            # otherwise highlight that we have a no data
+            else:
+                newItem = QListWidgetItem(itemString)
+                if highlight:
+                    newItem.setBackground(failBrush)
+            # add new item to each list
             for lst in listWidgets:
-                lst.addItem(itemString)
+                lst.addItem(newItem)
 
         # check if no data was added or all data is "No Data"
         # if so, only display "No data found :("
+        badItem = QListWidgetItem("No data found :(")
+        if highlight:
+            badItem.setBackground(failBrush)
         for lst in listWidgets:
             if lst.count() == 0:
-                lst.addItem("No data found :(")
+                lst.addItem(badItem)
             if noData:
                 lst.clear()
-                lst.addItem("No data found :(")
+                lst.addItem(badItem)
                 for button in buttons:
                     button.setDisabled(True)
 
@@ -1835,7 +1850,6 @@ class facileDBGUI(QMainWindow):
             # statistics. Remove Nones for this purpose.
             paasATemps = [toop[2] for toop in heatData if toop[2]]
             paasBCTemps = [toop[3] for toop in heatData if toop[3]]
-            print(paasATemps)
             if len(paasATemps) > 1:  # if paas A data exits
                 # make a list of stats
                 paasAStats = [
@@ -1904,58 +1918,92 @@ class facileDBGUI(QMainWindow):
         for i in reversed(range(self.ui.heatGraphLayout.count())): 
             self.ui.plotLayout.itemAt(i).widget().setParent(None)
 
+        # check if there's data to use
         if len(getattr(self.data,f'p{pro}HeatData')) == 0:
             self.ui.heatGraphLayout.addWidget(QLabel("Insufficient Data."))
             return
         else:
             localHeat = getattr(self.data,f'p{pro}HeatData')
 
-
+        # create plot, make the bottom axis datetime based
         plot = pg.PlotWidget(axisItems = {'bottom': pg.DateAxisItem()})
+        # set left label as temp in C
         plot.setLabel("left","Temperature (°C)")
 
+        # organize data
+        # keep track of number of valid data points
         numPoints = 0
+        # hold data for paas A and b/c respectively
         paasaYs = []
         paasbcYs = []
+        # hold x data (timestamps)
         xs = []
+
+        hide = self.ui.actionHide_False_Data.isChecked()
+        # for each piece of data
         for toop in localHeat:
-            if toop[2] != None:
+            # if there's a paas A measurement that's not None or...
+            # if we want to hide false data (-255 or whatever) then it can't be < 1
+            # (if toop[2] == None then it will be cast as 0 as an int, hence the < 1)
+            if not(toop[2] == None or (hide and (toop[2] < 1))):
+                print(f'Appending {toop[2]}')
+                # append it, the time, and add one to num data points
                 paasaYs.append(float(toop[2]))
                 numPoints += 1
                 xs.append(float(toop[1]))
-            if toop[3] != None:
+            # if there's a paas B/C measurement that meets the same criteria as before
+            if not(toop[3] == None or (hide and (toop[3] < 1))):
+                print(f'Appending {toop[3]}')
+                # append it, and the time if there was no paas A measurement
                 paasbcYs.append(float(toop[3]))
-                if toop[2] == None:
+                if toop[2] == None or (hide and (toop[2] < 1)):
+                    print("adding a point")
                     numPoints += 1
                     xs.append(int(toop[1]))
-        
+        print(f"Ys: {len(paasaYs)}")
+        print(f"Xs: {len(xs)}")
+        # choose colormap for paas A
         if pro == 1:
             cMapA = pg.colormap.get('CET-L8')
         else:
             cMapA = pg.colormap.get('CET-L4')
+        # make pen for paas A
         brushA = QBrush(cMapA.getGradient(p1=QPointF(0.,15.0), p2=QPointF(0.,60.0)))
         penA = QPen(brushA,3.0)
         penA.setCosmetic(True)
 
+        # make a legend item
         theLegend27 = pg.LegendItem(pen=QPen(Qt.white)) # I think I'm funny
+        # make curve for paas A
         curveA = pg.PlotDataItem(x=xs,y=paasaYs, pen=penA, hoverable=True)
+        # add paas A curve to plot
         plot.addItem(curveA)
 
+        # if we need to do stuff for paas B/C too...
         if pro != 1:
+            # make a pen
             cMapB = pg.colormap.get('CET-L7')
             brushB = QBrush(cMapB.getGradient(p1=QPointF(0.,15.0), p2=QPointF(0.,60.0)))
             penB = QPen(brushB,3.0)
             penB.setCosmetic(True)
+            # make a curve
             curveB = pg.PlotDataItem(x=xs,y=paasbcYs,pen=penB,hoverable=True)
+            # add curve
             plot.addItem(curveB)
+            # add curve for paas A to legend
             theLegend27.addItem(curveA, "PAAS A - Red/Yellow")
+            # add curve for paas B to legend
             theLegend27.addItem(curveB, f'PAAS {"B" if pro == 2 else "C"} - Blue/Pink')
         else:
+            # add curve for paas A to legend
             theLegend27.addItem(curveA, "PAAS A")
         
+        # add legend to plot
         theLegend27.setParentItem(plot.getPlotItem())
+        # show the grid on the plot
         plot.showGrid(x=True,y=True)
 
+        # put the plot into the gui!
         self.ui.heatGraphLayout.addWidget(plot)
 
 
@@ -2001,7 +2049,10 @@ class facileDBGUI(QMainWindow):
                     xData, sctrYDataPoints, yerr=sctrYDataUncs, fmt="o"
                 )  # make a scatterplot out of the x and y data
             except:
-                print("Insufficient data to plot error bars.")
+                tkinter.messagebox.showwarning(
+                    title="Warning",
+                    message=f"Insufficient data to plot error bars.",
+                )
         else:
             plt.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
 
@@ -2081,6 +2132,12 @@ class facileDBGUI(QMainWindow):
     # returns: nothing returned
     def exportData(self,dataName,dataType,dataCols):
         # if there are very few data points...
+        if len(dataType) == 0:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message="No data points found, unable to export data.",
+            )
+            return
         if len(dataType) < 10:
             # make a question popup
             qM = QMessageBox()
