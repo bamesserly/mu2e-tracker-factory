@@ -18,6 +18,8 @@ from pathlib import Path
 import os
 import pandas as pd
 
+pd.set_option("mode.use_inf_as_na", True)  # set all inf --> NaN
+
 # parse all logfiles into readable/analyzable csv files
 # this overwrites!
 def ParseAll():
@@ -29,10 +31,82 @@ def ParseAll():
         except ValueError:
             print("-----Failed to parse")
 
+
+def RenameColumns(df):
+    df.columns = df.columns.str.strip()
+    df = df.rename(columns={"ADC values...": "resistance"})
+    df = df.rename(columns={"resistance": "resistance_err"})
+    df = df.rename(columns={"wire/straw": "wire-straw"})
+    df = df.rename(columns={"Position": "position"})
+    df = df.drop(columns=["PASS?"])
+    return df
+
+
+def ConsolidatePanelData(panel_dir):
+    dfs = []
+    for f in Path(panel_dir).rglob("*.csv"):
+        fname = f.stem.split("_")
+
+        # new format ["resistance_test", "MN115", "20210628", "pro3"]
+        if len(fname) == 4:
+            try:
+                assert (
+                    fname[1] == panel_dir.name
+                )  # make sure this file belongs in this folder
+                df = pd.read_csv(f, skiprows=4)  # column names are in the 5th row
+                try:
+                    assert not df.empty
+                except AssertionError:
+                    # print(f"WARNING: {f.stem} produced empty df. Skipping this file.")
+                    continue
+
+                # some files have messed up headers
+                columns = (
+                    df.columns.str.strip()
+                )  # Position   wire/straw   ADC values...   resistance   PASS?
+                if "# Position" not in columns:
+                    continue
+
+                # add panel, date, process info to df
+                df["panel"] = fname[1]
+                df["date"] = fname[2]
+                df["pro"] = fname[3]
+                # print(df.to_string())
+            except AssertionError:
+                print(
+                    f"WARNING: {f.stem} found in {panel_dir.name} dir.\n"
+                    f"Panel file and dir do not match. Skipping this file."
+                )
+                continue
+            except pd.errors.EmptyDataError:  # skip empty files
+                # print(f"INFO: {f.stem} is empty. Skipping.")
+                continue
+            dfs.append(df)
+
+        # old format ["resistance_test", "20210628"]
+        elif len(fname) == 2:
+            # print(f"INFO: {f.name} is old format. Skipping.")
+            # most panels that have measurements in this format are old and
+            # won't have corresponding pro2/3 measurements, so we don't care
+            # about them right now.
+            continue
+
+        # Unknown file format
+        else:
+            # print(f"ERROR: parsing filename {f.name}.")
+            continue
+
+    if dfs:
+        print(f"{panel_dir.name}: {len(dfs)} measurements found.")
+        return pd.concat(dfs)
+    else:
+        return pd.DataFrame()
+
+
 # Combine files for each panel
 # pos | pro  |  r  | timestamp
 #  0  | pro2 | 123 |   111
-#  0  | pro2 | 456 |   111 
+#  0  | pro2 | 456 |   111
 #  0  | pro2 | 456 |   222
 #  0  | pro3 | 789 |   333
 #  0  | qc   | 888 |   444
@@ -44,35 +118,39 @@ def ParseAll():
 # * need to add the timestamp (from the filename) to a final column
 def IntermediateClean():
     topdir = GetProjectPaths()["datatop"] / "PanelResistance_2021-06-22_2" / "RawData"
+    # Loop panels
     for panel_dir in Path(topdir).glob("*"):
         if not panel_dir.is_dir() or panel_dir.name.startswith("."):
             continue
-        if panel_dir.name  != "MN115":
+
+        # if panel_dir.name  != "MN112":
+        #    continue
+        # print(panel_dir.name)
+
+        # let's start by just looking at clean panels that have a single pro2, pro3, and QC measurements
+        # meas_parsed = [m.stem.split("_") for m in measurements]
+        # if (any("pro2" in i for i in meas_parsed) and
+        #    any("pro3" in i for i in meas_parsed) and
+        #    any("finalQC" in i for i in meas_parsed)):
+        #    print(f"    {panel_dir.name} has all three measurements.", len(measurements))
+
+        # add all the measurements for this panel to single df
+        panel_df = ConsolidatePanelData(panel_dir)
+        if panel_df.empty:
             continue
-        print(panel_dir.name)
-        panel_df = pd.DataFrame(columns = ["Position","wire/straw","ADC values...","resistance","PASS?"])
-        #dfs = []
-        for f in Path(panel_dir).rglob("*.csv"):
-            # skip empty files
-            try:
-                df = pd.read_csv(f,skiprows=4)
-            except pd.errors.EmptyDataError:
-                continue
-            print(df)
-            panel_df.append(df)
-        # df = pd.concat(dfs, join="outer", axis=1, sort=False) # this puts dfs side-by-side. Not what I want.
-        print(panel_df)
-        # merged_data_file = ...
-        # loop panel files
-            # extract pro and timestamp from filename
-            # df = from_csv
-            # df + panel | time | pro
-            # df[ADC] --> resistance
-            # df[res] --> unccertainty
+
+        # drop NaNs
+        panel_df = panel_df.dropna()
+
+        # column names in raw data are wrong
+        panel_df = RenameColumns(panel_df)
+
+        # print(panel_df.to_string())
+
 
 def main():
-    #ParseAll() # done
+    # ParseAll() # done
     IntermediateClean()
-    #datafilename = parse_log(raw_data)
-    #print("Data file and plots are at", datafilename)
+    # datafilename = parse_log(raw_data)
+    # print("Data file and plots are at", datafilename)
     print("Hello world")
