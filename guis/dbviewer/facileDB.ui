@@ -2387,41 +2387,46 @@ wire used</string>
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuSettings">
+   <widget class="QMenu" name="menuExport_Location">
     <property name="title">
-     <string>Settings</string>
+     <string>Export Location</string>
     </property>
-    <widget class="QMenu" name="menuTheme">
+    <addaction name="actionDesktop"/>
+    <addaction name="actionProduction"/>
+    <addaction name="actionCustom"/>
+   </widget>
+   <widget class="QMenu" name="menuTheme">
+    <property name="title">
+     <string>Theme</string>
+    </property>
+    <addaction name="actionDefaultColor"/>
+    <addaction name="actionDarkColor"/>
+    <addaction name="separator"/>
+    <addaction name="actionCyberpunkColor"/>
+    <addaction name="actionForestColor"/>
+    <addaction name="actionVolcanicColor"/>
+    <addaction name="actionOceanColor"/>
+    <addaction name="actionPatrioticColor"/>
+    <addaction name="actionGopher_PrideColor"/>
+   </widget>
+   <widget class="QMenu" name="menuData">
+    <property name="title">
+     <string>Data</string>
+    </property>
+    <widget class="QMenu" name="menuHighlighting">
      <property name="title">
-      <string>Theme</string>
-     </property>
-     <addaction name="actionDefaultColor"/>
-     <addaction name="actionCyberpunkColor"/>
-     <addaction name="actionDarkColor"/>
-     <addaction name="actionGopher_PrideColor"/>
-    </widget>
-    <widget class="QMenu" name="menuData_Highlighting">
-     <property name="title">
-      <string>Data Highlighting</string>
+      <string>Highlighting</string>
      </property>
      <addaction name="actionFailures"/>
      <addaction name="actionMissing_Data"/>
      <addaction name="actionOutliers"/>
     </widget>
-    <widget class="QMenu" name="menuExport_Location">
-     <property name="title">
-      <string>Export Location</string>
-     </property>
-     <addaction name="actionDesktop"/>
-     <addaction name="actionProduction"/>
-     <addaction name="actionCustom"/>
-    </widget>
-    <addaction name="menuExport_Location"/>
-    <addaction name="separator"/>
-    <addaction name="menuData_Highlighting"/>
-    <addaction name="menuTheme"/>
+    <addaction name="menuHighlighting"/>
+    <addaction name="actionHide_False_Data"/>
    </widget>
-   <addaction name="menuSettings"/>
+   <addaction name="menuData"/>
+   <addaction name="menuExport_Location"/>
+   <addaction name="menuTheme"/>
   </widget>
   <action name="actionHVCSV">
    <property name="text">
@@ -2575,7 +2580,7 @@ wire used</string>
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Dark</string>
+    <string>Dark Default</string>
    </property>
   </action>
   <action name="actionGopher_PrideColor">
@@ -2622,10 +2627,10 @@ wire used</string>
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Missing Data</string>
@@ -2676,6 +2681,41 @@ wire used</string>
    </property>
    <property name="text">
     <string>Custom...</string>
+   </property>
+  </action>
+  <action name="actionHide_False_Data">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hide False Data</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide false data produced by errors, such as
+ -255C for heater measurements</string>
+   </property>
+  </action>
+  <action name="actionPatrioticColor">
+   <property name="text">
+    <string>Patriotic</string>
+   </property>
+  </action>
+  <action name="actionForestColor">
+   <property name="text">
+    <string>Dark Forest</string>
+   </property>
+  </action>
+  <action name="actionVolcanicColor">
+   <property name="text">
+    <string>Volcanic</string>
+   </property>
+  </action>
+  <action name="actionOceanColor">
+   <property name="text">
+    <string>Ocean</string>
    </property>
   </action>
  </widget>
