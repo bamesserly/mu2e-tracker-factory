@@ -102,12 +102,17 @@ class Merger:
         # Attach db2
         # print(src_db, attach_alias)
         con.executescript(f"ATTACH DATABASE '{src_db}' as {attach_alias};")
-
-        # Execute input script
-        ret = {
-            True: lambda script: con.execute(script).fetchall(),
-            False: lambda script: con.executescript(script),
-        }[fetchall](script)
+        ret = {}
+        try:
+            # Execute input script
+            ret = {
+                True: lambda script: con.execute(script).fetchall(),
+                False: lambda script: con.executescript(script),
+            }[fetchall](script)
+        except Exception as e:
+            logger.error(f'Script execution failed, Exception: {e}')
+            logger.error(f'Failed script:')
+            logger.error(script)
 
         # Commit script
         try:
@@ -130,6 +135,19 @@ class Merger:
         dst_prefix = f"{attached_alias}." if into_attached else str()
         src_prefix = f"{attached_alias}." if not into_attached else str()
         # Generate script
+        #logger.debug(f'Script for {table}')
+        #logger.debug(f"""
+        #    INSERT OR REPLACE INTO
+        #    {dst_prefix}{table}
+        #    SELECT srct.* FROM
+        #    {src_prefix}{table} srct
+        #    LEFT OUTER JOIN
+        #    {dst_prefix}{table} t ON srct.id = t.id
+        #    WHERE
+        #    srct.timestamp > t.timestamp
+        #    OR
+        #    t.id IS NULL;
+        #    """)
         return f"""
             INSERT OR REPLACE INTO
             {dst_prefix}{table}

@@ -14,6 +14,9 @@ Date of Last Update: 4/15/19
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os, csv
 from pathlib import Path
+import logging
+
+logger = logging.getLogger("root")
 
 
 """
@@ -247,7 +250,7 @@ class StepList:
                                 self.steps.append(Step(*row))
                                 names.append(row[0])
                             except Exception:
-                                print(f"Unable to read step at line {index}")
+                                logger.info(f"Unable to read step at line {index}")
                         else:
                             i = 1
                             s = row[0][:i]
@@ -261,7 +264,9 @@ class StepList:
                             try:
                                 self.steps[names.index(major)].addSubstep(Step(*row))
                             except Exception:
-                                print(f"Unable to find parent step for step {row[0]}")
+                                logger.info(
+                                    f"Unable to find parent step for step {row[0]}"
+                                )
 
             l = list(zip([n.getNumber().zfill(2) for n in self.steps], self.steps))
             l.sort()
@@ -437,7 +442,7 @@ class StepList:
             # verticalSpacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
             # self.layout.addItem(verticalSpacer, 6, 0, QtCore.Qt.AlignTop)
         except Exception as e:
-            print("Unable to read steps list")
+            logger.info("Unable to read steps list")
 
     """
     getStep(self, number)
@@ -453,7 +458,7 @@ class StepList:
         try:
             self.steps[int([step.getNumber() for step in self.steps].index(number))]
         except Exception:
-            print("Invalid step number")
+            logger.info("Invalid step number")
 
     """
     getNextCheckbox(self)

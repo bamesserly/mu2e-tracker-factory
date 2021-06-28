@@ -12,7 +12,7 @@ import os
 import re
 from guis.common.getresources import GetProjectPaths
 from pathlib import Path
-from sys import exit
+import sys
 
 ################################################################################
 # Constants
@@ -435,12 +435,12 @@ def RunInteractive():
     try:
         assert options.infile
     except AssertionError:
-        exit("Must provide input data file.")
+        sys.exit("Must provide input data file.")
     try:
         print(Path(options.infile).resolve())
         assert Path(options.infile).is_file()
     except AssertionError:
-        exit("Input file not found.")
+        sys.exit("Input file not found.")
     options.fit_start_time = SetFloatOption("Fit start> ", options.fit_start_time)
     options.fit_end_time = SetFloatOption("Fit end> ", options.fit_end_time)
     options.min_diff_pressure = SetFloatOption("Differential pressure y-axis min> ", options.min_diff_pressure)
