@@ -111,8 +111,6 @@ class Merger:
             }[fetchall](script)
         except Exception as e:
             logger.error(f'Script execution failed, Exception: {e}')
-            logger.error(f'Failed script:')
-            logger.error(script)
 
         # Commit script
         try:
