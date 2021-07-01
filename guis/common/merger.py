@@ -37,7 +37,8 @@ class Merger:
         return [
             tpl[0]
             for tpl in self.__execute(
-                "select name from sqlite_master where type = 'table'", fetchall=True
+                "select name from sqlite_master where type = 'table' AND name not like 'sqlite?_%' escape '?'",
+                fetchall=True,
             )
         ]
 
@@ -77,6 +78,11 @@ class Merger:
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
+        # for t in self.getTables():
+        #    logger.info(t)
+        #    self.__execute(
+        #        self.merge(t, execute=False)
+        #    )
         finish = datetime.now()
         dt = (finish - start).total_seconds()
         logger.info(f"Automerge complete ({dt}s)")
@@ -110,7 +116,7 @@ class Merger:
                 False: lambda script: con.executescript(script),
             }[fetchall](script)
         except Exception as e:
-            logger.error(f'Script execution failed, Exception: {e}')
+            logger.error(f"Script execution failed, Exception: {e}")
 
         # Commit script
         try:
@@ -133,8 +139,8 @@ class Merger:
         dst_prefix = f"{attached_alias}." if into_attached else str()
         src_prefix = f"{attached_alias}." if not into_attached else str()
         # Generate script
-        #logger.debug(f'Script for {table}')
-        #logger.debug(f"""
+        # logger.debug(f'Script for {table}')
+        # logger.debug(f"""
         #    INSERT OR REPLACE INTO
         #    {dst_prefix}{table}
         #    SELECT srct.* FROM
