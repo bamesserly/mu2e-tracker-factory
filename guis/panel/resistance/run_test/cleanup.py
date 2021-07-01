@@ -17,8 +17,18 @@ from guis.common.getresources import GetProjectPaths
 from pathlib import Path
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", tag="res_ana")
 
 pd.set_option("mode.use_inf_as_na", True)  # set all inf --> NaN
+kMAXRES = 300  # cut resistance measurements above this
+kNMINPOINTS = 25  # every good measurement must have at least 25 data points
+kREQUIREALLMEASUREMENTS = (
+    True  # require that there be at least one pro2, pro3, and qc measurement
+)
 
 # parse all logfiles into readable/analyzable csv files
 # this overwrites!
@@ -32,156 +42,201 @@ def ParseAll():
             print("-----Failed to parse")
 
 
+# parsing program does not fix columns, so do it here.
 def RenameColumns(df):
     df.columns = df.columns.str.strip()
     df = df.rename(columns={"resistance": "resistance_err"})
     df = df.rename(columns={"ADC values...": "resistance"})
     df = df.rename(columns={"wire/straw": "wire-straw"})
-    df = df.rename(columns={"Position": "position"})
+    df = df.rename(columns={"# Position": "position"})
     df = df.drop(columns=["PASS?"])
     return df
 
 
-# Make a df from a measurement csv file, f
-def MakeMeasurementDF(f):
-    df = pd.DataFrame()
+# old file format, file not in correct directory
+def IsGoodFile(fname, panel):
+    # new filename format ["resistance_test", "MN115", "20210628", "pro3"]
+    # old file format ["resistance_test", "20210628"]
+    if len(fname) != 4:
+        return False
+
+    # file in wrong folder?
+    if fname[1] != panel:
+        return False
+
+    return True
+
+
+# Make a df from a single csv file.
+# If something goes wrong, return an empty csv, otherwise assume df is viable
+def MakeDF(f, panel):
+    fname = f.stem.split("_")
+
+    if not IsGoodFile(fname, panel):
+        # logger.debug(f"{panel} bad file")
+        return pd.DataFrame()
 
     # read in csv, skip empty files
+    # column names are in the 5th row
+    df = pd.DataFrame()
     try:
-        df = pd.read_csv(f, skiprows=4)  # column names are in the 5th row
+        df = pd.read_csv(f, skiprows=4)
         assert not df.empty
     except pd.errors.EmptyDataError:
-        # print(f"INFO: {f.stem} is empty. Skipping.")
+        # logger.debug(f"{panel} empty df during read")
         return pd.DataFrame()
     except AssertionError:
-        # print(f"WARNING: {f.stem} produced empty df. Skipping this file.")
+        # logger.debug(f"{panel} empty df after read")
         return pd.DataFrame()
-
-    print(df.columns.str.strip())
 
     # some files have messed up headers
-    # '# Position'   wire/straw   ADC values...   resistance   PASS?
+    # ' # Position' ' wire/straw' ' ADC values...'  ' resistance' ' PASS?'
     if "# Position" not in df.columns.str.strip():
+        # logger.debug(f"{panel} columns problem after read")
         return pd.DataFrame()
+
+    # add panel, date, process
+    if not df.empty:
+        df["panel"] = fname[1]
+        df["date"] = fname[2]
+        df["pro"] = fname[3]
 
     return df
 
 
-# combine all the data from list of files for panel into one df
-def ConsolidatePanelData(files, panel):
-    dfs = []
-    for f in files:
-        df = pd.DataFrame()
-        fname = f.stem.split("_")
-
-        # new format filename ["resistance_test", "MN115", "20210628", "pro3"]
-        if len(fname) == 4:
-            # make sure this file belongs in this folder
-            if fname[1] == panel:
-                df = MakeMeasurementDF(f)
-                # add panel, date, process info to df
-                df["panel"] = fname[1]
-                df["date"] = fname[2]
-                df["pro"] = fname[3]
-            else:
-                print(
-                    f"WARNING: {f.stem} found in {panel} dir.\n"
-                    f"Panel file and dir do not match. Skipping this file."
-                )
-
-        # old format ["resistance_test", "20210628"]
-        elif len(fname) == 2:
-            # print(f"INFO: {f.name} is old format. Skipping.")
-            # most panels that have measurements in this format are old and
-            # won't have corresponding pro2/3 measurements, so we don't care
-            # about them right now.
-            pass
-
-        # Unknown file format
-        else:
-            # print(f"ERROR: parsing filename {f.name}.")
-            pass
-
-        if not df.empty:
-            dfs.append(df)
-
-    if dfs:
-        print(f"{panel}: {len(dfs)} usable measurements found.")
-        return pd.concat(dfs)
-    else:
+# Make a data frame from all the csv resistance data in the given directory
+# Return an empty df if something goes wrong
+def CombineAllPanelData(panel_dir):
+    # skip this dir if it's not a normal panel resistance dir
+    if not panel_dir.is_dir() or panel_dir.name.startswith("."):
         return pd.DataFrame()
 
+    # collect all the csv files
+    files = sorted(Path(panel_dir).rglob("*.csv"))
 
-# Combine files for each panel
-# pos | pro  |  r  | timestamp
-#  0  | pro2 | 123 |   111
-#  0  | pro2 | 456 |   111
-#  0  | pro2 | 456 |   222
-#  0  | pro3 | 789 |   333
-#  0  | qc   | 888 |   444
-#  0  | qc(w)| 999 |   446
-#  1  | pro2 | 124 |   114
-#      .............
-# We can almost just concatenate all the csv files.
-# * need to skip old headers and write a new one
-# * need to add the timestamp (from the filename) to a final column
-def IntermediateClean():
-    topdir = GetProjectPaths()["datatop"] / "PanelResistance_2021-06-22_2" / "RawData"
-    panels = sorted(Path(topdir).glob("*"))
-    panel_data = []
-    # Loop panels
-    for panel_dir in panels:
-        if not panel_dir.is_dir() or panel_dir.name.startswith("."):
-            continue
-
-        if panel_dir.name != "MN120":
-            continue
-
-        # add all the measurements for this panel to single df
-        files = sorted(Path(panel_dir).rglob("*.csv"))
-
-        # require panel to have pro2, pro3, and qc measurements
+    # require panel to have pro2, pro3, and qc measurements
+    if kREQUIREALLMEASUREMENTS:
         if (
             any("proc2" in i.stem.split("_") for i in files)
             and any("proc3" in i.stem.split("_") for i in files)
             and any("finalQC" in i.stem.split("_") for i in files)
         ):
             pass
-            # print(f"    {panel_dir.name} has all three measurements.", len(files))
         else:
-            # print(f"    {panel_dir.name} is missing a measurement.", len(files))
-            continue
+            # logger.debug(f"{panel_dir.name} not all three pro measurements")
+            return pd.DataFrame()
 
-        # Collect all data into a single df
-        panel_df = ConsolidatePanelData(files, panel_dir.name)
-        if panel_df.empty:
-            print(f"    empty df somehow for {panel_dir.name}.")
-            continue
+    # get a df from each file
+    dfs = []
+    for f in files:
+        df = MakeDF(f, panel_dir.name)
+        if not df.empty:
+            dfs.append(df)
 
-        # drop NaNs
-        panel_df = panel_df.dropna()
+    # combine all the panel's dfs
+    if dfs:
+        print(f"{panel_dir.name}: {len(dfs)} usable measurements found.")
+        return pd.concat(dfs)
+    else:
+        return pd.DataFrame()
 
-        # column names in raw data are wrong
-        panel_df = RenameColumns(panel_df)
 
-        # require 50 measurements for each process
-        n_pro2 = panel_df["pro"].astype(str).str.contains("proc2").sum()
-        n_pro3 = panel_df["pro"].astype(str).str.contains("proc3").sum()
-        n_qc = panel_df["pro"].astype(str).str.contains("finalQC").sum()
-        if n_pro2 < 50 or n_pro3 < 50 or n_qc < 50:
-            print("pro 2, 3, and qc datapoints:", n_pro2, n_pro3, n_qc)
-            print("one of these is < 50 so skipping this panel", panel_dir.name)
-            continue
+# pos | w/s | pro  |  r  | timestamp
+#  0  |  0  | pro2 | 123 |   111     # wire-straw field not used in pros 2 + 3
+#  0  |  0  | pro2 | 456 |   111
+#  0  |  0  | pro2 | 456 |   222
+#  0  |  0  | pro3 | 789 |   333
+#  0  |  1  | qc   | 888 |   444
+#  0  |  0  | qc(w)| 999 |   446
+#  1  |  0  | pro2 | 124 |   114
+def Clean(df):
+    # column names in raw data are wrong
+    df = RenameColumns(df)
 
-        panel_data.append(panel_df)
+    # force resistances to all be numbers, else turn them into NaN
+    df["resistance"] = pd.to_numeric(df["resistance"], errors="coerce")
+    df["position"] = pd.to_numeric(df["position"], errors="coerce")
 
-        print(panel_df.to_string())
+    # drop NaNs
+    df = df.dropna()
 
-    return panel_data
+    # removing resistance outliers
+    try:
+        df = df[df["resistance"] < kMAXRES]
+    except TypeError:
+        print(df.to_string())
+
+    # remove final QC //wire// measurements
+    df = df.drop(df[(df["wire-straw"] == 0) & (df["pro"] == "finalQC")].index)
+
+    # require kNMINPOINTS measurements for each process
+    n_pro2 = df["pro"].astype(str).str.contains("proc2").sum()
+    n_pro3 = df["pro"].astype(str).str.contains("proc3").sum()
+    n_qc = df["pro"].astype(str).str.contains("finalQC").sum()
+    if n_pro2 < kNMINPOINTS or n_pro3 < kNMINPOINTS or n_qc < kNMINPOINTS:
+        print("pro 2, 3, and qc datapoints:", n_pro2, n_pro3, n_qc)
+        print("one of these is < 50 so skipping this panel", panel_dir.name)
+        return pd.DataFrame()
+
+    df = df.reset_index(drop=True)
+
+    return df
+
+
+def Plot(panel, df):
+    ## plot attempt #1
+    # fig, ax = plt.subplots()
+    # colors = {"proc2":"red", "proc3":"green","finalQC":"blue"}
+    # ax.scatter(df['position'], df['resistance'],c=df['pro'].map(colors))#, cmap="viridis")
+
+    # plot attempt #2
+    fig, ax = plt.subplots()
+    colors = {"proc2": "red", "proc3": "green", "finalQC": "blue"}
+    grouped = df.groupby("pro")
+    for key, group in grouped:
+        try:
+            group.plot(
+                ax=ax,
+                kind="scatter",
+                x="position",
+                y="resistance",
+                label=key,
+                c=colors[key],
+            )
+        except ValueError:
+            print()
+            print(df.to_string())
+    plt.title(panel)
+    ax.set_ylim(0, kMAXRES)
+    # plt.show()
+    plt.draw()
+    plt.savefig(f"resistance_{panel}.png")
 
 
 def main():
     # ParseAll() # done, only needs to be done once
-    # list of data frames for the resistance measurement of each panel
-    panel_resistance_measurements = IntermediateClean()
+
+    # list of directories - one for each panel
+    topdir = GetProjectPaths()["datatop"] / "PanelResistance_2021-06-22_2" / "RawData"
+    panel_directories = sorted(Path(topdir).glob("*"))
+
+    # for each panel (directory):
+    panel_data = {}
+    for panel_dir in panel_directories:
+        # 1. combine csv files into single data frame
+        df = CombineAllPanelData(panel_dir)
+        if df.empty:
+            # logger.debug(f"{panel_dir.name} df did not pass CombineAllPanelData")
+            continue
+
+        # 2. clean
+        df = Clean(df)
+        if df.empty:
+            # logger.debug(f"{panel_dir.name} df did not pass Clean")
+            continue
+        # panel_data[panel_dir.name] = df
+
+        # 3. plot
+        Plot(panel_dir.name, df)
+
     print("Done")
