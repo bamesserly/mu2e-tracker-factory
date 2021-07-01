@@ -167,7 +167,7 @@ def Clean(df):
         print(df.to_string())
 
     # remove final QC //wire// measurements
-    df = df.drop(df[(df["wire-straw"] == 0) & (df["pro"] == "finalQC")].index)
+    df = df.drop(df[(df["wire-straw"] == 1) & (df["pro"] == "finalQC")].index)
 
     # require kNMINPOINTS measurements for each process
     n_pro2 = df["pro"].astype(str).str.contains("proc2").sum()
