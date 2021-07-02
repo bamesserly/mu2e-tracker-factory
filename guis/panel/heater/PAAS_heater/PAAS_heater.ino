@@ -42,7 +42,7 @@ char paas2='x'; // placeholder for user choice of 2nd PAAS type
 const int32_t wait = 8; // time between data points [seconds]
 const int32_t holdtime = 300; // [minutes] time to hold temperature at setpoint
 int32_t holdstart;
-uint8_t state=0;
+uint8_t do_increase_temperature=1;
 
 void setup() {
 	Serial.begin(2000000);
@@ -58,7 +58,8 @@ void setup() {
 }
 
 void loop() {
-	// get updates from python interface if connected
+	// get updates from python interface if connected.
+	// any not-empty write command to the serial connection triggers this.
 	if (Serial.available()){  
 		Serial.println("Enter second PAAS type (B or C) or enter 0 if heating PAAS-A only");
 		char usrkey[5];  // user choice of 2nd PAAS type and temperature setpoint
@@ -71,7 +72,7 @@ void loop() {
 		pKbd++; 
 		usrsp = atof(pKbd); 
 		if (abs(usrsp-setpointA)>5){ // new setpoint from python interface either 34C or 55C / software timer fixed
-			state=0; // resets holdstart to get full holdtime at new setpoint
+			do_increase_temperature=1; // resets holdstart to get full holdtime at new setpoint
 			setpointA = min(usrsp,52); 
 			// setpointB based on PAAS-B correction for temperature difference at RTD location vs. bulk surface
 			if (setpointA>34){ setpointB=50; }
@@ -91,18 +92,18 @@ void loop() {
 		int32_t hasBeen = now - start;
 		if (hasBeen>1000*wait){
 			display_status();
-			if (state==0){  // increase temperature
+			if (do_increase_temperature==1){  // increase temperature
 				tempA = maxamp.temperature(RNOMINAL_PTCO, RREF);
 				if (tempA>setpointA){  // start hold phase
 					holdstart = millis();
-					state = 1;
+					do_increase_temperature = 0; // hold temperature
 				}
 				temp_control();
 				start = now;
 			}
 			else{  // hold temperature at setpoint
 				if ((millis()-holdstart)/60000 < holdtime){
-					// control temperature as in state 0
+					// control temperature as in do_increase_temperature 1
 					display_status();
 					temp_control();
 					start = now;
@@ -174,10 +175,10 @@ void set_key_metrics(float temp_A, float temp_2, uint32_t now){
 		temp2_max_timestamp = now;
 		temp2_max = temp_2;
 	}
-	if(temp_A == setpointA){ // A set point time
+	if(setpointA - 1 < temp_A && temp_A < setpointA + 1){ // A set point time
 		tempA_setpt_timestamp = now;
 	}
-	if(temp_2 == setpoint2){ // 2 set point time
+	if(setpoint2 - 1 < temp_2 && temp_2 < setpoint2 + 1){ // 2 set point time
 		temp2_setpt_timestamp = now;
 	}
 	if(temp_A > 50 && tempA_setpt_timestamp <= 1){ // A rises to 50
@@ -199,15 +200,15 @@ void display_status(){
 	//Serial.println("PAAS-C: testing calibration -> expect apparent temp. diff. up to 5C");
 	float temp_A = maxamp.temperature(RNOMINAL_PTCO, RREF);
 	float temp_2 = -99;
-	uint32_t now = millis();
 	if(paas2!='0'){
 		temp_2 = maxamp2.temperature(RNOMINAL_PTCO2, RREF);
 	}
+	uint32_t now = millis();
 	set_key_metrics(temp_A, temp_2, now);
 	Serial.print("Temperature 1: "); Serial.println(temp_A);
 	Serial.print("Temperature 2: "); Serial.println(temp_2);
 	Serial.print("Time = ");Serial.println(millis());
-	//Serial.print("state = ");Serial.println(state); // test for software timer fix
+	//Serial.print("do_increase_temperature = ");Serial.println(do_increase_temperature); // test for software timer fix
 
 	Serial.print("Temp A max = "); Serial.println(tempA_max);
 	Serial.print("Temp A max timestamp = "); Serial.println(tempA_max_timestamp);
