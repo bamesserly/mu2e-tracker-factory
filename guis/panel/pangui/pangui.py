@@ -4969,6 +4969,8 @@ class panelGUI(QMainWindow):
             pass
 
     def pro8part1(self):
+        # used later for deciding how to save leak fixes
+        self.resolvingLeak = "Methane"
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
@@ -5009,6 +5011,49 @@ class panelGUI(QMainWindow):
 
         self.startRunning()
         self.saveData()
+        self.ui.stackedWidget.setCurrentIndex(0)
+        self.ui.pro8StageLabel.setText("Current Stage: Prep")
+
+    def pro8PrepFin(self):
+        self.ui.stackedWidget.setCurrentIndex(2)
+        self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
+        self.ui.methBackPB.setDisabled(True)
+
+    def pro8MethanePass(self):
+        self.ui.dummy1.clear()
+        self.ui.dummy2.setChecked(False)
+        self.ui.methBackPB.setEnabled(True)
+        self.ui.stackedWidget.setCurrentIndex(3)
+        self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
+        self.resolvingLeak = "LeakTest"
+    
+    def pro8MethaneFail(self):
+        self.ui.dummy1.clear()
+        self.ui.dummy2.setChecked(False)
+        self.ui.methBackPB.setEnabled(True)
+        self.ui.stackedWidget.setCurrentIndex(4)
+        self.ui.pro8StageLabel.setText("Current Stage: Resolution")
+        self.ui.resoBackPB.setDisabled(True)
+
+    def pro8ResolutionSubmit(self):
+        if self.resolvingLeak == "Methane":
+            self.ui.resoBackPB.setDisabled(True)
+            self.DP.saveComment(
+                self.ui.resolutionPTE.toPlainText(),
+                self.getCurrentPanel(),
+                8
+            )
+            self.ui.stackedWidget.setCurrentIndex(2)
+            self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
+            self.ui.methBackPB.setDisabled(True)
+
+        if self.resolvingLeak == "LeakTest":
+            return # leak form submit
+
+    def pro8LeakTestPass(self):
+        self.ui.stackedWidget.setCurrentIndex(5)
+        self.ui.pro8StageLabel.setText("Current Stage: Shipping")
+    
 
     def resetpro8(self):
         self.data[4] = [None for x in self.data[4]]
@@ -5323,7 +5368,7 @@ class panelGUI(QMainWindow):
             reinstalled = "left"
         elif self.ui.re_center.isChecked():
             reinstalled = "center"
-        elif self.ui.re_right.isChecked:
+        elif self.ui.re_right.isChecked():
             reinstalled = "right"
 
         inflated = True
