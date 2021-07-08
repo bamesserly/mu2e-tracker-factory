@@ -3714,6 +3714,7 @@ class panelGUI(QMainWindow):
             self.ui.leftRing1LE.setText(str(data[4]))
             self.ui.leftRing1LE.setDisabled(True)
         # ddMMMyy - days, months (string), year
+        print(data[5])
         if data[5] is not None:
             dd = int(data[5][:2])    # day
             mMM = int(monthStrToInt[data[5][2:5]])  # month
@@ -4954,10 +4955,21 @@ class panelGUI(QMainWindow):
     # ╚═╝     ╚═╝  ╚═╝ ╚═════╝      ╚═════╝
     # fmt: on
 
+    # called when a line edit/datetime edit is clicked away from
+    def pro8TrySave(self):
+        try:
+            self.saveData()
+        except:
+            pass
+
     def pro8part1(self):
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
+            return
+            
+        # Ensure that all input data is valid
+        if not self.validateInput(indices=[0]):
             return
         if self.ui.leftRing2DE.date() < QDate(QDate(2000,1,11)):
             self.ui.leftRing2DE.setFocus()
@@ -4968,16 +4980,9 @@ class panelGUI(QMainWindow):
         if self.ui.centerRing2DE.date() < QDate(QDate(2000,1,11)):
             self.ui.centerRing2DE.setFocus()
             return
-            
-        # Ensure that all input data is valid
-        if not self.validateInput(indices=[0,1,2,3,4,7,8,11,12,15]):
-            return
 
         # Disable start button, panel input, and part inputs
-        self.setWidgetsDisabled(
-            [
-                self.ui.panelInput_8,
-                self.ui.startButton_8,
+        for wid in [
                 self.ui.left_cover_6,
                 self.ui.right_cover_6,
                 self.ui.center_cover_6,
@@ -4993,8 +4998,8 @@ class panelGUI(QMainWindow):
                 self.ui.centerRing2DE,
                 self.ui.centerRing3TE,
                 self.ui.centerRing4LE
-            ]
-        )
+            ]:
+            wid.finishedEditing.connect(self.pro8TrySave)
 
         self.startRunning()
         self.saveData()
