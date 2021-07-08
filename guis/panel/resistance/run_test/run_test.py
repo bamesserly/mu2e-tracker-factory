@@ -22,7 +22,7 @@ def GetSerialPort():
     serialport = None
     avail_ports = serial.tools.list_ports.comports()
     for port, desc, hwid in sorted(avail_ports):
-        #print("{}: {} [{}]".format(port, desc, hwid))
+        # print("{}: {} [{}]".format(port, desc, hwid))
         if "USB" in desc or "USB" in hwid:
             try:
                 serialport = serial.Serial(
@@ -99,35 +99,32 @@ def main():
     panelid = str(panelid)
 
     ############################################################################
-    # Specify when this measurement is being done, straw room (1), process 3
-    # (2), or final QC (3)
+    # Specify which measurement is being done
     ############################################################################
     when = -1
     while True:
         try:
-            print("Specify stage when this measurement is being performed.")
-            when = int(input("[1] Process 2\n[2] Process 3\n[3] Final QC\n>"))
+            print("Which resistance measurement is this?")
+            when = int(
+                input(
+                    "[1] brass-brass (i-i) \n[2] aluminum-aluminum (o-o)\n[3] Final QC\n>"
+                )
+            )
             assert when in [1, 2, 3]
             break
         except AssertionError:
-            print("Invalid stage. Must be 1, 2, or 3.")
+            print("Invalid measurement. Must be 1, 2, or 3.")
         except ValueError:
-            print("Invalid stage. Must be integer 1, 2, or 3.")
+            print("Invalid measurement. Must be integer 1, 2, or 3.")
 
     ############################################################################
     # wrap the serial port.  From here on, use "ser" for any serial port communication.
     # Additional lines can be "manually" added to the logfile, but these should all start with
     # "#" to avoid confusing the parse_log script that runs later.
     ############################################################################
-    stage_tag = {1: "proc2", 2: "proc3", 3: "finalQC"}
+    stage_tag = {1: "i-i", 2: "o-o", 3: "finalQC"}
     logfilename = (
-        "resistancetest_MN"
-        + panelid
-        + "_"
-        + timestamp
-        + "_"
-        + stage_tag[when]
-        + ".log"
+        "resistancetest_MN" + panelid + "_" + timestamp + "_" + stage_tag[when] + ".log"
     )
     dir_path = GetProjectPaths()["panelresistancedata"] / "RawData" / f"MN{panelid}"
     dir_path.mkdir(exist_ok=True, parents=True)
@@ -146,11 +143,11 @@ def main():
     ser.logfile.write("# measurement stage:" + stage_tag[when] + "\n")
     # ser.readline()
 
-    # Tell the arduino to enter straws-only mode if when = proc2 or proc3
-    if(when == 1 or when == 2):
-        ser.write('s') # yes, straw mode
+    # Tell the arduino to enter straws-only mode if when = i-i or o-o
+    if when == 1 or when == 2:
+        ser.write("s")  # yes, straw mode
     else:
-        ser.write('\n') # no, not straw mode
+        ser.write("\n")  # no, not straw mode
 
     # Here begins the main loop to measure every straw and wire.
     print("Begin testing!  Press Ctrl+C when the panel is finished.")
