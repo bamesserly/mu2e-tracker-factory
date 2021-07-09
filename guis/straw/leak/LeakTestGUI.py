@@ -47,6 +47,7 @@ from guis.common.save_straw_workers import saveWorkers
 
 # Import logger from Modules (only do this once)
 from guis.common.panguilogger import SetupPANGUILogger
+
 logger = SetupPANGUILogger("root", tag="Leak_Test")
 
 import threading
@@ -723,10 +724,16 @@ class LeakTestStatus(QMainWindow):
                                             self.starttime[chamber] = float(
                                                 numbers_float[0]
                                             )
-                                        eventtime = (
-                                            float(numbers_float[0])
-                                            - self.starttime[chamber]
-                                        )
+                                        try:
+                                            eventtime = (
+                                                float(numbers_float[0])
+                                                - self.starttime[chamber]
+                                            )
+                                        except ValueError:
+                                            logger.error(
+                                                f"This happens when one of the empty raw data files get corrupted"
+                                            )
+                                            logger.error(f"The file is {outfile}")
                                         if eventtime > self.excluded_time:
                                             PPM[chamber].append(float(numbers_float[2]))
                                             PPM_err[chamber].append(
