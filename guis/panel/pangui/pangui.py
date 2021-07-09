@@ -814,6 +814,7 @@ class panelGUI(QMainWindow):
         # nav buttons
         # prep complete
         self.ui.prepCompletePB.clicked.connect(self.pro8PrepFin)
+        self.ui.prepCompletePB.setDisabled(True)
         # methane pass/fail/back
         self.ui.leakPassPB.clicked.connect(self.pro8MethanePass)
         self.ui.leakFailPB.clicked.connect(self.pro8MethaneFail)
@@ -2698,17 +2699,17 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.ui.center_cover_6.text()
         self.data[self.pro_index][3] = self.ui.right_cover_6.text()
 
-        self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
+        self.data[self.pro_index][4] = self.ui.leftRing1LE.text()[2:]
         self.data[self.pro_index][5] = self.ui.leftRing2DE.date()
         self.data[self.pro_index][6] = self.ui.leftRing3TE.time()
         self.data[self.pro_index][7] = self.ui.leftRing4LE.text()
 
-        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()
+        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()[2:]
         self.data[self.pro_index][9] = self.ui.rightRing2DE.date()
         self.data[self.pro_index][10] = self.ui.rightRing3TE.time()
         self.data[self.pro_index][11] = self.ui.rightRing4LE.text()
 
-        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()
+        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()[2:]
         self.data[self.pro_index][13] = self.ui.centerRing2DE.date()
         self.data[self.pro_index][14] = self.ui.centerRing3TE.time()
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
@@ -5051,6 +5052,7 @@ class panelGUI(QMainWindow):
         self.ui.prepCompletePB.setFocus()
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
+        self.ui.prepCompletePB.setEnabled(True)
         self.data[7][16] = "Prep"
         self.saveData()
 
