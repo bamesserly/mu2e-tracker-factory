@@ -1825,6 +1825,8 @@ class SQLDataProcessor(DataProcessor):
         # rRing = data[10:13]
         cRing = f'{data[12]}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
         self.callMethod(self.procedure.recordCenterRing, cRing)
+
+        self.callMethod(self.procedure.recordStage,data[16])
         
         
 
@@ -2637,6 +2639,7 @@ class SQLDataProcessor(DataProcessor):
             str(self.procedure.getCenterRing())[4:11] if self.procedure.getCenterRing() is not None else None,
             str(self.procedure.getCenterRing())[11:15] if self.procedure.getCenterRing() is not None else None,
             str(self.procedure.getCenterRing())[15:] if self.procedure.getCenterRing() is not None else None,
+            self.procedure.getStage()
         ]
 
 
