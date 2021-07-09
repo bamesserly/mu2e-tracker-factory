@@ -2699,17 +2699,17 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.ui.center_cover_6.text()
         self.data[self.pro_index][3] = self.ui.right_cover_6.text()
 
-        self.data[self.pro_index][4] = self.ui.leftRing1LE.text()[2:]
+        self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
         self.data[self.pro_index][5] = self.ui.leftRing2DE.date()
         self.data[self.pro_index][6] = self.ui.leftRing3TE.time()
         self.data[self.pro_index][7] = self.ui.leftRing4LE.text()
 
-        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()[2:]
+        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()
         self.data[self.pro_index][9] = self.ui.rightRing2DE.date()
         self.data[self.pro_index][10] = self.ui.rightRing3TE.time()
         self.data[self.pro_index][11] = self.ui.rightRing4LE.text()
 
-        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()[2:]
+        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()
         self.data[self.pro_index][13] = self.ui.centerRing2DE.date()
         self.data[self.pro_index][14] = self.ui.centerRing3TE.time()
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
@@ -3740,74 +3740,59 @@ class panelGUI(QMainWindow):
         # covers
         if data[1] is not None:
             self.ui.left_cover_6.setText(str(data[1]))
-            self.ui.left_cover_6.setDisabled(True)
         if data[2] is not None:
             self.ui.right_cover_6.setText(str(data[2]))
-            self.ui.right_cover_6.setDisabled(True)
         if data[3] is not None:
             self.ui.center_cover_6.setText(str(data[3]))
-            self.ui.center_cover_6.setDisabled(True)
 
         # left ring
         # OL **** - data[4] is just the 4 digits, not the OL
         if data[4] is not None:
             self.ui.leftRing1LE.setText(str(data[4]))
-            self.ui.leftRing1LE.setDisabled(True)
         # ddMMMyy - days, months (string), year
         if data[5] is not None:
             dd = int(data[5][:2])    # day
             mMM = int(monthStrToInt[data[5][2:5]])  # month
             yy = int(data[5][5:7]) + 2000   # year
             self.ui.leftRing2DE.setDate(QDate(yy,mMM,dd))
-            self.ui.leftRing2DE.setDisabled(True)
         # HHmm - hours and minutes
         if data[6] is not None:
             hH = int(data[6][:2]) # hour
             mm = int(data[6][2:]) # minute
             self.ui.leftRing3TE.setTime(QTime(hH,mm))
-            self.ui.leftRing3TE.setDisabled(True)
         # regex(dddddD) - five digits and a letter
         if data[7] is not None:
             self.ui.leftRing4LE.setText(str(data[7]))
-            self.ui.leftRing4LE.setDisabled(True)
         
         # right ring
         if data[8] is not None:
             self.ui.rightRing1LE.setText(str(data[8]))
-            self.ui.rightRing1LE.setDisabled(True)
         if data[9] is not None:
             dd = int(data[9][:2])    # day
             mMM = int(monthStrToInt[data[9][2:5]])  # month
             yy = int(data[9][5:7]) + 2000   # year
             self.ui.rightRing2DE.setDate(QDate(yy,mMM,dd))
-            self.ui.rightRing2DE.setDisabled(True)
         if data[10] is not None:
             hH = int(data[10][:2]) # hour
             mm = int(data[10][2:]) # minute
             self.ui.rightRing3TE.setTime(QTime(hH,mm))
-            self.ui.rightRing3TE.setDisabled(True)
         if data[11] is not None:
             self.ui.rightRing4LE.setText(str(data[11]))
-            self.ui.rightRing4LE.setDisabled(True)
 
         # center ring
         if data[12] is not None:
             self.ui.centerRing1LE.setText(str(data[12]))
-            self.ui.centerRing1LE.setDisabled(True)
         if data[13] is not None:
             dd = int(data[13][:2])    # day
             mMM = int(monthStrToInt[data[13][2:5]])  # month
             yy = int(data[13][5:7]) + 2000   # year
             self.ui.centerRing2DE.setDate(QDate(yy,mMM,dd))
-            self.ui.centerRing2DE.setDisabled(True)
         if data[14] is not None:
             hH = int(data[14][:2]) # hour
             mm = int(data[14][2:]) # minute
             self.ui.centerRing3TE.setTime(QTime(hH,mm))
-            self.ui.centerRing3TE.setDisabled(True)
         if data[15] is not None:
             self.ui.centerRing4LE.setText(str(data[15]))
-            self.ui.centerRing4LE.setDisabled(True)
 
         self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
 
@@ -5024,7 +5009,6 @@ class panelGUI(QMainWindow):
             self.ui.centerRing2DE.setFocus()
             return
 
-        # Disable start button, panel input, and part inputs
         for wid in [
                 self.ui.left_cover_6,
                 self.ui.right_cover_6,

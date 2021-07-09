@@ -1817,13 +1817,13 @@ class SQLDataProcessor(DataProcessor):
 
         # rings consist of a line edit, then a date input, then another line edit
         # left ring example: OL 1538 25Oct19 0954 79042A
-        lRing = f'{data[4]}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
+        lRing = f'{self.stripNumber(data[4])}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
         self.callMethod(self.procedure.recordLeftRing, lRing)
         # rRing = data[7:10]
-        rRing = f'{data[8]}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
+        rRing = f'{self.stripNumber(data[8])}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
         self.callMethod(self.procedure.recordRightRing, rRing)
         # rRing = data[10:13]
-        cRing = f'{data[12]}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
+        cRing = f'{self.stripNumber(data[12])}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
         self.callMethod(self.procedure.recordCenterRing, cRing)
 
         self.callMethod(self.procedure.recordStage,data[16])
@@ -2617,7 +2617,6 @@ class SQLDataProcessor(DataProcessor):
         #    "hi",
         #    str(self.procedure.getCenterRing())[15:]
         #)
-        print(self.procedure.getLeftRing())
         return [
             self.getBarcode(panel),
             self.procedure.getLeftCover(),
