@@ -2623,20 +2623,20 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.getCenterCover(),
 
             # 8888 01Jan07 0000 66666A
-            str(self.procedure.getLeftRing())[2:6] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[6:13] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[13:17] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[17:] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[:4] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[4:11] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[11:15] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[15:] if self.procedure.getLeftRing() is not None else None,
 
-            str(self.procedure.getRightRing())[2:6] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[6:13] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[13:17] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[17:] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[:4] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[4:11] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[11:15] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[15:] if self.procedure.getRightRing() is not None else None,
 
-            str(self.procedure.getCenterRing())[2:6] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[6:13] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[13:17] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[17:] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[:4] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[4:11] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[11:15] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[15:] if self.procedure.getCenterRing() is not None else None,
         ]
 
 
