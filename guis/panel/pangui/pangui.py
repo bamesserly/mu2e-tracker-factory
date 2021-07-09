@@ -3739,16 +3739,16 @@ class panelGUI(QMainWindow):
 
         # covers
         if data[1] is not None:
-            self.ui.left_cover_6.setText(str(data[1]))
+            self.ui.left_cover_6.setText("LCOV"+str(data[1]))
         if data[2] is not None:
-            self.ui.right_cover_6.setText(str(data[2]))
+            self.ui.right_cover_6.setText("RCOV"+str(data[2]))
         if data[3] is not None:
-            self.ui.center_cover_6.setText(str(data[3]))
+            self.ui.center_cover_6.setText("CCOV"+str(data[3]))
 
         # left ring
         # OL **** - data[4] is just the 4 digits, not the OL
         if data[4] is not None:
-            self.ui.leftRing1LE.setText(str(data[4]))
+            self.ui.leftRing1LE.setText("OL"+(str(data[4])).zfill(3))
         # ddMMMyy - days, months (string), year
         if data[5] is not None:
             dd = int(data[5][:2])    # day
@@ -3766,7 +3766,7 @@ class panelGUI(QMainWindow):
         
         # right ring
         if data[8] is not None:
-            self.ui.rightRing1LE.setText(str(data[8]))
+            self.ui.rightRing1LE.setText("OL"+(str(data[8])).zfill(3))
         if data[9] is not None:
             dd = int(data[9][:2])    # day
             mMM = int(monthStrToInt[data[9][2:5]])  # month
@@ -3781,7 +3781,7 @@ class panelGUI(QMainWindow):
 
         # center ring
         if data[12] is not None:
-            self.ui.centerRing1LE.setText(str(data[12]))
+            self.ui.centerRing1LE.setText("OS"+(str(data[12])).zfill(3))
         if data[13] is not None:
             dd = int(data[13][:2])    # day
             mMM = int(monthStrToInt[data[13][2:5]])  # month
@@ -3795,6 +3795,13 @@ class panelGUI(QMainWindow):
             self.ui.centerRing4LE.setText(str(data[15]))
 
         self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
+        if data[16] == "LeakTest":
+            self.resolvingLeak = "LeakTest"
+        else:
+            self.resolvingLeak = "Methane"
+
+        self.ui.submitCoversPB.setEnabled(True)
+        self.ui.submitRingsPB.setEnabled(True)
 
         self.displayComments()
 
