@@ -519,7 +519,7 @@
               </sizepolicy>
              </property>
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="p1IR">
               <layout class="QGridLayout" name="gridLayout_15">
@@ -2850,7 +2850,7 @@ Heater GUI</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>0</width>
+                     <width>260</width>
                      <height>0</height>
                     </size>
                    </property>

@@ -477,7 +477,7 @@ class panelGUI(QMainWindow):
             menu1 = QComboBox(self.ui.scrollAreaWidgetContents)
             menu1.addItems(rcItems)
             menu1.setObjectName(f"continuity_{str(i).zfill(2)}")
-            menu1.setFixedWidth(50)
+            menu1.setFixedWidth(100)
             menu1.currentIndexChanged.connect(
                 lambda changed, index=i: checkSaveContinuity(index)
             )
@@ -3236,6 +3236,10 @@ class panelGUI(QMainWindow):
         # display comments
         self.displayComments()
 
+        # ensure wire spool input is enabled if nothing has been entered yet
+        if self.ui.wireInput.text() == "":
+            self.ui.wireInput.setEnabled(True)
+
     def parsePro4Data(self, data):
         # PANEL INPUT
         if data[0] is not None:  # if panel input data exists
@@ -4267,12 +4271,12 @@ class panelGUI(QMainWindow):
 
         # If all tests pass, continue
 
-        # Disable start button, panel input, and wire input, and don't let user input calibration factor
+        # Disable start button, panel input, and don't let user input calibration factor
         self.ui.panelInput3_2.setText("")
         self.ui.panelInput3_2.setDisabled(True)
         # panelInput3_2 is the calibration factor display line.  Should be renamed later.
         self.setWidgetsDisabled(
-            [self.ui.startbutton3, self.ui.panelInput3, self.ui.wireInput]
+            [self.ui.startbutton3, self.ui.panelInput3]
         )
 
         # Enable wire tensioner button
