@@ -1,5 +1,9 @@
+#===============================================================================
+# Load a heat CSV file into the database
+#===============================================================================
+
 import sqlalchemy as sqla  # for interacting with db
-import sys
+import sys, csv
 
 kPROCESSES = list(range(1, 8))
 
@@ -10,25 +14,27 @@ except ImportError:
     import importlib_resources as pkg_resources
 import data, resources
 
+from guis.common.getresources import GetProjectPaths
+
 
 def LoadLocalDatabasePath():
     with pkg_resources.path(data, "database.db") as p:
         return str(p.resolve())
 
 
+# Given a panel and process, access the DB to get the procedure ID
 def GetProcedureID(connection, panel, process):
     assert isinstance(panel, int) and panel <= 999
     assert process in kPROCESSES
     query = f"""
     SELECT procedure.id from procedure
     INNER JOIN straw_location on procedure.straw_location = straw_location.id
-    WHERE straw_location.location_type = "MN" 
-    AND straw_location.number = {panel} 
+    WHERE straw_location.location_type = "MN"
+    AND straw_location.number = {panel}
     AND procedure.station = "pan{process}"
     """
-    # print(query)
     result = connection.execute(query)
-    result = result.fetchall()[0][0]
+    result = result.first()[0]
     return result
 
 
@@ -54,15 +60,31 @@ def run():
     if db_check:
         sys.exit("DB not verified, exiting")
 
+
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
 
-    connection = engine.connect()  # connect engine with DB
+    with engine.connect() as connection:
 
-    pid = GetProcedureID(connection, panel=52, process=1)
+        pid = GetProcedureID(connection, panel=100, process=1)
 
-    WriteTempsToDB(connection, pid, t1=888, t2=888, timestamp=1598066667)
+        data_file = GetProjectPaths()["heatdata"] / "MN142_2021-07-01.csv"
 
-    connection.close()
+        with open (data_file,'r') as f:
+            dr = csv.DictReader(f)
+
+            # an entry of dr looks like:
+            # OrderedDict([('Date', '2021-07-02_073223'), ('PAASA_Temp[C]', '-242.02'), ('2ndPAAS_Temp[C]', '-99.00'), ('Epoc', '1625229143.7965412')])
+            to_db = [(pid, i['PAASA_Temp[C]'], i['2ndPAAS_Temp[C]'], int(float(i['Epoc']))) for i in dr]
+
+            to_db = to_db[:5]
+
+            connection.executemany("INSERT INTO panel_heat (procedure, temp_paas_a, temp_paas_b, timestamp) VALUES (?, ?, ?, ?);", to_db)
+
+            #for i in to_db:
+            #    print(i)
+        #WriteTempsToDB(connection, pid, t1=888, t2=888, timestamp=1598066667)
+
+        #to_db = [for i in dr]
 
 
 """
