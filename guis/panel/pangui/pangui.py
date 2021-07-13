@@ -477,7 +477,7 @@ class panelGUI(QMainWindow):
             menu1 = QComboBox(self.ui.scrollAreaWidgetContents)
             menu1.addItems(rcItems)
             menu1.setObjectName(f"continuity_{str(i).zfill(2)}")
-            menu1.setFixedWidth(185)
+            menu1.setFixedWidth(50)
             menu1.currentIndexChanged.connect(
                 lambda changed, index=i: checkSaveContinuity(index)
             )
@@ -490,7 +490,7 @@ class panelGUI(QMainWindow):
             menu2 = QComboBox(self.ui.scrollAreaWidgetContents)
             menu2.addItems(lcItems)
             menu2.setObjectName(f"wire_alignment_{str(i).zfill(2)}")
-            menu2.setFixedWidth(184)
+            menu2.setFixedWidth(100)
             menu2.setCurrentIndex(0)
             menu2.currentIndexChanged.connect(
                 lambda changed, index=i: checkSaveContinuity(index)
@@ -1965,7 +1965,7 @@ class panelGUI(QMainWindow):
             "QComboBox, QComboBox QAbstractItemView { "
             + f"color: rgb{text_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
             + " }"
-            f'QStatusBar {"{"}color: rgb{text_color}{"}"}'
+            f'QStatusBar, QSplitter {"{"}color: rgb{text_color}{"}"}'
         )
 
         self.application.setStyleSheet(stylesheet)
