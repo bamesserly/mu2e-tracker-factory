@@ -12,7 +12,7 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 # Resources folder: where the paths.csv file is stored.
-import resources
+import resources, data
 
 
 # Get a dictionary containing the important paths for this project.
@@ -29,3 +29,8 @@ def GetProjectPaths():
     root = pkg_resources.read_text(resources, "rootDirectory.txt")
     paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
     return paths
+
+
+def GetLocalDatabasePath():
+    with pkg_resources.path(data, "database.db") as p:
+        return str(p.resolve())
