@@ -202,7 +202,10 @@ class DataThread(threading.Thread):
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
-        outfilename = panel + "_" + dt.now().strftime("%Y-%m-%d") + ".csv"
+        proc_str = {"0": "pro1", "b": "pro2", "c": "pro6"}[paastype.decode()]
+        outfilename = (
+            panel + "_" + dt.now().strftime("%Y-%m-%d") + "_" + proc_str + ".csv"
+        )
         self.datafile = GetProjectPaths()["heatdata"] / outfilename
         ## create file if needed and write header
         if not self.datafile.is_file():
@@ -364,6 +367,12 @@ def getport(hardwareID):
 def run():
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
+
+    # When running standalone, overwrite the logger
+    from guis.common.panguilogger import SetupPANGUILogger
+
+    logger = SetupPANGUILogger("root", "HeaterStandalone")
+
     logger.info("Arduino Micro at {}".format(port))
 
     # view traceback if error causes GUI to crash
@@ -377,7 +386,4 @@ def run():
 
 
 if __name__ == "__main__":
-    from guis.common.panguilogger import SetupPANGUILogger
-
-    logger = SetupPANGUILogger("root", "HeaterStandalone")
     run()
