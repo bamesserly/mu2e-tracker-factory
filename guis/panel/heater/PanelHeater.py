@@ -202,7 +202,7 @@ class DataThread(threading.Thread):
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
-        outfilename = panel + "_" + dt.now().strftime("%Y-%m-%d") + ".csv"
+        outfilename = panel + "_" + dt.now().strftime("%Y-%m-%d") + "_" + paastype + ".csv"
         self.datafile = GetProjectPaths()["heatdata"] / outfilename
         ## create file if needed and write header
         if not self.datafile.is_file():
