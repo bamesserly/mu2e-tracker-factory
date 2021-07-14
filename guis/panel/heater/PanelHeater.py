@@ -367,6 +367,12 @@ def getport(hardwareID):
 def run():
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
+
+    # When running standalone, overwrite the logger
+    from guis.common.panguilogger import SetupPANGUILogger
+
+    logger = SetupPANGUILogger("root", "HeaterStandalone")
+
     logger.info("Arduino Micro at {}".format(port))
 
     # view traceback if error causes GUI to crash
@@ -380,7 +386,4 @@ def run():
 
 
 if __name__ == "__main__":
-    from guis.common.panguilogger import SetupPANGUILogger
-
-    logger = SetupPANGUILogger("root", "HeaterStandalone")
     run()
