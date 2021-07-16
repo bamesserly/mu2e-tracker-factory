@@ -1,4 +1,4 @@
-import guis.panel.heater.PanelHeater as heatergui
+import guis.panel.heater.launch_sa_heater as heatergui
 import guis.panel.heater.simple_monitor as monitor
 from sys import argv
 
