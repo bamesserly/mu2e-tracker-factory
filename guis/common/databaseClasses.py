@@ -1722,6 +1722,8 @@ class Pan8Procedure(PanelProcedure):
             center_ring = Column(String)
             right_ring = Column(String)
 
+            stage = Column(String)
+
         return Details
 
     def getLeftCover(self):
@@ -1765,6 +1767,13 @@ class Pan8Procedure(PanelProcedure):
     def recordCenterRing(self, center_ring):
         self.details.center_ring = center_ring
         self.commit()
+
+    def recordStage(self, stage):
+        self.details.stage = stage
+        self.commit()
+
+    def getStage(self):
+        return self.details.stage
 
 
 """
