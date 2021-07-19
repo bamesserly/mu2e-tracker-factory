@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import traceback
 import threading
+from tests.load_heat_csv_into_db import run as load_into_db
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -204,10 +205,16 @@ class DataThread(threading.Thread):
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
-        proc_str = {"0": "pro1", "b": "pro2", "c": "pro6"}[paastype.decode()]
+        self.pro = {"0": 1, "b": 2, "c": 6}[paastype.decode()]
         outfilename = (
-            panel + "_" + dt.now().strftime("%Y-%m-%d") + "_" + proc_str + ".csv"
+            panel
+            + "_"
+            + dt.now().strftime("%Y-%m-%d")
+            + "_pro"
+            + str(self.pro)
+            + ".csv"
         )
+        self.panel = int(panel[2:])
         self.datafile = GetProjectPaths()["heatdata"] / outfilename
         ## create file if needed and write header
         if not self.datafile.is_file():
@@ -274,6 +281,11 @@ class DataThread(threading.Thread):
         ## close serial if thread joined
         if self.micro:
             self.micro.close()
+            try:
+                load_into_db(self.panel, self.pro)
+            except AssertionError as e:
+                print("failed")
+                print(e)
 
     def savedata(self):
         # print('setpoint in thread',self.setpt)

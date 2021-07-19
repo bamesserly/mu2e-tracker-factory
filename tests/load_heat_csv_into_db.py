@@ -4,6 +4,7 @@
 
 import sqlalchemy as sqla  # for interacting with db
 import sys, csv
+from datetime import datetime as dt
 
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
@@ -39,7 +40,7 @@ def WriteSingleMeasurementToDB(connection, pid, t1, t2, timestamp):
     # con.commit()
 
 
-def run():
+def run(panel=109, process=1):
     database = GetLocalDatabasePath()
 
     print(f"Writing to {database}")
@@ -51,14 +52,20 @@ def run():
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
 
     with engine.connect() as connection:
-        panel = 109
-        process = 1
-
-        pid = GetProcedureID(connection, panel, process)
+        pid = GetProcedureID(connection, int(panel), int(process))
 
         print(f"Found procedure ID for panel {panel} process {process}: {pid}")
 
-        data_file = "MN109_2021-04-02.csv"
+        # data_file = "MN109_2021-04-02.csv"
+        data_file = (
+            "MN"
+            + str(panel)
+            + "_"
+            + dt.now().strftime("%Y-%m-%d")
+            + "_pro"
+            + str(process)
+            + ".csv"
+        )
 
         data_file = GetProjectPaths()["heatdata"] / data_file
 
@@ -70,7 +77,7 @@ def run():
             print(f"data file {data_file} not found!")
 
         query = """
-        INSERT INTO panel_heat (procedure, temp_paas_a, temp_paas_bc, timestamp)
+        INSERT OR IGNORE INTO panel_heat (procedure, temp_paas_a, temp_paas_bc, timestamp)
         VALUES (?, ?, ?, ?);
         """
 

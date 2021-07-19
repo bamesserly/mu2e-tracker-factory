@@ -73,7 +73,7 @@ def run():
 
     # GUI
     app = QApplication(sys.argv)
-    ctr = HeatControl(port, panel=f"MN{panelid}")
+    ctr = HeatControl(port, panel=f"MN{panelid}", saveMethod=lambda a, b: None)
     ctr.show()
     app.exec_()
 
