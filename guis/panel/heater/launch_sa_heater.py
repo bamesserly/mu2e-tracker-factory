@@ -1,3 +1,8 @@
+# ===============================================================================
+# Launch the paas heater gui, which controls the heater arduino box.
+# Save the data to a csv file in
+# data/Panel\ Data/external_gui_data/heat_control_data
+# ===============================================================================
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.common.panguilogger import SetupPANGUILogger
 from PyQt5.QtWidgets import QApplication

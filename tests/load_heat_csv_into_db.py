@@ -40,10 +40,10 @@ def WriteSingleMeasurementToDB(connection, pid, t1, t2, timestamp):
     # con.commit()
 
 
-def run(panel=109, process=1):
+def run(panel, process):
     database = GetLocalDatabasePath()
 
-    print(f"Writing to {database}")
+    print(f"Writing to heat data to local database {database}")
 
     db_check = input("PRESS <ENTER> TO VERIFY THIS DATABASE, ELSE PRESS CTRL-C\n")
     if db_check:

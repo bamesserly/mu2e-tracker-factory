@@ -40,6 +40,29 @@ class HeatControl(QMainWindow):
         self, port, panel, wait=120000, ndatapts=450, parent=None, saveMethod=None
     ):
         super(HeatControl, self).__init__(parent)
+
+        # Identify standalone mode and upload txt data to db accordingly
+        import inspect
+
+        parents = inspect.stack()
+        self.load_text_data_to_db = len(
+            [i for i in parents if "launch_sa_heater" in str(i)]
+        )
+        if self.load_text_data_to_db:
+            logger.info("Heater launched separately from PANGUI.")
+            logger.info("Live data will be saved to a txt file only.")
+            logger.info(
+                "When the End Data Collection button is pressed, the txt "
+                "data will be loaded into the local database."
+            )
+        elif len([i for i in parents if "pangui" in str(i)]):
+            logger.warning("Heater launched as a child to PANGUI.")
+            logger.warning(
+                "Data is (probably) being saved directly to the local"
+                "database, and this program is subject to the fragility of"
+                "automerging to the network."
+            )
+
         if port == "GUI":  # PANGUI doesn't have a get port function
             port = getport("VID:PID=2341:8037")  # opened in PANGUI w/ port = "GUI"
         self.port = port
@@ -69,7 +92,7 @@ class HeatControl(QMainWindow):
 
         ## user choice temperature setpoint
         self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
-        logger.info("initialized")
+        logger.info("HeatControl fully initialized")
 
     def saveMethod_placeholder(self):
         ## self.tempArec = PAAS-A temperatures
@@ -128,7 +151,9 @@ class HeatControl(QMainWindow):
 
         ## run data collection from separate thread to avoid freezing GUI
         self.interval.timeout.connect(self.next)  # call next @ every timeout
-        self.hct = DataThread(self.micro, self.panel, self.paastype, self.setpt)
+        self.hct = DataThread(
+            self.micro, self.panel, self.paastype, self.setpt, self.load_text_data_to_db
+        )
         self.hct.start()
         self.interval.start(self.wait)  # begin timeouts every wait secs
 
@@ -198,13 +223,14 @@ class HeatControl(QMainWindow):
 class DataThread(threading.Thread):
     """Read data from Arduino in temperature control box"""
 
-    def __init__(self, micro, panel, paastype, setpoint):
+    def __init__(self, micro, panel, paastype, setpoint, load_text_data_to_db):
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
+        self.load_text_data_to_db = load_text_data_to_db
         self.pro = {"0": 1, "b": 2, "c": 6}[paastype.decode()]
         outfilename = (
             panel
@@ -281,11 +307,8 @@ class DataThread(threading.Thread):
         ## close serial if thread joined
         if self.micro:
             self.micro.close()
-            try:
+            if self.load_text_data_to_db:
                 load_into_db(self.panel, self.pro)
-            except AssertionError as e:
-                print("failed")
-                print(e)
 
     def savedata(self):
         # print('setpoint in thread',self.setpt)
