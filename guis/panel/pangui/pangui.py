@@ -57,7 +57,7 @@ from PyQt5.QtCore import (
     QEvent,
     pyqtBoundSignal,
     pyqtSlot,
-    QDate,
+    QDate
 )
 from PyQt5.QtGui import (
     QRegularExpressionValidator,
@@ -85,9 +85,7 @@ from PyQt5.QtWidgets import (
 try:
     import pyqtgraph
 except:
-    logger.warning(
-        "pyqtgraph not installed, run the following output line on the terminal"
-    )
+    logger.warning("pyqtgraph not installed, run the following output line on the terminal")
     logger.info("pip install pyqtgraph --user")
 
 # the next import is the class for the ui
@@ -313,7 +311,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 17}
+        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 16}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -795,48 +793,19 @@ class panelGUI(QMainWindow):
         self.ui.launch_resistance_test.clicked.connect(self.run_resistance)
         self.ui.launch_leak_test.clicked.connect(self.run_plot_leak)
         self.ui.bad_wire_form.clicked.connect(self.bad_wire_form)
-        self.ui.submitCoversPB.clicked.connect(self.saveData)
-        self.ui.submitRingsPB.clicked.connect(self.saveData)
-        self.ui.submitCoversPB.setDisabled(True)
-        self.ui.submitRingsPB.setDisabled(True)
-        # connect checkboxes to pick one or the other, not both
+        self.ui.leak_form_submit.clicked.connect(self.leak_form)
         self.ui.wireCheck.toggled.connect(
-            lambda: self.ui.strawCheck.setChecked(not (self.ui.wireCheck.isChecked()))
-        )
+            lambda: self.ui.strawCheck.setChecked(not(self.ui.wireCheck.isChecked()))
+            )
         self.ui.strawCheck.toggled.connect(
-            lambda: self.ui.wireCheck.setChecked(not (self.ui.strawCheck.isChecked()))
-        )
+            lambda: self.ui.wireCheck.setChecked(not(self.ui.strawCheck.isChecked()))
+            )
         self.ui.inflated_no.toggled.connect(
-            lambda: self.ui.inflated_yes.setChecked(
-                not (self.ui.inflated_no.isChecked())
+            lambda: self.ui.inflated_yes.setChecked(not(self.ui.inflated_no.isChecked()))
             )
-        )
         self.ui.inflated_yes.toggled.connect(
-            lambda: self.ui.inflated_no.setChecked(
-                not (self.ui.inflated_yes.isChecked())
+            lambda: self.ui.inflated_no.setChecked(not(self.ui.inflated_yes.isChecked()))
             )
-        )
-
-        # nav buttons
-        # prep complete
-        self.ui.prepCompletePB.clicked.connect(self.pro8PrepFin)
-        self.ui.prepCompletePB.setDisabled(True)
-        # methane pass/fail/back
-        self.ui.leakPassPB.clicked.connect(self.pro8MethanePass)
-        self.ui.leakFailPB.clicked.connect(self.pro8MethaneFail)
-        # self.ui.methBackPB.clicked.connect()
-        # leak pass/fail/back
-        self.ui.realLeakPassPB.clicked.connect(self.pro8LeakTestPass)
-        self.ui.realLeakFailPB.clicked.connect(self.pro8LeakTestFail)
-        # resolution submit
-        self.ui.submitResoPB.clicked.connect(self.pro8ResolutionSubmit)
-        self.ui.resoBackPB.clicked.connect(self.pro8ResolutionBack)
-        # ship/back to tests
-        self.ui.shippingPB.clicked.connect(self.pro8ToShipping)
-        self.ui.shipBackPB.clicked.connect(self.pro8BackToTests)
-        # test options
-        self.ui.leakReTestPB.clicked.connect(self.pro8LeakReTest)
-        self.ui.methReTestPB.clicked.connect(self.pro8MethReTest)
 
     def _init_timers(self):
         self.timers = [
@@ -994,8 +963,7 @@ class panelGUI(QMainWindow):
             self.ui.anchorFail,
             self.ui.strawFail,
             self.ui.pinFail,
-            self.ui.tapFail,
-            self.ui.screwFail,
+            self.ui.tapFail
         ]
         self.ui.failureComments.setDisabled(True)
         self.ui.failureComments.textChanged.connect(
@@ -1298,7 +1266,7 @@ class panelGUI(QMainWindow):
                 self.ui.centerRing1LE,
                 self.ui.centerRing2DE,
                 self.ui.centerRing3TE,
-                self.ui.centerRing4LE,
+                self.ui.centerRing4LE
             ],
         ]
 
@@ -1443,7 +1411,7 @@ class panelGUI(QMainWindow):
                     widget.setStyleSheet("")
 
             except KeyError:
-                logger.warning(f"Key error in input validation (caught exception)")
+                logger.warning(f'Key error in input validation (caught exception)')
                 pass
 
         return all(results)
@@ -1654,7 +1622,7 @@ class panelGUI(QMainWindow):
 
         self.displayComments()
 
-        logger.info(f"Panel {self.getCurrentPanel()} pro {self.pro} now running")
+        logger.info(f'Panel {self.getCurrentPanel()} pro {self.pro} now running')
 
     """
     stopRunning(self)
@@ -1696,7 +1664,7 @@ class panelGUI(QMainWindow):
             self.ui.proReturnButton.setDisabled(False)
             self.finishButton.setDisabled(True)
 
-            logger.info(f"Panel {self.getCurrentPanel()} pro {self.pro} finished")
+            logger.info(f'Panel {self.getCurrentPanel()} pro {self.pro} finished')
 
             # Go back to the pro select page
             self.backToproSelect()
@@ -1750,8 +1718,8 @@ class panelGUI(QMainWindow):
             if self.pro == 1 and not self.data[0][22]:
                 return
             self.finishButton.setText("Finish")
-
-        logger.info(f"Panel {self.getCurrentPanel()} pro {self.pro} resumed")
+        
+        logger.info(f'Panel {self.getCurrentPanel()} pro {self.pro} resumed')
 
     """
     backToproSelect(self)
@@ -2130,7 +2098,6 @@ class panelGUI(QMainWindow):
             self.ui.strawFail.setCurrentIndex(0)
             self.ui.pinFail.setCurrentIndex(0)
             self.ui.tapFail.setCurrentIndex(0)
-            self.ui.screwFail.setCurrentIndex(0)
             self.ui.positionSelectTab.setCurrentIndex(0)
             self.ui.failureComments.setPlainText("")
             self.ui.failureComments.setDisabled(True)
@@ -2170,10 +2137,8 @@ class panelGUI(QMainWindow):
             pass
         except Exception:
             # If saving the failure is unsuccessful, display message and return early.
-            logger.error(f"Unable to submit failure (caught exception)")
-            logger.info(
-                f"Previous unsaved failure for panel {self.getCurrentPanel()}, pro {self.pro}: {comment}"
-            )
+            logger.error(f'Unable to submit failure (caught exception)')
+            logger.info(f'Previous unsaved failure for panel {self.getCurrentPanel()}, pro {self.pro}: {comment}')
             self.ui.failStatus.setText("Unable to submit failure")
             return
 
@@ -2283,7 +2248,7 @@ class panelGUI(QMainWindow):
                     )
                 else:
                     # Record login with data processor
-                    logger.info(f"{Current_worker} logged in")
+                    logger.info(f'{Current_worker} logged in')
                     self.DP.saveLogin(Current_worker)
                     # Gui Operations
                     self.Current_workers[portalNum].setText(Current_worker)
@@ -2295,8 +2260,9 @@ class panelGUI(QMainWindow):
             Current_worker = self.Current_workers[portalNum].text().strip().upper()
 
             if Current_worker != "":
-                logger.info(f"{Current_worker} logged out")
+                logger.info(f'{Current_worker} logged out')
                 self.DP.saveLogout(Current_worker)
+                
 
             self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
@@ -2365,10 +2331,8 @@ class panelGUI(QMainWindow):
         try:
             pass
         except Exception:
-            logger.error(f"Unable to save panel data (caught exception)")
-            logger.info(
-                f"Previous unsaved data for panel {self.getCurrentPanel()}, pro {self.pro}: {self.data}"
-            )
+            logger.error(f'Unable to save panel data (caught exception)')
+            logger.info(f'Previous unsaved data for panel {self.getCurrentPanel()}, pro {self.pro}: {self.data}')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save data."
             )
@@ -2441,10 +2405,8 @@ class panelGUI(QMainWindow):
         try:
             self.DP.saveStep(name)
         except Exception:
-            logger.error(f"Unable to save step completion (caught exception)")
-            logger.info(
-                f"Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {name}"
-            )
+            logger.error(f'Unable to save step completion (caught exception)')
+            logger.info(f'Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {name}')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
@@ -2489,10 +2451,8 @@ class panelGUI(QMainWindow):
             )  # try to save comment
         except Exception:
             # If it fails, generate a message box and return
-            logger.warning(f"Unable to save comment (caught exception)")
-            logger.info(
-                f"Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {comments}"
-            )
+            logger.warning(f'Unable to save comment (caught exception)')
+            logger.info(f'Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {comments}')
             self.generateBox(
                 "critical", "Save Error", "Error encountered trying to save comments."
             )
@@ -2725,6 +2685,7 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][14] = self.ui.centerRing3TE.time()
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
 
+
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
     # ██║     ██╔═══██╗██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -2907,12 +2868,10 @@ class panelGUI(QMainWindow):
         for index, measurements in enumerate(data):
             cont_str, wire_align_str = measurements
             if cont_str is not None and wire_align_str is not None:
-                exCaught = exCaught or self.displayContinuityMeasurement(
-                    index, cont_str, wire_align_str
-                )
-
+                exCaught = exCaught or self.displayContinuityMeasurement(index, cont_str, wire_align_str)
+        
         if exCaught:
-            logger.info(f"Old panel data loaded in process 3 (caught exception)")
+            logger.info(f'Old panel data loaded in process 3 (caught exception)')
 
     def displayContinuityMeasurement(self, index, continuity_str, wire_align_str):
         # keep track of exceptions, if we logged one in the try/except it would
@@ -3572,9 +3531,7 @@ class panelGUI(QMainWindow):
                     "Data Processor Error",
                     "SQL Processor inactive, BP/IR epoxy timer may not function.",
                 )
-                logger.warning(
-                    f"SQL processor inactive, timers may not funciton (caught exception)"
-                )
+                logger.warning(f'SQL processor inactive, timers may not funciton (caught exception)')
             self.timers[6].setElapsedTime(elapsed_time)
             if running:
                 self.startTimer(6)
@@ -3602,9 +3559,7 @@ class panelGUI(QMainWindow):
                     "Data Processor Error",
                     "SQL Processor inactive, Frame epoxy timer may not function.",
                 )
-                logger.warning(
-                    f"SQL processor inactive, timers may not funciton (caught exception)"
-                )
+                logger.warning(f'SQL processor inactive, timers may not funciton (caught exception)')
             self.timers[7].setElapsedTime(elapsed_time)
             if running:
                 self.startTimer(7)
@@ -3633,9 +3588,7 @@ class panelGUI(QMainWindow):
                     "Data Processor Error",
                     "SQL Processor inactive, heating timer may not function.",
                 )
-                logger.warning(
-                    f"SQL processor inactive, timers may not funciton (caught exception)"
-                )
+                logger.warning(f'SQL processor inactive, timers may not funciton (caught exception)')
             self.timers[8].setElapsedTime(elapsed_time)
             if running:
                 self.startTimer(8)
@@ -3735,25 +3688,12 @@ class panelGUI(QMainWindow):
     def parsepro8Data(self, data):
         # dict for converting month abbreviations to numbers
         monthStrToInt = {
-            "Jan": "01",
-            "Feb": "02",
-            "Mar": "03",
-            "Apr": "04",
-            "May": "05",
-            "Jun": "06",
-            "Jul": "07",
-            "Aug": "08",
-            "Sep": "09",
-            "Oct": "10",
-            "Nov": "11",
-            "Dec": "12",
-        }
-        stageStrtoInt = {
-            "Prep": 0,
-            "Limbo": 1,
-            "Leak": 2,
-            "Methane": 3,
-            "Shipping": 5,
+            "Jan": "01", "Feb": "02",
+            "Mar": "03", "Apr": "04",
+            "May": "05", "Jun": "06",
+            "Jul": "07", "Aug": "08",
+            "Sep": "09", "Oct": "10",
+            "Nov": "11", "Dec": "12",
         }
 
         # panel id
@@ -3763,69 +3703,76 @@ class panelGUI(QMainWindow):
 
         # covers
         if data[1] is not None:
-            self.ui.left_cover_6.setText("LCOV" + str(data[1]))
+            self.ui.left_cover_6.setText(str(data[1]))
+            self.ui.left_cover_6.setDisabled(True)
         if data[2] is not None:
-            self.ui.right_cover_6.setText("RCOV" + str(data[2]))
+            self.ui.right_cover_6.setText(str(data[2]))
+            self.ui.right_cover_6.setDisabled(True)
         if data[3] is not None:
-            self.ui.center_cover_6.setText("CCOV" + str(data[3]))
+            self.ui.center_cover_6.setText(str(data[3]))
+            self.ui.center_cover_6.setDisabled(True)
 
         # left ring
         # OL **** - data[4] is just the 4 digits, not the OL
         if data[4] is not None:
-            self.ui.leftRing1LE.setText("OL" + (str(data[4])).zfill(3))
+            self.ui.leftRing1LE.setText(str(data[4]))
+            self.ui.leftRing1LE.setDisabled(True)
         # ddMMMyy - days, months (string), year
+        print(data[5])
         if data[5] is not None:
-            dd = int(data[5][:2])  # day
+            dd = int(data[5][:2])    # day
             mMM = int(monthStrToInt[data[5][2:5]])  # month
-            yy = int(data[5][5:7]) + 2000  # year
-            self.ui.leftRing2DE.setDate(QDate(yy, mMM, dd))
+            yy = int(data[5][5:7]) + 2000   # year
+            self.ui.leftRing2DE.setDate(QDate(yy,mMM,dd))
+            self.ui.leftRing2DE.setDisabled(True)
         # HHmm - hours and minutes
         if data[6] is not None:
-            hH = int(data[6][:2])  # hour
-            mm = int(data[6][2:])  # minute
-            self.ui.leftRing3TE.setTime(QTime(hH, mm))
+            hH = int(data[6][:2]) # hour
+            mm = int(data[6][2:]) # minute
+            self.ui.leftRing3TE.setTime(QTime(hH,mm))
+            self.ui.leftRing3TE.setDisabled(True)
         # regex(dddddD) - five digits and a letter
         if data[7] is not None:
             self.ui.leftRing4LE.setText(str(data[7]))
-
+            self.ui.leftRing4LE.setDisabled(True)
+        
         # right ring
         if data[8] is not None:
-            self.ui.rightRing1LE.setText("OL" + (str(data[8])).zfill(3))
+            self.ui.rightRing1LE.setText(str(data[8]))
+            self.ui.rightRing1LE.setDisabled(True)
         if data[9] is not None:
-            dd = int(data[9][:2])  # day
+            dd = int(data[9][:2])    # day
             mMM = int(monthStrToInt[data[9][2:5]])  # month
-            yy = int(data[9][5:7]) + 2000  # year
-            self.ui.rightRing2DE.setDate(QDate(yy, mMM, dd))
+            yy = int(data[9][5:7]) + 2000   # year
+            self.ui.rightRing2DE.setDate(QDate(yy,mMM,dd))
+            self.ui.rightRing2DE.setDisabled(True)
         if data[10] is not None:
-            hH = int(data[10][:2])  # hour
-            mm = int(data[10][2:])  # minute
-            self.ui.rightRing3TE.setTime(QTime(hH, mm))
+            hH = int(data[10][:2]) # hour
+            mm = int(data[10][2:]) # minute
+            self.ui.rightRing3TE.setTime(QTime(hH,mm))
+            self.ui.rightRing3TE.setDisabled(True)
         if data[11] is not None:
             self.ui.rightRing4LE.setText(str(data[11]))
+            self.ui.rightRing4LE.setDisabled(True)
 
         # center ring
         if data[12] is not None:
-            self.ui.centerRing1LE.setText("OS" + (str(data[12])).zfill(3))
+            self.ui.centerRing1LE.setText(str(data[12]))
+            self.ui.centerRing1LE.setDisabled(True)
         if data[13] is not None:
-            dd = int(data[13][:2])  # day
+            dd = int(data[13][:2])    # day
             mMM = int(monthStrToInt[data[13][2:5]])  # month
-            yy = int(data[13][5:7]) + 2000  # year
-            self.ui.centerRing2DE.setDate(QDate(yy, mMM, dd))
+            yy = int(data[13][5:7]) + 2000   # year
+            self.ui.centerRing2DE.setDate(QDate(yy,mMM,dd))
+            self.ui.centerRing2DE.setDisabled(True)
         if data[14] is not None:
-            hH = int(data[14][:2])  # hour
-            mm = int(data[14][2:])  # minute
-            self.ui.centerRing3TE.setTime(QTime(hH, mm))
+            hH = int(data[14][:2]) # hour
+            mm = int(data[14][2:]) # minute
+            self.ui.centerRing3TE.setTime(QTime(hH,mm))
+            self.ui.centerRing3TE.setDisabled(True)
         if data[15] is not None:
             self.ui.centerRing4LE.setText(str(data[15]))
-
-        self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
-        if data[16] == "LeakTest":
-            self.resolvingLeak = "LeakTest"
-        else:
-            self.resolvingLeak = "Methane"
-
-        self.ui.submitCoversPB.setEnabled(True)
-        self.ui.submitRingsPB.setEnabled(True)
+            self.ui.centerRing4LE.setDisabled(True)
 
         self.displayComments()
 
@@ -4328,7 +4275,9 @@ class panelGUI(QMainWindow):
         self.ui.panelInput3_2.setText("")
         self.ui.panelInput3_2.setDisabled(True)
         # panelInput3_2 is the calibration factor display line.  Should be renamed later.
-        self.setWidgetsDisabled([self.ui.startbutton3, self.ui.panelInput3])
+        self.setWidgetsDisabled(
+            [self.ui.startbutton3, self.ui.panelInput3]
+        )
 
         # Enable wire tensioner button
         self.setWidgetsEnabled(
@@ -5018,194 +4967,45 @@ class panelGUI(QMainWindow):
             pass
 
     def pro8part1(self):
-        # used later for deciding how to save leak fixes
-        self.resolvingLeak = "Methane"
 
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
-
+            
         # Ensure that all input data is valid
         if not self.validateInput(indices=[0]):
             return
-        if self.ui.leftRing2DE.date() < QDate(QDate(2000, 1, 11)):
+        if self.ui.leftRing2DE.date() < QDate(QDate(2000,1,11)):
             self.ui.leftRing2DE.setFocus()
             return
-        if self.ui.rightRing2DE.date() < QDate(QDate(2000, 1, 11)):
+        if self.ui.rightRing2DE.date() < QDate(QDate(2000,1,11)):
             self.ui.rightRing2DE.setFocus()
             return
-        if self.ui.centerRing2DE.date() < QDate(QDate(2000, 1, 11)):
+        if self.ui.centerRing2DE.date() < QDate(QDate(2000,1,11)):
             self.ui.centerRing2DE.setFocus()
             return
 
+        # Disable start button, panel input, and part inputs
         for wid in [
-            self.ui.left_cover_6,
-            self.ui.right_cover_6,
-            self.ui.center_cover_6,
-            self.ui.leftRing1LE,
-            self.ui.leftRing2DE,
-            self.ui.leftRing3TE,
-            self.ui.leftRing4LE,
-            self.ui.rightRing1LE,
-            self.ui.rightRing2DE,
-            self.ui.rightRing3TE,
-            self.ui.rightRing4LE,
-            self.ui.centerRing1LE,
-            self.ui.centerRing2DE,
-            self.ui.centerRing3TE,
-            self.ui.centerRing4LE,
-        ]:
-            wid.editingFinished.connect(self.pro8TrySave)
+                self.ui.left_cover_6,
+                self.ui.right_cover_6,
+                self.ui.center_cover_6,
+                self.ui.leftRing1LE,
+                self.ui.leftRing2DE,
+                self.ui.leftRing3TE,
+                self.ui.leftRing4LE,
+                self.ui.rightRing1LE,
+                self.ui.rightRing2DE,
+                self.ui.rightRing3TE,
+                self.ui.rightRing4LE,
+                self.ui.centerRing1LE,
+                self.ui.centerRing2DE,
+                self.ui.centerRing3TE,
+                self.ui.centerRing4LE
+            ]:
+            wid.finishedEditing.connect(self.pro8TrySave)
 
         self.startRunning()
-        self.saveData()
-        self.ui.stackedWidget.setCurrentIndex(0)
-        self.ui.pro8StageLabel.setText("Current Stage: Prep")
-        self.ui.prepCompletePB.setFocus()
-        self.ui.submitCoversPB.setEnabled(True)
-        self.ui.submitRingsPB.setEnabled(True)
-        self.ui.prepCompletePB.setEnabled(True)
-        self.data[7][16] = "Prep"
-        self.saveData()
-
-    def pro8PrepFin(self):
-        self.ui.stackedWidget.setCurrentIndex(3)
-        self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-        self.ui.leak_location.setFocus()
-        # print(len(self.data))
-        # print(self.data)
-        self.data[7][16] = "Methane"
-        self.saveData()
-
-    def pro8MethanePass(self):
-        self.ui.stackedWidget.setCurrentIndex(2)
-        self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
-        self.resolvingLeak = "LeakTest"
-        self.ui.launch_leak_test_2.setFocus()
-        self.data[7][16] = "Leak"
-        self.saveData()
-
-    def pro8MethaneFail(self):
-        self.ui.resoBackPB.setEnabled(True)
-        self.ui.stackedWidget.setCurrentIndex(4)
-        self.ui.pro8StageLabel.setText("Current Stage: Resolution")
-        self.resolvingLeak = "Methane"
-        self.ui.resolutionPTE.setFocus()
-        self.data[7][16] = "Methane"
-        self.saveData()
-
-    def pro8ResolutionSubmit(self):
-        # make sure something is entered
-        if self.ui.resolutionPTE.toPlainText() == "":
-            self.generateBox(
-                "warning",
-                "No explanation entered",
-                "Please explain what was done to resolve the leak.",
-            )
-            return
-
-        if self.resolvingLeak == "LeakTest":
-            # save methane test form
-            self.DP.saveComment(
-                self.ui.resolutionPTE.toPlainText(), self.getCurrentPanel(), 8
-            )
-            self.ui.stackedWidget.setCurrentIndex(3)
-            self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-            self.ui.resolutionPTE.clear()
-            self.data[7][16] = "Methane"
-            self.saveData()
-
-        if self.resolvingLeak == "Methane":
-            # submit leak test info
-            self.DP.saveLeakForm(
-                f'{"O" if self.ui.reORingsCB.isChecked() else ""}{"L" if self.ui.reLeftCB.isChecked() else ""}{"R" if self.ui.reRightCB.isChecked() else ""}{"C" if self.ui.reCenterCB.isChecked() else ""}',
-                True if self.ui.inflated_yes.isChecked() else False,
-                self.ui.leak_location.text(),
-                "High",
-                self.ui.leak_size.text(),
-                self.ui.resolutionPTE.toPlainText(),
-                self.ui.leak_next.currentText(),
-            )
-            self.ui.stackedWidget.setCurrentIndex(3)
-            self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-            self.ui.shipBackPB.setFocus()
-            self.data[7][16] = "Methane"
-            self.saveData()
-            # reset leak test form
-            self.ui.reLeftCB.setChecked(False)
-            self.ui.reRightCB.setChecked(False)
-            self.ui.reCenterCB.setChecked(False)
-            self.ui.inflated_yes.setChecked(True)
-            self.ui.inflated_no.setChecked(False)
-            self.ui.leak_location.clear()
-            self.ui.leak_size.clear()
-            self.ui.resolutionPTE.clear()
-
-    def pro8ResolutionBack(self):
-        if self.resolvingLeak == "Methane":
-            self.ui.stackedWidget.setCurrentIndex(3)
-            self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-            self.ui.leak_location.setFocus()
-            self.data[7][16] = "Methane"
-            self.saveData()
-        if self.resolvingLeak == "LeakTest":
-            self.ui.stackedWidget.setCurrentIndex(2)
-            self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
-            self.ui.launch_leak_test_2.setFocus()
-            self.data[7][16] = "Leak"
-            self.saveData()
-
-    def pro8LeakTestPass(self):
-        self.ui.stackedWidget.setCurrentIndex(5)
-        self.ui.pro8StageLabel.setText("Current Stage: Shipping")
-        self.ui.shipBackPB.setFocus()
-        self.resolvingLeak = "LeakTest"
-        self.data[7][16] = "Shipping"
-        self.saveData()
-
-    def pro8LeakTestFail(self):
-        self.ui.stackedWidget.setCurrentIndex(4)
-        self.ui.pro8StageLabel.setText("Current Stage: Resolution")
-        self.ui.resolutionPTE.setFocus()
-        self.resolvingLeak = "LeakTest"
-        self.data[7][16] = "Leak"
-        self.saveData()
-
-    def pro8BackToTests(self):
-        self.ui.stackedWidget.setCurrentIndex(1)
-        self.ui.methReTestPB.setFocus()
-        self.ui.pro8StageLabel.setText("Current Stage: Limbo")
-        self.data[7][16] = "Limbo"
-        self.saveData()
-
-    def pro8ToShipping(self):
-        self.ui.pro8StageLabel.setText("Current Stage: FINISHED")
-        self.ui.pro8StageLabel.setStyleSheet("color: rgb(0, 255, 0);")
-        self.ui.commentBox8_6.setFocus()
-        self.ui.shippingPB.setDisabled(True)
-        self.data[7][16] = "Shipping"
-        self.saveData()
-
-    def pro8MethReTest(self):
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.inflated_yes.setChecked(True)
-        self.ui.inflated_no.setChecked(False)
-        self.ui.leak_location.clear()
-        self.ui.leak_size.clear()
-        self.ui.resolutionPTE.clear()
-        self.ui.stackedWidget.setCurrentIndex(3)
-        self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-        self.ui.leak_location.setFocus()
-        self.data[7][16] = "Methane"
-        self.saveData()
-
-    def pro8LeakReTest(self):
-        self.ui.stackedWidget.setCurrentIndex(2)
-        self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
-        self.ui.launch_leak_test_2.setFocus()
-        self.data[7][16] = "Leak"
         self.saveData()
 
     def resetpro8(self):
@@ -5214,28 +5014,29 @@ class panelGUI(QMainWindow):
         self.ui.right_cover_6.setText("")
         self.ui.center_cover_6.setText("")
         self.ui.leftRing1LE.setText("")
-        self.ui.leftRing2DE.setDate(QDate(1969, 12, 31))
-        self.ui.leftRing3TE.setTime(QTime(23, 59))
+        self.ui.leftRing2DE.setDate(QDate(1969,12,31))
+        self.ui.leftRing3TE.setTime(QTime(23,59))
         self.ui.leftRing4LE.setText("")
         self.ui.rightRing1LE.setText("")
-        self.ui.rightRing2DE.setDate(QDate(1969, 12, 31))
-        self.ui.rightRing3TE.setTime(QTime(23, 59))
+        self.ui.rightRing2DE.setDate(QDate(1969,12,31))
+        self.ui.rightRing3TE.setTime(QTime(23,59))
         self.ui.rightRing4LE.setText("")
         self.ui.centerRing1LE.setText("")
-        self.ui.centerRing2DE.setDate(QDate(1969, 12, 31))
-        self.ui.centerRing3TE.setTime(QTime(23, 59))
+        self.ui.centerRing2DE.setDate(QDate(1969,12,31))
+        self.ui.centerRing3TE.setTime(QTime(23,59))
         self.ui.centerRing4LE.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_number.setText("")
-        self.ui.reORingsCB.setChecked(True)
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.resolutionPTE.clear()
+        self.ui.bad_wire_process.setCurrentIndex(0)
+        self.ui.re_left.setChecked(False)
+        self.ui.re_right.setChecked(False)
+        self.ui.re_center.setChecked(False)
+        self.ui.leak_resolution.clear()
         self.ui.inflated_no.setChecked(False)
         self.ui.inflated_yes.setChecked(False)
         self.ui.leak_location.setText("")
         self.ui.leak_size.setText("")
+        self.ui.leak_confidence.setCurrentIndex(0)
         self.ui.leak_next.setCurrentIndex(0)
         self.ui.wireCheck.setChecked(False)
         self.ui.strawCheck.setChecked(False)
@@ -5342,7 +5143,7 @@ class panelGUI(QMainWindow):
                 ),  # let the tensioner gui know what panel it's being used for
             )
         # show the window
-        self.strawTensionWindow.show()
+        self.strawTensionWindow.show()  
         # resize for readability (default is 400x200?)
         self.strawTensionWindow.resize(1600, 1200)
         # log launch
@@ -5353,9 +5154,7 @@ class panelGUI(QMainWindow):
     def wireTensionPopup(self):
         # Method to save the wire tension measurements
         def saveWireTensionMeasurement(position, tension, timer, calibration):
-            logger.debug(
-                f"PANGUI - Attempting to save pos {position}, ten {tension}, tim {timer}, cal {calibration}"
-            )
+            logger.debug(f'PANGUI - Attempting to save pos {position}, ten {tension}, tim {timer}, cal {calibration}')
             self.ui.panelInput3_2.setText(str(calibration))
             self.DP.saveWireTensionMeasurement(position, tension, timer, calibration)
 
@@ -5475,9 +5274,7 @@ class panelGUI(QMainWindow):
     # Creates a new terminal window and runs the resistance run_test.py script
     def run_resistance(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
-        subprocess.call(
-            "start /wait python -m guis.panel.resistance", shell=True, cwd=root_dir
-        )
+        subprocess.call("start /wait python run_test.py", shell=True, cwd=root_dir)
 
     # record broken tap from the broken tap form in pro8
     # broken_taps is a column in the pan8 table that stores an integer value
@@ -5506,7 +5303,7 @@ class panelGUI(QMainWindow):
     def bad_wire_form(self):
         number = int(self.ui.bad_number.text())
         failure = self.ui.bad_failure.text()
-        process = "8"
+        process = str(self.ui.bad_wire_process.currentText())
         wire_check = self.ui.wireCheck.isChecked()
         self.DP.saveBadWire(number, failure, int(process[-1]), wire_check)
 
@@ -5515,6 +5312,7 @@ class panelGUI(QMainWindow):
         self.ui.strawCheck.setChecked(False)
         self.ui.bad_number.setText("")
         self.ui.bad_failure.setText("")
+        self.ui.bad_wire_process.setCurrentIndex(0)
 
     def leak_form(self):
         reinstalled = ""
@@ -5523,7 +5321,7 @@ class panelGUI(QMainWindow):
             reinstalled = "left"
         elif self.ui.re_center.isChecked():
             reinstalled = "center"
-        elif self.ui.re_right.isChecked():
+        elif self.ui.re_right.isChecked:
             reinstalled = "right"
 
         inflated = True
@@ -5535,11 +5333,7 @@ class panelGUI(QMainWindow):
         try:
             size = int(self.ui.leak_size.text())
         except ValueError:
-            self.generateBox(
-                "warning",
-                "Invalid literal",
-                "Please enter a base 10 number for leak size.",
-            )
+            self.generateBox("warning","Invalid literal","Please enter a base 10 number for leak size.")
         resolution = self.ui.leak_resolution.document().toPlainText()
         next_step = str(self.ui.leak_next.currentText())
         self.DP.saveLeakForm(
@@ -5594,7 +5388,6 @@ def except_hook(exctype, exception, tb):
     logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
     sys.exit()
 
-
 def checkPackages():
     # list of packages to check, each tuple has the name of the package and a
     # boolean to determine if the version is correct
@@ -5624,9 +5417,7 @@ def checkPackages():
             # display a tkinter error with the following string as it's message (I apologize for putting 200+ characters on one line)
             # package[0] gets the name of the package, and platform.node() gets the name of the computer
             message = f"An incompatible version of {package[0]} is installed on this computer.  The GUI may not function normally, and DATA MAY NOT BE SAVED.  Contact a member of the software team for help, and mention that {package[0]} needs updating on {platform.node()}"
-            logger.warning(
-                f"An incompatible version of {package[0]} is installed on this computer"
-            )
+            logger.warning(f"An incompatible version of {package[0]} is installed on this computer")
             packageErrorRoot = tkinter.Tk()  # create a tkinter root
             packageErrorRoot.withdraw()  # hide the root (hide the tiny blank window that tkinter wants)
             tkinter.messagebox.showerror(  # show error message
@@ -5638,9 +5429,7 @@ def checkPackages():
     if sys.version[:3] != "3.7":  # if python version is wrong
         # just like above, display a tkinter error (except with different text)
         message = f"The wrong version of python is installed on this computer.  The GUI will not function normally, and DATA MAY NOT BE SAVED.  Contact a member of the software team immediately, and mention that the wrong version of python is installed on {platform.node()}"
-        logger.warning(
-            f"An incompatible version of python is installed on this computer"
-        )
+        logger.warning(f"An incompatible version of python is installed on this computer")
         pythonErrorRoot = tkinter.Tk()
         pythonErrorRoot.withdraw()
         tkinter.messagebox.showerror(title="Version Error", message=message)

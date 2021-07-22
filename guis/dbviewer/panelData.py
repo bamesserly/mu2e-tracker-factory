@@ -102,24 +102,6 @@ class PanelData:
             "wire_weight_final": -1
         }
 
-        # list of parts entered in pro 8
-        self.qcParts = {
-            "left_cover": -1,
-            "right_cover": -1,
-            "center_cover": -1,
-            "left_ring": "",
-            "right_ring": "",
-            "center_ring": "",
-            "stage": ""
-        }
-
-        # list of leak form submissions
-        self.leaks = []
-
-        # list of bad wires/straws
-        self.badWires = []
-        self.badStraws = []
-
         # HV data: list of hv data where list index = straw
         # List of tuples of the form:
         # (<position>, <current>, <trip status>, <side>, <timestamp>)
