@@ -1153,6 +1153,8 @@ class panelGUI(QMainWindow):
         self.ui.centerRing1LE.setValidator(valid_ring_1)
         self.ui.centerRing4LE.setValidator(valid_ring_3)
 
+        set_validator(self.ui.bad_number, "\d{2}")
+
     def _init_widget_lists(self):
         # Start buttons
         self.startButtons = [
@@ -3760,6 +3762,7 @@ class panelGUI(QMainWindow):
         if data[0] is not None:
             self.ui.panelInput_8.setText(str(data[0]))
             self.ui.panelInput_8.setDisabled(True)
+            self.ui.prepCompletePB.setEnabled(True)
 
         # covers
         if data[1] is not None:
@@ -5016,6 +5019,21 @@ class panelGUI(QMainWindow):
             self.saveData()
         except:
             pass
+    
+    # by default, enables pro 8 part and bad wire/straw form widgets
+    # if doPart or doForm are false the corresponding widgets will be disabled
+    # used to ensure widgets are enabled when they need to be and in resetPro8
+    # to disable all the widgets
+    def pro8EnableParts(self, doPart=True, doForm=True):
+        for wid in self.widgets[7][1:]:
+            wid.setEnabled(doPart)
+        self.ui.submitCoversPB.setEnabled(doPart)
+        self.ui.submitRingsPB.setEnabled(doPart)
+
+        self.ui.bad_failure.setEnabled(doForm)
+        self.ui.bad_number.setEnabled(doForm)
+        self.ui.bad_wire_form.setEnabled(doForm)
+
 
     def pro8part1(self):
         # used later for deciding how to save leak fixes
@@ -5067,6 +5085,7 @@ class panelGUI(QMainWindow):
         self.ui.prepCompletePB.setEnabled(True)
         self.data[7][16] = "Prep"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8PrepFin(self):
         self.ui.stackedWidget.setCurrentIndex(3)
@@ -5076,6 +5095,7 @@ class panelGUI(QMainWindow):
         # print(self.data)
         self.data[7][16] = "Methane"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8MethanePass(self):
         self.ui.stackedWidget.setCurrentIndex(2)
@@ -5084,6 +5104,7 @@ class panelGUI(QMainWindow):
         self.ui.launch_leak_test_2.setFocus()
         self.data[7][16] = "Leak"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8MethaneFail(self):
         self.ui.resoBackPB.setEnabled(True)
@@ -5093,6 +5114,7 @@ class panelGUI(QMainWindow):
         self.ui.resolutionPTE.setFocus()
         self.data[7][16] = "Methane"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8ResolutionSubmit(self):
         # make sure something is entered
@@ -5114,6 +5136,7 @@ class panelGUI(QMainWindow):
             self.ui.resolutionPTE.clear()
             self.data[7][16] = "Methane"
             self.saveData()
+            self.pro8EnableParts()
 
         if self.resolvingLeak == "Methane":
             # submit leak test info
@@ -5131,15 +5154,17 @@ class panelGUI(QMainWindow):
             self.ui.shipBackPB.setFocus()
             self.data[7][16] = "Methane"
             self.saveData()
-            # reset leak test form
-            self.ui.reLeftCB.setChecked(False)
-            self.ui.reRightCB.setChecked(False)
-            self.ui.reCenterCB.setChecked(False)
-            self.ui.inflated_yes.setChecked(True)
-            self.ui.inflated_no.setChecked(False)
-            self.ui.leak_location.clear()
-            self.ui.leak_size.clear()
-            self.ui.resolutionPTE.clear()
+            self.pro8EnableParts()
+
+        # reset leak test + resolution form
+        self.ui.reLeftCB.setChecked(False)
+        self.ui.reRightCB.setChecked(False)
+        self.ui.reCenterCB.setChecked(False)
+        self.ui.inflated_yes.setChecked(True)
+        self.ui.inflated_no.setChecked(False)
+        self.ui.leak_location.clear()
+        self.ui.leak_size.clear()
+        self.ui.resolutionPTE.clear()
 
     def pro8ResolutionBack(self):
         if self.resolvingLeak == "Methane":
@@ -5148,12 +5173,14 @@ class panelGUI(QMainWindow):
             self.ui.leak_location.setFocus()
             self.data[7][16] = "Methane"
             self.saveData()
+            self.pro8EnableParts()
         if self.resolvingLeak == "LeakTest":
             self.ui.stackedWidget.setCurrentIndex(2)
             self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
             self.ui.launch_leak_test_2.setFocus()
             self.data[7][16] = "Leak"
             self.saveData()
+            self.pro8EnableParts()
 
     def pro8LeakTestPass(self):
         self.ui.stackedWidget.setCurrentIndex(5)
@@ -5162,6 +5189,7 @@ class panelGUI(QMainWindow):
         self.resolvingLeak = "LeakTest"
         self.data[7][16] = "Shipping"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8LeakTestFail(self):
         self.ui.stackedWidget.setCurrentIndex(4)
@@ -5170,6 +5198,7 @@ class panelGUI(QMainWindow):
         self.resolvingLeak = "LeakTest"
         self.data[7][16] = "Leak"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8BackToTests(self):
         self.ui.stackedWidget.setCurrentIndex(1)
@@ -5177,6 +5206,7 @@ class panelGUI(QMainWindow):
         self.ui.pro8StageLabel.setText("Current Stage: Limbo")
         self.data[7][16] = "Limbo"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8ToShipping(self):
         self.ui.pro8StageLabel.setText("Current Stage: FINISHED")
@@ -5185,6 +5215,7 @@ class panelGUI(QMainWindow):
         self.ui.shippingPB.setDisabled(True)
         self.data[7][16] = "Shipping"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8MethReTest(self):
         self.ui.reLeftCB.setChecked(False)
@@ -5200,6 +5231,7 @@ class panelGUI(QMainWindow):
         self.ui.leak_location.setFocus()
         self.data[7][16] = "Methane"
         self.saveData()
+        self.pro8EnableParts()
 
     def pro8LeakReTest(self):
         self.ui.stackedWidget.setCurrentIndex(2)
@@ -5207,6 +5239,7 @@ class panelGUI(QMainWindow):
         self.ui.launch_leak_test_2.setFocus()
         self.data[7][16] = "Leak"
         self.saveData()
+        self.pro8EnableParts()
 
     def resetpro8(self):
         self.data[4] = [None for x in self.data[4]]
@@ -5227,6 +5260,9 @@ class panelGUI(QMainWindow):
         self.ui.centerRing4LE.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_number.setText("")
+
+        self.pro8EnableParts(False, False)
+
         self.ui.reORingsCB.setChecked(True)
         self.ui.reLeftCB.setChecked(False)
         self.ui.reRightCB.setChecked(False)
@@ -5241,6 +5277,8 @@ class panelGUI(QMainWindow):
         self.ui.strawCheck.setChecked(False)
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
+        self.ui.stackedWidget.setCurrentIndex(0)
+        self.ui.prepCompletePB.setDisabled(True)
 
     # fmt: off
     # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
@@ -5504,11 +5542,12 @@ class panelGUI(QMainWindow):
 
     # record bad wire/straw from the bad straw/wire form in pro8
     def bad_wire_form(self):
+
         number = int(self.ui.bad_number.text())
         failure = self.ui.bad_failure.text()
-        process = "8"
         wire_check = self.ui.wireCheck.isChecked()
-        self.DP.saveBadWire(number, failure, int(process[-1]), wire_check)
+
+        self.DP.saveBadWire(number, failure, 8, wire_check)
 
         # clear form data
         self.ui.wireCheck.setChecked(False)
