@@ -693,6 +693,9 @@ class MultipleDataProcessor(DataProcessor):
     def loadHVMeasurements(self, position=None):
         return self.primaryDP.loadHVMeasurements()
 
+    def loadBadWires(self):
+        return self.primaryDP.loadBadWires()
+
 
 #  _____    _    ______
 # |_   _|  | |   | ___ \
@@ -2290,7 +2293,13 @@ class SQLDataProcessor(DataProcessor):
                 )
         return ret
 
-    # def loadHVwithTimestamp(self):
+    def loadBadWires(self):
+        ret = []
+        wires = self.procedure.getBadWires()
+        for wire in wires:
+            ret.append((wire.position, wire.failure, wire.wire))
+        
+        return ret
 
     ##########################################################################
 

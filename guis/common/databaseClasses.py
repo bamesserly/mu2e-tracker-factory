@@ -1775,6 +1775,24 @@ class Pan8Procedure(PanelProcedure):
     def getStage(self):
         return self.details.stage
 
+    def getBadWires(self):
+        wires = self._queryBadWires().all()
+        lst = []
+        logger.debug(wires)
+        for w in wires:
+            lst.append(w)
+        return lst
+
+    def _queryBadWire(self, position):
+        return self._queryBadWires().filter(BadWire.position == position)
+
+    def _queryBadWires(self):
+        return (
+            BadWire.query()
+            .filter(BadWire.procedure == self.id)
+            .order_by(BadWire.position.asc())
+        )
+
 
 """
     Bad Wire Form

@@ -1999,10 +1999,11 @@ class panelGUI(QMainWindow):
             "QComboBox, QComboBox QAbstractItemView { "
             + f"color: rgb{text_color}; background-color: rgb{background_color}; selection-color: rgb{background_color_invert}; selection-background-color: rgb{text_color_invert};"
             + " }"
-            f'QStatusBar, QSplitter {"{"}color: rgb{text_color}{"}"}'
+            f'QStatusBar, QSplitter, QRect#line_2 {"{"}color: rgb{text_color}{"}"}'
         )
 
         self.application.setStyleSheet(stylesheet)
+        self.ui.line_2.setStyleSheet(f"background-color: rgb{text_color}")
 
     """
     setFailIndex(self, name)
@@ -3831,6 +3832,7 @@ class panelGUI(QMainWindow):
         self.ui.submitRingsPB.setEnabled(True)
 
         self.displayComments()
+        self.pro8LoadBadWiresStraws()
 
     # fmt: off
     # ██████╗ ██████╗  ██████╗      ██╗
@@ -5034,6 +5036,12 @@ class panelGUI(QMainWindow):
         self.ui.bad_number.setEnabled(doForm)
         self.ui.bad_wire_form.setEnabled(doForm)
 
+    def pro8LoadBadWiresStraws(self):
+        self.ui.previousBadPTE.clear()
+        text = ""
+        for wire in self.DP.loadBadWires():
+            text += f'{"Wire at" if wire[2] else "Straw at"} position {wire[0]}:\n{wire[1]}\n\n'
+        self.ui.previousBadPTE.setPlainText(text)
 
     def pro8part1(self):
         # used later for deciding how to save leak fixes
@@ -5554,6 +5562,8 @@ class panelGUI(QMainWindow):
         self.ui.strawCheck.setChecked(False)
         self.ui.bad_number.setText("")
         self.ui.bad_failure.setText("")
+        # update display
+        self.pro8LoadBadWiresStraws()
 
     def leak_form(self):
         reinstalled = ""
