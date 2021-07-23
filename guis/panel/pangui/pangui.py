@@ -5437,10 +5437,21 @@ class panelGUI(QMainWindow):
             # log launch
             logger.info("Tensionbox launched")
 
-    # creates panel heater gui window
-    # uses HeatControl from GUIs/current/tension_devices/panel_heater/PanelHeater.py
+    # Creates a new terminal window and runs the panel heater as a standalone
+    # program.
+    #
+    # This call to the heater will save data livetime to a csv file and when
+    # the End Data Collection button is pressed, the data will be loaded into
+    # the (local) database.
+    #
+    # Uses HeatControl from guis/panel/heater/PanelHeater.py.
     def panelHeaterPopup(self):
+        root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
+        subprocess.call(
+            "start /wait python -m guis.panel.heater", shell=True, cwd=root_dir
+        )
 
+        """
         if self.checkDevice() == True:  # if no device connected,
             return  # return from this function
 
@@ -5471,6 +5482,7 @@ class panelGUI(QMainWindow):
             )
             self.panelHeaterWindow.show()
             logger.info("Heater launched")
+        """
 
     # creates HV measurements gui window
     # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain

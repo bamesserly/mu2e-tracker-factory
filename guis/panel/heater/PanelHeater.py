@@ -37,32 +37,19 @@ class HeatControl(QMainWindow):
     """Python interface to collect and visualize data from PAAS heater control system"""
 
     def __init__(
-        self, port, panel, wait=120000, ndatapts=450, parent=None, saveMethod=None
+        self,
+        port,
+        panel,
+        wait=120000,
+        ndatapts=450,
+        parent=None,
+        saveMethod=lambda a, b: None,
     ):
         super(HeatControl, self).__init__(parent)
 
-        # Identify standalone mode and upload txt data to db accordingly
-        import inspect
-
-        parents = inspect.stack()
-        self.load_text_data_to_db = len(
-            [i for i in parents if "launch_sa_heater" in str(i)]
-        )
-        if self.load_text_data_to_db:
-            logger.info("Heater launched separately from PANGUI.")
-            logger.info("Live data will be saved to a txt file only.")
-            logger.info(
-                "When the End Data Collection button is pressed, the txt "
-                "data will be loaded into the local database."
-            )
-        elif len([i for i in parents if "pangui" in str(i)]):
-            logger.warning("Heater launched as a child to PANGUI.")
-            logger.warning(
-                "Data is (probably) being saved directly to the local"
-                "database, and this program is subject to the fragility of"
-                "automerging to the network."
-            )
-
+        self.load_text_data_to_db = (
+            self.identifyStandaloneMode()
+        )  # in SA mode, upload data->db after finished
         if port == "GUI":  # PANGUI doesn't have a get port function
             port = getport("VID:PID=2341:8037")  # opened in PANGUI w/ port = "GUI"
         self.port = port
@@ -93,6 +80,28 @@ class HeatControl(QMainWindow):
         ## user choice temperature setpoint
         self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
         logger.info("HeatControl fully initialized")
+
+    # Identify standalone mode and upload txt data to db accordingly
+    def identifyStandaloneMode(self):
+        import inspect
+
+        parents = inspect.stack()
+        is_standalone = len([i for i in parents if "launch_sa_heater" in str(i)])
+        if is_standalone:
+            logger.info("Heater launched separately from PANGUI.")
+            logger.info("Live data will be saved to a txt file only.")
+            logger.info(
+                "When the End Data Collection button is pressed, the txt "
+                "data will be loaded into the local database."
+            )
+        elif len([i for i in parents if "pangui" in str(i)]):
+            logger.warning("Heater launched as a child to PANGUI.")
+            logger.warning(
+                "Data is (probably) being saved directly to the local "
+                "database, and this program is subject to the fragility of "
+                "automerging to the network."
+            )
+        return is_standalone
 
     def saveMethod_placeholder(self):
         ## self.tempArec = PAAS-A temperatures
@@ -308,7 +317,7 @@ class DataThread(threading.Thread):
         if self.micro:
             self.micro.close()
             if self.load_text_data_to_db:
-                load_into_db(self.panel, self.pro)
+                load_into_db(self.panel, self.pro, self.datafile)
 
     def savedata(self):
         # print('setpoint in thread',self.setpt)

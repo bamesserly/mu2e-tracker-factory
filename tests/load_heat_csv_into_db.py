@@ -40,14 +40,20 @@ def WriteSingleMeasurementToDB(connection, pid, t1, t2, timestamp):
     # con.commit()
 
 
-def run(panel, process):
+def run(panel, process, data_file):
     database = GetLocalDatabasePath()
 
-    print(f"Writing to heat data to local database {database}")
+    print(f"Writing heat data to local database {database}")
 
-    db_check = input("PRESS <ENTER> TO VERIFY THIS DATABASE, ELSE PRESS CTRL-C\n")
-    if db_check:
-        sys.exit("DB not verified, exiting")
+    # db_check = input("PRESS <ENTER> TO VERIFY THIS DATABASE, ELSE PRESS CTRL-C\n")
+    # if db_check:
+    #     sys.exit("DB not verified, exiting")
+
+    print(f"Writing data from file {data_file}")
+    try:
+        assert data_file.is_file()
+    except AssertionError:
+        print(f"Data file {data_file} not found!")
 
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
 
@@ -55,26 +61,6 @@ def run(panel, process):
         pid = GetProcedureID(connection, int(panel), int(process))
 
         print(f"Found procedure ID for panel {panel} process {process}: {pid}")
-
-        # data_file = "MN109_2021-04-02.csv"
-        data_file = (
-            "MN"
-            + str(panel)
-            + "_"
-            + dt.now().strftime("%Y-%m-%d")
-            + "_pro"
-            + str(process)
-            + ".csv"
-        )
-
-        data_file = GetProjectPaths()["heatdata"] / data_file
-
-        print(f"Reading data file {data_file}")
-
-        try:
-            assert data_file.is_file()
-        except AssertionError:
-            print(f"data file {data_file} not found!")
 
         query = """
         INSERT OR IGNORE INTO panel_heat (procedure, temp_paas_a, temp_paas_bc, timestamp)
@@ -96,19 +82,24 @@ def run(panel, process):
             try:
                 r_set = connection.execute(query, to_db)
             except sqla.exc.OperationalError as e:
-                print(e)
+                logger.error(e)
                 error = str(e.__dict__["orig"])
-                print(error)
+                logger.error(error)
             except sqla.exc.IntegrityError as e:
-                # print(e)
+                # logger.error(e)
                 error = str(e.__dict__["orig"])
-                print(error)
-                print(
-                    "ERROR: At least one datapoint in this CSV file already exists in the DB."
+                logger.error(error)
+                logger.error(
+                    "At least one datapoint in this CSV file already exists in the DB."
                 )
-                print("ERROR: Was this CSV file already loaded?")
-                print("ERROR: Tell Ben if this is unexpected or otherwise a problem.")
+                logger.error("Was this CSV file already loaded?")
+                logger.error("Tell Ben if this is unexpected or otherwise a problem.")
             else:
-                print(
-                    f"Loaded {r_set.rowcount} heat data points into the local DB for panel {panel} process {process}"
+                logger.info(
+                    f"Loaded {r_set.rowcount} heat data points into the local"
+                    "DB for panel {panel} process {process}."
+                )
+                logger.info(
+                    "The data is now in the local database. To send it to the"
+                    "network (and see it in DBV) trigger an automerge."
                 )

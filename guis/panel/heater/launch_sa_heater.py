@@ -7,7 +7,7 @@ from guis.panel.heater.PanelHeater import HeatControl
 from guis.common.panguilogger import SetupPANGUILogger
 from PyQt5.QtWidgets import QApplication
 import serial  ## from pyserial
-import sys, traceback, time
+import sys, traceback, time, re
 
 logger = SetupPANGUILogger("root", "HeaterStandalone")
 
@@ -27,11 +27,10 @@ def getport(hardwareID):
 
 # Return a string of length 3 of only numbers
 # Ignore any and all alphas
-def GetPanelFromUserInput():
-    while True:
+def check_panel_id(panelid):
+    if not panelid:  # none provided so get from user input
         panelid = input("Panel ID> ")
-        import re
-
+    while True:
         panelid = re.sub("[^0-9]", "", str(panelid))  # strip alphas
         try:
             assert 1 <= int(panelid) and int(panelid) <= 999
@@ -44,32 +43,15 @@ def GetPanelFromUserInput():
     return panelid
 
 
-def GetProcessFromUserInput():
-    while True:
-        pro = input(
-            "Which heating process?\n[1] Process 1, PAAS A only\n[2] Process 2, PAAS A and PAAS B\n[6] Process 6 PAAS A and PAAS C\n> "
-        )
-        try:
-            assert pro in [1, 2, 6]
-            break
-        except:
-            print("Invalid process, must be 1, 2, or 6")
-
-    return pro
-
-
-def run():
+def run(panelid=None):
 
     # heater control uses Arduino Micro: hardware ID 'VID:PID=2341:8037'
     port = getport("VID:PID=2341:8037")
 
     # which panel
-    panelid = GetPanelFromUserInput()
+    panelid = check_panel_id(panelid)
 
-    ##which process
-    # pro = GetProcessFromUserInput()
-
-    print(f"Heating panel MN{panelid}")  # , process {pro}.")
+    print(f"Heating panel MN{panelid}")
 
     logger.info("Arduino Micro at {}".format(port))
 
@@ -78,7 +60,7 @@ def run():
 
     # GUI
     app = QApplication(sys.argv)
-    ctr = HeatControl(port, panel=f"MN{panelid}", saveMethod=lambda a, b: None)
+    ctr = HeatControl(port, panel=f"MN{panelid}")
     ctr.show()
     app.exec_()
 
