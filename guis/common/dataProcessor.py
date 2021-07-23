@@ -1817,14 +1817,16 @@ class SQLDataProcessor(DataProcessor):
 
         # rings consist of a line edit, then a date input, then another line edit
         # left ring example: OL 1538 25Oct19 0954 79042A
-        lRing = f'{data[4]}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
+        lRing = f'{str(self.stripNumber(data[4])).zfill(4)}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
         self.callMethod(self.procedure.recordLeftRing, lRing)
         # rRing = data[7:10]
-        rRing = f'{data[8]}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
+        rRing = f'{str(self.stripNumber(data[8])).zfill(4)}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
         self.callMethod(self.procedure.recordRightRing, rRing)
         # rRing = data[10:13]
-        cRing = f'{data[12]}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
+        cRing = f'{str(self.stripNumber(data[12])).zfill(4)}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
         self.callMethod(self.procedure.recordCenterRing, cRing)
+
+        self.callMethod(self.procedure.recordStage,data[16])
         
         
 
@@ -2615,7 +2617,6 @@ class SQLDataProcessor(DataProcessor):
         #    "hi",
         #    str(self.procedure.getCenterRing())[15:]
         #)
-        print(self.procedure.getLeftRing())
         return [
             self.getBarcode(panel),
             self.procedure.getLeftCover(),
@@ -2623,20 +2624,21 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.getCenterCover(),
 
             # 8888 01Jan07 0000 66666A
-            str(self.procedure.getLeftRing())[2:6] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[6:13] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[13:17] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[17:] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[:4] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[4:11] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[11:15] if self.procedure.getLeftRing() is not None else None,
+            str(self.procedure.getLeftRing())[15:] if self.procedure.getLeftRing() is not None else None,
 
-            str(self.procedure.getRightRing())[2:6] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[6:13] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[13:17] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[17:] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[:4] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[4:11] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[11:15] if self.procedure.getRightRing() is not None else None,
+            str(self.procedure.getRightRing())[15:] if self.procedure.getRightRing() is not None else None,
 
-            str(self.procedure.getCenterRing())[2:6] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[6:13] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[13:17] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[17:] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[:4] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[4:11] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[11:15] if self.procedure.getCenterRing() is not None else None,
+            str(self.procedure.getCenterRing())[15:] if self.procedure.getCenterRing() is not None else None,
+            self.procedure.getStage()
         ]
 
 
