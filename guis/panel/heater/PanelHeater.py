@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import traceback
 import threading
-from tests.load_heat_csv_into_db import run as load_into_db
+from guis.panel.heater.load_heat_csv_into_db import run as load_into_db
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *

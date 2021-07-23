@@ -5445,44 +5445,45 @@ class panelGUI(QMainWindow):
     # the (local) database.
     #
     # Uses HeatControl from guis/panel/heater/PanelHeater.py.
-    def panelHeaterPopup(self):
-        root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
-        subprocess.call(
-            "start /wait python -m guis.panel.heater", shell=True, cwd=root_dir
-        )
-
-        """
-        if self.checkDevice() == True:  # if no device connected,
-            return  # return from this function
-
-        if self.panelHeaterWindow is not None:  # if a window already exists
-            buttonReply = QMessageBox.question(  # prompt user, ask if they want to kill old window
-                self,
-                "Panel Heater Window",
-                "If a panel heater window is already open, launching a new one will close the old one.  Continue?",
-                QMessageBox.Yes | QMessageBox.Cancel,  # button options
-                QMessageBox.Cancel,
-            )  # default selection
-            if buttonReply == QMessageBox.Yes:
-                self.panelHeaterWindow = None  # close the window!
-            else:
-                return  # don't close the window!  keep it safe by returning!
-
-        if self.panelHeaterWindow == None:  # if no window yet,
-            # get the current panel ID (one of the inputs will have text, the others will have none)
-            panelID = f"{self.ui.panelInput6.text()}{self.ui.panelInput2.text()}{self.ui.panelInput1.text()}"
-            self.panelHeaterWindow = HeatControl(
-                port="GUI",
-                panel=panelID,
-                saveMethod=(
-                    lambda temp_paas_a, temp_paas_bc: (
-                        self.DP.savePanelTempMeasurement(temp_paas_a, temp_paas_bc)
-                    )
-                ),
+    def panelHeaterPopup(self, launch_externally=True):
+        if launch_externally:
+            root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
+            subprocess.call(
+                f"start /wait python -m guis.panel.heater.launch_sa_heater {panelID}",
+                shell=True,
+                cwd=root_dir,
             )
-            self.panelHeaterWindow.show()
-            logger.info("Heater launched")
-        """
+        else:  # old method: launch heater internally, save directly to the db
+            if self.checkDevice() == True:  # if no device connected,
+                return  # return from this function
+
+            if self.panelHeaterWindow is not None:  # if a window already exists
+                buttonReply = QMessageBox.question(  # prompt user, ask if they want to kill old window
+                    self,
+                    "Panel Heater Window",
+                    "If a panel heater window is already open, launching a new one will close the old one.  Continue?",
+                    QMessageBox.Yes | QMessageBox.Cancel,  # button options
+                    QMessageBox.Cancel,
+                )  # default selection
+                if buttonReply == QMessageBox.Yes:
+                    self.panelHeaterWindow = None  # close the window!
+                else:
+                    return  # don't close the window!  keep it safe by returning!
+
+            if self.panelHeaterWindow == None:  # if no window yet,
+                # get the current panel ID (one of the inputs will have text, the others will have none)
+                panelID = f"{self.ui.panelInput6.text()}{self.ui.panelInput2.text()}{self.ui.panelInput1.text()}"
+                self.panelHeaterWindow = HeatControl(
+                    port="GUI",
+                    panel=panelID,
+                    saveMethod=(
+                        lambda temp_paas_a, temp_paas_bc: (
+                            self.DP.savePanelTempMeasurement(temp_paas_a, temp_paas_bc)
+                        )
+                    ),
+                )
+                self.panelHeaterWindow.show()
+                logger.info("Heater launched")
 
     # creates HV measurements gui window
     # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain

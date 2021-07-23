@@ -4,6 +4,7 @@
 
 import sqlalchemy as sqla  # for interacting with db
 import sys, csv
+from pathlib import Path
 from datetime import datetime as dt
 
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
@@ -51,7 +52,7 @@ def run(panel, process, data_file):
 
     print(f"Writing data from file {data_file}")
     try:
-        assert data_file.is_file()
+        assert Path(data_file).is_file()
     except AssertionError:
         print(f"Data file {data_file} not found!")
 
@@ -103,3 +104,7 @@ def run(panel, process, data_file):
                     "The data is now in the local database. To send it to the"
                     "network (and see it in DBV) trigger an automerge."
                 )
+
+
+if __name__ == "__main__":
+    run(sys.argv[1], sys.argv[2], sys.argv[3])
