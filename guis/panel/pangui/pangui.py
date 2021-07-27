@@ -5051,19 +5051,6 @@ class panelGUI(QMainWindow):
         if not (self.checkSupplies() or DEBUG):
             return
 
-        # Ensure that all input data is valid
-        if not self.validateInput(indices=[0]):
-            return
-        if self.ui.leftRing2DE.date() < QDate(QDate(2000, 1, 11)):
-            self.ui.leftRing2DE.setFocus()
-            return
-        if self.ui.rightRing2DE.date() < QDate(QDate(2000, 1, 11)):
-            self.ui.rightRing2DE.setFocus()
-            return
-        if self.ui.centerRing2DE.date() < QDate(QDate(2000, 1, 11)):
-            self.ui.centerRing2DE.setFocus()
-            return
-
         for wid in [
             self.ui.left_cover_6,
             self.ui.right_cover_6,
