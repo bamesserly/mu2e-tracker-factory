@@ -1140,8 +1140,8 @@ class panelGUI(QMainWindow):
         self.ui.initialWireWeightLE.setValidator(valid_weight)
         self.ui.finalWireWeightLE.setValidator(valid_weight)
 
-        valid_cover = validator("\DCOV\d{3}")
-        valid_ring_1 = validator("O\D\d{4}")
+        valid_cover = validator("(L|R|C)COV\d{3}")
+        valid_ring_1 = validator("O(L|S)\d{4}")
         valid_ring_3 = validator("\d{5}\D")
         self.ui.left_cover_6.setValidator(valid_cover)
         self.ui.right_cover_6.setValidator(valid_cover)
@@ -3759,6 +3759,8 @@ class panelGUI(QMainWindow):
             "Shipping": 5,
         }
 
+        print(data)
+
         # panel id
         if data[0] is not None:
             self.ui.panelInput_8.setText(str(data[0]))
@@ -3775,7 +3777,7 @@ class panelGUI(QMainWindow):
 
         # left ring
         # OL **** - data[4] is just the 4 digits, not the OL
-        if data[4] is not None:
+        if data[4] is not None and data[4] != 'None':
             self.ui.leftRing1LE.setText("OL" + (str(data[4])).zfill(3))
         # ddMMMyy - days, months (string), year
         if data[5] is not None:
@@ -3789,11 +3791,11 @@ class panelGUI(QMainWindow):
             mm = int(data[6][2:])  # minute
             self.ui.leftRing3TE.setTime(QTime(hH, mm))
         # regex(dddddD) - five digits and a letter
-        if data[7] is not None:
+        if data[7] is not None and data[7] != 'None':
             self.ui.leftRing4LE.setText(str(data[7]))
 
         # right ring
-        if data[8] is not None:
+        if data[8] is not None and data[8] != 'None':
             self.ui.rightRing1LE.setText("OL" + (str(data[8])).zfill(3))
         if data[9] is not None:
             dd = int(data[9][:2])  # day
@@ -3804,11 +3806,11 @@ class panelGUI(QMainWindow):
             hH = int(data[10][:2])  # hour
             mm = int(data[10][2:])  # minute
             self.ui.rightRing3TE.setTime(QTime(hH, mm))
-        if data[11] is not None:
+        if data[11] is not None and data[11] != 'None':
             self.ui.rightRing4LE.setText(str(data[11]))
 
         # center ring
-        if data[12] is not None:
+        if data[12] is not None and data[12] != 'None':
             self.ui.centerRing1LE.setText("OS" + (str(data[12])).zfill(3))
         if data[13] is not None:
             dd = int(data[13][:2])  # day
@@ -3819,7 +3821,7 @@ class panelGUI(QMainWindow):
             hH = int(data[14][:2])  # hour
             mm = int(data[14][2:])  # minute
             self.ui.centerRing3TE.setTime(QTime(hH, mm))
-        if data[15] is not None:
+        if data[15] is not None and data[15] != 'None':
             self.ui.centerRing4LE.setText(str(data[15]))
 
         self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
@@ -5068,6 +5070,7 @@ class panelGUI(QMainWindow):
             self.ui.centerRing3TE,
             self.ui.centerRing4LE,
         ]:
+            wid.setToolTip("Enter all digits as '0' to mark as unknown")
             wid.editingFinished.connect(self.pro8TrySave)
 
         self.startRunning()
