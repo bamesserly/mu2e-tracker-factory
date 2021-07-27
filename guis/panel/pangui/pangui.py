@@ -5445,14 +5445,32 @@ class panelGUI(QMainWindow):
     # the (local) database.
     #
     # Uses HeatControl from guis/panel/heater/PanelHeater.py.
-    def panelHeaterPopup(self, launch_externally=True):
-        if launch_externally:
-            root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
-            subprocess.call(
-                f"start /wait python -m guis.panel.heater.launch_sa_heater {panelID}",
-                shell=True,
-                cwd=root_dir,
-            )
+    def panelHeaterPopup(self):
+        root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
+        subprocess.call(
+            f"start /wait python -m guis.panel.heater {self.getCurrentPanel()} PAUSE",
+            shell=True,
+            cwd=root_dir,
+        )
+        # os.system(f"start cmd.exe @cmd python -m guis.panel.heater {panelID}")
+        # os.system(f"start /B start cmd.exe @cmd python -m guis.panel.heater {panelID}")
+        # os.system(f"start cmd /c python -m guis.panel.heater {panelID}")
+        # subprocess.call(
+        #    f"start /wait python -m guis.panel.heater {panelID}",
+        #    shell=True,
+        #    cwd=root_dir,
+        # )
+        # subprocess.call(
+        #    f"start cmd /K python -m guis.panel.heater {panelID}",
+        #    shell=True,
+        #    cwd=root_dir,
+        # )
+        # subprocess.call(f"python -m guis.panel.heater {panelID}", creationflags=subprocess.CREATE_NEW_CONSOLE, cwd=root_dir, shell=True)
+        # print("HERE")
+        # os.system("cmd.exe")
+        # subprocess.call("start /wait python -m guis.panel.heater PAUSE", cwd=root_dir, shell=True )
+        # subprocess.call("start /wait ", cwd=root_dir, shell=True )
+        """
         else:  # old method: launch heater internally, save directly to the db
             if self.checkDevice() == True:  # if no device connected,
                 return  # return from this function
@@ -5484,6 +5502,7 @@ class panelGUI(QMainWindow):
                 )
                 self.panelHeaterWindow.show()
                 logger.info("Heater launched")
+        """
 
     # creates HV measurements gui window
     # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain

@@ -9,6 +9,10 @@ from datetime import datetime as dt
 
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
+import logging
+
+logger = logging.getLogger("root")
+
 kPROCESSES = list(range(1, 8))
 
 # Given a panel and process, access the DB to get the procedure ID
@@ -44,24 +48,24 @@ def WriteSingleMeasurementToDB(connection, pid, t1, t2, timestamp):
 def run(panel, process, data_file):
     database = GetLocalDatabasePath()
 
-    print(f"Writing heat data to local database {database}")
+    logger.info(f"Saving heat data to local database {database}")
 
     # db_check = input("PRESS <ENTER> TO VERIFY THIS DATABASE, ELSE PRESS CTRL-C\n")
     # if db_check:
     #     sys.exit("DB not verified, exiting")
 
-    print(f"Writing data from file {data_file}")
+    logger.info(f"    Data from file {data_file}")
     try:
         assert Path(data_file).is_file()
     except AssertionError:
-        print(f"Data file {data_file} not found!")
+        logger.error(f"    Data file {data_file} not found!")
 
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
 
     with engine.connect() as connection:
         pid = GetProcedureID(connection, int(panel), int(process))
 
-        print(f"Found procedure ID for panel {panel} process {process}: {pid}")
+        logger.debug(f"    Found PID for MN{panel} pro{process}: {pid}")
 
         query = """
         INSERT OR IGNORE INTO panel_heat (procedure, temp_paas_a, temp_paas_bc, timestamp)
@@ -91,19 +95,20 @@ def run(panel, process, data_file):
                 error = str(e.__dict__["orig"])
                 logger.error(error)
                 logger.error(
-                    "At least one datapoint in this CSV file already exists in the DB."
+                    "    At least one datapoint in this CSV file already exists in the DB."
                 )
-                logger.error("Was this CSV file already loaded?")
-                logger.error("Tell Ben if this is unexpected or otherwise a problem.")
+                logger.error("    Was this CSV file already loaded?")
+                logger.error(
+                    "    Tell Ben if this is unexpected or otherwise a problem."
+                )
             else:
+                logger.info(f"    Loaded {r_set.rowcount} data points into local DB.")
                 logger.info(
-                    f"Loaded {r_set.rowcount} heat data points into the local"
-                    "DB for panel {panel} process {process}."
+                    "    To send it to the network (and see it in DBV) "
+                    "trigger an automerge."
                 )
-                logger.info(
-                    "The data is now in the local database. To send it to the"
-                    "network (and see it in DBV) trigger an automerge."
-                )
+
+        logger.info("All done! You can close the heater window now.")
 
 
 if __name__ == "__main__":

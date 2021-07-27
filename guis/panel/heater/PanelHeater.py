@@ -85,15 +85,13 @@ class HeatControl(QMainWindow):
     def identifyStandaloneMode(self):
         import inspect
 
-        parents = inspect.stack()
+        parents = inspect.stack()  # who called PanelHeater?
+        # print("\n\n".join(str(i) for i in parents))
         is_standalone = len([i for i in parents if "launch_sa_heater" in str(i)])
         if is_standalone:
             logger.info("Heater launched separately from PANGUI.")
             logger.info("Live data will be saved to a txt file only.")
-            logger.info(
-                "When the End Data Collection button is pressed, the txt "
-                "data will be loaded into the local database."
-            )
+            logger.info("'End Data Collection' loads data to local DB.")
         elif len([i for i in parents if "pangui" in str(i)]):
             logger.warning("Heater launched as a child to PANGUI.")
             logger.warning(
