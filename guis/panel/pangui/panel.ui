@@ -3858,7 +3858,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>710</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5206,8 +5206,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>484</width>
-                       <height>646</height>
+                       <width>281</width>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -6729,6 +6729,9 @@ Heater GUI</string>
                   </item>
                   <item row="2" column="4">
                    <widget class="QLineEdit" name="centerRing1LE">
+                    <property name="toolTip">
+                     <string>Enter OS0000 if unknown</string>
+                    </property>
                     <property name="maxLength">
                      <number>6</number>
                     </property>
@@ -6739,6 +6742,12 @@ Heater GUI</string>
                   </item>
                   <item row="3" column="7">
                    <widget class="QLineEdit" name="rightRing4LE">
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="toolTipDuration">
+                     <number>-1</number>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -6759,6 +6768,12 @@ Heater GUI</string>
                   </item>
                   <item row="1" column="7">
                    <widget class="QLineEdit" name="leftRing4LE">
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="toolTipDuration">
+                     <number>-1</number>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -6772,6 +6787,9 @@ Heater GUI</string>
                   </item>
                   <item row="3" column="4">
                    <widget class="QLineEdit" name="rightRing1LE">
+                    <property name="toolTip">
+                     <string>Enter OL0000 if unknown</string>
+                    </property>
                     <property name="maxLength">
                      <number>6</number>
                     </property>
@@ -6789,6 +6807,9 @@ Heater GUI</string>
                   </item>
                   <item row="1" column="4">
                    <widget class="QLineEdit" name="leftRing1LE">
+                    <property name="toolTip">
+                     <string>Enter OL0000 if unknown</string>
+                    </property>
                     <property name="maxLength">
                      <number>6</number>
                     </property>
@@ -6799,6 +6820,9 @@ Heater GUI</string>
                   </item>
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="left_cover_6">
+                    <property name="toolTip">
+                     <string>Enter LCOV000 if unknown</string>
+                    </property>
                     <property name="maxLength">
                      <number>7</number>
                     </property>
@@ -6816,6 +6840,12 @@ Heater GUI</string>
                   </item>
                   <item row="2" column="7">
                    <widget class="QLineEdit" name="centerRing4LE">
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="toolTipDuration">
+                     <number>-1</number>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -6938,6 +6968,9 @@ Heater GUI</string>
                   </item>
                   <item row="3" column="1">
                    <widget class="QLineEdit" name="right_cover_6">
+                    <property name="toolTip">
+                     <string>Enter RCOV000 if unknown</string>
+                    </property>
                     <property name="maxLength">
                      <number>7</number>
                     </property>
@@ -6975,6 +7008,9 @@ Heater GUI</string>
                   </item>
                   <item row="2" column="1">
                    <widget class="QLineEdit" name="center_cover_6">
+                    <property name="toolTip">
+                     <string>Enter CCOV000 if unknown</string>
+                    </property>
                     <property name="maxLength">
                      <number>7</number>
                     </property>
