@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import traceback
 import threading
+from guis.panel.heater.load_heat_csv_into_db import run as load_into_db
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -36,9 +37,19 @@ class HeatControl(QMainWindow):
     """Python interface to collect and visualize data from PAAS heater control system"""
 
     def __init__(
-        self, port, panel, wait=120000, ndatapts=450, parent=None, saveMethod=None
+        self,
+        port,
+        panel,
+        wait=120000,
+        ndatapts=450,
+        parent=None,
+        saveMethod=lambda a, b: None,
     ):
         super(HeatControl, self).__init__(parent)
+
+        self.load_text_data_to_db = (
+            self.identifyStandaloneMode()
+        )  # in SA mode, upload data->db after finished
         if port == "GUI":  # PANGUI doesn't have a get port function
             port = getport("VID:PID=2341:8037")  # opened in PANGUI w/ port = "GUI"
         self.port = port
@@ -64,11 +75,31 @@ class HeatControl(QMainWindow):
         self.ui.paas2_box.currentIndexChanged.connect(self.selectpaas)
         self.ui.setpt_box.currentIndexChanged.connect(self.selectpaas)
         self.ui.start_button.setDisabled(True)
-        self.ui.end_data.clicked.connect(self.endtest)
+        self.ui.end_data.clicked.connect(self.endtest)  # call join on thread
 
         ## user choice temperature setpoint
         self.ui.setpt_box.currentIndexChanged.connect(self.update_setpoint)
-        logger.info("initialized")
+        logger.info("HeatControl fully initialized")
+
+    # Identify standalone mode and upload txt data to db accordingly
+    def identifyStandaloneMode(self):
+        import inspect
+
+        parents = inspect.stack()  # who called PanelHeater?
+        # print("\n\n".join(str(i) for i in parents))
+        is_standalone = len([i for i in parents if "launch_sa_heater" in str(i)])
+        if is_standalone:
+            logger.info("Heater launched separately from PANGUI.")
+            logger.info("Live data will be saved to a txt file only.")
+            logger.info("'End Data Collection' loads data to local DB.")
+        elif len([i for i in parents if "pangui" in str(i)]):
+            logger.warning("Heater launched as a child to PANGUI.")
+            logger.warning(
+                "Data is (probably) being saved directly to the local "
+                "database, and this program is subject to the fragility of "
+                "automerging to the network."
+            )
+        return is_standalone
 
     def saveMethod_placeholder(self):
         ## self.tempArec = PAAS-A temperatures
@@ -94,7 +125,7 @@ class HeatControl(QMainWindow):
             self.ui.labelsp.setText(f"Current setpoint: {self.setpt}C")
             # if thread already running, send it the new setpoint
             if self.hct:
-                logger.info("sending sp %s" % self.setpt)
+                logger.info(f"Sending new setpoint to arduino {self.setpt}")
                 self.hct.setpt = self.setpt
         else:  # for case with 'Select...' option (start will be disabled)
             self.setpt = 0
@@ -115,22 +146,26 @@ class HeatControl(QMainWindow):
         ## trigger paas2 input request
         time.sleep(0.2)
         self.micro.write(b"\n")
-        test = self.micro.readline()
-        while test == b"" or test == b"\r\n":  # skip blank lines if any
+        # skip blank lines if any (and then throw them away)
+        ino_line = self.micro.readline()
+        while ino_line == b"" or ino_line == b"\r\n":
             self.micro.write(b"\n")
-            test = self.micro.readline()
+            ino_line = self.micro.readline()
         ## send character that determines second PAAS plate
         self.paastype = paas2dict[self.paas2input].encode("utf8")
         ## plot will have time since start of test
         self.t0 = time.time()
 
         ## run data collection from separate thread to avoid freezing GUI
-        self.interval.timeout.connect(self.next)
-        self.hct = DataThread(self.micro, self.panel, self.paastype, self.setpt)
+        self.interval.timeout.connect(self.next)  # call next @ every timeout
+        self.hct = DataThread(
+            self.micro, self.panel, self.paastype, self.setpt, self.load_text_data_to_db
+        )
         self.hct.start()
-        self.interval.start(self.wait)  # get data at every timeout
+        self.interval.start(self.wait)  # begin timeouts every wait secs
 
     # In this function: pass temperatures out to PANGUI
+    # During every 'timeout', call this function
     def next(self):
         """Add next data to the GUI display"""
         ## get the most recent measurement held in thread
@@ -146,9 +181,9 @@ class HeatControl(QMainWindow):
                 self.temp2rec.append(0.0)  # (avoid -242 or 988)
             self.timerec.append((time.time() - self.t0) / 60.0)
             if len(self.timerec) > self.ndatapts:
-                self.endtest()
+                self.endtest()  # join thread if we've collected enough data
             else:
-                self.hct.savedata()
+                self.hct.savedata()  # to a csv file
                 ## update plot display
                 self.testplot2()
 
@@ -195,17 +230,24 @@ class HeatControl(QMainWindow):
 class DataThread(threading.Thread):
     """Read data from Arduino in temperature control box"""
 
-    def __init__(self, micro, panel, paastype, setpoint):
+    def __init__(self, micro, panel, paastype, setpoint, load_text_data_to_db):
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
         self.micro = micro
         self.paastype = paastype
         self.setpt = setpoint
-        proc_str = {"0": "pro1", "b": "pro2", "c": "pro6"}[paastype.decode()]
+        self.load_text_data_to_db = load_text_data_to_db
+        self.pro = {"0": 1, "b": 2, "c": 6}[paastype.decode()]
         outfilename = (
-            panel + "_" + dt.now().strftime("%Y-%m-%d") + "_" + proc_str + ".csv"
+            panel
+            + "_"
+            + dt.now().strftime("%Y-%m-%d")
+            + "_pro"
+            + str(self.pro)
+            + ".csv"
         )
+        self.panel = int(panel[2:])
         self.datafile = GetProjectPaths()["heatdata"] / outfilename
         ## create file if needed and write header
         if not self.datafile.is_file():
@@ -218,39 +260,42 @@ class DataThread(threading.Thread):
     def run(self):
         logger.info("thread running")
         n, nmax = 0, 40
+        # loop this endlessly until we press the "end data collection" button.
+        # each loop finishes in about 10 sec
         while self.running.isSet():
-            self.micro.write(self.paastype)
-            self.micro.write(str(self.setpt).encode("utf8"))
-            self.micro.write(b"\n")
-            ## extract measurements
+            # self.micro.write(self.paastype)
+            # self.micro.write(str(self.setpt).encode("utf8"))
+            # self.micro.write(b"\n")
+            # Read nmax (40) arduino lines until we get legit temp vals
             temp1, temp2 = "", ""
             while not (temp1 and temp2) and n < nmax:
-                test = self.micro.readline().decode("utf8")
-                if test == "":
+                ino_line = self.micro.readline().decode("utf8")
+                if ino_line == "":
                     n += 1
                     self.micro.write(self.paastype)
                     self.micro.write(str(self.setpt).encode("utf8"))
                     self.micro.write(b"\n")
                     continue
-                # print(repr(test))
-                if len(test.strip().split()) < 2:  # skip split line error
+                # print(repr(ino_line))
+                if len(ino_line.strip().split()) < 2:  # skip split line error
                     logger.info("skipping fragment of split line")
                     continue
-                if "val" in test:  # duty cycle 0-255 for voltage control
-                    logger.info(test.strip())
-                elif "Temperature" in test:  # temperature reading
-                    test = test.strip().split()
+                if "val" in ino_line:  # duty cycle 0-255 for voltage control
+                    logger.info(ino_line.strip())
+                elif "Temperature" in ino_line:  # temperature reading
+                    ino_line = ino_line.strip().split()
                     try:
-                        float(test[-1])
+                        float(ino_line[-1])
                     except ValueError:
                         logger.info("skipping fragment of split line")
                         continue
-                    if test[1] == "1:":
-                        temp1 = test[-1]  # PAAS-A temperature [C]
-                    elif test[1] == "2:":
-                        temp2 = test[-1]  # 2nd PAAS temperature [C]
+                    if ino_line[1] == "1:":
+                        temp1 = ino_line[-1]  # PAAS-A temperature [C]
+                    elif ino_line[1] == "2:":
+                        temp2 = ino_line[-1]  # 2nd PAAS temperature [C]
                 n += 1
                 time.sleep(1)
+
             if n == nmax:  # probable error with serial connection
                 logger.error("Error with serial connection ->")
                 # clear temps to not send old value if requested by GUI
@@ -264,10 +309,13 @@ class DataThread(threading.Thread):
                 self.temp1 = temp1
                 self.temp2 = temp2
                 n = 0
+
         logger.info("thread running check")
         ## close serial if thread joined
         if self.micro:
             self.micro.close()
+            if self.load_text_data_to_db:
+                load_into_db(self.panel, self.pro, self.datafile)
 
     def savedata(self):
         # print('setpoint in thread',self.setpt)
