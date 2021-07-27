@@ -5452,62 +5452,10 @@ class panelGUI(QMainWindow):
             shell=True,
             cwd=root_dir,
         )
-        # os.system(f"start cmd.exe @cmd python -m guis.panel.heater {panelID}")
-        # os.system(f"start /B start cmd.exe @cmd python -m guis.panel.heater {panelID}")
-        # os.system(f"start cmd /c python -m guis.panel.heater {panelID}")
-        # subprocess.call(
-        #    f"start /wait python -m guis.panel.heater {panelID}",
-        #    shell=True,
-        #    cwd=root_dir,
-        # )
-        # subprocess.call(
-        #    f"start cmd /K python -m guis.panel.heater {panelID}",
-        #    shell=True,
-        #    cwd=root_dir,
-        # )
-        # subprocess.call(f"python -m guis.panel.heater {panelID}", creationflags=subprocess.CREATE_NEW_CONSOLE, cwd=root_dir, shell=True)
-        # print("HERE")
-        # os.system("cmd.exe")
-        # subprocess.call("start /wait python -m guis.panel.heater PAUSE", cwd=root_dir, shell=True )
-        # subprocess.call("start /wait ", cwd=root_dir, shell=True )
-        """
-        else:  # old method: launch heater internally, save directly to the db
-            if self.checkDevice() == True:  # if no device connected,
-                return  # return from this function
-
-            if self.panelHeaterWindow is not None:  # if a window already exists
-                buttonReply = QMessageBox.question(  # prompt user, ask if they want to kill old window
-                    self,
-                    "Panel Heater Window",
-                    "If a panel heater window is already open, launching a new one will close the old one.  Continue?",
-                    QMessageBox.Yes | QMessageBox.Cancel,  # button options
-                    QMessageBox.Cancel,
-                )  # default selection
-                if buttonReply == QMessageBox.Yes:
-                    self.panelHeaterWindow = None  # close the window!
-                else:
-                    return  # don't close the window!  keep it safe by returning!
-
-            if self.panelHeaterWindow == None:  # if no window yet,
-                # get the current panel ID (one of the inputs will have text, the others will have none)
-                panelID = f"{self.ui.panelInput6.text()}{self.ui.panelInput2.text()}{self.ui.panelInput1.text()}"
-                self.panelHeaterWindow = HeatControl(
-                    port="GUI",
-                    panel=panelID,
-                    saveMethod=(
-                        lambda temp_paas_a, temp_paas_bc: (
-                            self.DP.savePanelTempMeasurement(temp_paas_a, temp_paas_bc)
-                        )
-                    ),
-                )
-                self.panelHeaterWindow.show()
-                logger.info("Heater launched")
-        """
 
     # creates HV measurements gui window
     # uses highVoltageGUI from GUIs/current/tension_devices/hv_gui/hvGUImain
     def hvMeasurementsPopup(self):
-
         if self.hvMeasurementsWindow is not None:  # if a window already exists
             buttonReply = QMessageBox.question(  # prompt user, ask if they want to kill old window
                 self,
