@@ -6,6 +6,7 @@ import sqlalchemy as sqla  # for interacting with db
 import sys, csv
 from pathlib import Path
 from datetime import datetime as dt
+from guis.common.panguilogger import SetupPANGUILogger
 
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
@@ -112,4 +113,5 @@ def run(panel, process, data_file):
 
 
 if __name__ == "__main__":
+    logger = SetupPANGUILogger("root", "LoadHeatData")
     run(sys.argv[1], sys.argv[2], sys.argv[3])
