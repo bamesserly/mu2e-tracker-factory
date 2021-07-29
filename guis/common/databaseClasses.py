@@ -40,7 +40,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from guis.common.databaseManager import DatabaseManager
 from datetime import datetime
-from sys import modules, exit
+from sys import modules, exit, exc_info
 from inspect import isclass, getmembers
 from datetime import datetime
 from time import time
@@ -190,6 +190,8 @@ class Comment(BASE, OBJECT):
     @classmethod
     def queryByPanel(cls, panel_number):
         # panel = Panel.query().filter(Panel.number == panel_number).one_or_none()
+
+        # when was this code written? looks like a solution to MP
         panel = StrawLocation.Panel(panel_number)
 
         return (
@@ -524,7 +526,27 @@ class Procedure(BASE, OBJECT):
                 cls = c
                 break
 
+        procedure = (
+                cls.query()
+                .filter(cls.station == station.id)
+                .filter(cls.straw_location == straw_location.id)
+                .one_or_none()
+            )
+        '''
+        try:
+            procedure = (
+                cls.query()
+                .filter(cls.station == station.id)
+                .filter(cls.straw_location == straw_location.id)
+                .one_or_none()
+            )
+        except sqlalchemy.orm.exc.MultipleResultsFound:
+            logger.debug(exc_info()[0])
+            logger.error(f"problem finding straw location")
+            exit(1)
+        
         # Try to query a procedure that matches the given station and straw_location
+        # current catch for MP
         try:
             procedure = (
                 cls.query()
@@ -551,6 +573,7 @@ class Procedure(BASE, OBJECT):
             )
             logger.error("Multiple Procedures Error")
             exit(1)
+        '''
 
         # If one is found, return it.
         if procedure is not None:
@@ -1964,6 +1987,7 @@ class Station(BASE, OBJECT):
     production_step = Column(Integer)
     __mapper_args__ = {"polymorphic_on": production_stage}
 
+    # solution to MP?
     # TODO instead of one_or_none, call one() and try catch if None
     # As-is: crash when none
     @staticmethod
@@ -2363,7 +2387,18 @@ class StrawLocation(BASE, OBJECT):
     @classmethod
     def _queryStrawLocation(cls, number):
         # Query a StrawLocation of the specified type with the given number.
-        return cls.query().filter(cls.number == number).one_or_none()
+        # In two recent lab occurances of the MP error, this line was the culprit
+        sl = cls.query().filter(cls.number == number).one_or_none()
+        '''
+        try:
+            sl = cls.query().filter(cls.number == number).one_or_none()
+        except:
+            logger.debug(exc_info()[0])
+            logger.error(f"problem finding straw location")
+            exit(1)
+        logger.debug(sl)
+        '''
+        return sl
 
     ## Straw Positions
 
@@ -2511,7 +2546,19 @@ class Panel(StrawLocation):
 
     @classmethod
     def queryByNumber(cls, number):
-        return cls.query().filter(cls.number == number).one_or_none()
+        # MP error or something also here!
+        sl = cls.query().filter(cls.number == number).one_or_none()
+        '''
+        try:
+            sl = cls.query().filter(cls.number == number).one_or_none()
+        except:
+            logger.debug(exc_info()[0])
+            logger.error(f"problem finding straw location")
+            exit(1)
+
+        logger.debug(sl)
+        '''
+        return sl
 
 
 class Pallet(StrawLocation):
