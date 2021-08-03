@@ -5048,6 +5048,50 @@ class panelGUI(QMainWindow):
             text += f'{"Wire at" if wire[2] else "Straw at"} position {wire[0]}:\n{wire[1]}\n\n'
         self.ui.previousBadPTE.setPlainText(text)
 
+    def pro8ChangeStageMode(self):
+        # match stacked widget to combo box option
+        self.ui.stackedWidget_2.setCurrentIndex(
+            self.ui.stageModeCB.currentIndex()
+        )
+        self.ui.goToStagePB.setText(
+            f'Go To {self.ui.stageModeCB.currentText()}'
+        )
+
+
+
+    def pro8StwitchStage(self):
+        # make sure user is ready to switch
+        reply = self.generateBox(
+            "warning",
+            "Switching Stage",
+            "Any data currently entered in the methane test section or resolution section will be lost.  Continue?",
+            question=True
+        )
+        # users response is "saved" in reply
+        if reply == QMessageBox.No:
+            # return if user isn't ready
+            return
+        
+        # reset methane test + resolution form
+        self.ui.reLeftCB.setChecked(False)
+        self.ui.reRightCB.setChecked(False)
+        self.ui.reCenterCB.setChecked(False)
+        self.ui.inflated_yes.setChecked(True)
+        self.ui.inflated_no.setChecked(False)
+        self.ui.leak_location.clear()
+        self.ui.leak_size.clear()
+        self.ui.resolutionPTE.clear()
+
+        # use text in stage select combo box to determine
+        # index to switch to, then do the switch!
+        switchDict = {
+            "Preperation":0, "Leak Test":1,
+            "Methane Test":2, "Shipping":3
+        }
+        self.ui.stackedWidget.setCurrentIndex(
+            switchDict[self.ui.stageSelectCB.currentText()]
+            )
+
     def pro8part1(self):
         # used later for deciding how to save leak fixes
         self.resolvingLeak = "Methane"
