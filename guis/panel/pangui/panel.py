@@ -4735,7 +4735,7 @@ class Ui_MainWindow(object):
         self.stageSelectCB.setItemText(1, _translate("MainWindow", "Leak Test"))
         self.stageSelectCB.setItemText(2, _translate("MainWindow", "Methane Test"))
         self.stageSelectCB.setItemText(3, _translate("MainWindow", "Shipping"))
-        self.goToStagePB.setText(_translate("MainWindow", "Go To _____"))
+        self.goToStagePB.setText(_translate("MainWindow", "Go To Preperation"))
         self.groupBox_189.setTitle(_translate("MainWindow", "Launch GUIs"))
         self.launch_resistance_test.setText(_translate("MainWindow", "Launch Resistance Test"))
         self.launch_leak_test.setText(_translate("MainWindow", "Launch Leak Test"))

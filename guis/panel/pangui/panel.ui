@@ -7559,7 +7559,7 @@ Heater GUI</string>
                        <item row="1" column="0" colspan="2">
                         <widget class="QPushButton" name="goToStagePB">
                          <property name="text">
-                          <string>Go To _____</string>
+                          <string>Go To Preperation</string>
                          </property>
                         </widget>
                        </item>

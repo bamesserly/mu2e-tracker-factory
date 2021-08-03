@@ -817,6 +817,17 @@ class panelGUI(QMainWindow):
             )
         )
 
+        # stage mode
+        self.ui.stageModeCB.currentIndexChanged.connect(self.pro8ChangeStageMode)
+        # stage submit push button
+        self.ui.stageSelectCB.currentIndexChanged.connect(self.pro8ChangeSwitchPBText)
+        # stage mode submit
+        self.ui.goToStagePB.clicked.connect(self.pro8StwitchStage)
+
+        # disable both of above
+        self.ui.stageModeCB.setDisabled(True)
+        self.ui.goToStagePB.setDisabled(True)
+
         # nav buttons
         # prep complete
         self.ui.prepCompletePB.clicked.connect(self.pro8PrepFin)
@@ -3736,6 +3747,8 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
+        self.ui.stageModeCB.setEnabled(True)
+        self.ui.goToStagePB.setEnabled(True)
         # dict for converting month abbreviations to numbers
         monthStrToInt = {
             "Jan": "01",
@@ -3758,8 +3771,6 @@ class panelGUI(QMainWindow):
             "Methane": 3,
             "Shipping": 5,
         }
-
-        print(data)
 
         # panel id
         if data[0] is not None:
@@ -5053,11 +5064,13 @@ class panelGUI(QMainWindow):
         self.ui.stackedWidget_2.setCurrentIndex(
             self.ui.stageModeCB.currentIndex()
         )
+        self.pro8ChangeSwitchPBText()
+
+    def pro8ChangeSwitchPBText(self):
+        # change text on push button to correspond to selected stage
         self.ui.goToStagePB.setText(
-            f'Go To {self.ui.stageModeCB.currentText()}'
+            f'Go To {self.ui.stageSelectCB.currentText()}'
         )
-
-
 
     def pro8StwitchStage(self):
         # make sure user is ready to switch
@@ -5085,12 +5098,15 @@ class panelGUI(QMainWindow):
         # use text in stage select combo box to determine
         # index to switch to, then do the switch!
         switchDict = {
-            "Preperation":0, "Leak Test":1,
-            "Methane Test":2, "Shipping":3
+            "Preperation":0, "Leak Test":2,
+            "Methane Test":3, "Shipping":5
         }
         self.ui.stackedWidget.setCurrentIndex(
             switchDict[self.ui.stageSelectCB.currentText()]
             )
+        self.ui.pro8StageLabel.setText(
+            f'Current Stage: {self.ui.stageSelectCB.currentText()}'
+        )
 
     def pro8part1(self):
         # used later for deciding how to save leak fixes
@@ -5123,11 +5139,13 @@ class panelGUI(QMainWindow):
         self.startRunning()
         self.saveData()
         self.ui.stackedWidget.setCurrentIndex(0)
-        self.ui.pro8StageLabel.setText("Current Stage: Prep")
+        self.ui.pro8StageLabel.setText("Current Stage: Preperation")
         self.ui.prepCompletePB.setFocus()
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
         self.ui.prepCompletePB.setEnabled(True)
+        self.ui.stageModeCB.setEnabled(True)
+        self.ui.goToStagePB.setEnabled(True)
         self.data[7][16] = "Prep"
         self.saveData()
         self.pro8EnableParts()

@@ -1821,12 +1821,18 @@ class SQLDataProcessor(DataProcessor):
         # rings consist of a line edit, then a date input, then another line edit
         # left ring example: OL 1538 25Oct19 0954 79042A
         lRing = f'{str(self.stripNumber(data[4])).zfill(4)}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
+        if "None" in lRing:
+            lRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordLeftRing, lRing)
         # rRing = data[7:10]
         rRing = f'{str(self.stripNumber(data[8])).zfill(4)}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
+        if "None" in rRing:
+            rRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordRightRing, rRing)
         # rRing = data[10:13]
         cRing = f'{str(self.stripNumber(data[12])).zfill(4)}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
+        if "None" in cRing:
+            cRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordCenterRing, cRing)
 
         self.callMethod(self.procedure.recordStage,data[16])
