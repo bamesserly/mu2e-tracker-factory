@@ -3824,9 +3824,12 @@ class panelGUI(QMainWindow):
         if data[15] is not None and data[15] != 'None':
             self.ui.centerRing4LE.setText(str(data[15]))
 
-        self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
-        if data[16] == "LeakTest":
-            self.resolvingLeak = "LeakTest"
+        if data[16] is not None:
+            self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
+            if data[16] == "LeakTest":
+                self.resolvingLeak = "LeakTest"
+            else:
+                self.resolvingLeak = "Methane"
         else:
             self.resolvingLeak = "Methane"
 
