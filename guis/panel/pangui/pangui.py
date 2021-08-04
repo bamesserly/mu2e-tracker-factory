@@ -817,6 +817,17 @@ class panelGUI(QMainWindow):
             )
         )
 
+        # stage mode
+        self.ui.stageModeCB.currentIndexChanged.connect(self.pro8ChangeStageMode)
+        # stage submit push button
+        self.ui.stageSelectCB.currentIndexChanged.connect(self.pro8ChangeSwitchPBText)
+        # stage mode submit
+        self.ui.goToStagePB.clicked.connect(self.pro8StwitchStage)
+
+        # disable both of above
+        self.ui.stageModeCB.setDisabled(True)
+        self.ui.goToStagePB.setDisabled(True)
+
         # nav buttons
         # prep complete
         self.ui.prepCompletePB.clicked.connect(self.pro8PrepFin)
@@ -3736,6 +3747,8 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
+        self.ui.stageModeCB.setEnabled(True)
+        self.ui.goToStagePB.setEnabled(True)
         # dict for converting month abbreviations to numbers
         monthStrToInt = {
             "Jan": "01",
@@ -3758,8 +3771,6 @@ class panelGUI(QMainWindow):
             "Methane": 3,
             "Shipping": 5,
         }
-
-        print(data)
 
         # panel id
         if data[0] is not None:
@@ -3824,9 +3835,12 @@ class panelGUI(QMainWindow):
         if data[15] is not None and data[15] != 'None':
             self.ui.centerRing4LE.setText(str(data[15]))
 
-        self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
-        if data[16] == "LeakTest":
-            self.resolvingLeak = "LeakTest"
+        if data[16] is not None:
+            self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
+            if data[16] == "LeakTest":
+                self.resolvingLeak = "LeakTest"
+            else:
+                self.resolvingLeak = "Methane"
         else:
             self.resolvingLeak = "Methane"
 
@@ -5045,6 +5059,55 @@ class panelGUI(QMainWindow):
             text += f'{"Wire at" if wire[2] else "Straw at"} position {wire[0]}:\n{wire[1]}\n\n'
         self.ui.previousBadPTE.setPlainText(text)
 
+    def pro8ChangeStageMode(self):
+        # match stacked widget to combo box option
+        self.ui.stackedWidget_2.setCurrentIndex(
+            self.ui.stageModeCB.currentIndex()
+        )
+        self.pro8ChangeSwitchPBText()
+
+    def pro8ChangeSwitchPBText(self):
+        # change text on push button to correspond to selected stage
+        self.ui.goToStagePB.setText(
+            f'Go To {self.ui.stageSelectCB.currentText()}'
+        )
+
+    def pro8StwitchStage(self):
+        # make sure user is ready to switch
+        reply = self.generateBox(
+            "warning",
+            "Switching Stage",
+            "Any data currently entered in the methane test section or resolution section will be lost.  Continue?",
+            question=True
+        )
+        # users response is "saved" in reply
+        if reply == QMessageBox.No:
+            # return if user isn't ready
+            return
+        
+        # reset methane test + resolution form
+        self.ui.reLeftCB.setChecked(False)
+        self.ui.reRightCB.setChecked(False)
+        self.ui.reCenterCB.setChecked(False)
+        self.ui.inflated_yes.setChecked(True)
+        self.ui.inflated_no.setChecked(False)
+        self.ui.leak_location.clear()
+        self.ui.leak_size.clear()
+        self.ui.resolutionPTE.clear()
+
+        # use text in stage select combo box to determine
+        # index to switch to, then do the switch!
+        switchDict = {
+            "Preperation":0, "Leak Test":2,
+            "Methane Test":3, "Shipping":5
+        }
+        self.ui.stackedWidget.setCurrentIndex(
+            switchDict[self.ui.stageSelectCB.currentText()]
+            )
+        self.ui.pro8StageLabel.setText(
+            f'Current Stage: {self.ui.stageSelectCB.currentText()}'
+        )
+
     def pro8part1(self):
         # used later for deciding how to save leak fixes
         self.resolvingLeak = "Methane"
@@ -5076,11 +5139,13 @@ class panelGUI(QMainWindow):
         self.startRunning()
         self.saveData()
         self.ui.stackedWidget.setCurrentIndex(0)
-        self.ui.pro8StageLabel.setText("Current Stage: Prep")
+        self.ui.pro8StageLabel.setText("Current Stage: Preperation")
         self.ui.prepCompletePB.setFocus()
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
         self.ui.prepCompletePB.setEnabled(True)
+        self.ui.stageModeCB.setEnabled(True)
+        self.ui.goToStagePB.setEnabled(True)
         self.data[7][16] = "Prep"
         self.saveData()
         self.pro8EnableParts()

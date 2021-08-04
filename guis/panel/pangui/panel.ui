@@ -3858,7 +3858,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>28</height>
+                       <height>18</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5207,7 +5207,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>28</height>
+                       <height>16</height>
                       </rect>
                      </property>
                     </widget>
@@ -6552,150 +6552,23 @@ Heater GUI</string>
                </layout>
               </widget>
               <widget class="QWidget" name="p8FinalQC">
-               <layout class="QGridLayout" name="gridLayout_74">
-                <item row="6" column="1">
-                 <widget class="QGroupBox" name="groupBox_189">
+               <layout class="QGridLayout" name="gridLayout_86">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_35">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="font">
                    <font>
-                    <pointsize>11</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
-                  <property name="title">
-                   <string>Launch GUIs</string>
+                  <property name="text">
+                   <string>Process 8 - Final QC</string>
                   </property>
-                  <layout class="QGridLayout" name="gridLayout_494">
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="launch_resistance_test">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Resistance Test</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="launch_leak_test">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Leak Test</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="3" column="2" rowspan="4">
-                 <widget class="QGroupBox" name="commentGroupBox8">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Comments</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_442">
-                   <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="commentBox8_6">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                      </font>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="saveButton8_6">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>14</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Save</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">saveButtons</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QGroupBox" name="badSWGroupBox">
-                  <property name="title">
-                   <string>Bad Straw/Wire</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_444">
-                   <item row="6" column="0">
-                    <widget class="QLabel" name="label_499">
-                     <property name="text">
-                      <string>Failure</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
-                    <widget class="QLineEdit" name="bad_number"/>
-                   </item>
-                   <item row="7" column="1">
-                    <widget class="QPushButton" name="bad_wire_form">
-                     <property name="text">
-                      <string>Submit</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QLabel" name="label_498">
-                     <property name="text">
-                      <string>Number</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QLineEdit" name="bad_failure"/>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="wireCheck">
-                     <property name="text">
-                      <string>Wire</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="strawCheck">
-                     <property name="text">
-                      <string>Straw</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
@@ -7085,21 +6958,13 @@ Heater GUI</string>
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_35">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                <item row="2" column="0" colspan="3">
+                 <widget class="Line" name="line_2">
+                  <property name="lineWidth">
+                   <number>3</number>
                   </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Process 8 - Final QC</string>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -7121,14 +6986,62 @@ Heater GUI</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0" rowspan="3">
+                <item row="3" column="2" rowspan="3">
+                 <widget class="QGroupBox" name="commentGroupBox8">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Comments</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_442">
+                   <item row="0" column="0">
+                    <widget class="QPlainTextEdit" name="commentBox8_6">
+                     <property name="font">
+                      <font>
+                       <pointsize>12</pointsize>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="saveButton8_6">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>14</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">saveButtons</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="4" column="0" rowspan="2">
                  <widget class="QStackedWidget" name="stackedWidget">
                   <property name="currentIndex">
                    <number>0</number>
                   </property>
                   <widget class="QWidget" name="page_17">
                    <layout class="QGridLayout" name="gridLayout_80">
-                    <item row="0" column="0">
+                    <item row="1" column="0">
                      <widget class="QGroupBox" name="groupBox_6">
                       <property name="title">
                        <string>Preperation</string>
@@ -7465,7 +7378,7 @@ Heater GUI</string>
                    </layout>
                   </widget>
                   <widget class="QWidget" name="page_18">
-                   <layout class="QGridLayout" name="gridLayout_81">
+                   <layout class="QGridLayout" name="gridLayout_74">
                     <item row="0" column="0">
                      <widget class="QGroupBox" name="groupBox_10">
                       <property name="title">
@@ -7493,17 +7406,60 @@ Heater GUI</string>
                   </widget>
                  </widget>
                 </item>
-                <item row="2" column="0" colspan="3">
-                 <widget class="Line" name="line_2">
-                  <property name="lineWidth">
-                   <number>3</number>
+                <item row="4" column="1">
+                 <widget class="QGroupBox" name="badSWGroupBox">
+                  <property name="title">
+                   <string>Bad Straw/Wire</string>
                   </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
+                  <layout class="QGridLayout" name="gridLayout_444">
+                   <item row="6" column="0">
+                    <widget class="QLabel" name="label_499">
+                     <property name="text">
+                      <string>Failure</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QLineEdit" name="bad_number"/>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QPushButton" name="bad_wire_form">
+                     <property name="text">
+                      <string>Submit</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_498">
+                     <property name="text">
+                      <string>Number</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QLineEdit" name="bad_failure"/>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QCheckBox" name="wireCheck">
+                     <property name="text">
+                      <string>Wire</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QCheckBox" name="strawCheck">
+                     <property name="text">
+                      <string>Straw</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="5" column="1" rowspan="2">
                  <widget class="QGroupBox" name="groupBox_25">
                   <property name="title">
                    <string>Previous Failures</string>
@@ -7520,6 +7476,138 @@ Heater GUI</string>
                      </property>
                      <property name="readOnly">
                       <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="6" column="0" rowspan="2">
+                 <widget class="QGroupBox" name="groupBox_26">
+                  <property name="title">
+                   <string>Stage Selection Mode</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_84">
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="stageModeCB">
+                     <item>
+                      <property name="text">
+                       <string>Auto</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Manual</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" rowspan="2" colspan="2">
+                    <widget class="QLabel" name="label_45">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QStackedWidget" name="stackedWidget_2">
+                     <property name="currentIndex">
+                      <number>0</number>
+                     </property>
+                     <widget class="QWidget" name="page_19">
+                      <layout class="QGridLayout" name="gridLayout_81"/>
+                     </widget>
+                     <widget class="QWidget" name="page_20">
+                      <layout class="QGridLayout" name="gridLayout_85">
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="label_44">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>Select Stage</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QComboBox" name="stageSelectCB">
+                         <item>
+                          <property name="text">
+                           <string>Preperation</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Leak Test</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Methane Test</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Shipping</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QPushButton" name="goToStagePB">
+                         <property name="text">
+                          <string>Go To Preperation</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QGroupBox" name="groupBox_189">
+                  <property name="font">
+                   <font>
+                    <pointsize>11</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Launch GUIs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_494">
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="launch_resistance_test">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Resistance Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="launch_leak_test">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Leak Test</string>
                      </property>
                     </widget>
                    </item>
@@ -7947,8 +8035,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>
