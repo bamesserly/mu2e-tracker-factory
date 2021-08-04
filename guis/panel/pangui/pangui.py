@@ -3788,7 +3788,7 @@ class panelGUI(QMainWindow):
 
         # left ring
         # OL **** - data[4] is just the 4 digits, not the OL
-        if data[4] is not None and data[4] != 'None':
+        if data[4] is not None and data[4] != "None":
             self.ui.leftRing1LE.setText("OL" + (str(data[4])).zfill(3))
         # ddMMMyy - days, months (string), year
         if data[5] is not None:
@@ -3802,11 +3802,11 @@ class panelGUI(QMainWindow):
             mm = int(data[6][2:])  # minute
             self.ui.leftRing3TE.setTime(QTime(hH, mm))
         # regex(dddddD) - five digits and a letter
-        if data[7] is not None and data[7] != 'None':
+        if data[7] is not None and data[7] != "None":
             self.ui.leftRing4LE.setText(str(data[7]))
 
         # right ring
-        if data[8] is not None and data[8] != 'None':
+        if data[8] is not None and data[8] != "None":
             self.ui.rightRing1LE.setText("OL" + (str(data[8])).zfill(3))
         if data[9] is not None:
             dd = int(data[9][:2])  # day
@@ -3817,11 +3817,11 @@ class panelGUI(QMainWindow):
             hH = int(data[10][:2])  # hour
             mm = int(data[10][2:])  # minute
             self.ui.rightRing3TE.setTime(QTime(hH, mm))
-        if data[11] is not None and data[11] != 'None':
+        if data[11] is not None and data[11] != "None":
             self.ui.rightRing4LE.setText(str(data[11]))
 
         # center ring
-        if data[12] is not None and data[12] != 'None':
+        if data[12] is not None and data[12] != "None":
             self.ui.centerRing1LE.setText("OS" + (str(data[12])).zfill(3))
         if data[13] is not None:
             dd = int(data[13][:2])  # day
@@ -3832,7 +3832,7 @@ class panelGUI(QMainWindow):
             hH = int(data[14][:2])  # hour
             mm = int(data[14][2:])  # minute
             self.ui.centerRing3TE.setTime(QTime(hH, mm))
-        if data[15] is not None and data[15] != 'None':
+        if data[15] is not None and data[15] != "None":
             self.ui.centerRing4LE.setText(str(data[15]))
 
         if data[16] is not None:
@@ -5037,7 +5037,7 @@ class panelGUI(QMainWindow):
             self.saveData()
         except:
             pass
-    
+
     # by default, enables pro 8 part and bad wire/straw form widgets
     # if doPart or doForm are false the corresponding widgets will be disabled
     # used to ensure widgets are enabled when they need to be and in resetPro8
@@ -5061,16 +5061,12 @@ class panelGUI(QMainWindow):
 
     def pro8ChangeStageMode(self):
         # match stacked widget to combo box option
-        self.ui.stackedWidget_2.setCurrentIndex(
-            self.ui.stageModeCB.currentIndex()
-        )
+        self.ui.stackedWidget_2.setCurrentIndex(self.ui.stageModeCB.currentIndex())
         self.pro8ChangeSwitchPBText()
 
     def pro8ChangeSwitchPBText(self):
         # change text on push button to correspond to selected stage
-        self.ui.goToStagePB.setText(
-            f'Go To {self.ui.stageSelectCB.currentText()}'
-        )
+        self.ui.goToStagePB.setText(f"Go To {self.ui.stageSelectCB.currentText()}")
 
     def pro8StwitchStage(self):
         # make sure user is ready to switch
@@ -5078,13 +5074,13 @@ class panelGUI(QMainWindow):
             "warning",
             "Switching Stage",
             "Any data currently entered in the methane test section or resolution section will be lost.  Continue?",
-            question=True
+            question=True,
         )
         # users response is "saved" in reply
         if reply == QMessageBox.No:
             # return if user isn't ready
             return
-        
+
         # reset methane test + resolution form
         self.ui.reLeftCB.setChecked(False)
         self.ui.reRightCB.setChecked(False)
@@ -5098,14 +5094,16 @@ class panelGUI(QMainWindow):
         # use text in stage select combo box to determine
         # index to switch to, then do the switch!
         switchDict = {
-            "Preperation":0, "Leak Test":2,
-            "Methane Test":3, "Shipping":5
+            "Preperation": 0,
+            "Leak Test": 2,
+            "Methane Test": 3,
+            "Shipping": 5,
         }
         self.ui.stackedWidget.setCurrentIndex(
             switchDict[self.ui.stageSelectCB.currentText()]
-            )
+        )
         self.ui.pro8StageLabel.setText(
-            f'Current Stage: {self.ui.stageSelectCB.currentText()}'
+            f"Current Stage: {self.ui.stageSelectCB.currentText()}"
         )
 
     def pro8part1(self):
@@ -5513,7 +5511,7 @@ class panelGUI(QMainWindow):
     def panelHeaterPopup(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            f"start /wait python -m guis.panel.heater {self.getCurrentPanel()} PAUSE",
+            f"start python -m guis.panel.heater {self.getCurrentPanel()}",
             shell=True,
             cwd=root_dir,
         )
@@ -5557,7 +5555,9 @@ class panelGUI(QMainWindow):
     def run_resistance(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start /wait python -m guis.panel.resistance", shell=True, cwd=root_dir
+            "start python -m guis.panel.resistance",
+            shell=True,
+            cwd=root_dir,
         )
 
     # record broken tap from the broken tap form in pro8
