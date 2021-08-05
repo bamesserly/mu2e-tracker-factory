@@ -1,4 +1,5 @@
 from datetime import datetime
+from os import getenv
 import logging
 
 # the order that these lines appear in is important!
@@ -14,7 +15,7 @@ def SetupPANGUILogger(name="root", tag="PANGUI"):
     shandler.setLevel(logging.INFO)
 
     logfile = "./logfiles/" + datetime.strftime(
-        datetime.now(), f"%Y%m%d_%H%M%S_{tag}_log.txt"
+        datetime.now(), f"%Y%m%d_%H%M%S_{tag}_{getenv('USERDOMAIN')}_log.txt"
     )
     fhandler = logging.FileHandler(logfile)
     fhandler.setFormatter(fformatter)
