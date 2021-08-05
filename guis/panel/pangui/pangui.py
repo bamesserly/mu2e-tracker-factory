@@ -28,7 +28,7 @@ Date of Last Update: 10/9/2020
 # ██║██║ ╚═╝ ██║██║     ╚██████╔╝██║  ██║   ██║   ███████║
 # ╚═╝╚═╝     ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
-import sys, time, os, tkinter, traceback, serial, platform
+import sys, time, os, tkinter, traceback, serial, platform, traceback
 from pathlib import Path, PurePath
 import subprocess  ## run straw and wire tensioner GUIs as subprocesses
 
@@ -2763,13 +2763,22 @@ class panelGUI(QMainWindow):
         ### Load Data
 
         ## Try to load all previous data
-        (
-            data,
-            elapsed_time,
-            steps_completed,
-        ) = (
-            self.DP.loadData()
-        )  # data should be renamed so there isn't self.data and data
+        try:
+            (data, elapsed_time, steps_completed) = (self.DP.loadData())
+        except Exception as e:
+            c = sys.exc_info()[0]
+            t = traceback.format_exc()
+            self.generateBox(
+                "critical",
+                "Error",
+                f"An error was encountered while loading data for panel {self.getCurrentPanel()}, please inform a software team member.\nException: {c}"
+            )
+            # log exception class, error description, and traceback
+            logger.error(c)
+            logger.error(e)
+            logger.debug(t)
+            exit(1)
+        # data should be renamed so there isn't self.data and data
         ## If no new data is found, return early
         if not any(
             el is not None for el in data[1:]

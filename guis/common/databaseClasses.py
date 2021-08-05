@@ -190,6 +190,8 @@ class Comment(BASE, OBJECT):
     @classmethod
     def queryByPanel(cls, panel_number):
         # panel = Panel.query().filter(Panel.number == panel_number).one_or_none()
+
+        # when was this code written? looks like a solution to MP
         panel = StrawLocation.Panel(panel_number)
 
         return (
@@ -524,33 +526,12 @@ class Procedure(BASE, OBJECT):
                 cls = c
                 break
 
-        # Try to query a procedure that matches the given station and straw_location
-        try:
-            procedure = (
+        procedure = (
                 cls.query()
                 .filter(cls.station == station.id)
                 .filter(cls.straw_location == straw_location.id)
                 .one_or_none()
             )
-        except sqlalchemy.orm.exc.MultipleResultsFound:
-            import tkinter
-
-            message = (
-                f"This process was probably started on computer A and "
-                "resumed on computer B without an intermediate "
-                "mergedown on computer B.\n\n Inform the "
-                "#tracker_production channel of this error, along with "
-                "the panel, process, and current computer ID. It takes "
-                "about 5 minutes to log into the computer and fix."
-            )
-            packageErrorRoot = tkinter.Tk()  # create a tkinter root
-            packageErrorRoot.withdraw()  # hide blank windows
-            tkinter.messagebox.showerror(  # show error message
-                title="Multiple Procedures Error",
-                message=message,
-            )
-            logger.error("Multiple Procedures Error")
-            exit(1)
 
         # If one is found, return it.
         if procedure is not None:
@@ -1964,6 +1945,7 @@ class Station(BASE, OBJECT):
     production_step = Column(Integer)
     __mapper_args__ = {"polymorphic_on": production_stage}
 
+    # solution to MP?
     # TODO instead of one_or_none, call one() and try catch if None
     # As-is: crash when none
     @staticmethod
@@ -2363,7 +2345,9 @@ class StrawLocation(BASE, OBJECT):
     @classmethod
     def _queryStrawLocation(cls, number):
         # Query a StrawLocation of the specified type with the given number.
-        return cls.query().filter(cls.number == number).one_or_none()
+        # In two recent lab occurances of the MP error, this line was the culprit
+        sl = cls.query().filter(cls.number == number).one_or_none()
+        return sl
 
     ## Straw Positions
 
@@ -2511,7 +2495,9 @@ class Panel(StrawLocation):
 
     @classmethod
     def queryByNumber(cls, number):
-        return cls.query().filter(cls.number == number).one_or_none()
+        # MP error or something also here!
+        sl = cls.query().filter(cls.number == number).one_or_none()
+        return sl
 
 
 class Pallet(StrawLocation):
