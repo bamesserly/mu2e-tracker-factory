@@ -40,7 +40,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from guis.common.databaseManager import DatabaseManager
 from datetime import datetime
-from sys import modules, exit, exc_info
+from sys import modules, exit
 from inspect import isclass, getmembers
 from datetime import datetime
 from time import time
@@ -532,48 +532,6 @@ class Procedure(BASE, OBJECT):
                 .filter(cls.straw_location == straw_location.id)
                 .one_or_none()
             )
-        '''
-        try:
-            procedure = (
-                cls.query()
-                .filter(cls.station == station.id)
-                .filter(cls.straw_location == straw_location.id)
-                .one_or_none()
-            )
-        except sqlalchemy.orm.exc.MultipleResultsFound:
-            logger.debug(exc_info()[0])
-            logger.error(f"problem finding straw location")
-            exit(1)
-        
-        # Try to query a procedure that matches the given station and straw_location
-        # current catch for MP
-        try:
-            procedure = (
-                cls.query()
-                .filter(cls.station == station.id)
-                .filter(cls.straw_location == straw_location.id)
-                .one_or_none()
-            )
-        except sqlalchemy.orm.exc.MultipleResultsFound:
-            import tkinter
-
-            message = (
-                f"This process was probably started on computer A and "
-                "resumed on computer B without an intermediate "
-                "mergedown on computer B.\n\n Inform the "
-                "#tracker_production channel of this error, along with "
-                "the panel, process, and current computer ID. It takes "
-                "about 5 minutes to log into the computer and fix."
-            )
-            packageErrorRoot = tkinter.Tk()  # create a tkinter root
-            packageErrorRoot.withdraw()  # hide blank windows
-            tkinter.messagebox.showerror(  # show error message
-                title="Multiple Procedures Error",
-                message=message,
-            )
-            logger.error("Multiple Procedures Error")
-            exit(1)
-        '''
 
         # If one is found, return it.
         if procedure is not None:
@@ -2389,15 +2347,6 @@ class StrawLocation(BASE, OBJECT):
         # Query a StrawLocation of the specified type with the given number.
         # In two recent lab occurances of the MP error, this line was the culprit
         sl = cls.query().filter(cls.number == number).one_or_none()
-        '''
-        try:
-            sl = cls.query().filter(cls.number == number).one_or_none()
-        except:
-            logger.debug(exc_info()[0])
-            logger.error(f"problem finding straw location")
-            exit(1)
-        logger.debug(sl)
-        '''
         return sl
 
     ## Straw Positions
@@ -2548,16 +2497,6 @@ class Panel(StrawLocation):
     def queryByNumber(cls, number):
         # MP error or something also here!
         sl = cls.query().filter(cls.number == number).one_or_none()
-        '''
-        try:
-            sl = cls.query().filter(cls.number == number).one_or_none()
-        except:
-            logger.debug(exc_info()[0])
-            logger.error(f"problem finding straw location")
-            exit(1)
-
-        logger.debug(sl)
-        '''
         return sl
 
 
