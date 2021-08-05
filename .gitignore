@@ -2,17 +2,12 @@ venv/
 *.db
 *.pyc
 *.swp
-Data/
-Database/localDatabasePath.txt
-Database/networkDatabasePath.txt
+*.png
+data/
 resources/networkDatabasePath.txt
 resources/dbvDatabasePath.txt
 resources/rootDirectory.txt
 resources/rootDirectoryLocation.txt
-GUIS/straw/Prep GUI/dailytotal.txt
-GUIS/straw/Prep GUI/date.txt
-Scripts/*.csv
-Scripts/*.txt
-Scripts/*.pdf
-Scripts/*.png
+guis/straw/Prep GUI/dailytotal.txt
+guis/straw/Prep GUI/date.txt
 logfiles/
