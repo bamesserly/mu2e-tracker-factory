@@ -1019,10 +1019,11 @@ class facileDBGUI(QMainWindow):
         # tuples have the form: (<panel Number>, <process number>, <comment text>, <comment timestamp in epoch time>)
         # now lets plug the comments into the lists!
         for toop in resultSet:
-            # append comment to appropriate list in comLists dictionary
-            self.data.comLists[toop[1]].append(
-                (toop[2],toop[3])
-            )
+            if toop[1] != "pan8":
+                # append comment to appropriate list in comLists dictionary
+                self.data.comLists[toop[1]].append(
+                    (toop[2],toop[3])
+                )
         # return bool, true if any comments found
         hasData = False
         for key in self.data.comLists:
