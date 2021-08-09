@@ -247,7 +247,7 @@ void loop() {
     // bool valid = !bool(check_resistance(resistance, counter, at_wire));
 
     if (valid) {
-      if (straw_mode) {
+      if (straws_only) {
         counter = (counter + 2) % max_count;  // in straw mode, increment by 2
       } else {
         counter =
