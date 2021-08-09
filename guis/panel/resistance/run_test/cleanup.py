@@ -237,6 +237,11 @@ def main():
         # panel_data[panel_dir.name] = df
 
         # 3. plot
+        logger.info("Saving figures to CD.")
         Plot(panel_dir.name, df)
 
     print("Done")
+
+
+if __name__ == "__main__":
+    main()
