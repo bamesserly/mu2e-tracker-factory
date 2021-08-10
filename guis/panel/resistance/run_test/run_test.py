@@ -22,8 +22,8 @@ def GetSerialPort():
     serialport = None
     avail_ports = serial.tools.list_ports.comports()
     for port, desc, hwid in sorted(avail_ports):
-        # print("{}: {} [{}]".format(port, desc, hwid))
-        if ("USB" in desc or "USB" in hwid) and ("Arduino" in desc or "Arduino" in hwid):
+        print("{}: {} [{}]".format(port, desc, hwid))
+        if ("USB" in desc or "USB" in hwid):
             try:
                 serialport = serial.Serial(
                     port=port, baudrate=baudrate, timeout=timeout
