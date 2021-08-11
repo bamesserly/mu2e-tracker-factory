@@ -28,7 +28,7 @@ Date of Last Update: 10/9/2020
 # ██║██║ ╚═╝ ██║██║     ╚██████╔╝██║  ██║   ██║   ███████║
 # ╚═╝╚═╝     ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
-import sys, time, os, tkinter, traceback, serial, platform, traceback
+import sys, time, os, tkinter, traceback, serial, platform
 from pathlib import Path, PurePath
 import subprocess  ## run straw and wire tensioner GUIs as subprocesses
 
@@ -2763,22 +2763,13 @@ class panelGUI(QMainWindow):
         ### Load Data
 
         ## Try to load all previous data
-        try:
-            (data, elapsed_time, steps_completed) = (self.DP.loadData())
-        except Exception as e:
-            c = sys.exc_info()[0]
-            t = traceback.format_exc()
-            self.generateBox(
-                "critical",
-                "Error",
-                f"An error was encountered while loading data for panel {self.getCurrentPanel()}, please inform a software team member.\nException: {c}"
-            )
-            # log exception class, error description, and traceback
-            logger.error(c)
-            logger.error(e)
-            logger.debug(t)
-            exit(1)
-        # data should be renamed so there isn't self.data and data
+        (
+            data,
+            elapsed_time,
+            steps_completed,
+        ) = (
+            self.DP.loadData()
+        )  # data should be renamed so there isn't self.data and data
         ## If no new data is found, return early
         if not any(
             el is not None for el in data[1:]
@@ -5168,6 +5159,9 @@ class panelGUI(QMainWindow):
         self.pro8EnableParts()
 
     def pro8MethanePass(self):
+        # returns 1 if failed
+        if self.leak_form():
+            return
         self.ui.stackedWidget.setCurrentIndex(2)
         self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
         self.resolvingLeak = "LeakTest"
@@ -5209,16 +5203,8 @@ class panelGUI(QMainWindow):
             self.pro8EnableParts()
 
         if self.resolvingLeak == "Methane":
-            # submit leak test info
-            self.DP.saveLeakForm(
-                f'{"O" if self.ui.reORingsCB.isChecked() else ""}{"L" if self.ui.reLeftCB.isChecked() else ""}{"R" if self.ui.reRightCB.isChecked() else ""}{"C" if self.ui.reCenterCB.isChecked() else ""}',
-                True if self.ui.inflated_yes.isChecked() else False,
-                self.ui.leak_location.text(),
-                "High",
-                self.ui.leak_size.text(),
-                self.ui.resolutionPTE.toPlainText(),
-                self.ui.leak_next.currentText(),
-            )
+            if self.leak_form():
+                return
             self.ui.stackedWidget.setCurrentIndex(3)
             self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
             self.ui.shipBackPB.setFocus()
@@ -5520,7 +5506,7 @@ class panelGUI(QMainWindow):
     def panelHeaterPopup(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            f"start python -m guis.panel.heater {self.getCurrentPanel()}",
+            f"start /wait python -m guis.panel.heater {self.getCurrentPanel()} PAUSE",
             shell=True,
             cwd=root_dir,
         )
@@ -5564,9 +5550,7 @@ class panelGUI(QMainWindow):
     def run_resistance(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start python -m guis.panel.resistance",
-            shell=True,
-            cwd=root_dir,
+            "start /wait python -m guis.panel.resistance", shell=True, cwd=root_dir
         )
 
     # record broken tap from the broken tap form in pro8
@@ -5612,43 +5596,48 @@ class panelGUI(QMainWindow):
     def leak_form(self):
         reinstalled = ""
         # check if anything has been reinstalled
-        if self.ui.re_left.isChecked():
-            reinstalled = "left"
-        elif self.ui.re_center.isChecked():
-            reinstalled = "center"
-        elif self.ui.re_right.isChecked():
-            reinstalled = "right"
+        if self.ui.reORingsCB.isChecked():
+            reinstalled += "O"
+        if self.ui.reLeftCB.isChecked():
+            reinstalled += "L"
+        elif self.ui.reCenterCB.isChecked():
+            reinstalled = "C"
+        elif self.ui.reRightCB.isChecked():
+            reinstalled = "R"
 
         inflated = True
         if self.ui.inflated_no.isChecked():
             inflated = False
 
         location = self.ui.leak_location.text()
-        confidence = str(self.ui.leak_confidence.currentText())
+        # QC people said no longer need confidence
+        confidence = "High"
+
         try:
-            size = int(self.ui.leak_size.text())
+            size = float(self.ui.leak_size.text())
         except ValueError:
             self.generateBox(
                 "warning",
                 "Invalid literal",
                 "Please enter a base 10 number for leak size.",
             )
-        resolution = self.ui.leak_resolution.document().toPlainText()
+            return 1
+        resolution = self.ui.resolutionPTE.document().toPlainText()
+        if resolution == "":
+            resolution += "pass"
         next_step = str(self.ui.leak_next.currentText())
         self.DP.saveLeakForm(
             reinstalled, inflated, location, confidence, size, resolution, next_step
         )
-
         # clear form data
-        self.ui.re_left.setChecked(False)
-        self.ui.re_center.setChecked(False)
-        self.ui.re_right.setChecked(False)
+        self.ui.reLeftCB.setChecked(False)
+        self.ui.reCenterCB.setChecked(False)
+        self.ui.reRightCB.setChecked(False)
         self.ui.inflated_yes.setChecked(True)
         self.ui.inflated_no.setChecked(False)
         self.ui.leak_location.setText("")
-        self.ui.leak_confidence.setCurrentIndex(0)
         self.ui.leak_size.setText("")
-        self.ui.leak_resolution.setPlainText("")
+        self.ui.resolutionPTE.setPlainText("")
         self.ui.leak_next.setCurrentIndex(0)
 
     # Creates a new terminal window and runs the PlotLeakRate.py script
