@@ -5177,6 +5177,7 @@ class panelGUI(QMainWindow):
         self.pro8EnableParts()
 
     def pro8MethaneFail(self):
+
         self.ui.resoBackPB.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(4)
         self.ui.pro8StageLabel.setText("Current Stage: Resolution")
@@ -5612,43 +5613,49 @@ class panelGUI(QMainWindow):
     def leak_form(self):
         reinstalled = ""
         # check if anything has been reinstalled
-        if self.ui.re_left.isChecked():
-            reinstalled = "left"
-        elif self.ui.re_center.isChecked():
-            reinstalled = "center"
-        elif self.ui.re_right.isChecked():
-            reinstalled = "right"
+        if self.ui.reORingsCB.isChecked():
+            reinstalled += "O"
+        if self.ui.reLeftCB.isChecked():
+            reinstalled += "L"
+        if self.ui.reRightCB.isChecked():
+            reinstalled += "R"
+        if self.ui.reCenterCB.isChecked():
+            reinstalled += "C"
 
         inflated = True
         if self.ui.inflated_no.isChecked():
             inflated = False
 
         location = self.ui.leak_location.text()
-        confidence = str(self.ui.leak_confidence.currentText())
+        # QC People said no longer need confidence
+        confidence = "High"
         try:
-            size = int(self.ui.leak_size.text())
+            size = float(self.ui.leak_size.text())
         except ValueError:
             self.generateBox(
                 "warning",
                 "Invalid literal",
                 "Please enter a base 10 number for leak size.",
             )
-        resolution = self.ui.leak_resolution.document().toPlainText()
+            return 1
+        resolution = self.ui.resolutionPTE.document().toPlainText()
+        if resolution == "":
+            resolution += "pass"
         next_step = str(self.ui.leak_next.currentText())
         self.DP.saveLeakForm(
             reinstalled, inflated, location, confidence, size, resolution, next_step
         )
 
         # clear form data
-        self.ui.re_left.setChecked(False)
-        self.ui.re_center.setChecked(False)
-        self.ui.re_right.setChecked(False)
+        self.ui.reLeftCB.setChecked(False)
+        self.ui.reRightCB.setChecked(False)
+        self.ui.reCenterCB.setChecked(False)
         self.ui.inflated_yes.setChecked(True)
         self.ui.inflated_no.setChecked(False)
         self.ui.leak_location.setText("")
         self.ui.leak_confidence.setCurrentIndex(0)
         self.ui.leak_size.setText("")
-        self.ui.leak_resolution.setPlainText("")
+        self.ui.resolutionPTE.setPlainText("")
         self.ui.leak_next.setCurrentIndex(0)
 
     # Creates a new terminal window and runs the PlotLeakRate.py script
