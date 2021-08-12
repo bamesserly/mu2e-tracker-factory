@@ -5189,6 +5189,7 @@ class panelGUI(QMainWindow):
         self.pro8EnableParts()
 
     def pro8MethaneFail(self):
+
         self.ui.resoBackPB.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(4)
         self.ui.pro8StageLabel.setText("Current Stage: Resolution")
