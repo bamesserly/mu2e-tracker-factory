@@ -937,7 +937,7 @@ wire used</string>
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>6</number>
           </property>
           <widget class="QWidget" name="summaryTab">
            <attribute name="title">
@@ -1881,6 +1881,12 @@ wire used</string>
            <layout class="QGridLayout" name="gridLayout_38">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_4">
+              <item row="6" column="1">
+               <widget class="QLineEdit" name="center_ringLE"/>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="left_ringLE"/>
+              </item>
               <item row="4" column="0">
                <widget class="QLabel" name="label_50">
                 <property name="font">
@@ -1893,12 +1899,6 @@ wire used</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="1">
-               <widget class="QLineEdit" name="pro8CRingLE"/>
-              </item>
-              <item row="4" column="1">
-               <widget class="QLineEdit" name="pro8LRingLE"/>
-              </item>
               <item row="6" column="0">
                <widget class="QLabel" name="label_51">
                 <property name="font">
@@ -1908,32 +1908,6 @@ wire used</string>
                 </property>
                 <property name="text">
                  <string>Center O-Ring</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0" colspan="2">
-               <widget class="QLabel" name="label_43">
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Current Stage: Limbo</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_47">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Right Cover</string>
                 </property>
                </widget>
               </item>
@@ -1949,26 +1923,23 @@ wire used</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="pro8LCoverLE"/>
-              </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="pro8RCoverLE"/>
+               <widget class="QLineEdit" name="right_coverLE"/>
               </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_48">
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="left_coverLE"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_47">
                 <property name="font">
                  <font>
                   <pointsize>10</pointsize>
                  </font>
                 </property>
                 <property name="text">
-                 <string>Center Cover</string>
+                 <string>Right Cover</string>
                 </property>
                </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="pro8CCoverLE"/>
               </item>
               <item row="5" column="0">
                <widget class="QLabel" name="label_49">
@@ -1983,7 +1954,7 @@ wire used</string>
                </widget>
               </item>
               <item row="5" column="1">
-               <widget class="QLineEdit" name="pro8RRingLE"/>
+               <widget class="QLineEdit" name="right_ringLE"/>
               </item>
               <item row="7" column="1">
                <spacer name="verticalSpacer">
@@ -1997,6 +1968,36 @@ wire used</string>
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_48">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Center Cover</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="center_coverLE"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_43">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Current Stage</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="stageLE"/>
               </item>
              </layout>
             </item>

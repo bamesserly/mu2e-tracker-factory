@@ -862,8 +862,8 @@ class facileDBGUI(QMainWindow):
         funcRetII = self.findSpecificTB(6)
         hasData = hasData or funcRetI or funcRetII
         # find pro 8 data
-        #funcRet = self.findPro8()
-        #hasData = hasData or funcRet
+        funcRet = self.findPro8()
+        hasData = hasData or funcRet
 
         return hasData
 
@@ -1559,6 +1559,7 @@ class facileDBGUI(QMainWindow):
         self.displayProTiming()
         self.displayComments()
         self.displayParts()
+        self.displayPro8()
         self.displayOnLists(
             3,
             self.data.wireData,
@@ -1754,6 +1755,25 @@ class facileDBGUI(QMainWindow):
         else:
             self.ui.partWireWeightLE.setText("Not found")
 
+    # puts pro8 relevant info on the gui
+    # parameters: no parameters
+    # returns: nothing returned
+    def displayPro8(self):
+        # check if desired pro exists
+        if self.data.proIDs['pan8'] == -1:
+            return
+
+        # start with serial numbers
+        for key in self.data.qcParts:
+            # get correct widget (keys correspond to widget names) and set the text
+            self.getWid(f'{key}LE').setText(
+                str(self.data.qcParts[key])
+            )
+
+            if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
+                self.getWid(f'{key}LE').setText("Unknown")
+
+        
 
     # put data into QListWidgets
     # parameters:   pro, int representing which pro to check for data in
