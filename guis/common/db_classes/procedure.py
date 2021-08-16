@@ -110,7 +110,7 @@ class Procedure(BASE, OBJECT):
 
     @classmethod
     def PanelProcedure(cls, day, panel_number):
-        from guis.common.databaseClasses import StrawLocation
+        from guis.common.db_classes.pallets_panel import StrawLocation
         from guis.common.db_classes.station_session import Station
 
         # Get Station
@@ -152,7 +152,7 @@ class Procedure(BASE, OBJECT):
 
     # Straw Location
     def getStrawLocation(self):
-        from guis.common.databaseClasses import StrawLocation
+        from guis.common.db_classes.pallets_panel import StrawLocation
 
         return StrawLocation.queryWithId(self.straw_location)
 
@@ -361,7 +361,7 @@ class PanelProcedure(Procedure):
     """
 
     def recordPanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
-        from guis.common.databaseClasses import PanelTempMeasurement
+        from guis.common.db_classes.measurements import PanelTempMeasurement
 
         PanelTempMeasurement(
             procedure=self, temp_paas_a=temp_paas_a, temp_paas_bc=temp_paas_bc

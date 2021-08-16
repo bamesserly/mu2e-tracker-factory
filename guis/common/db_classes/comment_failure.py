@@ -35,7 +35,7 @@ class Comment(BASE, OBJECT):
 
     @classmethod
     def queryByPanel(cls, panel_number):
-        from guis.common.databaseClasses import StrawLocation
+        from guis.common.db_classes.pallets_panel import StrawLocation
         from guis.common.db_classes.procedure import Procedure
 
         # panel = Panel.query().filter(Panel.number == panel_number).one_or_none()

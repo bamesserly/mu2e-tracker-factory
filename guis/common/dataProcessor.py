@@ -8,6 +8,7 @@ from csv import DictReader, DictWriter
 import tkinter
 from tkinter import messagebox
 
+from guis.common.databaseClasses import DM
 from guis.common.db_classes.comment_failure import Comment
 from guis.common.db_classes.parts_steps import PanelStep
 from guis.common.db_classes.supplies import (
@@ -19,14 +20,8 @@ from guis.common.db_classes.supplies import (
 )
 from guis.common.db_classes.station_session import Station
 from guis.common.db_classes.procedure import Procedure
-
-from guis.common.databaseClasses import (
-    Panel,
-    DM,
-    TensionboxMeasurement,
-    BadWire,
-    LeakFinalForm,
-)
+from guis.common.db_classes.measurements import BadWire, LeakFinalForm
+from guis.common.db_classes.pallets_panel import Panel
 
 import logging
 
@@ -2015,6 +2010,8 @@ class SQLDataProcessor(DataProcessor):
     def saveTensionboxMeasurement(
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
+        from guis.common.db_classes.measurements import TensionboxMeasurement
+
         if self.ensureProcedure():
             is_straw = {True: "straw", False: "wire"}[is_straw]
             TensionboxMeasurement(
