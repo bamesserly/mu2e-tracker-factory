@@ -1087,6 +1087,8 @@ class Ui_MainWindow(object):
         self.leaksLW = QtWidgets.QListWidget(self.groupBox_3)
         font = QtGui.QFont()
         font.setPointSize(8)
+        font.setBold(False)
+        font.setWeight(50)
         self.leaksLW.setFont(font)
         self.leaksLW.setObjectName("leaksLW")
         self.gridLayout_37.addWidget(self.leaksLW, 0, 0, 1, 1)
@@ -1621,7 +1623,7 @@ class Ui_MainWindow(object):
         self.heatProBox_2.setCurrentIndex(0)
         self.hvProBox_2.setCurrentIndex(0)
         self.tbProBox_2.setCurrentIndex(0)
-        self.commentTabs.setCurrentIndex(7)
+        self.commentTabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

@@ -1759,6 +1759,19 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def displayPro8(self):
+        # clear list widgets
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+
+        # clear line edits
+        self.ui.stageLE.clear()
+        self.ui.left_coverLE.clear()
+        self.ui.left_ringLE.clear()
+        self.ui.right_coverLE.clear()
+        self.ui.right_ringLE.clear()
+        self.ui.center_coverLE.clear()
+        self.ui.center_ringLE.clear()
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return
@@ -1772,6 +1785,30 @@ class facileDBGUI(QMainWindow):
 
             if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
                 self.getWid(f'{key}LE').setText("Unknown")
+
+        # leaks next
+        for toop in self.data.methane:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M:%S", (time.localtime(toop[5]))))
+            descStr += f'Leak at {toop[2]}\n'
+            descStr += f'Size: {toop[3]}\n'
+            descStr += "Inflated: Yes\n" if toop[1] else "Inflated: No\n"
+            descStr += "O-Rings reinstalled\n" if "O" in toop[0] else ""
+            descStr += "Left cover reinstalled\n" if "L" in toop[0] else ""
+            descStr += "Right cover reinstalled\n" if "R" in toop[0] else ""
+            descStr += "Center cover reinstalled\n" if "C" in toop[0] else ""
+            descStr += f'Resolution: {toop[4]}\n'
+
+            self.ui.leaksLW.addItem(descStr)
+
+        '''
+        methaneLeak.columns.cover_reinstalled, # covers/rings reinstalled
+        methaneLeak.columns.inflated,       # reinflated
+        methaneLeak.columns.leak_location,  # location of leak (str)
+        methaneLeak.columns.leak_size,      # size of leak (float)
+        methaneLeak.columns.resolution,     # what was done to fix the leak
+        methaneLeak.columns.timestamp       # when form was submitted
+        '''
 
         
 

@@ -2019,6 +2019,8 @@ wire used</string>
                  <property name="font">
                   <font>
                    <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
                   </font>
                  </property>
                 </widget>
@@ -2167,7 +2169,7 @@ wire used</string>
            </font>
           </property>
           <property name="currentIndex">
-           <number>7</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="ringsTab">
            <attribute name="title">
