@@ -20,3 +20,6 @@ def parse_and_graph():
     datafilename = parse_log(raw_data)
     print("Data file and plots are at", datafilename)
     make_graph(datafilename, panelid, logfilename)
+
+if __name__ == "__main__":
+    parse_and_graph()

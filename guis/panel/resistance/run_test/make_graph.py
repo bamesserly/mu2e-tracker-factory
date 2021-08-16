@@ -4,6 +4,7 @@ import numpy as np
 from itertools import islice
 import csv
 from guis.common.getresources import GetProjectPaths
+from pathlib import Path
 
 # Function that makes and saves a graph for visually summarizing
 # the continuity test results.
@@ -48,8 +49,12 @@ def make_graph(filename, panelid, logfilename, stage_tag=""):
     x = [0, 20, 40, 60, 80, 100]
     y = [0, 50, 100, 150, 200, 250]
     # Get x and y values for wires and straws
-    X_wires, Y_wires = zip(*sorted_idx_wires)
-    X_straws, Y_strws = zip(*sorted_idx_straws)
+    try:
+        X_wires, Y_wires = zip(*sorted_idx_wires)
+        X_straws, Y_strws = zip(*sorted_idx_straws)
+    except:
+        print("Wire measurements, straw measurements, or both are missing.")
+        sys.exit()
     X_w = np.array(X_wires)
     Y_w = np.array(Y_wires)
     X_s = np.array(X_straws)
