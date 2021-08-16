@@ -5168,16 +5168,27 @@ class panelGUI(QMainWindow):
         self.pro8EnableParts()
 
     def pro8MethanePass(self):
+        # save w/ resolution as pass
+        self.ui.resolutionPTE.setPlainText("Pass")
+        self.leak_form()
+        # reset leak form widgets
+        self.ui.reLeftCB.setChecked(False)
+        self.ui.reRightCB.setChecked(False)
+        self.ui.reCenterCB.setChecked(False)
+        self.ui.inflated_yes.setChecked(True)
+        self.ui.inflated_no.setChecked(False)
+        self.ui.leak_location.clear()
+        self.ui.leak_size.clear()
+        # move to next stage
         self.ui.stackedWidget.setCurrentIndex(2)
         self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
         self.resolvingLeak = "LeakTest"
         self.ui.launch_leak_test_2.setFocus()
-        self.data[7][16] = "Leak"
+        self.data[7][16] = "Leak" # set stage as "Leak"
         self.saveData()
         self.pro8EnableParts()
 
     def pro8MethaneFail(self):
-
         self.ui.resoBackPB.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(4)
         self.ui.pro8StageLabel.setText("Current Stage: Resolution")
@@ -5211,15 +5222,7 @@ class panelGUI(QMainWindow):
 
         if self.resolvingLeak == "Methane":
             # submit leak test info
-            self.DP.saveLeakForm(
-                f'{"O" if self.ui.reORingsCB.isChecked() else ""}{"L" if self.ui.reLeftCB.isChecked() else ""}{"R" if self.ui.reRightCB.isChecked() else ""}{"C" if self.ui.reCenterCB.isChecked() else ""}',
-                True if self.ui.inflated_yes.isChecked() else False,
-                self.ui.leak_location.text(),
-                "High",
-                self.ui.leak_size.text(),
-                self.ui.resolutionPTE.toPlainText(),
-                self.ui.leak_next.currentText(),
-            )
+            self.leak_form()
             self.ui.stackedWidget.setCurrentIndex(3)
             self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
             self.ui.shipBackPB.setFocus()
@@ -5653,7 +5656,6 @@ class panelGUI(QMainWindow):
         self.ui.inflated_yes.setChecked(True)
         self.ui.inflated_no.setChecked(False)
         self.ui.leak_location.setText("")
-        self.ui.leak_confidence.setCurrentIndex(0)
         self.ui.leak_size.setText("")
         self.ui.resolutionPTE.setPlainText("")
         self.ui.leak_next.setCurrentIndex(0)
