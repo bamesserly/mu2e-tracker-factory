@@ -536,6 +536,17 @@ class facileDBGUI(QMainWindow):
             for widget in toop:
                 widget.setText("")
 
+        # clear pro 8 wdgets
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+        self.ui.left_coverLE.setText("")
+        self.ui.left_ringLE.setText("")
+        self.ui.right_coverLE.setText("")
+        self.ui.right_ringLE.setText("")
+        self.ui.center_coverLE.setText("")
+        self.ui.center_ringLE.setText("")
+
     # submitClicked does this stuff:
     # - checks to see if the text in self.ui.panelLE is a panel with data
     # - if not it shows an error and returns early
@@ -1464,6 +1475,16 @@ class facileDBGUI(QMainWindow):
     # parameters: int, pro is the process to find data for (3 or 6)
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
+        
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+        self.ui.left_coverLE.clear()
+        self.ui.left_ringLE.clear()
+        self.ui.right_coverLE.clear()
+        self.ui.right_ringLE.clear()
+        self.ui.center_coverLE.clear()
+        self.ui.center_ringLE.clear()
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return False
@@ -1759,19 +1780,6 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def displayPro8(self):
-        # clear list widgets
-        self.ui.leaksLW.clear()
-        self.ui.badStrawsLW.clear()
-        self.ui.badWiresLW.clear()
-
-        # clear line edits
-        self.ui.stageLE.clear()
-        self.ui.left_coverLE.clear()
-        self.ui.left_ringLE.clear()
-        self.ui.right_coverLE.clear()
-        self.ui.right_ringLE.clear()
-        self.ui.center_coverLE.clear()
-        self.ui.center_ringLE.clear()
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return
@@ -1789,8 +1797,8 @@ class facileDBGUI(QMainWindow):
         # leaks next
         for toop in self.data.methane:
             descStr = ""
-            descStr += str(time.strftime("%a, %d %b %Y %H:%M:%S", (time.localtime(toop[5]))))
-            descStr += f'Leak at {toop[2]}\n'
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[5]))))
+            descStr += f'\nLeak at {toop[2]}\n'
             descStr += f'Size: {toop[3]}\n'
             descStr += "Inflated: Yes\n" if toop[1] else "Inflated: No\n"
             descStr += "O-Rings reinstalled\n" if "O" in toop[0] else ""
@@ -1801,16 +1809,25 @@ class facileDBGUI(QMainWindow):
 
             self.ui.leaksLW.addItem(descStr)
 
-        '''
-        methaneLeak.columns.cover_reinstalled, # covers/rings reinstalled
-        methaneLeak.columns.inflated,       # reinflated
-        methaneLeak.columns.leak_location,  # location of leak (str)
-        methaneLeak.columns.leak_size,      # size of leak (float)
-        methaneLeak.columns.resolution,     # what was done to fix the leak
-        methaneLeak.columns.timestamp       # when form was submitted
-        '''
+        # lastly straws and wires
 
-        
+        for toop in self.data.badStraws:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
+            descStr += f'\nPosition: {toop[0]}\n'
+            descStr += f'Comment: {toop[1]}\n'
+
+            self.ui.badStrawsLW.addItem(descStr)
+
+        for toop in self.data.badWires:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
+            descStr += f'\nPosition: {toop[0]}\n'
+            descStr += f'Comment: {toop[1]}\n'
+
+            self.ui.badWiresLW.addItem(descStr)
+
+
 
     # put data into QListWidgets
     # parameters:   pro, int representing which pro to check for data in

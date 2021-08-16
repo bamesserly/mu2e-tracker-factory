@@ -187,6 +187,13 @@ class PanelData:
 
         self.wireData = []
 
+        self.leaks = []
+
+        self.methane = []
+
+        self.badWires = []
+        self.badStraws = []
+
     # print ALL the data (for debugging)
     # indentation is gone due to multi-line string
     def __str__(self):
