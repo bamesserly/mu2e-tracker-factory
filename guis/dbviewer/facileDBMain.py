@@ -857,11 +857,13 @@ class facileDBGUI(QMainWindow):
         funcRetII = self.findSpecificHeat(2)
         funcRetIII = self.findSpecificHeat(6)
         hasData = hasData or funcRetI or funcRetII or funcRetIII
-
         # find heat data
         funcRetI = self.findSpecificTB(3)
         funcRetII = self.findSpecificTB(6)
         hasData = hasData or funcRetI or funcRetII
+        # find pro 8 data
+        funcRet = self.findPro8()
+        hasData = hasData or funcRet
 
         return hasData
 
@@ -969,9 +971,6 @@ class facileDBGUI(QMainWindow):
 
         # for each procedure one to seven...
         for key in self.data.proIDs:
-            if key == "pan8":
-                logger.error("pan8 key appeared in self.data.proIDs")
-                break
             # for each tuple (time event for procedure)...
             for toop in proSpecificQuery(self, key):
                 # add the event to the list associated with this procedure
@@ -1461,6 +1460,89 @@ class facileDBGUI(QMainWindow):
 
         return 0
 
+    # finds QC data and puts it into panelData.
+    # parameters: int, pro is the process to find data for (3 or 6)
+    # returns: bool, true if any data found, false otherwise
+    def findPro8(self):
+        # check if desired pro exists
+        if self.data.proIDs['pan8'] == -1:
+            return False
+
+        # make necessary tables
+        badSW = sqla.Table(
+            "bad_wire_straw", self.metadata, autoload=True, autoload_with=self.engine
+        )
+        methaneLeak = sqla.Table(
+            "leak_final_form", self.metadata, autoload=True, autoload_with=self.engine
+        )
+        pro8Parts = sqla.Table(
+            "procedure_details_pan8", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        # bad straws and wires
+        badSWQuery = sqla.select(
+            [
+                badSW.columns.position,     # position on panel
+                badSW.columns.failure,      # comment
+                badSW.columns.wire,         # bool, true if wire failed
+                badSW.columns.timestamp     # time measurement taken
+            ]
+        ).where(badSW.columns.procedure == self.data.proIDs['pan8'])
+        resultProxy = self.connection.execute(badSWQuery)  # make proxy
+        rawSWData = resultProxy.fetchall()  # get data from db
+
+        for toop in rawSWData:
+            # if wire failed
+            if toop[2]:
+                # add to bad wires list
+                self.data.badWires += [toop]
+            else:
+                self.data.badStraws += [toop]
+        
+        # methane leak testing data
+        methaneLeakQuery = sqla.select(
+            [
+                methaneLeak.columns.cover_reinstalled, # covers/rings reinstalled
+                methaneLeak.columns.inflated,       # reinflated
+                methaneLeak.columns.leak_location,  # location of leak (str)
+                methaneLeak.columns.leak_size,      # size of leak (float)
+                methaneLeak.columns.resolution,     # what was done to fix the leak
+                methaneLeak.columns.timestamp       # when form was submitted
+            ]
+        ).where(methaneLeak.columns.procedure == self.data.proIDs['pan8'])
+        resultProxy = self.connection.execute(methaneLeakQuery)  # make proxy
+        rawMethData = resultProxy.fetchall()  # get data from db
+
+        for toop in rawMethData:
+            self.data.methane += [toop]
+
+        # pro8 parts
+        pro8Query = sqla.select(
+            [
+                pro8Parts.columns.left_cover,
+                pro8Parts.columns.right_cover,
+                pro8Parts.columns.center_cover,
+                pro8Parts.columns.left_ring,
+                pro8Parts.columns.right_ring,
+                pro8Parts.columns.center_ring,
+                pro8Parts.columns.stage
+            ]
+        ).where(pro8Parts.columns.procedure == self.data.proIDs['pan8'])
+        resultProxy = self.connection.execute(pro8Query)  # make proxy
+        rawPro8Data = resultProxy.fetchall()  # get data from db
+
+        if len(rawPro8Data) > 1:
+            return False
+        
+        self.data.qcParts["left_cover"] = rawPro8Data[0][0]
+        self.data.qcParts["right_cover"] = rawPro8Data[0][1]
+        self.data.qcParts["center_cover"] = rawPro8Data[0][2]
+        self.data.qcParts["left_ring"] = rawPro8Data[0][3]
+        self.data.qcParts["right_ring"] = rawPro8Data[0][4]
+        self.data.qcParts["center_ring"] = rawPro8Data[0][5]
+        self.data.qcParts["stage"] = rawPro8Data[0][6]
+
+        return True
 
     # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔══██╗██║██╔════╝██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
@@ -1913,7 +1995,9 @@ class facileDBGUI(QMainWindow):
             self.displayOnGraphHEAT(pro)
         return
 
-
+    # popup with heat data graph
+    # parameters:   pro, int representing which pro to get data for (1,2,or 6)
+    # returns: nothing returned
     def displayOnGraphHEAT(self,pro):
         # clear current plot
         for i in reversed(range(self.ui.heatGraphLayout.count())): 
