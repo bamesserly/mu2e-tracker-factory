@@ -40,6 +40,7 @@ class PanelData:
             "pan5": -1,
             "pan6": -1,
             "pan7": -1,
+            "pan8": -1
         }
 
         # Pro timing lists: lists of start/stops for each procedure
@@ -51,6 +52,7 @@ class PanelData:
             "pan5": [],
             "pan6": [],
             "pan7": [],
+            "pan8": []
         }
 
         # Comment lists: lists of comments for each procedure
@@ -63,6 +65,7 @@ class PanelData:
             "pan5": [],
             "pan6": [],
             "pan7": [],
+            "pan8": []
         }
 
         # Parts list: dict of part ids
@@ -113,8 +116,11 @@ class PanelData:
             "stage": ""
         }
 
-        # list of leak form submissions
+        # list of leak rate submissions
         self.leaks = []
+
+        # list of methane leak form submissions
+        self.methane = []
 
         # list of bad wires/straws
         self.badWires = []
