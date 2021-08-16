@@ -862,8 +862,8 @@ class facileDBGUI(QMainWindow):
         funcRetII = self.findSpecificTB(6)
         hasData = hasData or funcRetI or funcRetII
         # find pro 8 data
-        #funcRet = self.findPro8()
-        #hasData = hasData or funcRet
+        funcRet = self.findPro8()
+        hasData = hasData or funcRet
 
         return hasData
 
