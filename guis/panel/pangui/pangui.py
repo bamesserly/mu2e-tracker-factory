@@ -5698,7 +5698,7 @@ def checkPackages():
         ("kiwisolver", kiwisolver.__version__ == "1.1.0"),
         ("matplotlib", matplotlib.__version__ == "3.1.0"),
         # ("numpy", np.__version__ == "1.16.4"),
-        ("pyautogui", pyautogui.__version__ == "0.9.44"),
+        # ("pyautogui", pyautogui.__version__ == "0.9.44"),
         ("pyparsing", pyparsing.__version__ == "2.4.0"),
         (
             "PyQt5",
@@ -5708,9 +5708,9 @@ def checkPackages():
         ("pyscreeze", pyscreeze.__version__ == "0.1.21"),
         ("pytweening", pytweening.__version__ == "1.0.3"),
         ("scipy", scipy.__version__ == "1.5.1"),
-        ("setuptools", setuptools.__version__ == "40.8.0"),
+        ("setuptools", setuptools.__version__ == "40.8.0"), # not in requirements?
         ("six", six.__version__ == "1.12.0"),
-        ("sqlalchemy", sqlalchemy.__version__ == "1.3.5"),
+        ("sqlalchemy", sqlalchemy.__version__ == "1.3.5"), # not in requirements?
     ]
     # loop through list of package tuples
     for package in packageList:
