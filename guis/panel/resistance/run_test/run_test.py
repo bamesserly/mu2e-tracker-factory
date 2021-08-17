@@ -23,7 +23,16 @@ def GetSerialPort():
     avail_ports = serial.tools.list_ports.comports()
     for port, desc, hwid in sorted(avail_ports):
         # print("{}: {} [{}]".format(port, desc, hwid))
-        if ("USB" in desc or "USB" in hwid) and ("Arduino" in desc or "Arduino" in hwid):
+        if "USB" in desc or "USB" in hwid:
+
+            # The QC computer uses a different arduino than the others and/or
+            # the resistance arduino box is named differently on this computer
+            # and/or confusion is caused with the temp/humid device
+            if "15" in os.getenv("USERDOMAIN") and not (
+                "Arduino" in desc or "Arduino" in hwid
+            ):
+                continue
+
             try:
                 serialport = serial.Serial(
                     port=port, baudrate=baudrate, timeout=timeout
