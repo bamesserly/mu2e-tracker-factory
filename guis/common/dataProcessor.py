@@ -762,8 +762,8 @@ class TxtDataProcessor(DataProcessor):
     saveData has two options for formats.  Whenever saveData is called, it'll
     make a decision on which save method to use.
 
-    Setting the USE_MARK_ONE constant to true will make it save in the DB friendly CSV format,
-    and setting it to false will make it save in the human friendly CSV format.
+    Setting the USE_MARK_ONE constant to true will make it save in the DB friendly CSV format.
+    USE_MARK_TWO should ALWAYS be set to True, as it saves in the human friendly format.
     """
 
     def saveData(self):
@@ -864,14 +864,14 @@ class TxtDataProcessor(DataProcessor):
             # The if statement checks if the data is a timedelta with a boolean
             # for timer running status.  Writing both in the tuple is a bit more
             # difficult to read.
-            for i in range(
-                header[0]
-            ):  # header[0] is an int that equals the number of variables to be recorded
+
+            # header[0] is an int that equals the number of variables to be recorded
+            for i in range(header[0]):
+                # if no data to record then break
                 if len(data) == 0:
                     break
-                if isinstance(data[i], tuple) and isinstance(
-                    data[i][0], timedelta
-                ):  # is a timedelta tuple
+                # is a timedelta tuple
+                if isinstance(data[i], tuple) and isinstance(data[i][0], timedelta):  
                     file.write(
                         f"{header[i+1]},{data[i][0]},{data[i][1]},{self.timestamp()}\n"
                     )  # write '<variable name>,<time>,<running status (t/f)>,<timestamp>\n'
@@ -1449,11 +1449,20 @@ class TxtDataProcessor(DataProcessor):
             7,
             "Panel ID",
             "Left Cover",
-            "Right Cover",
-            "Center Ring",
             "Center Cover",
-            "Left Ring",
-            "Right Ring",
+            "Right Cover",
+            "Left Ring1",
+            "Left Ring2Date",
+            "Left Ring3Time",
+            "Left Ring4",
+            "Right Ring1",
+            "Right Ring2Date",
+            "Right Ring3Time",
+            "Right Ring4",
+            "Center Ring1",
+            "Center Ring2Date",
+            "Center Ring3Time",
+            "Center Ring4",
         ]
 
     # ___  ____            _   _      _
