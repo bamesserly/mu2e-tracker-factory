@@ -1189,9 +1189,12 @@ class TxtDataProcessor(DataProcessor):
 
     def saveBadWire(self, number, failure, process, wire_check):
         # check if file exists already
-        file_exists = os.path.isfile(self.get)
+        file_exists = os.path.isfile(self.getBadStrawsWiresPath())
 
-        with open(self.getPanelLongHVDataPath(), "a+") as f:
+        headers = ["number","failure","isWire","timestamp"]
+
+        # opens file (even if it doesn't exist yet) and appends data
+        with open(self.getBadStrawsWiresPath(), "a+") as f:
                 writer = DictWriter(
                     f, delimiter=",", lineterminator="\n", fieldnames=headers
                 )
@@ -1199,18 +1202,37 @@ class TxtDataProcessor(DataProcessor):
                     writer.writeheader()  # file doesn't exist yet, write a header
                 writer.writerow(
                     {
-                        "Position": position,
-                        "Current": current,
-                        "Side": side,
-                        "Voltage": voltage,
-                        "IsTripped": str(is_tripped),
-                        "Timestamp": datetime.now().isoformat(),
+                        "number": number,
+                        "failure": failure,
+                        "isWire": wire_check,
+                        "timestamp": datetime.now().isoformat()
                     }
                 )
 
     def saveLeakForm(self, reinst, infl, loc, conf, size, reso, next):
+        # check if file exists already
+        file_exists = os.path.isfile(self.getLeakFormsPath())
 
-        pass
+        headers = ["location","size","resolution","next","reinstalled_parts","inflated","timestamp"]
+
+        # opens file (even if it doesn't exist yet) and appends data
+        with open(self.get(), "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "location": loc,
+                        "size": size,
+                        "resolution": reso,
+                        "next": next,
+                        "reinstalled_parts": reinst,
+                        "inflated": infl,
+                        "timestamp": datetime.now().isoformat()
+                    }
+                )
 
     #  _                     _  ___  ___     _   _               _
     # | |                   | | |  \/  |    | | | |             | |
@@ -1363,7 +1385,7 @@ class TxtDataProcessor(DataProcessor):
             / f"bad_straws_wires_{panel}.csv"
         )
     
-    def getBadStrawsWiresPath(self, panel):
+    def getLeakFormsPath(self, panel):
         return (
             self.qc8LeakFormDirectory
             / f"leak_forms_{panel}.csv"
