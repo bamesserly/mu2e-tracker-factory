@@ -747,6 +747,8 @@ class TxtDataProcessor(DataProcessor):
         self.strawTensionboxDirectory = paths["tensionbox_data_straw"]
         self.wireTensionboxDirectory = paths["tensionbox_data_wire"]
         self.straw_tensionerDirectory = paths["straw_tensioner_data"]
+        self.badStrawsWiresDirectory = paths["badStrawsWires"]
+        self.qc8LeakFormDirectory = paths["qc8LeakForm"]
 
     #  _____                  ___  ___     _   _               _
     # /  ___|                 |  \/  |    | | | |             | |
@@ -1186,15 +1188,29 @@ class TxtDataProcessor(DataProcessor):
     def saveMoldRelease(self, item, state):
         return "", 0
 
-    def saveTapForm(self, tap_id):
-        pass
-
     def saveBadWire(self, number, failure, process, wire_check):
-        pass
+        # check if file exists already
+        file_exists = os.path.isfile(self.get)
 
-    def saveLeakForm(
-        self, reinstalled, inflated, location, confidence, size, resolution, next_step
-    ):
+        with open(self.getPanelLongHVDataPath(), "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Position": position,
+                        "Current": current,
+                        "Side": side,
+                        "Voltage": voltage,
+                        "IsTripped": str(is_tripped),
+                        "Timestamp": datetime.now().isoformat(),
+                    }
+                )
+
+    def saveLeakForm(self, reinst, infl, loc, conf, size, reso, next):
+
         pass
 
     #  _                     _  ___  ___     _   _               _
@@ -1340,6 +1356,18 @@ class TxtDataProcessor(DataProcessor):
         return (
             self.wireTensionboxDirectory
             / f"TB_wires_{panel}_proc{self.getPro()}_{str(datetime.now().date())}.csv"
+        )
+
+    def getBadStrawsWiresPath(self, panel):
+        return (
+            self.badStrawsWiresDirectory
+            / f"bad_straws_wires_{panel}.csv"
+        )
+    
+    def getBadStrawsWiresPath(self, panel):
+        return (
+            self.qc8LeakFormDirectory
+            / f"leak_forms_{panel}.csv"
         )
 
     #  _   _                _            ______                _   _
