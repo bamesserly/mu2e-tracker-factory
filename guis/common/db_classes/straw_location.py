@@ -314,7 +314,7 @@ class Panel(StrawLocation):
         # because otherwise it won't have the create key.
 
     def _recordPart(self, type, number, L_R=None, letter=None, on_L_R=None):
-        from guis.common.databaseClasses import PanelPart, PanelPartUse
+        from guis.common.db_classes.panel_parts import PanelPart, PanelPartUse
 
         # Query/Construct Part
         part = PanelPart.queryPart(type, number, L_R, letter).one_or_none()
@@ -396,7 +396,7 @@ class Panel(StrawLocation):
     ## QUERY METHODS ##
 
     def _queryPartOnPanel(self, type, L_R=None, letter=None, on_L_R=None):
-        from guis.common.databaseClasses import PanelPart, PanelPartUse
+        from guis.common.db_classes.panel_parts import PanelPart, PanelPartUse
 
         return (
             PanelPart.queryPart(type=type, L_R=L_R, letter=letter)

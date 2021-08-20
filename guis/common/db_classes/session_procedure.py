@@ -330,19 +330,19 @@ class Procedure(BASE, OBJECT):
     ## COMMENTS ##
 
     def comment(self, text):
-        from guis.common.databaseClasses import Comment
+        from guis.common.db_classes.comment_failure import Comment
 
         Comment(
             procedure=self.id, text=text, timestamp=int(datetime.now().timestamp())
         ).commit()
 
     def getComments(self):
-        from guis.commons.databaseClasses import Comment
+        from guis.common.db_classes.comment_failure import Comment
 
         return self._queryComments().all()
 
     def _queryComments(self):
-        from guis.commons.databaseClasses import Comment
+        from guis.common.db_classes.comment_failure import Comment
 
         return (
             Comment.query()
@@ -395,7 +395,7 @@ class PanelProcedure(Procedure):
 
     ## FAILURE ##
     def recordFailure(self, position, failure_type, failure_mode, comment):
-        from guis.commons.databaseClasses import Failure
+        from guis.common.db_classes.comment_failure import Failure
 
         failure = Failure(
             procedure=self.id,
@@ -426,13 +426,13 @@ class PanelProcedure(Procedure):
     """
 
     def executeStep(self, step):
-        from guis.common.databaseClasses import PanelStepExecution
+        from guis.common.db_classes.steps import PanelStepExecution
 
         # Record execution
         PanelStepExecution(panel_step=step.id, procedure=self.id).commit()
 
     def countStepsExecuted(self):
-        from guis.common.databaseClasses import PanelStepExecution
+        from guis.common.db_classes.steps import PanelStepExecution
 
         return len(
             PanelStepExecution.query()

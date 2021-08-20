@@ -64,7 +64,7 @@ class PanelStation(Station):
     __mapper_args__ = {"polymorphic_identity": "panel"}
 
     def getSteps(self):
-        from guis.common.databaseClasses import PanelStep
+        from guis.common.db_classes.steps import PanelStep
 
         # Get step 1
         s1 = (
@@ -80,3 +80,9 @@ class PanelStation(Station):
 
     def getDay(self):
         return self.production_step
+
+
+class Room(BASE, OBJECT):
+    __tablename__ = "room"
+    id = Column(Integer, primary_key=True)
+    name = Column(VARCHAR)
