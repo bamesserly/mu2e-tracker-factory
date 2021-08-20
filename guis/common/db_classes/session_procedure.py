@@ -1,3 +1,20 @@
+################################################################################
+# SESSION
+#
+# __tablename__ = "session"
+#    id = Column(Integer, primary_key=True)
+#    station = Column(VARCHAR, ForeignKey("station.id"))
+#    procedure = Column(Integer, ForeignKey("procedure.id"))
+#    active = Column(BOOLEAN, default=true())
+#
+# A Session is started by a SQLDataProcessor's Station. Stations know about
+# active sessions.
+#
+# New entry every time pangui is opened and a process is selected.
+# 
+# Critically, a Session starts Procedures, whether to load a pre-existing
+# procedure or create a new one.
+################################################################################
 from guis.common.databaseClasses import BASE, OBJECT, DM, Query
 from sqlalchemy import (
     Column,
