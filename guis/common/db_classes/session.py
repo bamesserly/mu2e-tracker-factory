@@ -15,7 +15,7 @@
 # Critically, a Session starts Procedures, whether to load a pre-existing
 # procedure or create a new one.
 ################################################################################
-from guis.common.databaseClasses import BASE, OBJECT
+from guis.common.db_classes.bases import BASE, OBJECT
 from sqlalchemy import (
     Column,
     Integer,

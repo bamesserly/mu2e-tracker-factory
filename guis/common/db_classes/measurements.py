@@ -1,4 +1,18 @@
-from guis.common.databaseClasses import BASE, OBJECT
+################################################################################
+# CHANNEL-BY-CHANNEL INFO/MEASUREMENTS, INFO/MEASUREMENTS THAT DON'T FIT IN
+# PROCEDURE DETAILS
+#
+# Channel-by-channel measurements/info: wire and straw tensions, tensionbox
+# measurements, bad channels.
+#
+# Measurements/info that don't fit in procedure details: panel temperature
+# tracking during heating (many measurements as a function of time) and leak
+# check forms (many forms submitted per process).
+#
+# Each table has a procedure id, linking it to a panel and process, though a
+# procedure id shouldn't strictly be required.
+################################################################################
+from guis.common.db_classes.bases import BASE, OBJECT
 from sqlalchemy import (
     Column,
     Integer,
@@ -96,6 +110,9 @@ class TensionboxMeasurement(BASE, OBJECT):
         self.tension = tension
 
 
+# High voltage current measurement.
+# (originally associated specifically with the (deprecated) process 5, hence
+# the unfortunately nonspecific name).
 class MeasurementPan5(BASE, OBJECT):
     __tablename__ = "measurement_pan5"
     id = Column(Integer, primary_key=True)

@@ -24,7 +24,7 @@
 # = process and the station = spot in a room terminologies) a Station instance
 # can start Sessions and knows about active Sessions.
 ################################################################################
-from guis.common.databaseClasses import BASE, OBJECT, DM
+from guis.common.db_classes.bases import BASE, OBJECT, DM
 from sqlalchemy import (
     Column,
     Integer,

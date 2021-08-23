@@ -1,4 +1,4 @@
-from guis.common.databaseClasses import BASE, OBJECT
+from guis.common.db_classes.bases import BASE, OBJECT
 from sqlalchemy import (
     Column,
     Integer,

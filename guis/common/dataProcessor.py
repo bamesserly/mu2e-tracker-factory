@@ -8,7 +8,7 @@ from csv import DictReader, DictWriter
 import tkinter
 from tkinter import messagebox
 
-from guis.common.databaseClasses import DM
+from guis.common.db_classes.bases import DM
 from guis.common.db_classes.comment_failure import Comment
 from guis.common.db_classes.steps import PanelStep
 from guis.common.db_classes.procedure import Procedure

@@ -25,7 +25,7 @@
 # understand the full implications before I do it.
 #
 ################################################################################
-from guis.common.databaseClasses import BASE, OBJECT, DM, Query
+from guis.common.db_classes.bases import BASE, OBJECT, DM, Query
 from sqlalchemy import (
     Column,
     Integer,

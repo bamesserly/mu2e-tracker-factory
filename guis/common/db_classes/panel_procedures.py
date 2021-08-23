@@ -1,4 +1,32 @@
-from guis.common.databaseClasses import BASE, OBJECT, DM
+################################################################################
+# INDIVIDUAL PROCESS DATA TABLES
+#
+# These classes define the procedure_details_panX tables. These tables hold
+# info specific to each process. Epoxy batch numbers and timers, process-wide
+# measurements, select part numbers. There is one entry in each table for each
+# procedure (panel, process AKA straw_location, station) pair. So the use of
+# "procedure" is correct in that each entry represents a procedure, however
+# each /table/ more generally represents a process. Read these tables to learn
+# about which measurements are performed/saved in each process.
+#
+# For example, process 1:
+#
+# __tablename__ = "procedure_details_pan1"
+#   id = Column(Integer, primary_key=True)
+#   procedure = Column(Integer, ForeignKey("procedure.id"))
+#   left_gap = Column(Integer)
+#   right_gap = Column(Integer)
+#   min_BP_BIR_gap = Column(Integer)
+#   max_BP_BIR_gap = Column(Integer)
+#   epoxy_batch = Column(Integer)
+#   epoxy_time = Column(Integer)
+#   epoxy_time_running = Column(BOOLEAN)
+#   epoxy_time_timestamp = Column(Integer)
+#   lpal_top = Column(Integer, ForeignKey("straw_location.id"))
+#   lpal_bot = Column(Integer, ForeignKey("straw_location.id"))
+#
+################################################################################
+from guis.common.db_classes.bases import BASE, OBJECT, DM
 from sqlalchemy import (
     Column,
     Integer,
