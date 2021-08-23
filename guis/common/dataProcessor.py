@@ -11,7 +11,7 @@ from tkinter import messagebox
 from guis.common.databaseClasses import DM
 from guis.common.db_classes.comment_failure import Comment
 from guis.common.db_classes.steps import PanelStep
-from guis.common.db_classes.session_procedure import Procedure
+from guis.common.db_classes.procedure import Procedure
 from guis.common.db_classes.station import Station
 from guis.common.db_classes.straw_location import Panel
 from guis.common.db_classes.supplies import (

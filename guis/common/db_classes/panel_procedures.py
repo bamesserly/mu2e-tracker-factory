@@ -15,7 +15,7 @@ from sqlalchemy import (
     func,
 )
 from datetime import datetime
-from guis.common.db_classes.session_procedure import PanelProcedure
+from guis.common.db_classes.procedure import PanelProcedure
 
 
 # IR

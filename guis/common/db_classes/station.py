@@ -1,5 +1,5 @@
 ################################################################################
-# STATION DATABASE TABLE (AKA "PROCESS")
+# STATION (AKA "PROCESS")
 #
 # Terminology/Concept Note:
 #   Terminology and lab procedures have evolved such that this table no longer
@@ -18,7 +18,7 @@
 #   production_stage = Column(Integer, ForeignKey("production_stage.id")) -- e.g. "panel" (vs "straw" vs "qc")
 #   production_step = Column(Integer) -- e.g. 3 (arbitrary number)
 #
-# The station table has 19 hard entries; 8 panel entries and 10 straw entries. 
+# The station table has 19 hard entries; 8 panel entries and 10 straw entries.
 #
 # A station is set as a part of an SQLDataProcessor. And (mixing up the station
 # = process and the station = spot in a room terminologies) a Station instance
@@ -70,13 +70,13 @@ class Station(BASE, OBJECT):
             logger.error("DB Locked. Panel station query failed.")
 
     def startSession(self):
-        from guis.common.db_classes.session_procedure import Session
+        from guis.common.db_classes.session import Session
 
         # Start new session and return
         return Session(self)
 
     def activeSessions(self):
-        from guis.common.db_classes.session_procedure import Session
+        from guis.common.db_classes.session import Session
 
         return Session.query().filter(Session.active == True).all()
 
