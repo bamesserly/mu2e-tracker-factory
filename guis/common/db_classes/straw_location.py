@@ -1,3 +1,28 @@
+################################################################################
+# STRAW LOCATION (STRAW POSITION)
+#
+# An entry in the straw_location table points to a specific location that a
+# straw can be located at any point during the straw and panel process.
+#
+# The straw_location_type table tells us that a straw location can be a CPAL,
+# LPAL, Panel, storage, or trash. Currently, only the LPAL and Panel location
+# types are used, and the location field (along with the type) alone identify
+# the location.
+#
+# If/when we start storing CPAL info, we'll also need to use the pallet ID.
+#
+# __tablename__ = "straw_location"
+#    id = Column(Integer, primary_key=True)
+#    location_type = Column(Integer, ForeignKey("straw_location_type.id"))
+#    number = Column(Integer)
+#    pallet_id = Column(Integer)
+#
+# Currently, pangui merely saves the LPAL associated with a panel, and blinldy
+# populates the straw_position table with 96 straw ids, 48 corresponding to two
+# LPAL straw location IDs. Nothing is done with the straw_position table,
+# currently.
+#
+################################################################################
 from guis.common.databaseClasses import BASE, OBJECT, DM, Barcode
 from sqlalchemy import (
     Column,
