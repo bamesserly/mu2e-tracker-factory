@@ -102,7 +102,7 @@ class Procedure(BASE, OBJECT):
     @classmethod
     def _startProcedure(cls, station, straw_location):
         # Must tell procedure that it has subclasses! Tricky error if you dont.
-        import guis.common.db_classes.panel_procedures
+        import guis.common.db_classes.procedures_panel
 
         # This subclassing stuff is sketchy.  See __init_subclass__ and stack
         # overflow 4162456 if we ever have trouble.
@@ -398,7 +398,7 @@ class PanelProcedure(Procedure):
     """
 
     def recordPanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
-        from guis.common.db_classes.measurements import PanelTempMeasurement
+        from guis.common.db_classes.measurements_panel import PanelTempMeasurement
 
         PanelTempMeasurement(
             procedure=self, temp_paas_a=temp_paas_a, temp_paas_bc=temp_paas_bc

@@ -86,4 +86,5 @@ class SilvProcedure(Procedure):
 
     def setEpoxyTime(self,duration):
         self.details.epoxy_time = duration
+
 """

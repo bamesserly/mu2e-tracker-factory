@@ -280,7 +280,7 @@ class Pan2Procedure(PanelProcedure):
         self.commit()
 
     def recordStrawTension(self, position, tension, uncertainty):
-        from guis.common.db_classes.measurements import StrawTensionMeasurement
+        from guis.common.db_classes.measurements_panel import StrawTensionMeasurement
 
         StrawTensionMeasurement(
             procedure=self, position=position, tension=tension, uncertainty=uncertainty

@@ -22,7 +22,7 @@ from guis.common.db_classes.supplies import (
     WireSpool,
 )
 from guis.common.db_classes.workers import Worker
-from guis.common.db_classes.measurements import (
+from guis.common.db_classes.measurements_panel import (
     TensionboxMeasurement,
     BadWire,
     LeakFinalForm,
