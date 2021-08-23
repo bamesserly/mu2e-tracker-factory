@@ -536,6 +536,17 @@ class facileDBGUI(QMainWindow):
             for widget in toop:
                 widget.setText("")
 
+        # clear pro 8 wdgets
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+        self.ui.left_coverLE.setText("")
+        self.ui.left_ringLE.setText("")
+        self.ui.right_coverLE.setText("")
+        self.ui.right_ringLE.setText("")
+        self.ui.center_coverLE.setText("")
+        self.ui.center_ringLE.setText("")
+
     # submitClicked does this stuff:
     # - checks to see if the text in self.ui.panelLE is a panel with data
     # - if not it shows an error and returns early
@@ -862,8 +873,8 @@ class facileDBGUI(QMainWindow):
         funcRetII = self.findSpecificTB(6)
         hasData = hasData or funcRetI or funcRetII
         # find pro 8 data
-        #funcRet = self.findPro8()
-        #hasData = hasData or funcRet
+        funcRet = self.findPro8()
+        hasData = hasData or funcRet
 
         return hasData
 
@@ -1464,6 +1475,16 @@ class facileDBGUI(QMainWindow):
     # parameters: int, pro is the process to find data for (3 or 6)
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
+        
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+        self.ui.left_coverLE.clear()
+        self.ui.left_ringLE.clear()
+        self.ui.right_coverLE.clear()
+        self.ui.right_ringLE.clear()
+        self.ui.center_coverLE.clear()
+        self.ui.center_ringLE.clear()
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return False
@@ -1559,6 +1580,7 @@ class facileDBGUI(QMainWindow):
         self.displayProTiming()
         self.displayComments()
         self.displayParts()
+        self.displayPro8()
         self.displayOnLists(
             3,
             self.data.wireData,
@@ -1753,6 +1775,58 @@ class facileDBGUI(QMainWindow):
             self.ui.partWireWeightLE.setText(f'{weightUsed[:5]}g')
         else:
             self.ui.partWireWeightLE.setText("Not found")
+
+    # puts pro8 relevant info on the gui
+    # parameters: no parameters
+    # returns: nothing returned
+    def displayPro8(self):
+        # check if desired pro exists
+        if self.data.proIDs['pan8'] == -1:
+            return
+
+        # start with serial numbers
+        for key in self.data.qcParts:
+            # get correct widget (keys correspond to widget names) and set the text
+            self.getWid(f'{key}LE').setText(
+                str(self.data.qcParts[key])
+            )
+
+            if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
+                self.getWid(f'{key}LE').setText("Unknown")
+
+        # leaks next
+        for toop in self.data.methane:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[5]))))
+            descStr += f'\nLeak at {toop[2]}\n'
+            descStr += f'Size: {toop[3]}\n'
+            descStr += "Inflated: Yes\n" if toop[1] else "Inflated: No\n"
+            descStr += "O-Rings reinstalled\n" if "O" in toop[0] else ""
+            descStr += "Left cover reinstalled\n" if "L" in toop[0] else ""
+            descStr += "Right cover reinstalled\n" if "R" in toop[0] else ""
+            descStr += "Center cover reinstalled\n" if "C" in toop[0] else ""
+            descStr += f'Resolution: {toop[4]}\n'
+
+            self.ui.leaksLW.addItem(descStr)
+
+        # lastly straws and wires
+
+        for toop in self.data.badStraws:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
+            descStr += f'\nPosition: {toop[0]}\n'
+            descStr += f'Comment: {toop[1]}\n'
+
+            self.ui.badStrawsLW.addItem(descStr)
+
+        for toop in self.data.badWires:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
+            descStr += f'\nPosition: {toop[0]}\n'
+            descStr += f'Comment: {toop[1]}\n'
+
+            self.ui.badWiresLW.addItem(descStr)
+
 
 
     # put data into QListWidgets
