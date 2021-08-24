@@ -26,7 +26,7 @@
 #   lpal_bot = Column(Integer, ForeignKey("straw_location.id"))
 #
 ################################################################################
-from guis.common.db_classes.bases import BASE, OBJECT, DM
+from guis.common.db_classes.bases import BASE, OBJECT, DM, logger
 from sqlalchemy import (
     Column,
     Integer,
@@ -51,7 +51,6 @@ class Pan1Procedure(PanelProcedure):
     __mapper_args__ = {"polymorphic_identity": "pan1"}
 
     def __init__(self, station, straw_location, create_key):
-        print("Pan1Procedure::__init__")
         assert (
             station.id == "pan1"
         ), f"Error. Tried to construct Pan1Procedure for a station '{station.id}' not 'pan1'."
@@ -322,9 +321,13 @@ class Pan3Procedure(PanelProcedure):
         self.commit()
 
     def getWireSpool(self):
+        from guis.common.db_classes.supplies import WireSpool
+
         return WireSpool.queryWithId(self.details.wire_spool)
 
     def recordWireSpool(self, number):
+        from guis.common.db_classes.supplies import WireSpool
+
         spool = DM.query(WireSpool).filter(WireSpool.id == number).one_or_none()
         if not spool:
             return False  # Return false if wire spool can't be found in database
@@ -459,7 +462,7 @@ class Pan3Procedure(PanelProcedure):
 
     # Wire Tensioner Measurements
     def recordWireTension(self, position, tension, wire_timer, calibration_factor):
-        from guis.common.db_classes.measurements import WireTensionMeasurement
+        from guis.common.db_classes.measurements_panel import WireTensionMeasurement
 
         WireTensionMeasurement(
             procedure=self,
@@ -478,12 +481,12 @@ class Pan3Procedure(PanelProcedure):
         return lst
 
     def _queryMeasurementHV(self, position):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         return self._queryMeasurementsHV().filter(MeasurementPan5.position == position)
 
     def _queryMeasurementsHV(self):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         return (
             MeasurementPan5.query()
@@ -492,7 +495,7 @@ class Pan3Procedure(PanelProcedure):
         )
 
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         MeasurementPan5(
             procedure=self.id,
@@ -696,7 +699,7 @@ class Pan5Procedure(PanelProcedure):
         return Details
 
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         record = MeasurementPan5(
             procedure=self.id,
@@ -719,12 +722,12 @@ class Pan5Procedure(PanelProcedure):
         return self._queryMeasurement(position).one_or_none()
 
     def _queryMeasurement(self, position):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         return self._queryMeasurements().filter(MeasurementPan5.position == position)
 
     def _queryMeasurements(self):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         return (
             MeasurementPan5.query()
@@ -856,12 +859,12 @@ class Pan6Procedure(PanelProcedure):
         return lst
 
     def _queryMeasurementHV(self, position):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         return self._queryMeasurementsHV().filter(MeasurementPan5.position == position)
 
     def _queryMeasurementsHV(self):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         return (
             MeasurementPan5.query()
@@ -870,7 +873,7 @@ class Pan6Procedure(PanelProcedure):
         )
 
     def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
-        from guis.common.db_classes.measurements import MeasurementPan5
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
 
         MeasurementPan5(
             procedure=self.id,
@@ -1045,12 +1048,12 @@ class Pan8Procedure(PanelProcedure):
         return lst
 
     def _queryBadWire(self, position):
-        from guis.common.db_classes.measurements import BadWire
+        from guis.common.db_classes.measurements_panel import BadWire
 
         return self._queryBadWires().filter(BadWire.position == position)
 
     def _queryBadWires(self):
-        from guis.common.db_classes.measurements import BadWire
+        from guis.common.db_classes.measurements_panel import BadWire
 
         return (
             BadWire.query()

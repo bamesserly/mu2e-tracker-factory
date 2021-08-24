@@ -1,4 +1,4 @@
-from guis.common.databaseClasses import BASE, OBJECT, DM, Barcode
+from guis.common.db_classes.bases import BASE, OBJECT, DM, Barcode
 from sqlalchemy import (
     Column,
     Integer,
