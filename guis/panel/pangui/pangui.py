@@ -106,6 +106,7 @@ from guis.panel.wiretensioner.wire_tension import WireTensionWindow
 from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
+from guis.common.gui_utils import generateBox
 
 # from guis.panel.resistance.run_test import run_test
 # from guis.panel.leak.PlotLeakRate import RunInteractive
@@ -617,7 +618,6 @@ class panelGUI(QMainWindow):
         # TODO Add any image buttons for pro 4 here
 
     def _init_pro5_setup(self):
-
         self.ui.panelInput5.installEventFilter(self)
 
         """
@@ -1484,7 +1484,7 @@ class panelGUI(QMainWindow):
 
         if len(arduino_ports) < 1:
             error = True
-            self.generateBox(
+            generateBox(
                 "critical",
                 "Device not found",
                 "Plug device into any USB port and try again.",
@@ -1492,7 +1492,7 @@ class panelGUI(QMainWindow):
 
         # if len(arduino_ports) > 1:
         #    error = True
-        #    self.generateBox(
+        #    generateBox(
         #        "critical",
         #        "More than one Arduino found",
         #        "Disconnect the ones not in use and try again.",
@@ -1527,7 +1527,7 @@ class panelGUI(QMainWindow):
         # Pressing pro 5 over ten times will open it anyways.  Maybe only tell full time staff?  Maybe this is useless?
         if btn.text() == "Process 5 - High Voltage" and (self.pro5Presses < 10):
             self.pro5Presses += 1
-            self.generateBox(
+            generateBox(
                 "warning",
                 "Process 5 Disabled",
                 "Process 5 has been replaced by the HV popup GUI.  "
@@ -1547,7 +1547,7 @@ class panelGUI(QMainWindow):
         except IndexError:
             if btn.text() == "Process 8 - Final QC":
                 logger.warning("Process 8 is under construction")
-                self.generateBox(
+                generateBox(
                     "warning",
                     "Process 8 Not Ready",
                     "Please select another process.",
@@ -1617,13 +1617,13 @@ class panelGUI(QMainWindow):
     def closeEvent(self, event):
         if self.running():
             # QMessageBox.critical(self, 'Exit Warning', 'GUI cannot be exited while running.')
-            self.generateBox(
+            generateBox(
                 "critical", "Exit Warning", "GUI cannot be exited while running."
             )
             event.ignore()
         else:
             # reply = QMessageBox.warning(self, 'Exit Warning', 'Are you sure you want to exit?', QMessageBox.Yes, QMessageBox.No)
-            reply = self.generateBox(
+            reply = generateBox(
                 "warning", "Exit Warning", "Are you sure you want to exit?", True
             )
 
@@ -1904,7 +1904,7 @@ class panelGUI(QMainWindow):
     """
 
     def partsError(self):
-        self.generateBox(
+        generateBox(
             "critical",
             "Parts List Not Checked",
             "All tools, parts, and supplies must be checked off before pro can begin.",
@@ -1923,7 +1923,7 @@ class panelGUI(QMainWindow):
         items = self.suppliesList.getUncheckedMoldReleaseItems()
         str_items = "\n".join(items)
 
-        self.generateBox(
+        generateBox(
             "critical",
             "Mold Release List Not Checked",
             f"The following items need to be mold released prior to starting this pro:\n{str_items}",
@@ -1958,7 +1958,7 @@ class panelGUI(QMainWindow):
             resized = False
 
         if resized:
-            self.generateBox(
+            generateBox(
                 "warning",
                 "Screen Size Warning",
                 f"The current screen size ({w} x {h}) is too small for the optimal GUI size ({wOpt} x {hOpt}). The GUI has been resized, but UI elements may not display correctly.",
@@ -2288,9 +2288,9 @@ class panelGUI(QMainWindow):
 
             if ok and Current_worker != "":
                 if not self.DP.validateWorkerID(Current_worker):
-                    self.generateBox("critical", "Login Error", "Invalid worker ID.")
+                    generateBox("critical", "Login Error", "Invalid worker ID.")
                 elif self.DP.workerLoggedIn(Current_worker):
-                    self.generateBox(
+                    generateBox(
                         "critical",
                         "Login Error",
                         "This worker ID is already logged in.",
@@ -2383,7 +2383,7 @@ class panelGUI(QMainWindow):
             logger.info(
                 f"Previous unsaved data for panel {self.getCurrentPanel()}, pro {self.pro}: {self.data}"
             )
-            self.generateBox(
+            generateBox(
                 "critical", "Save Error", "Error encountered trying to save data."
             )
 
@@ -2459,7 +2459,7 @@ class panelGUI(QMainWindow):
             logger.info(
                 f"Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {name}"
             )
-            self.generateBox(
+            generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
 
@@ -2507,7 +2507,7 @@ class panelGUI(QMainWindow):
             logger.info(
                 f"Previous unsaved comment for panel {self.getCurrentPanel()}, pro {self.pro}: {comments}"
             )
-            self.generateBox(
+            generateBox(
                 "critical", "Save Error", "Error encountered trying to save comments."
             )
             return
@@ -2764,14 +2764,14 @@ class panelGUI(QMainWindow):
 
         ## Try to load all previous data
         try:
-            (data, elapsed_time, steps_completed) = (self.DP.loadData())
+            (data, elapsed_time, steps_completed) = self.DP.loadData()
         except Exception as e:
             c = sys.exc_info()[0]
             t = traceback.format_exc()
-            self.generateBox(
+            generateBox(
                 "critical",
                 "Error",
-                f"An error was encountered while loading data for panel {self.getCurrentPanel()}, please inform a software team member.\nException: {c}"
+                f"An error was encountered while loading data for panel {self.getCurrentPanel()}, please inform a software team member.\nException: {c}",
             )
             # log exception class, error description, and traceback
             logger.error(c)
@@ -3590,7 +3590,7 @@ class panelGUI(QMainWindow):
             except:
                 data[7] = (self.timers[6].getElapsedTime(), self.timers[6].isRunning())
                 elapsed_time, running = data[7]
-                self.generateBox(
+                generateBox(
                     "critical",
                     "Data Processor Error",
                     "SQL Processor inactive, BP/IR epoxy timer may not function.",
@@ -3620,7 +3620,7 @@ class panelGUI(QMainWindow):
             except:
                 data[10] = (self.timers[7].getElapsedTime(), self.timers[7].isRunning())
                 elapsed_time, running = data[10]
-                self.generateBox(
+                generateBox(
                     "critical",
                     "Data Processor Error",
                     "SQL Processor inactive, Frame epoxy timer may not function.",
@@ -3651,7 +3651,7 @@ class panelGUI(QMainWindow):
             except:
                 data[13] = (self.timers[8].getElapsedTime(), self.timers[8].isRunning())
                 elapsed_time, running = data[13]
-                self.generateBox(
+                generateBox(
                     "critical",
                     "Data Processor Error",
                     "SQL Processor inactive, heating timer may not function.",
@@ -4136,15 +4136,15 @@ class panelGUI(QMainWindow):
         # Start timer
         self.startTimer(2)
         if self.timers[2].getElapsedTime == 1800:
-            self.generateBox(
+            generateBox(
                 "critical", "Epoxy Timer at 30 minutes", "Rotate straws into alignment."
             )
         if self.timers[2].getElapsedTime == 3600:
-            self.generateBox(
+            generateBox(
                 "critical", "Epoxy Timer at 1 hour", "Rotate straws into alignment."
             )
         if self.timers[2].getElapsedTime == 5400:
-            self.generateBox(
+            generateBox(
                 "critical",
                 "Epoxy Timer at 1 hour 30 minutes",
                 "Rotate straws into alignment.",
@@ -4346,7 +4346,7 @@ class panelGUI(QMainWindow):
         # Verify that wire has been QCd with DataProcessor
         wire = self.ui.wireInput.text()
         if not self.DP.wireQCd(wire):
-            self.generateBox(
+            generateBox(
                 "warning",
                 "Wire Spool Not Found",
                 "Either a wire spool was not entered, or it is not recorded in the database.",
@@ -5079,7 +5079,7 @@ class panelGUI(QMainWindow):
 
     def pro8StwitchStage(self):
         # make sure user is ready to switch
-        reply = self.generateBox(
+        reply = generateBox(
             "warning",
             "Switching Stage",
             "Any data currently entered in the methane test section or resolution section will be lost.  Continue?",
@@ -5184,7 +5184,7 @@ class panelGUI(QMainWindow):
         self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
         self.resolvingLeak = "LeakTest"
         self.ui.launch_leak_test_2.setFocus()
-        self.data[7][16] = "Leak" # set stage as "Leak"
+        self.data[7][16] = "Leak"  # set stage as "Leak"
         self.saveData()
         self.pro8EnableParts()
 
@@ -5201,7 +5201,7 @@ class panelGUI(QMainWindow):
     def pro8ResolutionSubmit(self):
         # make sure something is entered
         if self.ui.resolutionPTE.toPlainText() == "":
-            self.generateBox(
+            generateBox(
                 "warning",
                 "No explanation entered",
                 "Please explain what was done to resolve the leak.",
@@ -5364,37 +5364,6 @@ class panelGUI(QMainWindow):
     #
     # Functions that launch smaller windows like device guis, warning messages, etc.
     # fmt: on
-
-    """
-    generateBox(self, type, title, text, question = False)
-
-        Description: A function to handle generating error message boxes. A separate function was needed, as the default color scheme
-                    makes them nearly unreadable. This generates boxes with a white background and black text.
-
-        Parameter: type - A string giving the type of the box to set the appropriate icon (question, warning, or critical)
-        Parameter: title - A string giving the desired error box title text
-        Parameter: text - A string giving the desired error box text
-        Parameter: question - A boolean value that determines if this box asks a question. If it does, the box is given yes and no buttons
-
-        Return: A QMessageBox with the desired input qualities
-    """
-
-    def generateBox(self, type, title, text, question=False):
-        iconDict = {
-            "question": QMessageBox.Question,
-            "warning": QMessageBox.Warning,
-            "critical": QMessageBox.Critical,
-        }
-        box = QMessageBox()
-        box.setWindowTitle(title)
-        box.setText(text)
-        box.setIcon(iconDict[type])
-        box.setStyleSheet("color: black; background-color: white")
-
-        if question:
-            box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-
-        return box.exec_()
 
     """
     diagram_popup(self, diagram)
@@ -5635,7 +5604,7 @@ class panelGUI(QMainWindow):
         try:
             size = float(self.ui.leak_size.text())
         except ValueError:
-            self.generateBox(
+            generateBox(
                 "warning",
                 "Invalid literal",
                 "Please enter a base 10 number for leak size.",
@@ -5749,7 +5718,6 @@ def checkPackages():
 
 
 def run():
-
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     checkPackages()  # check package versions
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
