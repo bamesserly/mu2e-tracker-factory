@@ -8,24 +8,25 @@ from csv import DictReader, DictWriter
 import tkinter
 from tkinter import messagebox
 
-from guis.common.databaseClasses import (
-    Comment,
-    Procedure,
-    Station,
-    Worker,
-    WireSpool,
-    Panel,
+from guis.common.db_classes.bases import DM
+from guis.common.db_classes.comment_failure import Comment
+from guis.common.db_classes.steps import PanelStep
+from guis.common.db_classes.procedure import Procedure
+from guis.common.db_classes.station import Station
+from guis.common.db_classes.straw_location import Panel
+from guis.common.db_classes.supplies import (
     Supplies,
-    PanelStep,
     SupplyChecked,
-    DM,
     MoldReleaseItemsChecked,
     MoldReleaseItems,
+    WireSpool,
+)
+from guis.common.db_classes.workers import Worker
+from guis.common.db_classes.measurements_panel import (
     TensionboxMeasurement,
     BadWire,
     LeakFinalForm,
 )
-
 import logging
 
 logger = logging.getLogger("root")
@@ -1835,9 +1836,7 @@ class SQLDataProcessor(DataProcessor):
             cRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordCenterRing, cRing)
 
-        self.callMethod(self.procedure.recordStage,data[16])
-        
-        
+        self.callMethod(self.procedure.recordStage, data[16])
 
     ## TIME EVENTS ##
     def saveStart(self):
@@ -2304,7 +2303,7 @@ class SQLDataProcessor(DataProcessor):
         wires = self.procedure.getBadWires()
         for wire in wires:
             ret.append((wire.position, wire.failure, wire.wire))
-        
+
         return ret
 
     ##########################################################################
@@ -2613,7 +2612,7 @@ class SQLDataProcessor(DataProcessor):
     # Final QC
     def loadDataProcess8(self):
         panel = self.panel()
-        #print(
+        # print(
         #    str(self.procedure.getLeftRing())[:4],
         #    "hi",
         #    str(self.procedure.getLeftRing())[4:15],
@@ -2622,7 +2621,7 @@ class SQLDataProcessor(DataProcessor):
         #    "hi",
         #    str(self.procedure.getRightRing())[:4],
         #    "hi",
-        #    str(self.procedure.getRightRing())[4:15], 
+        #    str(self.procedure.getRightRing())[4:15],
         #    "hi",
         #    str(self.procedure.getRightRing())[15:],
         #    "hi",
@@ -2631,29 +2630,50 @@ class SQLDataProcessor(DataProcessor):
         #    str(self.procedure.getCenterRing())[4:15],
         #    "hi",
         #    str(self.procedure.getCenterRing())[15:]
-        #)
+        # )
         return [
             self.getBarcode(panel),
             self.procedure.getLeftCover(),
             self.procedure.getRightCover(),
             self.procedure.getCenterCover(),
-
             # 8888 01Jan07 0000 66666A
-            str(self.procedure.getLeftRing())[:4] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[4:11] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[11:15] if self.procedure.getLeftRing() is not None else None,
-            str(self.procedure.getLeftRing())[15:] if self.procedure.getLeftRing() is not None else None,
-
-            str(self.procedure.getRightRing())[:4] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[4:11] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[11:15] if self.procedure.getRightRing() is not None else None,
-            str(self.procedure.getRightRing())[15:] if self.procedure.getRightRing() is not None else None,
-
-            str(self.procedure.getCenterRing())[:4] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[4:11] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[11:15] if self.procedure.getCenterRing() is not None else None,
-            str(self.procedure.getCenterRing())[15:] if self.procedure.getCenterRing() is not None else None,
-            self.procedure.getStage()
+            str(self.procedure.getLeftRing())[:4]
+            if self.procedure.getLeftRing() is not None
+            else None,
+            str(self.procedure.getLeftRing())[4:11]
+            if self.procedure.getLeftRing() is not None
+            else None,
+            str(self.procedure.getLeftRing())[11:15]
+            if self.procedure.getLeftRing() is not None
+            else None,
+            str(self.procedure.getLeftRing())[15:]
+            if self.procedure.getLeftRing() is not None
+            else None,
+            str(self.procedure.getRightRing())[:4]
+            if self.procedure.getRightRing() is not None
+            else None,
+            str(self.procedure.getRightRing())[4:11]
+            if self.procedure.getRightRing() is not None
+            else None,
+            str(self.procedure.getRightRing())[11:15]
+            if self.procedure.getRightRing() is not None
+            else None,
+            str(self.procedure.getRightRing())[15:]
+            if self.procedure.getRightRing() is not None
+            else None,
+            str(self.procedure.getCenterRing())[:4]
+            if self.procedure.getCenterRing() is not None
+            else None,
+            str(self.procedure.getCenterRing())[4:11]
+            if self.procedure.getCenterRing() is not None
+            else None,
+            str(self.procedure.getCenterRing())[11:15]
+            if self.procedure.getCenterRing() is not None
+            else None,
+            str(self.procedure.getCenterRing())[15:]
+            if self.procedure.getCenterRing() is not None
+            else None,
+            self.procedure.getStage(),
         ]
 
 
