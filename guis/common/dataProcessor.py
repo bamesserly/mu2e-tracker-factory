@@ -748,7 +748,7 @@ class TxtDataProcessor(DataProcessor):
         self.wireTensionboxDirectory = paths["tensionbox_data_wire"]
         self.straw_tensionerDirectory = paths["straw_tensioner_data"]
         self.badStrawsWiresDirectory = paths["badStrawsWires"]
-        self.qc8LeakFormDirectory = paths["qc8LeakForm"]
+        self.qc8LeakFormDirectory = paths["qc_leak_resolution"]
 
     #  _____                  ___  ___     _   _               _
     # /  ___|                 |  \/  |    | | | |             | |
@@ -794,7 +794,7 @@ class TxtDataProcessor(DataProcessor):
         # friendly text files.
         numSteps = 0
         for rawStep in self.loadRawSteps():
-            if rawStep != "\n":
+            if rawStep != "\n" and "Pro " not in rawStep:
                 numSteps += 1
 
         # if no file present, make a new one and give it a header
@@ -873,7 +873,7 @@ class TxtDataProcessor(DataProcessor):
                 if len(data) == 0:
                     break
                 # is a timedelta tuple
-                if isinstance(data[i], tuple) and isinstance(data[i][0], timedelta):  
+                if isinstance(data[i], tuple) and isinstance(data[i][0], timedelta):
                     file.write(
                         f"{header[i+1]},{data[i][0]},{data[i][1]},{self.timestamp()}\n"
                     )  # write '<variable name>,<time>,<running status (t/f)>,<timestamp>\n'
@@ -1189,51 +1189,61 @@ class TxtDataProcessor(DataProcessor):
         return "", 0
 
     def saveBadWire(self, number, failure, process, wire_check):
+        panel = self.getPanel()
         # check if file exists already
-        file_exists = os.path.isfile(self.getBadStrawsWiresPath())
+        file_exists = os.path.isfile(self.getBadStrawsWiresPath(panel))
 
-        headers = ["number","failure","isWire","timestamp"]
+        headers = ["number", "failure", "is_wire", "timestamp"]
 
         # opens file (even if it doesn't exist yet) and appends data
-        with open(self.getBadStrawsWiresPath(), "a+") as f:
-                writer = DictWriter(
-                    f, delimiter=",", lineterminator="\n", fieldnames=headers
-                )
-                if not file_exists:
-                    writer.writeheader()  # file doesn't exist yet, write a header
-                writer.writerow(
-                    {
-                        "number": number,
-                        "failure": failure,
-                        "isWire": wire_check,
-                        "timestamp": datetime.now().isoformat()
-                    }
-                )
+        with open(self.getBadStrawsWiresPath(panel), "a+") as f:
+            writer = DictWriter(
+                f, delimiter=",", lineterminator="\n", fieldnames=headers
+            )
+            if not file_exists:
+                writer.writeheader()  # file doesn't exist yet, write a header
+            writer.writerow(
+                {
+                    "number": number,
+                    "failure": failure,
+                    "is_wire": wire_check,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
     def saveLeakForm(self, reinst, infl, loc, conf, size, reso, next):
+        panel = self.getPanel()
         # check if file exists already
-        file_exists = os.path.isfile(self.getLeakFormsPath())
+        file_exists = os.path.isfile(self.getLeakFormsPath(panel))
 
-        headers = ["location","size","resolution","next","reinstalled_parts","inflated","timestamp"]
+        headers = [
+            "location",
+            "size",
+            "resolution",
+            "next",
+            "reinstalled_parts",
+            "inflated",
+            "timestamp",
+        ]
 
         # opens file (even if it doesn't exist yet) and appends data
-        with open(self.get(), "a+") as f:
-                writer = DictWriter(
-                    f, delimiter=",", lineterminator="\n", fieldnames=headers
-                )
-                if not file_exists:
-                    writer.writeheader()  # file doesn't exist yet, write a header
-                writer.writerow(
-                    {
-                        "location": loc,
-                        "size": size,
-                        "resolution": reso,
-                        "next": next,
-                        "reinstalled_parts": reinst,
-                        "inflated": infl,
-                        "timestamp": datetime.now().isoformat()
-                    }
-                )
+        with open(self.getLeakFormsPath(panel), "a+") as f:
+            writer = DictWriter(
+                f, delimiter=",", lineterminator="\n", fieldnames=headers
+            )
+            if not file_exists:
+                writer.writeheader()  # file doesn't exist yet, write a header
+            writer.writerow(
+                {
+                    "location": loc,
+                    "size": size,
+                    "resolution": reso,
+                    "next": next,
+                    "reinstalled_parts": reinst,
+                    "inflated": infl,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
     #  _                     _  ___  ___     _   _               _
     # | |                   | | |  \/  |    | | | |             | |
@@ -1381,16 +1391,10 @@ class TxtDataProcessor(DataProcessor):
         )
 
     def getBadStrawsWiresPath(self, panel):
-        return (
-            self.badStrawsWiresDirectory
-            / f"bad_straws_wires_{panel}.csv"
-        )
-    
+        return self.badStrawsWiresDirectory / f"bad_channels_{panel}.csv"
+
     def getLeakFormsPath(self, panel):
-        return (
-            self.qc8LeakFormDirectory
-            / f"leak_forms_{panel}.csv"
-        )
+        return self.qc8LeakFormDirectory / f"leak_resolution_forms_{panel}.csv"
 
     #  _   _                _            ______                _   _
     # | | | |              | |           |  ___|              | | (_)
@@ -1496,7 +1500,7 @@ class TxtDataProcessor(DataProcessor):
 
     def _pro8header(self):
         return [
-            7,
+            16,
             "Panel ID",
             "Left Cover",
             "Center Cover",
@@ -1880,17 +1884,19 @@ class SQLDataProcessor(DataProcessor):
 
         # rings consist of a line edit, then a date input, then another line edit
         # left ring example: OL 1538 25Oct19 0954 79042A
-        lRing = f'{str(self.stripNumber(data[4])).zfill(4)}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
+        lRing = f"{str(self.stripNumber(data[4])).zfill(4)}{data[5]}{data[6]}{data[7]}"
         if "None" in lRing:
             lRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordLeftRing, lRing)
-        # rRing = data[7:10]
-        rRing = f'{str(self.stripNumber(data[8])).zfill(4)}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
+        rRing = (
+            f"{str(self.stripNumber(data[8])).zfill(4)}{data[9]}{data[10]}{data[11]}"
+        )
         if "None" in rRing:
             rRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordRightRing, rRing)
-        # rRing = data[10:13]
-        cRing = f'{str(self.stripNumber(data[12])).zfill(4)}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
+        cRing = (
+            f"{str(self.stripNumber(data[12])).zfill(4)}{data[13]}{data[14]}{data[15]}"
+        )
         if "None" in cRing:
             cRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordCenterRing, cRing)

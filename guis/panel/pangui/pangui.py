@@ -2725,18 +2725,18 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.right_cover_6.text()
 
         self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
-        self.data[self.pro_index][5] = self.ui.leftRing2DE.date()
-        self.data[self.pro_index][6] = self.ui.leftRing3TE.time()
+        self.data[self.pro_index][5] = self.ui.leftRing2DE.date().toString("ddMMMyy")
+        self.data[self.pro_index][6] = self.ui.leftRing3TE.time().toString("HHmm")
         self.data[self.pro_index][7] = self.ui.leftRing4LE.text()
 
         self.data[self.pro_index][8] = self.ui.rightRing1LE.text()
-        self.data[self.pro_index][9] = self.ui.rightRing2DE.date()
-        self.data[self.pro_index][10] = self.ui.rightRing3TE.time()
+        self.data[self.pro_index][9] = self.ui.rightRing2DE.date().toString("ddMMMyy")
+        self.data[self.pro_index][10] = self.ui.rightRing3TE.time().toString("HHmm")
         self.data[self.pro_index][11] = self.ui.rightRing4LE.text()
 
         self.data[self.pro_index][12] = self.ui.centerRing1LE.text()
-        self.data[self.pro_index][13] = self.ui.centerRing2DE.date()
-        self.data[self.pro_index][14] = self.ui.centerRing3TE.time()
+        self.data[self.pro_index][13] = self.ui.centerRing2DE.date().toString("ddMMMyy")
+        self.data[self.pro_index][14] = self.ui.centerRing3TE.time().toString("HHmm")
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
 
     # fmt: off
