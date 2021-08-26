@@ -2655,7 +2655,10 @@ class panelGUI(QMainWindow):
     def updateDataProcess3(self):
         # pro-specific Data
         self.data[self.pro_index][0] = self.ui.panelInput3.text()
+        # wire spool won't be saved to DB if it's not found in the QCd wire spool table
+        # (see db class for if statement that decides that^)
         self.data[self.pro_index][1] = self.ui.wireInput.text()
+
         self.data[self.pro_index][2] = self.timerTuple(self.timers[5])
         self.data[self.pro_index][3] = self.ui.initialWireWeightLE.text()
         self.data[self.pro_index][4] = self.ui.finalWireWeightLE.text()
@@ -3320,6 +3323,17 @@ class panelGUI(QMainWindow):
         self.ui.launch_wire_tensioner.setEnabled(True)
         self.ui.launchHVpro3.setEnabled(True)
         self.ui.launch_tension_box.setEnabled(True)
+
+        # link input lines to save data
+        self.ui.wireInput.editingFinished.connect(
+            lambda: self.pro3SpecialSave(False)
+            )
+        self.ui.initialWireWeightLE.editingFinished.connect(
+            lambda: self.pro3SpecialSave(False)
+            )
+        self.ui.finalWireWeightLE.editingFinished.connect(
+            lambda: self.pro3SpecialSave(False)
+            )
 
         # display comments
         self.displayComments()
@@ -4367,15 +4381,6 @@ class panelGUI(QMainWindow):
         if not self.validateInput(indices=[0]):
             return
 
-        # Verify that wire has been QCd with DataProcessor
-        wire = self.ui.wireInput.text()
-        if not self.DP.wireQCd(wire):
-            generateBox(
-                "warning",
-                "Wire Spool Not Found",
-                "Either a wire spool was not entered, or it is not recorded in the database.",
-            )
-
         # If all tests pass, continue
 
         # Disable start button, panel input, and don't let user input calibration factor
@@ -4398,12 +4403,50 @@ class panelGUI(QMainWindow):
         # Enable all widgets in the continuity table
         self.setWidgetsEnabled(self.continuity + self.wire_align)
 
+        # link input lines to save data
+        self.ui.wireInput.editingFinished.connect(
+            lambda: self.pro3SpecialSave(False)
+            )
+        self.ui.initialWireWeightLE.editingFinished.connect(
+            lambda: self.pro3SpecialSave(False)
+            )
+        self.ui.finalWireWeightLE.editingFinished.connect(
+            lambda: self.pro3SpecialSave(False)
+            )
+
         # Start timers
         self.startRunning()
         self.startTimer(5)
 
         # Save data
+        self.pro3SpecialSave(True)
+
+    # gives warning if the wire spool won't be saved
+    # but also calls self.saveData()
+    def pro3SpecialSave(self, atStart):
+        logger.info("SPECIAL SAVE")
+
+        wire = self.ui.wireInput.text()
+        # if start button was just pushed and wire input is bad
+        if atStart and not self.DP.wireQCd(wire):
+            # show warning
+            self.generateBox(
+                "warning",
+                "Wire Spool Not Found",
+                "Unable to save wire spool.  Either a wire spool was not entered, or it is not recorded in the database.",
+            )
+        # if field was updated and wire spool is bad (but not "" since updating the
+        # wire weight inputs will trigger this function too)
+        elif not self.DP.wireQCd(wire) and wire != "":
+            # show warning
+            self.generateBox(
+                "warning",
+                "Wire Spool Not Found",
+                "Unable to save wire spool.  It is not recorded as having been QC'd in the database.",
+            )
+
         self.saveData()
+
 
     """
     resetpro3(self)
