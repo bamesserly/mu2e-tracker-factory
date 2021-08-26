@@ -15,6 +15,7 @@
                     CPAL rotations.
 """
 
+from numpy.lib.type_check import real
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (
@@ -1705,6 +1706,8 @@ class Pan8Procedure(PanelProcedure):
 
             stage = Column(String)
 
+            leak_rate = Column(REAL)
+
         return Details
 
     def getLeftCover(self):
@@ -1755,6 +1758,13 @@ class Pan8Procedure(PanelProcedure):
 
     def getStage(self):
         return self.details.stage
+
+    def recordLeakRate(self, leakRate):
+        self.details.leak_rate = leakRate
+        self.commit()
+
+    def getLeakRate(self):
+        return self.details.leak_rate
 
     def getBadWires(self):
         wires = self._queryBadWires().all()

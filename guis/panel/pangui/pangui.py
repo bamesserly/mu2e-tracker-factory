@@ -313,7 +313,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 17}
+        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 18}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -1295,6 +1295,8 @@ class panelGUI(QMainWindow):
             # 4,5,6,7 = L ring parts 1,2,3, and 4
             # 8,9,10,11 = R ring parts 1,2,3, and 4
             # 12,13,14,15 = C ring parts 1,2,3, and 4
+            # 16 = stage
+            # 17 = leak rate
             [
                 self.ui.panelInput_8,
                 self.ui.left_cover_6,
@@ -1312,6 +1314,7 @@ class panelGUI(QMainWindow):
                 self.ui.centerRing2DE,
                 self.ui.centerRing3TE,
                 self.ui.centerRing4LE,
+                self.ui.leakRateLE
             ],
         ]
 
@@ -2719,25 +2722,27 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
 
     def updateDataProcess8(self):
-        self.data[self.pro_index][0] = self.ui.panelInput_8.text()
-        self.data[self.pro_index][1] = self.ui.left_cover_6.text()
-        self.data[self.pro_index][2] = self.ui.center_cover_6.text()
-        self.data[self.pro_index][3] = self.ui.right_cover_6.text()
+        self.data[7][0] = self.ui.panelInput_8.text()
+        self.data[7][1] = self.ui.left_cover_6.text()
+        self.data[7][2] = self.ui.center_cover_6.text()
+        self.data[7][3] = self.ui.right_cover_6.text()
 
-        self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
-        self.data[self.pro_index][5] = self.ui.leftRing2DE.date()
-        self.data[self.pro_index][6] = self.ui.leftRing3TE.time()
-        self.data[self.pro_index][7] = self.ui.leftRing4LE.text()
+        self.data[7][4] = self.ui.leftRing1LE.text()
+        self.data[7][5] = self.ui.leftRing2DE.date()
+        self.data[7][6] = self.ui.leftRing3TE.time()
+        self.data[7][7] = self.ui.leftRing4LE.text()
 
-        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()
-        self.data[self.pro_index][9] = self.ui.rightRing2DE.date()
-        self.data[self.pro_index][10] = self.ui.rightRing3TE.time()
-        self.data[self.pro_index][11] = self.ui.rightRing4LE.text()
+        self.data[7][8] = self.ui.rightRing1LE.text()
+        self.data[7][9] = self.ui.rightRing2DE.date()
+        self.data[7][10] = self.ui.rightRing3TE.time()
+        self.data[7][11] = self.ui.rightRing4LE.text()
 
-        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()
-        self.data[self.pro_index][13] = self.ui.centerRing2DE.date()
-        self.data[self.pro_index][14] = self.ui.centerRing3TE.time()
-        self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
+        self.data[7][12] = self.ui.centerRing1LE.text()
+        self.data[7][13] = self.ui.centerRing2DE.date()
+        self.data[7][14] = self.ui.centerRing3TE.time()
+        self.data[7][15] = self.ui.centerRing4LE.text()
+
+        self.data[7][17] = self.ui.leakRateLE.text()
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -3852,6 +3857,9 @@ class panelGUI(QMainWindow):
                 self.resolvingLeak = "Methane"
         else:
             self.resolvingLeak = "Methane"
+
+        if data[17] is not None:
+            self.ui.leakRateLE.setText(str(data[17]))
 
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)

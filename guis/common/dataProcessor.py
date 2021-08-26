@@ -1894,7 +1894,9 @@ class SQLDataProcessor(DataProcessor):
             cRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordCenterRing, cRing)
 
-        self.callMethod(self.procedure.recordStage,data[16])
+        self.callMethod(self.procedure.recordStage, data[16])
+
+        self.callMethod(self.procedure.recordLeakRate, data[17])
         
         
 
@@ -2672,25 +2674,6 @@ class SQLDataProcessor(DataProcessor):
     # Final QC
     def loadDataProcess8(self):
         panel = self.panel()
-        #print(
-        #    str(self.procedure.getLeftRing())[:4],
-        #    "hi",
-        #    str(self.procedure.getLeftRing())[4:15],
-        #    "hi",
-        #    str(self.procedure.getLeftRing())[15:],
-        #    "hi",
-        #    str(self.procedure.getRightRing())[:4],
-        #    "hi",
-        #    str(self.procedure.getRightRing())[4:15], 
-        #    "hi",
-        #    str(self.procedure.getRightRing())[15:],
-        #    "hi",
-        #    str(self.procedure.getCenterRing())[:4],
-        #    "hi",
-        #    str(self.procedure.getCenterRing())[4:15],
-        #    "hi",
-        #    str(self.procedure.getCenterRing())[15:]
-        #)
         return [
             self.getBarcode(panel),
             self.procedure.getLeftCover(),
@@ -2712,7 +2695,8 @@ class SQLDataProcessor(DataProcessor):
             str(self.procedure.getCenterRing())[4:11] if self.procedure.getCenterRing() is not None else None,
             str(self.procedure.getCenterRing())[11:15] if self.procedure.getCenterRing() is not None else None,
             str(self.procedure.getCenterRing())[15:] if self.procedure.getCenterRing() is not None else None,
-            self.procedure.getStage()
+            self.procedure.getStage(),
+            self.procedure.getLeakRate()
         ]
 
 
