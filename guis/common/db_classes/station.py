@@ -24,7 +24,7 @@
 # = process and the station = spot in a room terminologies) a Station instance
 # can start Sessions and knows about active Sessions.
 ################################################################################
-from guis.common.db_classes.bases import BASE, OBJECT, DM
+from guis.common.db_classes.bases import BASE, OBJECT, DM, logger
 from sqlalchemy import (
     Column,
     Integer,
@@ -44,27 +44,38 @@ from sqlalchemy import (
 
 class Station(BASE, OBJECT):
     __tablename__ = "station"
-    id = Column(CHAR(4), primary_key=True)
-    name = Column(VARCHAR(30))
+    id = Column(CHAR(4), primary_key=True)  # "pan3", "prep"
+    name = Column(VARCHAR(30))  # "Panel Day 3", "Paper Pull"
     room = Column(Integer, ForeignKey("room.id"))
-    # room = Column(Integer)
-    production_stage = Column(Integer, ForeignKey("production_stage.id"))
-    # production_stage = Column(Integer)
-    production_step = Column(Integer)
+    production_stage = Column(
+        Integer, ForeignKey("production_stage.id")
+    )  # "panel", "straws"
+    production_step = Column(
+        Integer
+    )  # integer based on the order that the steps AKA processes occur
+
+    # classes that inherit from this one will only read/write rows in this
+    # table that have the production stage equal to the "polymorphic_identity"
+    # set by the class.
     __mapper_args__ = {"polymorphic_on": production_stage}
 
-    # solution to MP?
-    # TODO instead of one_or_none, call one() and try catch if None
-    # As-is: crash when none
+    # station = (stage + step)
+    # In modern lingo: process = (panels/straws + process)
+    # e.g. station pan3 or straw prep
+    #
+    # Make sure that the stage and step given are valid and return a
+    # PanelStation or StrawStation object respectively.
     @staticmethod
-    def panelStation(day):
-        # print(PanelStation.query().first()) # None!
-        # print(PanelStation.query().filter(PanelStation.production_step == day))
+    def get_station(stage, step):
+        query = None
         try:
-            return (
-                PanelStation.query()
-                .filter(PanelStation.production_step == day)
-                .one_or_none()
+            query = {"panel": PanelStation.query(), "straws": StrawStation.query()}[
+                stage
+            ]
+            return query.filter(Station.production_step == step).one_or_none()
+        except KeyError:
+            logger.error(
+                "Invalid stage in Station query. Valid stages are 'panel' and 'straws'."
             )
         except sqlalchemy.exc.OperationalError:
             logger.error("DB Locked. Panel station query failed.")
@@ -106,6 +117,10 @@ class PanelStation(Station):
 
     def getDay(self):
         return self.production_step
+
+
+class StrawStation(Station):
+    __mapper_args__ = {"polymorphic_identity": "straws"}
 
 
 class Room(BASE, OBJECT):

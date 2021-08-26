@@ -1609,13 +1609,14 @@ class TxtDataProcessor(DataProcessor):
 
 
 class SQLDataProcessor(DataProcessor):
-    def __init__(self, gui):
+    def __init__(self, gui, stage="panel"):
         super().__init__(gui)
 
-        # Classes to interact with the database
-        self.station = Station.panelStation(
-            day=self.getPro()
-        )  # DO NOT CHANGE "day" IN THE ABOVE LINE TO "pro"
+        # first, set the station AKA process, e.g. straw prep or panel 3
+        self.station = Station.get_station(step=self.getPro(), stage=stage)
+
+        # write a new entry to the session table
+        # a new session id, pointer to this station, empty procedure, and active = True
         self.session = self.station.startSession()
         self.procedure = None
 
@@ -2377,7 +2378,7 @@ class SQLDataProcessor(DataProcessor):
         # If no procedure has been defined yet, define one.
         if self.procedure is None:
             self.session.startPanelProcedure(
-                day=self.getPro(), panel_number=self.getPanelNumber()
+                process=self.getPro(), panel_number=self.getPanelNumber()
             )
             self.procedure = self.session.getProcedure()
 

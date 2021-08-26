@@ -144,12 +144,12 @@ class Procedure(BASE, OBJECT):
     """
 
     @classmethod
-    def PanelProcedure(cls, day, panel_number):
+    def PanelProcedure(cls, process, panel_number):
         from guis.common.db_classes.straw_location import StrawLocation
         from guis.common.db_classes.station import Station
 
         # Get Station
-        station = Station.panelStation(day=day)
+        station = Station.get_station(stage="panel", step=process)
 
         # Get panel
         panel = StrawLocation.Panel(panel_number)
