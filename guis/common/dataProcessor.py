@@ -747,6 +747,8 @@ class TxtDataProcessor(DataProcessor):
         self.strawTensionboxDirectory = paths["tensionbox_data_straw"]
         self.wireTensionboxDirectory = paths["tensionbox_data_wire"]
         self.straw_tensionerDirectory = paths["straw_tensioner_data"]
+        self.badStrawsWiresDirectory = paths["badStrawsWires"]
+        self.qc8LeakFormDirectory = paths["qc_leak_resolution"]
 
     #  _____                  ___  ___     _   _               _
     # /  ___|                 |  \/  |    | | | |             | |
@@ -762,8 +764,8 @@ class TxtDataProcessor(DataProcessor):
     saveData has two options for formats.  Whenever saveData is called, it'll
     make a decision on which save method to use.
 
-    Setting the USE_MARK_ONE constant to true will make it save in the DB friendly CSV format,
-    and setting it to false will make it save in the human friendly CSV format.
+    Setting the USE_MARK_ONE constant to true will make it save in the DB friendly CSV format.
+    USE_MARK_TWO should ALWAYS be set to True, as it saves in the human friendly format.
     """
 
     def saveData(self):
@@ -792,7 +794,7 @@ class TxtDataProcessor(DataProcessor):
         # friendly text files.
         numSteps = 0
         for rawStep in self.loadRawSteps():
-            if rawStep != "\n":
+            if rawStep != "\n" and "Pro " not in rawStep:
                 numSteps += 1
 
         # if no file present, make a new one and give it a header
@@ -864,14 +866,14 @@ class TxtDataProcessor(DataProcessor):
             # The if statement checks if the data is a timedelta with a boolean
             # for timer running status.  Writing both in the tuple is a bit more
             # difficult to read.
-            for i in range(
-                header[0]
-            ):  # header[0] is an int that equals the number of variables to be recorded
+
+            # header[0] is an int that equals the number of variables to be recorded
+            for i in range(header[0]):
+                # if no data to record then break
                 if len(data) == 0:
                     break
-                if isinstance(data[i], tuple) and isinstance(
-                    data[i][0], timedelta
-                ):  # is a timedelta tuple
+                # is a timedelta tuple
+                if isinstance(data[i], tuple) and isinstance(data[i][0], timedelta):
                     file.write(
                         f"{header[i+1]},{data[i][0]},{data[i][1]},{self.timestamp()}\n"
                     )  # write '<variable name>,<time>,<running status (t/f)>,<timestamp>\n'
@@ -1186,16 +1188,62 @@ class TxtDataProcessor(DataProcessor):
     def saveMoldRelease(self, item, state):
         return "", 0
 
-    def saveTapForm(self, tap_id):
-        pass
-
     def saveBadWire(self, number, failure, process, wire_check):
-        pass
+        panel = self.getPanel()
+        # check if file exists already
+        file_exists = os.path.isfile(self.getBadStrawsWiresPath(panel))
 
-    def saveLeakForm(
-        self, reinstalled, inflated, location, confidence, size, resolution, next_step
-    ):
-        pass
+        headers = ["number", "failure", "is_wire", "timestamp"]
+
+        # opens file (even if it doesn't exist yet) and appends data
+        with open(self.getBadStrawsWiresPath(panel), "a+") as f:
+            writer = DictWriter(
+                f, delimiter=",", lineterminator="\n", fieldnames=headers
+            )
+            if not file_exists:
+                writer.writeheader()  # file doesn't exist yet, write a header
+            writer.writerow(
+                {
+                    "number": number,
+                    "failure": failure,
+                    "is_wire": wire_check,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
+    def saveLeakForm(self, reinst, infl, loc, conf, size, reso, next):
+        panel = self.getPanel()
+        # check if file exists already
+        file_exists = os.path.isfile(self.getLeakFormsPath(panel))
+
+        headers = [
+            "location",
+            "size",
+            "resolution",
+            "next",
+            "reinstalled_parts",
+            "inflated",
+            "timestamp",
+        ]
+
+        # opens file (even if it doesn't exist yet) and appends data
+        with open(self.getLeakFormsPath(panel), "a+") as f:
+            writer = DictWriter(
+                f, delimiter=",", lineterminator="\n", fieldnames=headers
+            )
+            if not file_exists:
+                writer.writeheader()  # file doesn't exist yet, write a header
+            writer.writerow(
+                {
+                    "location": loc,
+                    "size": size,
+                    "resolution": reso,
+                    "next": next,
+                    "reinstalled_parts": reinst,
+                    "inflated": infl,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
     #  _                     _  ___  ___     _   _               _
     # | |                   | | |  \/  |    | | | |             | |
@@ -1342,6 +1390,12 @@ class TxtDataProcessor(DataProcessor):
             / f"TB_wires_{panel}_proc{self.getPro()}_{str(datetime.now().date())}.csv"
         )
 
+    def getBadStrawsWiresPath(self, panel):
+        return self.badStrawsWiresDirectory / f"bad_channels_{panel}.csv"
+
+    def getLeakFormsPath(self, panel):
+        return self.qc8LeakFormDirectory / f"leak_resolution_forms_{panel}.csv"
+
     #  _   _                _            ______                _   _
     # | | | |              | |           |  ___|              | | (_)
     # | |_| | ___  __ _  __| | ___ _ __  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
@@ -1446,14 +1500,23 @@ class TxtDataProcessor(DataProcessor):
 
     def _pro8header(self):
         return [
-            7,
+            16,
             "Panel ID",
             "Left Cover",
-            "Right Cover",
-            "Center Ring",
             "Center Cover",
-            "Left Ring",
-            "Right Ring",
+            "Right Cover",
+            "Left Ring1",
+            "Left Ring2Date",
+            "Left Ring3Time",
+            "Left Ring4",
+            "Right Ring1",
+            "Right Ring2Date",
+            "Right Ring3Time",
+            "Right Ring4",
+            "Center Ring1",
+            "Center Ring2Date",
+            "Center Ring3Time",
+            "Center Ring4",
         ]
 
     # ___  ____            _   _      _
@@ -1821,17 +1884,19 @@ class SQLDataProcessor(DataProcessor):
 
         # rings consist of a line edit, then a date input, then another line edit
         # left ring example: OL 1538 25Oct19 0954 79042A
-        lRing = f'{str(self.stripNumber(data[4])).zfill(4)}{data[5].toString("ddMMMyy")}{data[6].toString("HHmm")}{data[7]}'
+        lRing = f"{str(self.stripNumber(data[4])).zfill(4)}{data[5]}{data[6]}{data[7]}"
         if "None" in lRing:
             lRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordLeftRing, lRing)
-        # rRing = data[7:10]
-        rRing = f'{str(self.stripNumber(data[8])).zfill(4)}{data[9].toString("ddMMMyy")}{data[10].toString("HHmm")}{data[11]}'
+        rRing = (
+            f"{str(self.stripNumber(data[8])).zfill(4)}{data[9]}{data[10]}{data[11]}"
+        )
         if "None" in rRing:
             rRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordRightRing, rRing)
-        # rRing = data[10:13]
-        cRing = f'{str(self.stripNumber(data[12])).zfill(4)}{data[13].toString("ddMMMyy")}{data[14].toString("HHmm")}{data[15]}'
+        cRing = (
+            f"{str(self.stripNumber(data[12])).zfill(4)}{data[13]}{data[14]}{data[15]}"
+        )
         if "None" in cRing:
             cRing = "000001Jan00000000000Z"
         self.callMethod(self.procedure.recordCenterRing, cRing)
