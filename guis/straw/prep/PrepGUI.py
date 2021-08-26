@@ -7,6 +7,9 @@
 # Author: Joe Dill
 # email: dillx031@umn.edu
 #
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", "StrawPrep")
 
 import pyautogui
 import time
@@ -41,6 +44,8 @@ from data.workers.credentials.credentials import Credentials
 import guis.straw.prep.straw_label_script
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+import guis.common.dataProcessor as DP
+from guis.common.gui_utils import generateBox
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -137,6 +142,10 @@ class Prep(QMainWindow):
         self.timing = False
         self.startTime = None
 
+        # Data Processor
+        self.pro = 2
+        self.DP = DP.SQLDataProcessor(gui=self, stage="straws")
+
     def Change_worker_ID(self, btn):
         label = btn.text()
         portalNum = 0
@@ -145,13 +154,27 @@ class Prep(QMainWindow):
             Current_worker, ok = QInputDialog.getText(
                 self, "Worker Log In", "Scan your worker ID:"
             )
+            Current_worker = Current_worker.upper().strip()
             if not ok:
                 return
-            self.sessionWorkers.append(Current_worker)
-            self.Current_workers[portalNum].setText(Current_worker)
-            print("Welcome " + self.Current_workers[portalNum].text() + " :)")
-            btn.setText("Log Out")
-            self.ui.tab_widget.setCurrentIndex(1)
+            if not self.DP.validateWorkerID(Current_worker):
+                generateBox("critical", "Login Error", "Invalid worker ID.")
+            elif self.DP.workerLoggedIn(Current_worker):
+                generateBox(
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
+                )
+            else:
+                # Record login with data processor
+                logger.info(f"{Current_worker} logged in")
+                self.DP.saveLogin(Current_worker)
+                self.sessionWorkers.append(Current_worker)
+                self.Current_workers[portalNum].setText(Current_worker)
+                print("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                btn.setText("Log Out")
+                self.ui.tab_widget.setCurrentIndex(1)
+
         elif label == "Log Out":
             portalNum = int(btn.objectName().strip("portal")) - 1
             self.justLogOut = self.Current_workers[portalNum].text()
@@ -894,7 +917,6 @@ class Prep(QMainWindow):
             self.ui.finish.setEnabled(True)
 
     def saveData(self):
-
         print("Saving data...")
 
         # SAVE DATA FILE #
@@ -1096,6 +1118,7 @@ class Prep(QMainWindow):
 
     def closeEvent(self, event):
         event.accept()
+        self.DP.handleClose()
         sys.exit()
 
     def main(self, app):
