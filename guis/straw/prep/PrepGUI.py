@@ -17,7 +17,7 @@ import os
 import csv
 import sys
 from datetime import datetime
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
     QInputDialog,
@@ -54,6 +54,9 @@ keyboard = Controller()
 
 
 class Prep(QMainWindow):
+
+    LockGUI = pyqtSignal(bool)
+
     def __init__(self, paths, webapp=None, parent=None):
         super(Prep, self).__init__(parent)
         self.ui = Ui_MainWindow()
@@ -82,6 +85,7 @@ class Prep(QMainWindow):
         self.ui.finishPull.clicked.connect(self.timeUp)
         self.ui.finish.clicked.connect(self.saveData)
         self.ui.reset.clicked.connect(self.resetGUI)
+        self.LockGUI.connect(self.lockGUI)
 
         # Q Objects to enter data
         self.input_palletID = self.ui.input_palletID
@@ -183,16 +187,29 @@ class Prep(QMainWindow):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
+
+        # Recheck credentials
+        self.LockGUI.emit(self.DP.checkCredentials())
+
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
 
-    def lockGUI(self):
-        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
-            self.resetGUI()
+    # def lockGUI(self):
+    #    if not self.DP.checkCredentials():
+    #        self.resetGUI()
+    #        self.ui.tab_widget.setCurrentIndex(0)
+    #        self.ui.tab_widget.setTabText(1, "Straw Prep *Locked*")
+    #    else:
+    #        self.ui.tab_widget.setTabText(1, "Straw Prep")
+
+    def lockGUI(self, credentials):
+        if credentials:
+            self.ui.tab_widget.setTabText(1, "Straw Prep")
+            self.ui.tab_widget.setTabEnabled(1, True)
+        else:
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, "Straw Prep *Locked*")
-        else:
-            self.ui.tab_widget.setTabText(1, "Straw Prep")
+            self.ui.tab_widget.setTabEnabled(1, False)
 
     def updateBoard(self):
         status = []
@@ -1119,13 +1136,15 @@ class Prep(QMainWindow):
     def closeEvent(self, event):
         event.accept()
         self.DP.handleClose()
+        self.close()
         sys.exit()
 
     def main(self, app):
+        self.LockGUI.emit(False)
         while True:
 
             if not self.calledGetUncollectedPalletInfo:
-                self.lockGUI()
+                # self.lockGUI()
                 if self.ui.tab_widget.currentIndex() == 1:
                     self.getUncollectedPalletInfo()
 
@@ -1139,7 +1158,7 @@ class Prep(QMainWindow):
                 self.ui.min_disp.display(int(running / 60) % 60)
                 self.ui.sec_disp.display(int(running) % 60)
 
-            self.lockGUI()
+            # self.lockGUI(self.DP.checkCredentials())
             app.processEvents()
             time.sleep(0.05)
 
@@ -1150,9 +1169,7 @@ def run():
     ctr = Prep(paths)
     ctr.show()
     ctr.main(app)
-    ctr.close()
     app.exec_()
-    # sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
