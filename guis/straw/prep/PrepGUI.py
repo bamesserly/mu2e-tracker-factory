@@ -46,6 +46,7 @@ from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 import guis.common.dataProcessor as DP
 from guis.common.gui_utils import generateBox
+from guis.common.timer import QLCDTimer
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -56,6 +57,7 @@ keyboard = Controller()
 class Prep(QMainWindow):
 
     LockGUI = pyqtSignal(bool)
+    timer_signal = pyqtSignal()
 
     def __init__(self, paths, webapp=None, parent=None):
         super(Prep, self).__init__(parent)
@@ -143,8 +145,21 @@ class Prep(QMainWindow):
         self.dataSaved = False
 
         # Timing info
+        self.timer = QLCDTimer(
+            self.ui.hour_disp,
+            self.ui.min_disp,
+            self.ui.sec_disp,
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
+
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.running = lambda: self.timer.isRunning()
+
         self.timing = False
-        self.startTime = None
 
         # Data Processor
         self.pro = 2
@@ -880,7 +895,6 @@ class Prep(QMainWindow):
         # If no string argument is given, don't touch text
 
     def startTiming(self):
-
         if not self.PalletInfoCollected:
             self.getUncollectedPalletInfo()
 
@@ -897,7 +911,6 @@ class Prep(QMainWindow):
             self.ui.start.setDisabled(True)
             self.ui.finishPull.setEnabled(True)
             ##Begin timing
-            self.startTime = time.time()
             self.timing = True
             # Set focus to first Paper Pull Input
             self.input_paperPullGrade[24 - self.strawCount].setFocus()
@@ -935,6 +948,8 @@ class Prep(QMainWindow):
 
     def saveData(self):
         print("Saving data...")
+
+        self.stopTimer()
 
         # SAVE DATA FILE #
         # This is the csv file with all collected data (Straw IDs, Batch Barcodes, PPGs, etc...)
@@ -1081,9 +1096,7 @@ class Prep(QMainWindow):
         self.ui.start.setEnabled(True)
 
         # Time Display
-        self.ui.hour_disp.display(0)
-        self.ui.min_disp.display(0)
-        self.ui.sec_disp.display(0)
+        self.resetTimer()
 
         # Comments
         self.ui.commentBox.clear()
@@ -1121,7 +1134,6 @@ class Prep(QMainWindow):
 
         # Timing info
         self.timing = False
-        self.startTime = None
 
         # If data has been saved: also log out
         if self.dataSaved:
@@ -1148,15 +1160,9 @@ class Prep(QMainWindow):
                 if self.ui.tab_widget.currentIndex() == 1:
                     self.getUncollectedPalletInfo()
 
+            # Set to true when you press the start button
             if self.timing:
-                if self.startTime == None:
-                    self.startTime = time.time()
-
-                # Update time display
-                running = time.time() - self.startTime
-                self.ui.hour_disp.display(int(running / 3600))
-                self.ui.min_disp.display(int(running / 60) % 60)
-                self.ui.sec_disp.display(int(running) % 60)
+                self.startTimer()
 
             # self.lockGUI(self.DP.checkCredentials())
             app.processEvents()
