@@ -41,7 +41,7 @@ from pynput.keyboard import Key, Controller
 from pathlib import Path
 from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 from data.workers.credentials.credentials import Credentials
-import guis.straw.prep.straw_label_script
+from guis.straw.prep.straw_label_script import print_barcodes
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 import guis.common.dataProcessor as DP
@@ -178,7 +178,6 @@ class Prep(QMainWindow):
         # collect panel prelim/metadata
         if not self.PalletInfoCollected:
             self.getUncollectedPalletInfo()
-            self.PalletInfoCollected = self.verifyPalletInfo()
 
         # enable ppg data collection
         # (if pallet info collection failed, will need to press start again)
@@ -225,7 +224,7 @@ class Prep(QMainWindow):
                 QMessageBox.Ok,
             )
 
-            straw_label_script.print_barcodes()
+            print_barcodes()
 
             QMessageBox.question(
                 self, "Barcodes", "Barcodes are printing...", QMessageBox.Ok
@@ -436,6 +435,8 @@ class Prep(QMainWindow):
 
             if self.strawCount == 23:
                 self.input_batchBarcode[0].setText(self.input_batchBarcode[1].text())
+
+        self.PalletInfoCollected = self.verifyPalletInfo()
 
     def assignStrawIDs(self):
         # takes the numbers from the first straw's ID and assigns IDs to the remaining straws
@@ -832,7 +833,7 @@ class Prep(QMainWindow):
                 exist = True
 
         if exist == True:
-            print(f"{self.palletNumber} has been preped.")
+            print(f"{self.palletNumber} has been prepped.")
             verify = False
             QMessageBox.question(
                 self,
