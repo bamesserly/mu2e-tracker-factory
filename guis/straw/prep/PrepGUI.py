@@ -83,7 +83,7 @@ class Prep(QMainWindow):
             self.ui.portal4,
         ]
 
-        self.ui.start.clicked.connect(self.startTiming)
+        self.ui.start.clicked.connect(self.beginProcess)
         self.ui.finishPull.clicked.connect(self.timeUp)
         self.ui.finish.clicked.connect(self.saveData)
         self.ui.reset.clicked.connect(self.resetGUI)
@@ -140,7 +140,6 @@ class Prep(QMainWindow):
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
         # Progression Information
-        self.calledGetUncollectedPalletInfo = False
         self.PalletInfoCollected = False
         self.dataSaved = False
 
@@ -164,6 +163,9 @@ class Prep(QMainWindow):
         # Data Processor
         self.pro = 2
         self.DP = DP.SQLDataProcessor(gui=self, stage="straws")
+
+        # Start it off with the prep tab frozen
+        self.LockGUI.emit(False)
 
     def Change_worker_ID(self, btn):
         label = btn.text()
@@ -209,14 +211,6 @@ class Prep(QMainWindow):
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
 
-    # def lockGUI(self):
-    #    if not self.DP.checkCredentials():
-    #        self.resetGUI()
-    #        self.ui.tab_widget.setCurrentIndex(0)
-    #        self.ui.tab_widget.setTabText(1, "Straw Prep *Locked*")
-    #    else:
-    #        self.ui.tab_widget.setTabText(1, "Straw Prep")
-
     def lockGUI(self, credentials):
         if credentials:
             self.ui.tab_widget.setTabText(1, "Straw Prep")
@@ -250,8 +244,8 @@ class Prep(QMainWindow):
     def tab(self):
         keyboard.press(Key.tab)
 
+    # walk user through pallet prelim/metadata collection
     def getUncollectedPalletInfo(self):
-
         QMessageBox.question(
             self, "Pallet cleaned?", "Clean the pallet with alcohol.", QMessageBox.Ok
         )
@@ -284,10 +278,6 @@ class Prep(QMainWindow):
             "Attach sheet of four pallet barcodes to pallet\nand tape row of 24 straw barcodes to pallet",
             QMessageBox.Ok,
         )
-
-        self.calledGetUncollectedPalletInfo = True
-
-        self.calledGetUncollectedPalletInfo = True
 
         # Pallet ID
         c = 0  # Loop counter
@@ -488,8 +478,6 @@ class Prep(QMainWindow):
             if self.strawCount == 23:
                 self.input_batchBarcode[0].setText(self.input_batchBarcode[1].text())
 
-        self.verifyPalletInfo()  # After attempting to obtain all data, run verification
-
     def assignStrawIDs(self):
         # takes the numbers from the first straw's ID and assigns IDs to the remaining straws
 
@@ -655,7 +643,7 @@ class Prep(QMainWindow):
             if not boolean:
                 all_pass = False
 
-        self.PalletInfoCollected = all_pass
+        return all_pass
 
     def verifyPalletID(self, potential_id=None):
 
@@ -743,7 +731,6 @@ class Prep(QMainWindow):
         return verify
 
     def verifyStrawID(self, potential_ID=None):
-
         if potential_ID == None:
             potential_ID = self.pos1StrawID
 
@@ -762,7 +749,6 @@ class Prep(QMainWindow):
         return verify
 
     def verifyPaperPullGrade(self, potential_ppg):
-
         potential_ppg = (
             potential_ppg.strip().upper()
         )  # Always evaluate the uppercase version of the given string with no spaces
@@ -894,26 +880,35 @@ class Prep(QMainWindow):
             lineEdit.setText(string)
         # If no string argument is given, don't touch text
 
-    def startTiming(self):
+    # Start button: get prelim data, then enable ppg fields
+    def beginProcess(self):
+        # collect panel prelim/metadata
         if not self.PalletInfoCollected:
             self.getUncollectedPalletInfo()
+            self.PalletInfoCollected = self.verifyPalletInfo()
 
-        else:
-            # Update GUI components (dis/en)abled
-            self.ui.input_palletID.setDisabled(True)
-            self.ui.input_palletNumber.setDisabled(True)
-
-            for i in range((24 - self.strawCount), 24):
-                self.ui.input_list_strawBatch[i].setEnabled(False)
-                self.ui.input_list_strawID[i].setEnabled(False)
-                self.ui.input_list_paperPullGrade[i].setEnabled(True)
-
-            self.ui.start.setDisabled(True)
-            self.ui.finishPull.setEnabled(True)
-            ##Begin timing
+        # enable ppg data collection
+        # (if pallet info collection failed, will need to press start again)
+        if self.PalletInfoCollected:
+            self.enablePPGDataCollection()
             self.timing = True
-            # Set focus to first Paper Pull Input
-            self.input_paperPullGrade[24 - self.strawCount].setFocus()
+            self.startTimer()
+
+    # disable prelim fields, enable ppg fields
+    def enablePPGDataCollection(self):
+        self.ui.input_palletID.setDisabled(True)
+        self.ui.input_palletNumber.setDisabled(True)
+
+        for i in range((24 - self.strawCount), 24):
+            self.ui.input_list_strawBatch[i].setEnabled(False)
+            self.ui.input_list_strawID[i].setEnabled(False)
+            self.ui.input_list_paperPullGrade[i].setEnabled(True)
+
+        self.ui.start.setDisabled(True)
+        self.ui.finishPull.setEnabled(True)
+
+        # Set focus to first Paper Pull Input
+        self.input_paperPullGrade[24 - self.strawCount].setFocus()
 
     def timeUp(self):
         # Makes sure all ppg inputs are good, then stops timing
@@ -942,14 +937,13 @@ class Prep(QMainWindow):
             for i in range(24):
                 self.paperPullGrades[i] = self.input_paperPullGrade[i].text().upper()
             self.timing = False  # Stop timing
+            self.stopTimer()
             # (Dis/En)able "Finish" Buttons
             self.ui.finishPull.setEnabled(False)
             self.ui.finish.setEnabled(True)
 
     def saveData(self):
         print("Saving data...")
-
-        self.stopTimer()
 
         # SAVE DATA FILE #
         # This is the csv file with all collected data (Straw IDs, Batch Barcodes, PPGs, etc...)
@@ -1130,7 +1124,6 @@ class Prep(QMainWindow):
         self.ui.hour_disp.setSegmentStyle(2)
 
         self.PalletInfoCollected = False
-        self.calledGetUncollectedPalletInfo = False
 
         # Timing info
         self.timing = False
@@ -1151,30 +1144,12 @@ class Prep(QMainWindow):
         self.close()
         sys.exit()
 
-    def main(self, app):
-        self.LockGUI.emit(False)
-        while True:
-
-            if not self.calledGetUncollectedPalletInfo:
-                # self.lockGUI()
-                if self.ui.tab_widget.currentIndex() == 1:
-                    self.getUncollectedPalletInfo()
-
-            # Set to true when you press the start button
-            if self.timing:
-                self.startTimer()
-
-            # self.lockGUI(self.DP.checkCredentials())
-            app.processEvents()
-            time.sleep(0.05)
-
 
 def run():
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
     ctr = Prep(paths)
     ctr.show()
-    ctr.main(app)
     app.exec_()
 
 
