@@ -11,3 +11,4 @@ resources/rootDirectoryLocation.txt
 guis/straw/Prep GUI/dailytotal.txt
 guis/straw/Prep GUI/date.txt
 logfiles/
+*.patch
