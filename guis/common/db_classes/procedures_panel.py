@@ -84,6 +84,7 @@ class Pan1Procedure(PanelProcedure):
                 self.details.lpal_bot = lpal.id
             self.commit()
 
+    # Change straw's present location from an LPAL to a panel
     def loadFromLPAL(self, lpal_num, top_bot):
         from guis.common.db_classes.straw_location import StrawLocation
 

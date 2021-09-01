@@ -1798,8 +1798,7 @@ class SQLDataProcessor(DataProcessor):
             *self.parseTimeTuple(data[12]),
         )  # silver epoxy right - cure duration
 
-    # TODO
-    # HV
+    # HV -- DEPRECATED
     def saveDataProcess5(self):
         # Get data from GUI
         data = self.getProData()

@@ -71,6 +71,13 @@ class Merger:
         else:
             return script
 
+    # Loop tables in target db, add (update) all source data to the target
+    # tables when data is new (when t_source > t_target).
+    #
+    # A non-critical merge failure for a single table will not affect the
+    # merging of other tables.
+    #
+    # e.g. non-critical failure: table exists in target but not source.
     def mergeAll(self):
         start = datetime.now()
         logger.info("Beginning Automerge")

@@ -1,3 +1,48 @@
+from guis.common.db_classes.bases import BASE, OBJECT, DM, logger
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    REAL,
+    VARCHAR,
+    ForeignKey,
+    CHAR,
+    BOOLEAN,
+    and_,
+    DATETIME,
+    Table,
+    TEXT,
+    func,
+)
+from datetime import datetime
+from guis.common.db_classes.procedure import StrawProcedure
+
+
+class Prep(StrawProcedure):
+    __mapper_args__ = {
+        "polymorphic_identity": "prep"
+    }  # foreign link to which station.id
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "prep"
+        ), f"Error. Tried to construct prep preocedure for a station '{station.id}' not 'prep'."
+        super().__init__(station, straw_location, create_key)
+
+    def _getDetailsClass(self):
+        class Details(BASE, OBJECT):
+            __tablename__ = "procedure_details_prep"
+            id = Column(Integer, primary_key=True)
+            procedure = Column(Integer, ForeignKey("procedure.id"))
+            pallet = Column(Integer, ForeignKey("straw_location.id"))
+
+        return Details
+
+    def recordLeftGap(self, gap):
+        self.details.left_gap = gap
+        self.commit()
+
+
 """
 class Co2Procedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "co2"}
