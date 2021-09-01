@@ -81,12 +81,14 @@ class Session(BASE, OBJECT):
         p = Procedure.PanelProcedure(process=process, panel_number=panel_number)
         self._setProcedure(p)
 
-    def startStrawProcedure(self, station, cpal_number):
-        """self._setProcedure(
-            Procedure.StrawProcedure(
-            )
-        )"""
-        pass
+    def startStrawProcedure(self, process, cpal_number):
+        from guis.common.db_classes.procedure import Procedure
+
+        assert (
+            self.procedure is None
+        ), "A procedure has already been defined for this session."
+        p = Procedure.StrawProcedure(process=process, cpal_number=cpal_number)
+        self._setProcedure(p)
 
     ## WORKER PORTAL ##
 
