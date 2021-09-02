@@ -44,7 +44,9 @@ from data.workers.credentials.credentials import Credentials
 from guis.straw.prep.straw_label_script import print_barcodes
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
-import guis.common.dataProcessor as DP
+
+# import guis.common.dataProcessor as DP
+from guis.common.dataProcessor import MultipleDataProcessor as DP
 from guis.common.gui_utils import generateBox
 from guis.common.timer import QLCDTimer
 
@@ -125,6 +127,7 @@ class Prep(QMainWindow):
             "Straw ID": [False for i in range(24)],
             "PPG": [False for i in range(24)],
         }
+        self.data = None  # Data processor wants an object like this
 
         # Worker Info
         self.sessionWorkers = []
@@ -156,13 +159,21 @@ class Prep(QMainWindow):
         self.startTimer = lambda: self.timer.start()
         self.stopTimer = lambda: self.timer.stop()
         self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
         self.running = lambda: self.timer.isRunning()
 
         self.timing = False
 
         # Data Processor
         self.pro = 2
-        self.DP = DP.SQLDataProcessor(gui=self, stage="straws")
+        self.pro_index = self.pro - 1
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+            save2txt=False,
+            save2SQL=True,
+            sql_primary=True,
+        )
 
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
@@ -170,8 +181,8 @@ class Prep(QMainWindow):
     ############################################################################
     # Process steps, top-level functions
     # 1. start button: collect pallet metainfo and enable ppg fields
-    # 2. finish paper pull button: validate ppg data
-    # 3. finish button: save data
+    # 2. finish paper pull button: checkPPGData
+    # 3. finish button: saveData
     ############################################################################
     # Start button: get prelim data, then enable ppg fields
     def beginProcess(self):
@@ -185,6 +196,7 @@ class Prep(QMainWindow):
             self.enablePPGDataCollection()
             self.timing = True
             self.startTimer()
+            self.DP.saveStart()  # initialize procedure and commit it to the DB
 
     # disable prelim fields, enable ppg fields
     def enablePPGDataCollection(self):
@@ -529,8 +541,12 @@ class Prep(QMainWindow):
             self.paperPullGrades = ["" for ppg in range(24)]
             for i in range(24):
                 self.paperPullGrades[i] = self.input_paperPullGrade[i].text().upper()
-            self.timing = False  # Stop timing
+
+            # Stop timing
+            self.timing = False
             self.stopTimer()
+            self.DP.saveFinish()
+
             # (Dis/En)able "Finish" Buttons
             self.ui.finishPull.setEnabled(False)
             self.ui.finish.setEnabled(True)
@@ -1141,6 +1157,12 @@ class Prep(QMainWindow):
 
     def tab(self):
         keyboard.press(Key.tab)
+
+    def getCPALID(self):
+        return self.palletID
+
+    def getCPALNumber(self):
+        return self.palletNumber
 
     ############################################################################
     # Deprecated

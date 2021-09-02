@@ -96,9 +96,10 @@ class Procedure(BASE, OBJECT):
         self.commit()
         self.init_on_load()
 
-    # Capable of loading an existing procedure or making a new one.
-    # Also, capable of loading/creating a specific PanelProcedure or
-    # StrawProcedure
+    # CREATE (or get an existing) PROCEDURE
+    #
+    # This is the only place a Procedure (of type Panel or Straw) is
+    # initialized.
     @classmethod
     def _startProcedure(cls, station, straw_location):
         print("Procedure::_startProcedure")
@@ -170,10 +171,10 @@ class Procedure(BASE, OBJECT):
         station = Station.get_station(stage="straws", step=process)
 
         # Get panel
-        cpal_number = StrawLocation.CuttingPallet(pallet_id=cpal_id, number=cpal_number)
+        cpal = StrawLocation.CPAL(pallet_id=cpal_id, number=cpal_number)
 
         # Use Procedure._startProcedure() to return object.
-        return StrawProcedure._startProcedure(station=station, cpal_number=cpal_number)
+        return StrawProcedure._startProcedure(station=station, straw_location=cpal)
 
     @staticmethod
     def _queryStation(station=None, production_stage=None, production_step=None):

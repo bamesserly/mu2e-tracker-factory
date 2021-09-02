@@ -61,8 +61,9 @@ if not USE_MARK_ONE and not USE_MARK_TWO:
 
 
 class DataProcessor(ABC):
-    def __init__(self, gui):
+    def __init__(self, gui, stage):
         self.gui = gui
+        self.stage = stage
 
     """#USED
     saveData(self)
@@ -502,8 +503,22 @@ class DataProcessor(ABC):
     def getProData(self):
         return self.getData()[self.getProIndex()]
 
+    # TODO not great that we assume a DP will have these functions
+    # string object
     def getPanel(self):
         return self.gui.getCurrentPanel()
+
+    # just the number
+    def getCPALID(self):
+        cpal_id = self.gui.getCPALID()
+        cpal_id = "".join(ch for ch in cpal_id if ch.isdigit())
+        return cpal_id
+
+    # just the number
+    def getCPALNumber(self):
+        cpal_number = self.gui.getCPALNumber()
+        cpal_number = "".join(ch for ch in cpal_number if ch.isdigit())
+        return cpal_number
 
     """
     getTimer
@@ -529,18 +544,25 @@ class DataProcessor(ABC):
 
 class MultipleDataProcessor(DataProcessor):
     def __init__(
-        self, gui, save2txt=True, save2SQL=True, lab_version=True, sql_primary=True
+        self,
+        gui,
+        stage,
+        save2txt=True,
+        save2SQL=True,
+        lab_version=True,
+        sql_primary=True,
     ):
         self.gui = gui
+        self.stage = stage
         self.processors = []
         # Instantiate Data Processors
         txtdp = None
         sqldp = None
         if save2txt:
-            txtdp = TxtDataProcessor(self.gui, lab_version)
+            txtdp = TxtDataProcessor(self.gui, self.stage, lab_version)
             self.processors.append(txtdp)
         if save2SQL:
-            sqldp = SQLDataProcessor(self.gui)
+            sqldp = SQLDataProcessor(self.gui, self.stage)
             self.processors.append(sqldp)
         # Set primary
         if sql_primary:
@@ -724,8 +746,8 @@ class MultipleDataProcessor(DataProcessor):
 
 
 class TxtDataProcessor(DataProcessor):
-    def __init__(self, gui, lab_version=True):
-        super().__init__(gui)
+    def __init__(self, gui, stage, lab_version=True):
+        super().__init__(gui, stage)
         self.paths = GetProjectPaths()
         self._init_directories(self.paths)
         self.credentialChecker = Credentials(
@@ -1609,11 +1631,11 @@ class TxtDataProcessor(DataProcessor):
 
 
 class SQLDataProcessor(DataProcessor):
-    def __init__(self, gui, stage="panel"):
-        super().__init__(gui)
+    def __init__(self, gui, stage):
+        super().__init__(gui, stage)
 
         # first, set the station AKA process, e.g. straw prep or panel 3
-        self.station = Station.get_station(step=self.getPro(), stage=stage)
+        self.station = Station.get_station(step=self.getPro(), stage=self.stage)
 
         # write a new entry to the session table
         # a new session id, pointer to this station, empty procedure, and active = True
@@ -2373,12 +2395,20 @@ class SQLDataProcessor(DataProcessor):
 
     ##########################################################################
 
+    # Create a procedure
     def ensureProcedure(self):
         # If no procedure has been defined yet, define one.
         if self.procedure is None:
-            self.session.startPanelProcedure(
-                process=self.getPro(), panel_number=self.getPanelNumber()
-            )
+            if self.stage == "panel":
+                self.session.startPanelProcedure(
+                    process=self.getPro(), panel_number=self.getPanelNumber()
+                )
+            elif self.stage == "straws":
+                self.session.startStrawProcedure(
+                    process=self.getPro(),
+                    cpal_id=self.getCPALID(),
+                    cpal_number=self.getCPALNumber(),
+                )
             self.procedure = self.session.getProcedure()
 
         # Return boolean indicating if 'self.procedure' is now defined.

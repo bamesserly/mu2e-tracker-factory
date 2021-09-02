@@ -1557,6 +1557,7 @@ class panelGUI(QMainWindow):
         # Data Processor
         self.DP = DataProcessor(
             gui=self,
+            stage="panel",
             save2txt=SAVE_TO_TXT,
             save2SQL=SAVE_TO_SQL,
             lab_version=LAB_VERSION,

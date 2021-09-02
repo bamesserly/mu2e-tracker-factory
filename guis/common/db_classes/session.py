@@ -13,7 +13,8 @@
 # New entry every time pangui is opened and a process is selected.
 #
 # Critically, a Session starts Procedures, whether loading a pre-existing
-# procedure or creating a new one.
+# procedure or creating a new one. Within a session is the only place where
+# Procedures are created.
 ################################################################################
 from guis.common.db_classes.bases import BASE, OBJECT
 from sqlalchemy import (
@@ -72,6 +73,7 @@ class Session(BASE, OBJECT):
         # Commit change to database
         self.commit()
 
+    # The /only/ place where a PanelProcedure is created
     def startPanelProcedure(self, process, panel_number):
         from guis.common.db_classes.procedure import Procedure
 
@@ -81,13 +83,16 @@ class Session(BASE, OBJECT):
         p = Procedure.PanelProcedure(process=process, panel_number=panel_number)
         self._setProcedure(p)
 
-    def startStrawProcedure(self, process, cpal_number):
+    # The /only/ place where a StrawProcedure is created
+    def startStrawProcedure(self, process, cpal_id, cpal_number):
         from guis.common.db_classes.procedure import Procedure
 
         assert (
             self.procedure is None
         ), "A procedure has already been defined for this session."
-        p = Procedure.StrawProcedure(process=process, cpal_number=cpal_number)
+        p = Procedure.StrawProcedure(
+            process=process, cpal_id=cpal_id, cpal_number=cpal_number
+        )
         self._setProcedure(p)
 
     ## WORKER PORTAL ##
