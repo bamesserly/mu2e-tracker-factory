@@ -33,6 +33,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.sql.expression import true, false
+from guis.common.db_classes.procedure import Procedure
 
 
 class Session(BASE, OBJECT):
@@ -63,7 +64,7 @@ class Session(BASE, OBJECT):
     ## PROCEDURE ##
 
     def getProcedure(self):
-        return self._procedure
+        return self._procedure  # Procedure object
 
     def _setProcedure(self, procedure):
         # Save object to private member variable
@@ -75,8 +76,6 @@ class Session(BASE, OBJECT):
 
     # The /only/ place where a PanelProcedure is created
     def startPanelProcedure(self, process, panel_number):
-        from guis.common.db_classes.procedure import Procedure
-
         assert (
             self.procedure is None
         ), "A procedure has already been defined for this session."
@@ -85,7 +84,6 @@ class Session(BASE, OBJECT):
 
     # The /only/ place where a StrawProcedure is created
     def startStrawProcedure(self, process, cpal_id, cpal_number):
-        from guis.common.db_classes.procedure import Procedure
 
         assert (
             self.procedure is None
