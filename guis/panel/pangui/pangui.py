@@ -2345,20 +2345,22 @@ class panelGUI(QMainWindow):
             self.ui.tabWidget.setTabText(2, pro + " *Locked*")
             self.ui.tabWidget.setTabEnabled(2, False)
 
-    # something to do with threading...
+    # Automatically call saveData every writeInterval
     def main(self):
         elapsedTime = lambda: self.mainTimer.getElapsedTime().total_seconds()
         last_write_time = elapsedTime()
         while True:
             # This loop only aplies if the main timer is running
             if self.running():
-                # If the amount of time elapsed by the main timer is more than one write interval, call save data (by emitting the 'SaveData' signal)
+                # If the amount of time elapsed by the main timer is more than
+                # one write interval, call save data (by emitting the
+                # 'SaveData' signal)
                 if elapsedTime() - last_write_time > self.writeInterval:
                     self.SaveData.emit()
                     # Set 'last_write_time' to right now
                     last_write_time = elapsedTime()
 
-            time.sleep(0.01)
+            time.sleep(1)
 
     # fmt: off
     # ███████╗ █████╗ ██╗   ██╗███████╗    ██████╗  █████╗ ████████╗ █████╗
@@ -2554,7 +2556,8 @@ class panelGUI(QMainWindow):
             self.updateDataProcess8,
         ][self.pro_index]()
 
-        # Process the updated data list by replacing all elements in the list that don't pass bool(el) with None
+        # Process the updated data list by replacing all elements in the list
+        # that don't pass bool(el) with None
         self.data[self.pro_index] = [
             (el if bool(el) else None) for el in self.data[self.pro_index]
         ]
