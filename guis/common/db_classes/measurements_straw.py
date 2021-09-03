@@ -1,20 +1,26 @@
+################################################################################
+#
+################################################################################
+from guis.common.db_classes.bases import BASE, OBJECT
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    REAL,
+    VARCHAR,
+    ForeignKey,
+    CHAR,
+    BOOLEAN,
+    and_,
+    DATETIME,
+    Table,
+    TEXT,
+    func,
+)
+from datetime import datetime
+
+
 """
-class StrawPrep(BASE, OBJECT):
-    __tablename__ = 'measurement_prep'
-    id = Column(Integer, primary_key=True)
-    session = Column(Integer, ForeignKey('procedure.id'))
-    straw = Column(Integer, ForeignKey('straw.id'))
-    paper_pull_grade = Column(CHAR)
-    evaluation = Column(BOOLEAN)
-    timestamp= Column(Integer, default=int(datetime.now().timestamp()))
-    
-    def __init__(self, session, straw, paper_pull_grade, evaluation):
-        self.session = session
-        self.straw  = straw
-        self.paper_pull_grade = paper_pull_grade
-        self.evaluation = evaluation
-        self.commit()
-        
 class Resistance(BASE, OBJECT):
     __tablename__ = 'measurement_ohms'
     id = Column(Integer, primary_key=True)
