@@ -29,18 +29,29 @@ class Prep(StrawProcedure):
         ), f"Error. Tried to construct prep preocedure for a station '{station.id}' not 'prep'."
         super().__init__(station, straw_location, create_key)
 
-    def _getDetailsClass(self):
-        class Details(BASE, OBJECT):
-            __tablename__ = "procedure_details_prep"
-            id = Column(Integer, primary_key=True)
-            procedure = Column(Integer, ForeignKey("procedure.id"))
-            pallet = Column(Integer, ForeignKey("straw_location.id"))
+    class StrawPrepMeasurement(BASE, OBJECT):
+        __tablename__ = "measurement_prep"
+        id = Column(Integer, primary_key=True)
+        procedure = Column(Integer, ForeignKey("procedure.id"))
+        straw = Column(Integer, ForeignKey("straw.id"))
+        # straw = Column(Integer)
+        paper_pull_grade = Column(CHAR)
+        evaluation = Column(BOOLEAN)
+        timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
-        return Details
+        def __init__(self, procedure, straw, paper_pull_grade, evaluation):
+            self.procedure = procedure.id
+            self.straw = straw
+            self.paper_pull_grade = paper_pull_grade
+            self.evaluation = evaluation
 
-    def recordLeftGap(self, gap):
-        self.details.left_gap = gap
-        self.commit()
+    def recordStrawPrepMeasurement(self, straw, paper_pull_grade, evaluation):
+        Prep.StrawPrepMeasurement(
+            procedure=self,
+            straw=straw,
+            paper_pull_grade=paper_pull_grade,
+            evaluation=evaluation,
+        ).commit()
 
 
 """

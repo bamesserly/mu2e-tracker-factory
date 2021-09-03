@@ -42,11 +42,12 @@ from pathlib import Path
 from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 from data.workers.credentials.credentials import Credentials
 from guis.straw.prep.straw_label_script import print_barcodes
+from guis.common.db_classes.straw import Straw
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 
 # import guis.common.dataProcessor as DP
-from guis.common.dataProcessor import MultipleDataProcessor as DP
+from guis.common.dataProcessor import SQLDataProcessor as DP
 from guis.common.gui_utils import generateBox
 from guis.common.timer import QLCDTimer
 
@@ -170,9 +171,6 @@ class Prep(QMainWindow):
         self.DP = DP(
             gui=self,
             stage="straws",
-            save2txt=False,
-            save2SQL=True,
-            sql_primary=True,
         )
 
         # Start it off with the prep tab frozen
@@ -649,6 +647,18 @@ class Prep(QMainWindow):
             file.write(workers_str)
 
         # Done creating Pallet File
+
+        # Save straws, then ppg to DB
+        for i in range(24):
+            st = int(self.strawIDs[i][2:])
+            batch = self.batchBarcodes[i]
+            batch = "".join(filter(str.isalnum, batch))
+            s = Straw.Straw(id=st, batch=batch)
+            self.DP.procedure.recordStrawPrepMeasurement(
+                straw=st,
+                paper_pull_grade=self.paperPullGrades[i][-1],
+                evaluation=None,
+            )
 
         self.dataSaved = True
 
