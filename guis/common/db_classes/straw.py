@@ -23,16 +23,15 @@ class Straw(BASE, OBJECT):
     __tablename__ = "straw"
     id = Column(Integer, primary_key=True)
     batch = Column(VARCHAR)
+    parent = Column(Integer, ForeignKey("straw.id"))
 
-    def __init__(self, id, batch=None, create_key=None):
-
+    def __init__(self, id, batch=None, parent=None, create_key=None):
         # Check for authorization with 'create_key'
-        assert (
-            create_key == Straw.__create_key
-        ), "You can only obtain a StrawLocation with one of the following methods: panel(), cpal(), lpal()."
+        assert create_key == Straw.__create_key, "You can only make a Straw internally."
 
         self.id = id
         self.batch = batch
+        self.parent = parent
         self.commit()
 
     @classmethod
@@ -43,7 +42,7 @@ class Straw(BASE, OBJECT):
 
         # If None is found, construct straw
         if s is None:
-            s = Straw(id, batch, cls.__create_key)
+            s = Straw(id, batch, None, cls.__create_key)
 
         # Return straw
         return s
