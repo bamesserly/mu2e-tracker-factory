@@ -73,7 +73,7 @@ class StrawLocation(BASE, OBJECT):
         self.id = self.ID()
         self.location_type = location_type
         self.number = number if number else self.nextNumber()
-        self.pallet_id = pallet_id = None
+        self.pallet_id = pallet_id
 
         # Record that this StrawLocation was recently made
         self.new = True
