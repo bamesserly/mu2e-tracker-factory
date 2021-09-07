@@ -39,16 +39,16 @@ class Prep(StrawProcedure):
         evaluation = Column(BOOLEAN)
         timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
-        def __init__(self, procedure, straw, paper_pull_grade, evaluation):
+        def __init__(self, procedure, straw_id, paper_pull_grade, evaluation):
             self.procedure = procedure.id
-            self.straw = straw
+            self.straw = straw_id
             self.paper_pull_grade = paper_pull_grade
             self.evaluation = evaluation
 
-    def recordStrawPrepMeasurement(self, straw, paper_pull_grade, evaluation):
+    def recordStrawPrepMeasurement(self, straw_id, paper_pull_grade, evaluation):
         Prep.StrawPrepMeasurement(
             procedure=self,
-            straw=straw,
+            straw_id=straw_id,
             paper_pull_grade=paper_pull_grade,
             evaluation=evaluation,
         ).commit()

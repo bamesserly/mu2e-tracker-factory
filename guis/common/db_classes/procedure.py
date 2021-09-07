@@ -102,7 +102,6 @@ class Procedure(BASE, OBJECT):
     # initialized.
     @classmethod
     def _startProcedure(cls, station, straw_location):
-        print("Procedure::_startProcedure")
         # Must tell procedure that it has subclasses by importing them! Tricky
         # error if you dont.
         import guis.common.db_classes.procedures_panel
@@ -163,7 +162,6 @@ class Procedure(BASE, OBJECT):
 
     @classmethod
     def StrawProcedure(cls, process, cpal_id, cpal_number):
-        print("Procedure::StrawProcedure")
         from guis.common.db_classes.straw_location import StrawLocation
         from guis.common.db_classes.station import Station
 
