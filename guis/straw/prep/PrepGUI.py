@@ -43,6 +43,7 @@ from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 from data.workers.credentials.credentials import Credentials
 from guis.straw.prep.straw_label_script import print_barcodes
 from guis.common.db_classes.straw import Straw
+from guis.common.db_classes.straw_location import StrawPosition
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 
@@ -277,31 +278,32 @@ class Prep(QMainWindow):
 
         # Pallet Number
         c = 0  # Loop counter
-        while not self.verifyPalletNumber() and c <= 3:
+        while c < 3:
 
-            # If invalid entry was put in manually, make lineEdit red
-            if self.input_palletNumber.text() != "":
-                self.updateLineEdit(self.input_palletNumber, False)
+            # get number
+            input_number = None
+            # on first loop, get number from manual input field
+            if c == 0 and self.input_palletNumber.text() != "":
+                input_number = self.input_palletNumber.text()
+            # otherwise, prompt user
+            else:
+                input_number = self.askForInfo("Pallet Number")
+                if not input_number:
+                    return
 
-            new_Number = self.askForInfo("Pallet Number")
-
-            if new_Number == "":
-                return
-
-            valid = self.verifyPalletNumber(new_Number)
-            self.updateLineEdit(self.input_palletNumber, valid, new_Number)
+            # check number
+            valid = self.verifyPalletNumber(input_number)
+            # update the display field
+            self.updateLineEdit(self.input_palletNumber, valid, input_number)
             if valid:
-                self.palletNumber = new_Number
+                self.palletNumber = input_number
                 self.dataValidity["Pallet Number"] = valid
+                break
+
             c += 1
 
         if c > 3:
             return
-
-        if self.verifyPalletNumber():
-            self.updateLineEdit(
-                self.input_palletNumber, self.verifyPalletNumber(), self.palletNumber
-            )
 
         # Get straw count
         c = 0  # loop counter
@@ -649,14 +651,32 @@ class Prep(QMainWindow):
         # Done creating Pallet File
 
         # Save straws, then ppg to DB
-        for i in range(24):
-            st = int(self.strawIDs[i][2:])
-            batch = self.batchBarcodes[i]
-            batch = "".join(filter(str.isalnum, batch))
-            s = Straw.Straw(id=st, batch=batch)
+        for position in range(24):
+
+            straw_id = int(self.strawIDs[position][2:])
+            batch = self.batchBarcodes[position]
+            batch = "".join(filter(str.isalnum, batch))  # for the db, drop the period
+
+            # add an entry to the straw table
+            straw = Straw.Straw(id=straw_id, batch=batch)
+
+            # our procedure knows our CPAL
+            cpal = self.DP.procedure.getStrawLocation()
+
+            ## add an entry to the straw_position table
+            # StrawPosition(
+            #    straw_id=straw.id,
+            #    location_id=cpal.id,
+            #    position_number=position,
+            # ).commit()
+            #
+            ## add an entry to the straw_present table
+            # cpal.addStraw(straw, position)
+
+            # add an entry to the measurement_prep table
             self.DP.procedure.recordStrawPrepMeasurement(
-                straw=st,
-                paper_pull_grade=self.paperPullGrades[i][-1],
+                straw_id=straw_id,
+                paper_pull_grade=self.paperPullGrades[position][-1],
                 evaluation=None,
             )
 
@@ -831,45 +851,37 @@ class Prep(QMainWindow):
 
         return verify
 
-    def verifyPalletNumber(self, potential_num=None):
-
-        # If no specific string is given to check as a pallet number, finds the most relevant string to use, and saves it.
+    # if given number is good set self.palletNumber
+    # if no number is given try using the value in the display field
+    def verifyPalletNumber(self, potential_num):
         if not potential_num:
-            if self.palletNumber != self.input_palletNumber.text().upper():
-                self.palletNumber = self.input_palletNumber.text().upper()
-            potential_num = self.palletNumber
+            potential_num = self.input_palletNumber.text().upper()
 
         potential_num = potential_num.strip().upper()
-        verify = True
+
         if len(potential_num) != 8:
-            verify = False
+            return False
+        if not potential_num.startswith("CPAL"):
+            return False
+        if not potential_num[4:].isnumeric():
+            return False
 
-        elif not potential_num.startswith("CPAL"):
-            verify = False
-
-        elif not potential_num[4:].isnumeric():
-            verify = False
-
-        exist = False
         for id in range(1, 24):
-            file = self.palletNumber + ".csv"
+            file = potential_num + ".csv"
             path = self.palletDirectory / str("CPALID" + str(id).zfill(2)) / file
-            exist_tmp = os.path.exists(path)
-            if exist_tmp == True:
-                exist = True
+            if os.path.exists(path):
+                print(f"{potential_num} has been prepped.")
+                QMessageBox.question(
+                    self,
+                    "Duplicate CPAL Number",
+                    "This pallet has been prepped!",
+                    QMessageBox.Ok,
+                )
+                return False
 
-        if exist == True:
-            print(f"{self.palletNumber} has been prepped.")
-            verify = False
-            QMessageBox.question(
-                self,
-                "Duplicate CPAL Number",
-                "This pallet has been prepped!",
-                QMessageBox.Ok,
-            )
-            return verify
-        else:
-            return verify
+        # verified -- set self.palletNumber
+        self.palletNumber = potential_num
+        return True
 
     def verifyBatchBarcode(self, potential_batchID):
         potential_batchID = potential_batchID.strip().upper()
