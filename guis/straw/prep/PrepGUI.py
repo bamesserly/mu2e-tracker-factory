@@ -7,6 +7,9 @@
 # Author: Joe Dill
 # email: dillx031@umn.edu
 #
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", "StrawPrep")
 
 import pyautogui
 import time
@@ -14,7 +17,7 @@ import os
 import csv
 import sys
 from datetime import datetime
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
     QInputDialog,
@@ -38,9 +41,16 @@ from pynput.keyboard import Key, Controller
 from pathlib import Path
 from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 from data.workers.credentials.credentials import Credentials
-import guis.straw.prep.straw_label_script
+from guis.straw.prep.straw_label_script import print_barcodes
+from guis.common.db_classes.straw import Straw
+from guis.common.db_classes.straw_location import StrawPosition
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+
+# import guis.common.dataProcessor as DP
+from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.gui_utils import generateBox
+from guis.common.timer import QLCDTimer
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -49,6 +59,10 @@ keyboard = Controller()
 
 
 class Prep(QMainWindow):
+
+    LockGUI = pyqtSignal(bool)
+    timer_signal = pyqtSignal()
+
     def __init__(self, paths, webapp=None, parent=None):
         super(Prep, self).__init__(parent)
         self.ui = Ui_MainWindow()
@@ -73,10 +87,11 @@ class Prep(QMainWindow):
             self.ui.portal4,
         ]
 
-        self.ui.start.clicked.connect(self.startTiming)
-        self.ui.finishPull.clicked.connect(self.timeUp)
+        self.ui.start.clicked.connect(self.beginProcess)
+        self.ui.finishPull.clicked.connect(self.checkPPGData)
         self.ui.finish.clicked.connect(self.saveData)
         self.ui.reset.clicked.connect(self.resetGUI)
+        self.LockGUI.connect(self.lockGUI)
 
         # Q Objects to enter data
         self.input_palletID = self.ui.input_palletID
@@ -114,6 +129,7 @@ class Prep(QMainWindow):
             "Straw ID": [False for i in range(24)],
             "PPG": [False for i in range(24)],
         }
+        self.data = None  # Data processor wants an object like this
 
         # Worker Info
         self.sessionWorkers = []
@@ -129,74 +145,76 @@ class Prep(QMainWindow):
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
         # Progression Information
-        self.calledGetUncollectedPalletInfo = False
         self.PalletInfoCollected = False
         self.dataSaved = False
 
         # Timing info
+        self.timer = QLCDTimer(
+            self.ui.hour_disp,
+            self.ui.min_disp,
+            self.ui.sec_disp,
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
+
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
+        self.running = lambda: self.timer.isRunning()
+
         self.timing = False
-        self.startTime = None
 
-    def Change_worker_ID(self, btn):
-        label = btn.text()
-        portalNum = 0
-        if label == "Log In":
-            portalNum = int(btn.objectName().strip("portal")) - 1
-            Current_worker, ok = QInputDialog.getText(
-                self, "Worker Log In", "Scan your worker ID:"
-            )
-            if not ok:
-                return
-            self.sessionWorkers.append(Current_worker)
-            self.Current_workers[portalNum].setText(Current_worker)
-            print("Welcome " + self.Current_workers[portalNum].text() + " :)")
-            btn.setText("Log Out")
-            self.ui.tab_widget.setCurrentIndex(1)
-        elif label == "Log Out":
-            portalNum = int(btn.objectName().strip("portal")) - 1
-            self.justLogOut = self.Current_workers[portalNum].text()
-            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
-            btn.setText("Log In")
-        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
-        self.justLogOut = ""
+        # Data Processor
+        self.pro = 2
+        self.pro_index = self.pro - 1
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+        )
 
-    def lockGUI(self):
-        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
-            self.resetGUI()
-            self.ui.tab_widget.setCurrentIndex(0)
-            self.ui.tab_widget.setTabText(1, "Straw Prep *Locked*")
-        else:
-            self.ui.tab_widget.setTabText(1, "Straw Prep")
+        # Start it off with the prep tab frozen
+        self.LockGUI.emit(False)
 
-    def updateBoard(self):
-        status = []
-        try:
-            with open(self.boardPath + "Progression Status.csv") as readfile:
-                data = csv.reader(readfile)
-                for row in data:
-                    for pallet in row:
-                        status.append(pallet)
-            status[int(self.palletID[6:]) - 1] == 11
-            with open(self.boardPath + "Progression Status.csv", "w") as writefile:
-                i = 0
-                for pallet in status:
-                    writefile.write(pallet)
-                    if i != 23:
-                        writefile.write(",")
-                    i = i + 1
-        except IOError:
-            print(
-                "Could not update board due to board file being accessed concurrently"
-            )
+    ############################################################################
+    # Process steps, top-level functions
+    # 1. start button: collect pallet metainfo and enable ppg fields
+    # 2. finish paper pull button: checkPPGData
+    # 3. finish button: saveData
+    ############################################################################
+    # Start button: get prelim data, then enable ppg fields
+    def beginProcess(self):
+        # collect panel prelim/metadata
+        if not self.PalletInfoCollected:
+            self.getUncollectedPalletInfo()
 
-    def tab(self):
-        keyboard.press(Key.tab)
+        # enable ppg data collection
+        # (if pallet info collection failed, will need to press start again)
+        if self.PalletInfoCollected:
+            self.enablePPGDataCollection()
+            self.timing = True
+            self.startTimer()
+            self.DP.saveStart()  # initialize procedure and commit it to the DB
 
+    # disable prelim fields, enable ppg fields
+    def enablePPGDataCollection(self):
+        self.ui.input_palletID.setDisabled(True)
+        self.ui.input_palletNumber.setDisabled(True)
+
+        for i in range((24 - self.strawCount), 24):
+            self.ui.input_list_strawBatch[i].setEnabled(False)
+            self.ui.input_list_strawID[i].setEnabled(False)
+            self.ui.input_list_paperPullGrade[i].setEnabled(True)
+
+        self.ui.start.setDisabled(True)
+        self.ui.finishPull.setEnabled(True)
+
+        # Set focus to first Paper Pull Input
+        self.input_paperPullGrade[24 - self.strawCount].setFocus()
+
+    # walk user through pallet prelim/metadata collection
     def getUncollectedPalletInfo(self):
-
         QMessageBox.question(
             self, "Pallet cleaned?", "Clean the pallet with alcohol.", QMessageBox.Ok
         )
@@ -217,7 +235,7 @@ class Prep(QMainWindow):
                 QMessageBox.Ok,
             )
 
-            straw_label_script.print_barcodes()
+            print_barcodes()
 
             QMessageBox.question(
                 self, "Barcodes", "Barcodes are printing...", QMessageBox.Ok
@@ -229,10 +247,6 @@ class Prep(QMainWindow):
             "Attach sheet of four pallet barcodes to pallet\nand tape row of 24 straw barcodes to pallet",
             QMessageBox.Ok,
         )
-
-        self.calledGetUncollectedPalletInfo = True
-
-        self.calledGetUncollectedPalletInfo = True
 
         # Pallet ID
         c = 0  # Loop counter
@@ -264,31 +278,32 @@ class Prep(QMainWindow):
 
         # Pallet Number
         c = 0  # Loop counter
-        while not self.verifyPalletNumber() and c <= 3:
+        while c < 3:
 
-            # If invalid entry was put in manually, make lineEdit red
-            if self.input_palletNumber.text() != "":
-                self.updateLineEdit(self.input_palletNumber, False)
+            # get number
+            input_number = None
+            # on first loop, get number from manual input field
+            if c == 0 and self.input_palletNumber.text() != "":
+                input_number = self.input_palletNumber.text()
+            # otherwise, prompt user
+            else:
+                input_number = self.askForInfo("Pallet Number")
+                if not input_number:
+                    return
 
-            new_Number = self.askForInfo("Pallet Number")
-
-            if new_Number == "":
-                return
-
-            valid = self.verifyPalletNumber(new_Number)
-            self.updateLineEdit(self.input_palletNumber, valid, new_Number)
+            # check number
+            valid = self.verifyPalletNumber(input_number)
+            # update the display field
+            self.updateLineEdit(self.input_palletNumber, valid, input_number)
             if valid:
-                self.palletNumber = new_Number
+                self.palletNumber = input_number
                 self.dataValidity["Pallet Number"] = valid
+                break
+
             c += 1
 
         if c > 3:
             return
-
-        if self.verifyPalletNumber():
-            self.updateLineEdit(
-                self.input_palletNumber, self.verifyPalletNumber(), self.palletNumber
-            )
 
         # Get straw count
         c = 0  # loop counter
@@ -433,7 +448,7 @@ class Prep(QMainWindow):
             if self.strawCount == 23:
                 self.input_batchBarcode[0].setText(self.input_batchBarcode[1].text())
 
-        self.verifyPalletInfo()  # After attempting to obtain all data, run verification
+        self.PalletInfoCollected = self.verifyPalletInfo()
 
     def assignStrawIDs(self):
         # takes the numbers from the first straw's ID and assigns IDs to the remaining straws
@@ -499,34 +514,237 @@ class Prep(QMainWindow):
             self.input_batchBarcode[0].setText("NO STRAW")
             self.dataValidity["Batch Barcode"][0] = True
 
-    def askForInfo(self, identifier, iterator=None):
-        # Asks user to scan given barcode. Returns user input.
-        if iterator != None:
-            message = {
-                "Batch Barcode": "position "
-                + str(int(iterator))
-                + " batch barcode (MMDDYY.B#)",
-                "Straw ID": "position " + str(int(iterator)) + " straw ID (st#####)",
-            }
+    # finish paper pull button, validate ppg data
+    def checkPPGData(self):
+        # Makes sure all ppg inputs are good, then stops timing
+        # all_pass = True
 
+        for i in range(self.strawCount):
+            if not (
+                self.dataValidity["PPG"][23 - i]
+            ):  # First, check that data hasn't already been verified
+                # "Scan in" all unrecorded ppg entries
+                self.input_paperPullGrade[23 - i].setFocus()
+                self.ppgScan()
+
+        all_pass = True
+
+        # Evaluate all relevant ppg pass/fail's
+        for i in range((24 - self.strawCount), 24):
+            boolean = self.dataValidity["PPG"][i]
+            if not boolean:
+                all_pass = False
+
+        # Once all ppg's have been verified...
+        if all_pass:
+            # Record all in self.paperPullGrades
+            self.paperPullGrades = ["" for ppg in range(24)]
+            for i in range(24):
+                self.paperPullGrades[i] = self.input_paperPullGrade[i].text().upper()
+
+            # Stop timing
+            self.timing = False
+            self.stopTimer()
+            self.DP.saveFinish()
+
+            # (Dis/En)able "Finish" Buttons
+            self.ui.finishPull.setEnabled(False)
+            self.ui.finish.setEnabled(True)
+
+    # finish button, save
+    def saveData(self):
+        print("Saving data...")
+
+        # SAVE DATA FILE #
+        # This is the csv file with all collected data (Straw IDs, Batch Barcodes, PPGs, etc...)
+        save_time = datetime.now()
+        file_name = self.stationID + "_" + self.palletNumber + ".csv"
+        workers_str = ", ".join(
+            self.sessionWorkers
+        ).upper()  # Converts self.sessionWorkers to a string csv-style: "wk-worker01, wk-worker02, etc..."
+        data_file = self.prepDirectory / file_name
+        with open(data_file, "w+") as file:
+            file.write("Station: " + self.stationID)
+            header = "Timestamp, Pallet ID, Pallet Number, Paper pull time (H:M:S), workers ***NEWLINE***: Comments (optional)***\n"
+            file.write(header)
+            file.write(save_time.strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(self.palletID + ",")
+            file.write(self.palletNumber + ",")
+            file.write(
+                str(self.ui.hour_disp.intValue())
+                + ":"
+                + str(self.ui.min_disp.intValue())
+                + ":"
+                + str(self.ui.sec_disp.intValue())
+                + ","
+            )
+
+            # If top straw doesn't exist yet, don't save underscores in top straw data fields
+            if self.strawCount == 23:
+                self.strawIDs[0] = "_______"  # _ x7 (st#####)
+                self.batchBarcodes[0] = "_________"  # _ x7 (MMDDYY.B#)
+                self.paperPullGrades[0] = "____"  # _ x4 (PP._)
+
+            # Record Workers
+            file.write(workers_str)
+            file.write("\n")
+            # Comments
+            if self.ui.commentBox.document().toPlainText() != "":
+                file.write(self.ui.commentBox.document().toPlainText())
+            file.write("\n\n")
+
+            # Straw-Specific Data
+            fieldnames = ["straw", "batch", "paperPullGrade"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for i in range(24):
+                straw_data = {
+                    "straw": self.strawIDs[i],
+                    "batch": self.batchBarcodes[i],
+                    "paperPullGrade": self.paperPullGrades[i],
+                }
+                writer.writerow(straw_data)
+
+            # Done creating data file
+
+        # CREATE & SAVE PALLET FILE
+        # This is a txt file logging the history of each CPAL that all GUIs write to.
+        # This file gets created while running this GUI.
+
+        pfile = self.palletDirectory / self.palletID / str(self.palletNumber + ".csv")
+        with open(pfile, "w+") as file:
+
+            # Create File Header
+            header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
+            header += ", ***" + str(self.strawCount) + " straws initially on pallet***"
+            header += "\n"
+            file.write(header)
+
+            # Record Session Data
+            file.write(save_time.strftime("%Y-%m-%d_%H:%M") + ",")  # Date
+            file.write(self.stationID + ",")
+
+            # Record each straw and whether it passes/fails
+            for i in range(24):
+
+                straw = self.strawIDs[i]
+
+                # If top straw doesn't exist, record save _'s for straw ID and pass_fail
+                if i == 0 and self.strawCount == 23:
+                    straw = "_______"  # _ x7
+                    pass_fail = "_"
+
+                # In all other cases, save the straw ID, and evaluate pass_fail
+                else:
+                    ppg = self.paperPullGrades[i]
+
+                    if ppg == "PP.A" or ppg == "PP.B":
+                        pass_fail = "P"
+                    else:
+                        pass_fail = "F"
+
+                file.write(straw + "," + pass_fail + ",")
+
+            file.write(workers_str)
+
+        # Done creating Pallet File
+
+        # Save straws, then ppg to DB
+        for position in range(24):
+
+            straw_id = int(self.strawIDs[position][2:])
+            batch = self.batchBarcodes[position]
+            batch = "".join(filter(str.isalnum, batch))  # for the db, drop the period
+
+            # add an entry to the straw table
+            straw = Straw.Straw(id=straw_id, batch=batch)
+
+            # our procedure (created and) knows our CPAL. In creating the CPAL
+            # straw location, we made 24 "straw positions" (in the
+            # straw_position" table), aka slots where straws can go.
+            cpal = self.DP.procedure.getStrawLocation()
+
+            # add an entry to the straw_present table, which says that this
+            # straw is present in this certain "straw position"
+            cpal.addStraw(straw, position)
+
+            # add an entry to the measurement_prep table
+            self.DP.procedure.recordStrawPrepMeasurement(
+                straw_id=straw_id,
+                paper_pull_grade=self.paperPullGrades[position][-1],
+                evaluation=None,
+            )
+
+        self.dataSaved = True
+
+        print("dataSaved: " + str(self.dataSaved))
+
+        self.ui.finish.setEnabled(False)
+
+        QMessageBox.about(self, "Save", "Data saved successfully!!")
+
+        self.resetGUI()
+
+    ############################################################################
+    # Worker login and gui lock
+    ############################################################################
+    def Change_worker_ID(self, btn):
+        label = btn.text()
+        portalNum = 0
+        if label == "Log In":
+            portalNum = int(btn.objectName().strip("portal")) - 1
+            Current_worker, ok = QInputDialog.getText(
+                self, "Worker Log In", "Scan your worker ID:"
+            )
+            Current_worker = Current_worker.upper().strip()
+            if not ok:
+                return
+            if not self.DP.validateWorkerID(Current_worker):
+                generateBox("critical", "Login Error", "Invalid worker ID.")
+            elif self.DP.workerLoggedIn(Current_worker):
+                generateBox(
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
+                )
+            else:
+                # Record login with data processor
+                logger.info(f"{Current_worker} logged in")
+                self.DP.saveLogin(Current_worker)
+                self.sessionWorkers.append(Current_worker)
+                self.Current_workers[portalNum].setText(Current_worker)
+                print("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                btn.setText("Log Out")
+                self.ui.tab_widget.setCurrentIndex(1)
+
+        elif label == "Log Out":
+            portalNum = int(btn.objectName().strip("portal")) - 1
+            self.justLogOut = self.Current_workers[portalNum].text()
+            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
+            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
+            Current_worker = ""
+            self.Current_workers[portalNum].setText(Current_worker)
+            btn.setText("Log In")
+
+        # Recheck credentials
+        self.LockGUI.emit(self.DP.checkCredentials())
+
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
+        self.justLogOut = ""
+
+    def lockGUI(self, credentials):
+        if credentials:
+            self.ui.tab_widget.setTabText(1, "Straw Prep")
+            self.ui.tab_widget.setTabEnabled(1, True)
         else:
-            message = {
-                "Pallet ID": "pallet ID (CPALID##)",
-                "Pallet Number": "pallet number (CPAL####)",
-                "Batch Barcode": "batch barcode (MMDDYY.B#)",
-                "Straw ID": "top straw ID (st#####)",
-            }
+            self.ui.tab_widget.setCurrentIndex(0)
+            self.ui.tab_widget.setTabText(1, "Straw Prep *Locked*")
+            self.ui.tab_widget.setTabEnabled(1, False)
 
-        if identifier not in message.keys():
-            return
-
-        string, ok = QInputDialog.getText(
-            self, identifier, "Please scan " + message[identifier]
-        )
-        string = string.upper()
-
-        return string
-
+    ############################################################################
+    # Verification functions
+    ############################################################################
     def verifyPalletInfo(self):
         # This function is predominately to check if new data has been entered.
         # Pallet ID
@@ -600,7 +818,7 @@ class Prep(QMainWindow):
             if not boolean:
                 all_pass = False
 
-        self.PalletInfoCollected = all_pass
+        return all_pass
 
     def verifyPalletID(self, potential_id=None):
 
@@ -629,45 +847,37 @@ class Prep(QMainWindow):
 
         return verify
 
-    def verifyPalletNumber(self, potential_num=None):
-
-        # If no specific string is given to check as a pallet number, finds the most relevant string to use, and saves it.
+    # if given number is good set self.palletNumber
+    # if no number is given try using the value in the display field
+    def verifyPalletNumber(self, potential_num):
         if not potential_num:
-            if self.palletNumber != self.input_palletNumber.text().upper():
-                self.palletNumber = self.input_palletNumber.text().upper()
-            potential_num = self.palletNumber
+            potential_num = self.input_palletNumber.text().upper()
 
         potential_num = potential_num.strip().upper()
-        verify = True
+
         if len(potential_num) != 8:
-            verify = False
+            return False
+        if not potential_num.startswith("CPAL"):
+            return False
+        if not potential_num[4:].isnumeric():
+            return False
 
-        elif not potential_num.startswith("CPAL"):
-            verify = False
-
-        elif not potential_num[4:].isnumeric():
-            verify = False
-
-        exist = False
         for id in range(1, 24):
-            file = self.palletNumber + ".csv"
+            file = potential_num + ".csv"
             path = self.palletDirectory / str("CPALID" + str(id).zfill(2)) / file
-            exist_tmp = os.path.exists(path)
-            if exist_tmp == True:
-                exist = True
+            if os.path.exists(path):
+                print(f"{potential_num} has been prepped.")
+                QMessageBox.question(
+                    self,
+                    "Duplicate CPAL Number",
+                    "This pallet has been prepped!",
+                    QMessageBox.Ok,
+                )
+                return False
 
-        if exist == True:
-            print(f"{self.palletNumber} has been preped.")
-            verify = False
-            QMessageBox.question(
-                self,
-                "Duplicate CPAL Number",
-                "This pallet has been prepped!",
-                QMessageBox.Ok,
-            )
-            return verify
-        else:
-            return verify
+        # verified -- set self.palletNumber
+        self.palletNumber = potential_num
+        return True
 
     def verifyBatchBarcode(self, potential_batchID):
         potential_batchID = potential_batchID.strip().upper()
@@ -688,7 +898,6 @@ class Prep(QMainWindow):
         return verify
 
     def verifyStrawID(self, potential_ID=None):
-
         if potential_ID == None:
             potential_ID = self.pos1StrawID
 
@@ -707,7 +916,6 @@ class Prep(QMainWindow):
         return verify
 
     def verifyPaperPullGrade(self, potential_ppg):
-
         potential_ppg = (
             potential_ppg.strip().upper()
         )  # Always evaluate the uppercase version of the given string with no spaces
@@ -817,6 +1025,10 @@ class Prep(QMainWindow):
 
         return string
 
+    ############################################################################
+    # Utility functions
+    ############################################################################
+
     def updateLineEdit(
         self,
         lineEdit,
@@ -838,169 +1050,6 @@ class Prep(QMainWindow):
         if string != None:
             lineEdit.setText(string)
         # If no string argument is given, don't touch text
-
-    def startTiming(self):
-
-        if not self.PalletInfoCollected:
-            self.getUncollectedPalletInfo()
-
-        else:
-            # Update GUI components (dis/en)abled
-            self.ui.input_palletID.setDisabled(True)
-            self.ui.input_palletNumber.setDisabled(True)
-
-            for i in range((24 - self.strawCount), 24):
-                self.ui.input_list_strawBatch[i].setEnabled(False)
-                self.ui.input_list_strawID[i].setEnabled(False)
-                self.ui.input_list_paperPullGrade[i].setEnabled(True)
-
-            self.ui.start.setDisabled(True)
-            self.ui.finishPull.setEnabled(True)
-            ##Begin timing
-            self.startTime = time.time()
-            self.timing = True
-            # Set focus to first Paper Pull Input
-            self.input_paperPullGrade[24 - self.strawCount].setFocus()
-
-    def timeUp(self):
-        # Makes sure all ppg inputs are good, then stops timing
-        # all_pass = True
-
-        for i in range(self.strawCount):
-            if not (
-                self.dataValidity["PPG"][23 - i]
-            ):  # First, check that data hasn't already been verified
-                # "Scan in" all unrecorded ppg entries
-                self.input_paperPullGrade[23 - i].setFocus()
-                self.ppgScan()
-
-        all_pass = True
-
-        # Evaluate all relevant ppg pass/fail's
-        for i in range((24 - self.strawCount), 24):
-            boolean = self.dataValidity["PPG"][i]
-            if not boolean:
-                all_pass = False
-
-        # Once all ppg's have been verified...
-        if all_pass:
-            # Record all in self.paperPullGrades
-            self.paperPullGrades = ["" for ppg in range(24)]
-            for i in range(24):
-                self.paperPullGrades[i] = self.input_paperPullGrade[i].text().upper()
-            self.timing = False  # Stop timing
-            # (Dis/En)able "Finish" Buttons
-            self.ui.finishPull.setEnabled(False)
-            self.ui.finish.setEnabled(True)
-
-    def saveData(self):
-
-        print("Saving data...")
-
-        # SAVE DATA FILE #
-        # This is the csv file with all collected data (Straw IDs, Batch Barcodes, PPGs, etc...)
-        save_time = datetime.now()
-        file_name = self.stationID + "_" + self.palletNumber + ".csv"
-        workers_str = ", ".join(
-            self.sessionWorkers
-        ).upper()  # Converts self.sessionWorkers to a string csv-style: "wk-worker01, wk-worker02, etc..."
-        data_file = self.prepDirectory / file_name
-        with open(data_file, "w+") as file:
-            file.write("Station: " + self.stationID)
-            header = "Timestamp, Pallet ID, Pallet Number, Paper pull time (H:M:S), workers ***NEWLINE***: Comments (optional)***\n"
-            file.write(header)
-            file.write(save_time.strftime("%Y-%m-%d_%H:%M") + ",")
-            file.write(self.palletID + ",")
-            file.write(self.palletNumber + ",")
-            file.write(
-                str(self.ui.hour_disp.intValue())
-                + ":"
-                + str(self.ui.min_disp.intValue())
-                + ":"
-                + str(self.ui.sec_disp.intValue())
-                + ","
-            )
-
-            # If top straw doesn't exist yet, don't save underscores in top straw data fields
-            if self.strawCount == 23:
-                self.strawIDs[0] = "_______"  # _ x7 (st#####)
-                self.batchBarcodes[0] = "_________"  # _ x7 (MMDDYY.B#)
-                self.paperPullGrades[0] = "____"  # _ x4 (PP._)
-
-            # Record Workers
-            file.write(workers_str)
-            file.write("\n")
-            # Comments
-            if self.ui.commentBox.document().toPlainText() != "":
-                file.write(self.ui.commentBox.document().toPlainText())
-            file.write("\n\n")
-
-            # Straw-Specific Data
-            fieldnames = ["straw", "batch", "paperPullGrade"]
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-
-            writer.writeheader()
-            for i in range(24):
-                straw_data = {
-                    "straw": self.strawIDs[i],
-                    "batch": self.batchBarcodes[i],
-                    "paperPullGrade": self.paperPullGrades[i],
-                }
-                writer.writerow(straw_data)
-
-            # Done creating data file
-
-        # CREATE & SAVE PALLET FILE
-        # This is a txt file logging the history of each CPAL that all GUIs write to.
-        # This file gets created while running this GUI.
-
-        pfile = self.palletDirectory / self.palletID / str(self.palletNumber + ".csv")
-        with open(pfile, "w+") as file:
-
-            # Create File Header
-            header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
-            header += ", ***" + str(self.strawCount) + " straws initially on pallet***"
-            header += "\n"
-            file.write(header)
-
-            # Record Session Data
-            file.write(save_time.strftime("%Y-%m-%d_%H:%M") + ",")  # Date
-            file.write(self.stationID + ",")
-
-            # Record each straw and whether it passes/fails
-            for i in range(24):
-
-                straw = self.strawIDs[i]
-
-                # If top straw doesn't exist, record save _'s for straw ID and pass_fail
-                if i == 0 and self.strawCount == 23:
-                    straw = "_______"  # _ x7
-                    pass_fail = "_"
-
-                # In all other cases, save the straw ID, and evaluate pass_fail
-                else:
-                    ppg = self.paperPullGrades[i]
-
-                    if ppg == "PP.A" or ppg == "PP.B":
-                        pass_fail = "P"
-                    else:
-                        pass_fail = "F"
-
-                file.write(straw + "," + pass_fail + ",")
-
-            file.write(workers_str)
-
-        # Done creating Pallet File
-
-        self.dataSaved = True
-
-        print("dataSaved: " + str(self.dataSaved))
-
-        self.ui.finish.setEnabled(False)
-
-        QMessageBox.about(self, "Save", "Data saved successfully!!")
-
-        self.resetGUI()
 
     def resetGUI(self):
         # Pallet ID
@@ -1042,9 +1091,7 @@ class Prep(QMainWindow):
         self.ui.start.setEnabled(True)
 
         # Time Display
-        self.ui.hour_disp.display(0)
-        self.ui.min_disp.display(0)
-        self.ui.sec_disp.display(0)
+        self.resetTimer()
 
         # Comments
         self.ui.commentBox.clear()
@@ -1078,11 +1125,9 @@ class Prep(QMainWindow):
         self.ui.hour_disp.setSegmentStyle(2)
 
         self.PalletInfoCollected = False
-        self.calledGetUncollectedPalletInfo = False
 
         # Timing info
         self.timing = False
-        self.startTime = None
 
         # If data has been saved: also log out
         if self.dataSaved:
@@ -1096,29 +1141,71 @@ class Prep(QMainWindow):
 
     def closeEvent(self, event):
         event.accept()
+        self.DP.handleClose()
+        self.close()
         sys.exit()
 
-    def main(self, app):
-        while True:
+    def askForInfo(self, identifier, iterator=None):
+        # Asks user to scan given barcode. Returns user input.
+        if iterator != None:
+            message = {
+                "Batch Barcode": "position "
+                + str(int(iterator))
+                + " batch barcode (MMDDYY.B#)",
+                "Straw ID": "position " + str(int(iterator)) + " straw ID (st#####)",
+            }
 
-            if not self.calledGetUncollectedPalletInfo:
-                self.lockGUI()
-                if self.ui.tab_widget.currentIndex() == 1:
-                    self.getUncollectedPalletInfo()
+        else:
+            message = {
+                "Pallet ID": "pallet ID (CPALID##)",
+                "Pallet Number": "pallet number (CPAL####)",
+                "Batch Barcode": "batch barcode (MMDDYY.B#)",
+                "Straw ID": "top straw ID (st#####)",
+            }
 
-            if self.timing:
-                if self.startTime == None:
-                    self.startTime = time.time()
+        if identifier not in message.keys():
+            return
 
-                # Update time display
-                running = time.time() - self.startTime
-                self.ui.hour_disp.display(int(running / 3600))
-                self.ui.min_disp.display(int(running / 60) % 60)
-                self.ui.sec_disp.display(int(running) % 60)
+        string, ok = QInputDialog.getText(
+            self, identifier, "Please scan " + message[identifier]
+        )
+        string = string.upper()
 
-            self.lockGUI()
-            app.processEvents()
-            time.sleep(0.05)
+        return string
+
+    def tab(self):
+        keyboard.press(Key.tab)
+
+    def getCPALID(self):
+        return self.palletID
+
+    def getCPALNumber(self):
+        return self.palletNumber
+
+    ############################################################################
+    # Deprecated
+    ############################################################################
+
+    def updateBoard(self):
+        status = []
+        try:
+            with open(self.boardPath + "Progression Status.csv") as readfile:
+                data = csv.reader(readfile)
+                for row in data:
+                    for pallet in row:
+                        status.append(pallet)
+            status[int(self.palletID[6:]) - 1] == 11
+            with open(self.boardPath + "Progression Status.csv", "w") as writefile:
+                i = 0
+                for pallet in status:
+                    writefile.write(pallet)
+                    if i != 23:
+                        writefile.write(",")
+                    i = i + 1
+        except IOError:
+            print(
+                "Could not update board due to board file being accessed concurrently"
+            )
 
 
 def run():
@@ -1126,10 +1213,7 @@ def run():
     paths = GetProjectPaths()
     ctr = Prep(paths)
     ctr.show()
-    ctr.main(app)
-    ctr.close()
     app.exec_()
-    # sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

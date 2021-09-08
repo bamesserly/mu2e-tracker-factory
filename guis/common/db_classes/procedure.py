@@ -96,13 +96,16 @@ class Procedure(BASE, OBJECT):
         self.commit()
         self.init_on_load()
 
-    # Capable of loading an existing procedure or making a new one.
-    # Also, capable of loading/creating a specific PanelProcedure or
-    # StrawProcedure (were any to ever actually be written)
+    # CREATE (or get an existing) PROCEDURE
+    #
+    # This is the only place a Procedure (of type Panel or Straw) is
+    # initialized.
     @classmethod
     def _startProcedure(cls, station, straw_location):
-        # Must tell procedure that it has subclasses! Tricky error if you dont.
+        # Must tell procedure that it has subclasses by importing them! Tricky
+        # error if you dont.
         import guis.common.db_classes.procedures_panel
+        import guis.common.db_classes.procedures_straw
 
         # This subclassing stuff is sketchy.  See __init_subclass__ and stack
         # overflow 4162456 if we ever have trouble.
@@ -144,18 +147,32 @@ class Procedure(BASE, OBJECT):
     """
 
     @classmethod
-    def PanelProcedure(cls, day, panel_number):
+    def PanelProcedure(cls, process, panel_number):
         from guis.common.db_classes.straw_location import StrawLocation
         from guis.common.db_classes.station import Station
 
         # Get Station
-        station = Station.panelStation(day=day)
+        station = Station.get_station(stage="panel", step=process)
 
         # Get panel
         panel = StrawLocation.Panel(panel_number)
 
         # Use Procedure._startProcedure() to return object.
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
+
+    @classmethod
+    def StrawProcedure(cls, process, cpal_id, cpal_number):
+        from guis.common.db_classes.straw_location import StrawLocation
+        from guis.common.db_classes.station import Station
+
+        # Get Station
+        station = Station.get_station(stage="straws", step=process)
+
+        # Get panel
+        cpal = StrawLocation.CPAL(pallet_id=cpal_id, number=cpal_number)
+
+        # Use Procedure._startProcedure() to return object.
+        return StrawProcedure._startProcedure(station=station, straw_location=cpal)
 
     @staticmethod
     def _queryStation(station=None, production_stage=None, production_step=None):
@@ -184,6 +201,18 @@ class Procedure(BASE, OBJECT):
         self.commit()
 
     ## PROPERTIES ##
+
+    ## SESSION ##
+    # Todo this should be in Procedure
+    def getSession(self):
+        from guis.common.db_classes.session import Session
+
+        return (
+            Session.query()
+            .filter(Session.active == True)
+            .filter(Session.procedure == self.id)
+            .one_or_none()
+        )
 
     # Straw Location
     def getStrawLocation(self):
@@ -326,6 +355,7 @@ class ProcedureTimestamp(BASE, OBJECT):
         return cls(procedure=procedure.id, event="stop")
 
 
+# For functions common to all panel procedures
 class PanelProcedure(Procedure):
     ## INITIALIZATION ##
     def __init__(self, station, straw_location, create_key):
@@ -348,17 +378,6 @@ class PanelProcedure(Procedure):
         )
         failure.commit()
         return failure
-
-    ## SESSION ##
-    def getSession(self):
-        from guis.common.db_classes.session import Session
-
-        return (
-            Session.query()
-            .filter(Session.active == True)
-            .filter(Session.procedure == self.id)
-            .one_or_none()
-        )
 
     """
     executeStep
@@ -403,3 +422,9 @@ class PanelProcedure(Procedure):
         PanelTempMeasurement(
             procedure=self, temp_paas_a=temp_paas_a, temp_paas_bc=temp_paas_bc
         ).commit()
+
+
+# For functions common to all straw procedures
+class StrawProcedure(Procedure):
+    def __init__(self, station, straw_location, create_key):
+        super().__init__(station, straw_location, create_key)

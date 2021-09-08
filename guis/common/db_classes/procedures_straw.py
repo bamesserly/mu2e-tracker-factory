@@ -1,3 +1,59 @@
+from guis.common.db_classes.bases import BASE, OBJECT, DM, logger
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    REAL,
+    VARCHAR,
+    ForeignKey,
+    CHAR,
+    BOOLEAN,
+    and_,
+    DATETIME,
+    Table,
+    TEXT,
+    func,
+)
+from datetime import datetime
+from guis.common.db_classes.procedure import StrawProcedure
+
+
+class Prep(StrawProcedure):
+    __mapper_args__ = {
+        "polymorphic_identity": "prep"
+    }  # foreign link to which station.id
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "prep"
+        ), f"Error. Tried to construct prep preocedure for a station '{station.id}' not 'prep'."
+        super().__init__(station, straw_location, create_key)
+
+    class StrawPrepMeasurement(BASE, OBJECT):
+        __tablename__ = "measurement_prep"
+        id = Column(Integer, primary_key=True)
+        procedure = Column(Integer, ForeignKey("procedure.id"))
+        straw = Column(Integer, ForeignKey("straw.id"))
+        # straw = Column(Integer)
+        paper_pull_grade = Column(CHAR)
+        evaluation = Column(BOOLEAN)
+        timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+
+        def __init__(self, procedure, straw_id, paper_pull_grade, evaluation):
+            self.procedure = procedure.id
+            self.straw = straw_id
+            self.paper_pull_grade = paper_pull_grade
+            self.evaluation = evaluation
+
+    def recordStrawPrepMeasurement(self, straw_id, paper_pull_grade, evaluation):
+        Prep.StrawPrepMeasurement(
+            procedure=self,
+            straw_id=straw_id,
+            paper_pull_grade=paper_pull_grade,
+            evaluation=evaluation,
+        ).commit()
+
+
 """
 class Co2Procedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "co2"}

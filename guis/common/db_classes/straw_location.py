@@ -22,6 +22,8 @@
 # LPAL straw location IDs. Nothing is done with the straw_position table,
 # currently.
 #
+# Initializing any straw location commits it to the DB
+#
 ################################################################################
 from guis.common.db_classes.bases import BASE, OBJECT, DM, Barcode
 from sqlalchemy import (
@@ -71,7 +73,7 @@ class StrawLocation(BASE, OBJECT):
         self.id = self.ID()
         self.location_type = location_type
         self.number = number if number else self.nextNumber()
-        self.pallet_id = pallet_id = None
+        self.pallet_id = pallet_id
 
         # Record that this StrawLocation was recently made
         self.new = True
@@ -530,6 +532,7 @@ class StrawLocationType(BASE, OBJECT):
         )
 
 
+# A straw position is a slot on a straw location
 class StrawPosition(BASE, OBJECT):
     __tablename__ = "straw_position"
     id = Column(Integer, primary_key=True)
@@ -549,6 +552,11 @@ class StrawPosition(BASE, OBJECT):
         )
 
 
+# Each straw's past (present == false) and current (present == true) straw
+# locations. More specifically, the position points to the straw_position
+# table, which is a space for a straw on a straw location.
+#
+# "remove" means set present to false.
 class StrawPresent(BASE, OBJECT):
     __tablename__ = "straw_present"
     id = Column(Integer, primary_key=True)

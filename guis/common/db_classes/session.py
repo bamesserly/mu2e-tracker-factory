@@ -12,8 +12,9 @@
 #
 # New entry every time pangui is opened and a process is selected.
 #
-# Critically, a Session starts Procedures, whether to load a pre-existing
-# procedure or create a new one.
+# Critically, a Session starts Procedures, whether loading a pre-existing
+# procedure or creating a new one. Within a session is the only place where
+# Procedures are created.
 ################################################################################
 from guis.common.db_classes.bases import BASE, OBJECT
 from sqlalchemy import (
@@ -32,6 +33,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.sql.expression import true, false
+from guis.common.db_classes.procedure import Procedure
 
 
 class Session(BASE, OBJECT):
@@ -62,7 +64,7 @@ class Session(BASE, OBJECT):
     ## PROCEDURE ##
 
     def getProcedure(self):
-        return self._procedure
+        return self._procedure  # Procedure object
 
     def _setProcedure(self, procedure):
         # Save object to private member variable
@@ -72,21 +74,24 @@ class Session(BASE, OBJECT):
         # Commit change to database
         self.commit()
 
-    def startPanelProcedure(self, day, panel_number):
-        from guis.common.db_classes.procedure import Procedure
+    # The /only/ place where a PanelProcedure is created
+    def startPanelProcedure(self, process, panel_number):
+        assert (
+            self.procedure is None
+        ), "A procedure has already been defined for this session."
+        p = Procedure.PanelProcedure(process=process, panel_number=panel_number)
+        self._setProcedure(p)
+
+    # The /only/ place where a StrawProcedure is created
+    def startStrawProcedure(self, process, cpal_id, cpal_number):
 
         assert (
             self.procedure is None
         ), "A procedure has already been defined for this session."
-        p = Procedure.PanelProcedure(day=day, panel_number=panel_number)
+        p = Procedure.StrawProcedure(
+            process=process, cpal_id=cpal_id, cpal_number=cpal_number
+        )
         self._setProcedure(p)
-
-    def startStrawProcedure(self, station, cpal_number):
-        """self._setProcedure(
-            Procedure.StrawProcedure(
-            )
-        )"""
-        pass
 
     ## WORKER PORTAL ##
 
