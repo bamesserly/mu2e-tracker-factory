@@ -532,6 +532,7 @@ class StrawLocationType(BASE, OBJECT):
         )
 
 
+# A straw position is a slot on a straw location
 class StrawPosition(BASE, OBJECT):
     __tablename__ = "straw_position"
     id = Column(Integer, primary_key=True)
@@ -552,7 +553,8 @@ class StrawPosition(BASE, OBJECT):
 
 
 # Each straw's past (present == false) and current (present == true) straw
-# locations.
+# locations. More specifically, the position points to the straw_position
+# table, which is a space for a straw on a straw location.
 #
 # "remove" means set present to false.
 class StrawPresent(BASE, OBJECT):

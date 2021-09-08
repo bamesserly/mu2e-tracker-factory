@@ -660,18 +660,14 @@ class Prep(QMainWindow):
             # add an entry to the straw table
             straw = Straw.Straw(id=straw_id, batch=batch)
 
-            # our procedure knows our CPAL
+            # our procedure (created and) knows our CPAL. In creating the CPAL
+            # straw location, we made 24 "straw positions" (in the
+            # straw_position" table), aka slots where straws can go.
             cpal = self.DP.procedure.getStrawLocation()
 
-            ## add an entry to the straw_position table
-            # StrawPosition(
-            #    straw_id=straw.id,
-            #    location_id=cpal.id,
-            #    position_number=position,
-            # ).commit()
-            #
-            ## add an entry to the straw_present table
-            # cpal.addStraw(straw, position)
+            # add an entry to the straw_present table, which says that this
+            # straw is present in this certain "straw position"
+            cpal.addStraw(straw, position)
 
             # add an entry to the measurement_prep table
             self.DP.procedure.recordStrawPrepMeasurement(
