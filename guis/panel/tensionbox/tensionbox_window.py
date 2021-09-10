@@ -53,7 +53,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
     """
 
     def __init__(self, saveMethod=None, panel=str(), pro=str(), parent=None):
-        """ Vadim: Initialization of the class. Call the __init__ for the super classes """
+        """Vadim: Initialization of the class. Call the __init__ for the super classes"""
         super(TensionBox, self).__init__(parent)
         self.setupUi(self)
         self.connectActions()
@@ -70,42 +70,54 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.testplot3()
 
     def openSerial(self):
-        """ Open the serial connection with the Arduino """
+        """Open the serial connection with the Arduino"""
         self.ser = serial.Serial(port=self.portloc, baudrate=115200)
         time.sleep(1)
 
     def main(self):
-        """ Make the dialog window visible for the user to interact with """
+        """Make the dialog window visible for the user to interact with"""
         self.show()
 
     def connectActions(self):
-        """ Connect the user interface controls to the logic """
+        """Connect the user interface controls to the logic"""
         self.runButton.clicked.connect(self.run)
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
 
     def testplot3(self):
-        """ Set up canvas for plotting wire number vs. tension """
+        """Set up canvas for plotting wire number vs. tension"""
         self.data_widget = QWidget(self.graphicsView)
         layout = QHBoxLayout(self.graphicsView)
-        self.z = np.array([[-10, -10]])
+        self.wire_tensions = np.array([[-10, -10]])
+        self.straw_tensions = np.array([[-10, -10]])
         self.canvas = DataCanvas(
             self.data_widget,
-            data=self.z,
+            data=None,
             width=5,
             height=4,
             dpi=100,
             xlabel="Wire Number",
-            ylabel="Tension [g]",
+            ylabel="Wire Tension [g]",
+            ylabel2="Straw Tension [g]",
         )
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
 
-    def testplot2(self):
-        """ Update plot: add new (wire number,tension) measurement """
-        self.z = np.append(
-            self.z, np.array([[self.spinBox.value(), self.tension]]), axis=0
-        )
-        self.canvas.read_data(self.z)
+    def testplot2(self, is_straw=False):
+        """Update plot: add new (wire number,tension) measurement"""
+        if is_straw:
+            self.straw_tensions = np.append(
+                self.straw_tensions,
+                np.array([[self.spinBox.value(), self.tension]]),
+                axis=0,
+            )
+            self.canvas.read_data(self.straw_tensions, is_straw)
+        else:
+            self.wire_tensions = np.append(
+                self.wire_tensions,
+                np.array([[self.spinBox.value(), self.tension]]),
+                axis=0,
+            )
+            self.canvas.read_data(self.wire_tensions, is_straw)
         self.data_widget.repaint()
 
     def run(self, nextstraw=False):
@@ -221,10 +233,9 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 tension=tension,
             )
 
-            ## Add (wire number,tension) measurement to plot
-            if straw_flag == 0:
-                self.tension = tension
-                self.testplot2()
+            ### Add (wire number,tension) measurement to plot
+            self.tension = tension
+            self.testplot2(straw_flag)
 
             # Given the frequency, calculate the desired pulse width in microseconds for the next run
             pulse_width = (1.0 / (2 * freq)) * 10 ** 6
@@ -411,7 +422,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
 
 
 def freq_from_fft(signal, fs):
-    """ Estimate frequency from peak of FFT """
+    """Estimate frequency from peak of FFT"""
 
     # Compute Fourier transform of windowed signal
     windowed = signal * blackmanharris(len(signal))
@@ -426,7 +437,7 @@ def freq_from_fft(signal, fs):
 
 
 def plotadc(y0):
-    """ Plots the data (ADC counts) from the Arduino and the FFT of that data """
+    """Plots the data (ADC counts) from the Arduino and the FFT of that data"""
 
     ft0 = np.fft.fft(y0 * np.hanning(len(y0))) / (len(y0) / 4)
     logft0 = 20 * np.log10(abs(ft0) / 4096)
@@ -463,7 +474,7 @@ def plotadc(y0):
 
 
 def clean(item):
-    """ Clean up the memory by closing and deleting the item if possible. """
+    """Clean up the memory by closing and deleting the item if possible."""
     if isinstance(item, list) or isinstance(item, dict):
         for _ in range(len(item)):
             clean(item.pop())

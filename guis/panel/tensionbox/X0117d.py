@@ -24,6 +24,7 @@ class DataCanvas(FigureCanvas):
         dpi=100,
         xlabel="xlabel",
         ylabel="ylabel",
+        ylabel2=None,
     ):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
@@ -33,17 +34,30 @@ class DataCanvas(FigureCanvas):
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
         self.axes.grid(True)
-        self.axes.set_ylabel(ylabel)
         self.axes.set_xlabel(xlabel)
+        self.axes.set_ylabel(ylabel)
         self.axes.set_xlim(-2, 96)
         self.axes.set_ylim(-2, 100)
         box = self.axes.get_position()
-        self.axes.set_position(
-            [box.x0, box.y0 + box.height * 0.03, box.width * 1.1, box.height * 1.1]
-        )
+        if ylabel2:
+            self.axes2 = self.axes.twinx()
+            self.axes2.set_ylabel(ylabel2)
+            self.axes2.yaxis.label.set_color("r")
+            self.axes2.set_ylim(-2, 800)
+            self.axes.set_position(
+                [box.x0, box.y0 + box.height * 0.05, box.width * 0.95, box.height]
+            )
+        else:
+            self.axes.set_position(
+                [box.x0, box.y0 + box.height * 0.03, box.width * 1.1, box.height * 1.1]
+            )
 
-    def read_data(self, data):
-        self.axes.plot(data[:, 0], data[:, 1], "g.")
+    def read_data(self, data, is_straw=False):
+        if is_straw:
+            if self.axes2:
+                self.axes2.plot(data[:, 0], data[:, 1], "g.", color="r")
+        else:
+            self.axes.plot(data[:, 0], data[:, 1], "g.")
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 
