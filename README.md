@@ -76,14 +76,14 @@ While pangui is running, a join command will automatically be run every 10 minut
 `Mergedown` refers to a separate executable program which first downloads the entire `data` directory (except for the database) from the network, skipping file overwrites when _t_local_ > _t_network_. Next, it downloads the network database to local, regardless of timestamp. And finally, it uploads from local to network the `data` directory (except for the database). There are a few different versions for this script -- for different lab rooms different types of data need not be accessed.
 
 ## Database Design, Terminology
-**Process** -- refers to a macro-step in straw processing or panel production. There are about 8 straw processes and 8 panel processes. An example of a panel process is "process 1 -- inner ring construction".
-**Stage** -- refers to whether a process is a "straw" or a "panel" process. Originally there was going to be a third stage -- QC -- but that hasn't been used.
-**Station** -- a station is what we now call a _process_ combined with a literal room in the PAN building. Indeed, in the database, _station_ is used in place of _process_, but in common practice/speak, a _station_ no longer a coherent idea. The term was invented and baked into the database back when we though certain processes would always be performed in certain rooms, in certain spots on the floor. Covid, as well as misc SOP changes, means that no longer applies. The idea of a room, in the database, is just basically no-longer useful, so _station_ is a stand-in for _process_.
-**Straw Location** -- a location where a straw may be located. Examples of straw locations are panel MN143, cutting pallet 91, loading pallet 2345, or storage.
-**Straw Position** -- a specific location within a straw location, for example panel MN143, position 83 or cutting pallet position 21.
-**Procedure** -- a procedure is defined by a (_straw location_, _process_) pair. Examples of procedures are (MN143, process 4) or (CPAL2345, straw leak test).
-**Session** -- a session is a chunk of time when a user is logged-in to a gui and working on a certain procedure. Sessions precede procedure's and they start/load procedures.
-**Straw Present** -- a simple boolean saying whether a specific straw is in fact in a straw position or not.
+* **Process** -- refers to a macro-step in straw processing or panel production. There are about 8 straw processes and 8 panel processes. An example of a panel process is "process 1 -- inner ring construction".
+* **Stage** -- refers to whether a process is a "straw" or a "panel" process. Originally there was going to be a third stage -- QC -- but that hasn't been used.
+* **Station** -- a station is what we now call a _process_ combined with a literal room in the PAN building. Indeed, in the database, _station_ is used in place of _process_, but in common practice/speak, a _station_ no longer a coherent idea. The term was invented and baked into the database back when we though certain processes would always be performed in certain rooms, in certain spots on the floor. Covid, as well as misc SOP changes, means that no longer applies. The idea of a room, in the database, is just basically no-longer useful, so _station_ is a stand-in for _process_.
+* **Straw Location** -- a location where a straw may be located. Examples of straw locations are panel MN143, cutting pallet 91, loading pallet 2345, or storage.
+* **Straw Position** -- a specific location within a straw location, for example panel MN143, position 83 or cutting pallet position 21.
+* **Procedure** -- a procedure is defined by a (_straw location_, _process_) pair. Examples of procedures are (MN143, process 4) or (CPAL2345, straw leak test).
+* **Session** -- a session is a chunk of time when a user is logged-in to a gui and working on a certain procedure. Sessions precede procedure's and they start/load procedures.
+* **Straw Present** -- a simple boolean saying whether a specific straw is in fact in a straw position or not.
 
 
 
