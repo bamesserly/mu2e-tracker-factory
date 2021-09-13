@@ -67,7 +67,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
 
         self.portloc = self.getPortLocation()  ## Arduino COM port
         self.openSerial()
-        self.testplot3()
+        self.setupCanvas()
 
     def openSerial(self):
         """Open the serial connection with the Arduino"""
@@ -83,12 +83,12 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.runButton.clicked.connect(self.run)
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
 
-    def testplot3(self):
+    def setupCanvas(self):
         """Set up canvas for plotting wire number vs. tension"""
         self.data_widget = QWidget(self.graphicsView)
         layout = QHBoxLayout(self.graphicsView)
-        self.wire_tensions = np.array([[-10, -10]])
-        self.straw_tensions = np.array([[-10, -10]])
+        self.wire_tensions = np.empty(shape=(0, 2))
+        self.straw_tensions = np.empty(shape=(0, 2))
         self.canvas = DataCanvas(
             self.data_widget,
             data=None,
@@ -102,19 +102,18 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
 
-    def testplot2(self, is_straw=False):
-        """Update plot: add new (wire number,tension) measurement"""
+    def plot_tensions(self, tension, is_straw):
         if is_straw:
             self.straw_tensions = np.append(
                 self.straw_tensions,
-                np.array([[self.spinBox.value(), self.tension]]),
+                np.array([[self.spinBox.value(), tension]]),
                 axis=0,
             )
             self.canvas.read_data(self.straw_tensions, is_straw)
         else:
             self.wire_tensions = np.append(
                 self.wire_tensions,
-                np.array([[self.spinBox.value(), self.tension]]),
+                np.array([[self.spinBox.value(), tension]]),
                 axis=0,
             )
             self.canvas.read_data(self.wire_tensions, is_straw)
@@ -140,23 +139,23 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         strawNumber = self.spinBox.value()
         # Read in the measurement type, and set straw flag appropriately
         if str(self.comboBox.currentText()) == "Wire":
-            straw_flag = 0
+            is_straw = 0
             print("\nwire number", strawNumber)
         elif str(self.comboBox.currentText()) == "Straw":
-            straw_flag = 1
+            is_straw = 1
             print("\nstraw number", strawNumber)
         else:
-            straw_flag = -1
+            is_straw = -1
 
         # Set the straw or wire length
         if strawNumber == -1:
             # Set the straw length based on what is in the straw length box
             length = float(self.lengthEdit.text())  # units are now in meters.
         else:
-            if straw_flag == 0:
+            if is_straw == 0:
                 # Read in the wire lengths
                 lengths = np.loadtxt(os.path.join(this_folder, "wire_lengths.txt"))
-            elif straw_flag == 1:
+            elif is_straw == 1:
                 # Read in the straw lengths
                 lengths = np.loadtxt(os.path.join(this_folder, "straw_lengths.txt"))
             else:
@@ -179,10 +178,10 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         except ValueError:
             tension = 80.0  # nominal tension in grams
         # Wires: calculate nominal frequency from nominal tension
-        if straw_flag == 0:
+        if is_straw == 0:
             freq = (1 / (2 * length)) * np.sqrt(tension / mu)
         # Straws: calculate nominal frequency from nominal tension
-        elif straw_flag == 1:
+        elif is_straw == 1:
             # For a straw
             tension = tension * 10.0  # nominal tension in grams
             freq = np.sqrt(tension / 1000) * (K / (2 * length)) + C / (length) ** 2
@@ -195,25 +194,26 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             freq = self.ping10(i, pulse_width)
 
             # Given the frequency, calculate the tension in the straw or wire
-            if straw_flag == 0:
+            if is_straw == 0:
                 # For a wire
                 # tension = mu*(length**2)*(freq**2)/245.16625
                 grav_accel = 9.80665  # acceleration due to gravity [m/s^2]
                 tension = (
                     4 * (length ** 2) * mu * (freq ** 2) * (100 / grav_accel)
                 )  # tension in grams
-            elif straw_flag == 1:
+            elif is_straw == 1:
                 # For a straw
                 tension = (
                     1000 * ((freq - C / length ** 2) ** 2) * (2 * length / K) ** 2
                 )  # tension in grams
             else:
                 tension = 0
+
             # Set the tension in the UI
             tension_display = "%.3f" % tension
             self.tensionEdit.setText(tension_display)
 
-            # print(strawNumber, straw_flag, length,freq,pulse_width,tension)
+            # print(strawNumber, is_straw, length,freq,pulse_width,tension)
 
             """
             # Write a summary of the results to the output file
@@ -221,11 +221,11 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             panel=self.panelID.text()
             if panel=='': ## default MN000 for testing
                 panel = 'MN000'
-            value = ' {0} {1} {2} {3} {4} {5} {6}\n'.format(panel,strawNumber, straw_flag, length, freq, pulse_width, tension)
+            value = ' {0} {1} {2} {3} {4} {5} {6}\n'.format(panel,strawNumber, is_straw, length, freq, pulse_width, tension)
             fdef.write(str(value))
             """
             self.save(
-                is_straw=bool(straw_flag),
+                is_straw=bool(is_straw),
                 position=strawNumber,
                 length=length,
                 frequency=freq,
@@ -233,9 +233,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 tension=tension,
             )
 
-            ### Add (wire number,tension) measurement to plot
-            self.tension = tension
-            self.testplot2(straw_flag)
+            self.plot_tensions(tension, is_straw)
 
             # Given the frequency, calculate the desired pulse width in microseconds for the next run
             pulse_width = (1.0 / (2 * freq)) * 10 ** 6
