@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import pyqtSlot
 from guis.straw.resistance.multiMeter import MultiMeter
 import time
+from pyvisa.errors import VisaIOError
 
 
 class MeasureByHandPopup(QtWidgets.QDialog):
@@ -115,7 +116,7 @@ class MeasureByHandPopup(QtWidgets.QDialog):
             return
         try:
             self.multiMeter = MultiMeter()
-        except VISAIOError:
+        except VisaIOError:
             self.multiMeter = None
 
     def updateButtons(self):

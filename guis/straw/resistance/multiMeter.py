@@ -22,8 +22,8 @@
 #   Libraries: pyvisa (with NI-VISA backend)
 #
 
-import visa
 import pyvisa
+from pyvisa.errors import VisaIOError
 import time
 from datetime import datetime
 
@@ -31,17 +31,17 @@ from datetime import datetime
 class MultiMeter:
     def __init__(self):
         ##**Initializing VISA & DMM**##
-        self.rm = visa.ResourceManager()
+        self.rm = pyvisa.ResourceManager()
         try:
             self.dmm = self.rm.open_resource("USB0::0x0957::0x0607::MY47003138::INSTR")
             self.dmm.write("*rst; status:preset; *cls")
-        except pyvisa.errors.VisaIOError:
+        except VisaIOError:
             raise MultiMeterNotTurnedOn("TURN ON THE MULTIMETER!")
 
     def measure(self):
         try:
             return float(self.dmm.query_ascii_values("MEAS:RES?")[-1])
-        except pyvisa.errors.VisaIOError:
+        except VisaIOError:
             raise MultiMeterNotTurnedOn("TURN ON THE MULTIMETER!")
 
 
