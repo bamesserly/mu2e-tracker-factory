@@ -41,7 +41,7 @@ import os
 import csv
 from datetime import datetime
 import time
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush, QPixmap
 from PyQt5.QtWidgets import (
     QInputDialog,
@@ -63,14 +63,21 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 from guis.straw.resistance.design import Ui_MainWindow
-from guis.straw.resistance.resistanceMeter import Resistance
+
+# from guis.straw.resistance.resistanceMeter import Resistance
 from guis.straw.resistance.measureByHand import MeasureByHandPopup
 from guis.straw.removestraw import removeStraw
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 
+from random import uniform
+
+
 class CompletionTrack(QDialog):
+
+    LockGUI = pyqtSignal(bool)
+
     def __init__(self, paths, app):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -101,6 +108,7 @@ class CompletionTrack(QDialog):
         self.ui.reset_button.clicked.connect(self.resetGUI)
         self.ui.save_button.clicked.connect(self.saveReset)
         self.ui.editPallet_button.clicked.connect(self.editPallet)
+        self.LockGUI.connect(self.lockGUI)
 
         # Measurement and Bool Lists
         # Prefills lists to record 4 measurements for 24 straws
@@ -131,7 +139,7 @@ class CompletionTrack(QDialog):
 
         # Measurement classes
         self.removeStraw = removeStraw([])
-        self.resistanceMeter = Resistance()  # resistance class
+        # self.resistanceMeter = Resistance()  # resistance class
         self.byHandPopup = None  # Gets created later if necessary
 
         # Pallet Info
@@ -184,6 +192,9 @@ class CompletionTrack(QDialog):
         # Keep program running
         self.run_program = True
 
+        # Start it off with the prep tab frozen
+        self.LockGUI.emit(False)
+
     def resetGUI(self):
         # Reset text
         for pos in range(24):
@@ -196,7 +207,7 @@ class CompletionTrack(QDialog):
         self.bools = [[None for i in range(4)] for pos in range(24)]
         self.old_bools = [[None for i in range(4)] for pos in range(24)]
 
-        self.resistanceMeter = Resistance()
+        # self.resistanceMeter = Resistance()
         self.multiMeter = None
 
         self.strawIDs = [None for i in range(24)]
@@ -249,18 +260,23 @@ class CompletionTrack(QDialog):
             Current_worker = ""
             self.Current_workers[portalNum].setText(Current_worker)
             btn.setText("Log In")
+
+        # Recheck credentials
+        credentials = self.credentialChecker.checkCredentials(self.sessionWorkers)
+        self.LockGUI.emit(credentials)
+
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
 
-    def lockGUI(self):
-        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
+    def lockGUI(self, credentials):
+        if credentials:
+            self.ui.tab_widget.setTabText(1, "Resistance")
+            self.ui.tab_widget.setTabEnabled(1, True)
+        else:
             self.resetGUI()
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, "Resistance *Locked*")
             self.ui.tab_widget.setTabEnabled(1, False)
-        else:
-            self.ui.tab_widget.setTabText(1, "Resistance")
-            self.ui.tab_widget.setTabEnabled(1, True)
 
     ### PALLET INFO ###
     def getPalletNumber(self):
@@ -439,16 +455,19 @@ class CompletionTrack(QDialog):
             and self.collectData_counter < self.collectData_limit
         ):
 
-            try:
-                self.measurements = self.resistanceMeter.rMain()
-            except FileNotFoundError as e:
-                print("File not found", e)
-                self.error(False)
-                return
-            except:
-                print("Arduino Error")
-                self.error(False)
-                return
+            # try:
+            #    self.measurements = self.resistanceMeter.rMain()
+            # except FileNotFoundError as e:
+            #    print("File not found", e)
+            #    self.error(False)
+            #    return
+            # except:
+            #    print("Arduino Error")
+            #    self.error(False)
+            #    return
+            self.measurements = [
+                [uniform(100, 900) for i in range(4)] for pos in range(24)
+            ]
 
             self.combineDATA()
             # Update bools
@@ -676,7 +695,7 @@ class CompletionTrack(QDialog):
 
     ### SAVE / RESET ###
     def getTempHumid(self):
-        directory = GetProjectPaths()['temp_humid_data'] / "464B"
+        directory = GetProjectPaths()["temp_humid_data"] / "464B"
         D = os.listdir(directory)
         filename = ""
         for entry in D:
@@ -769,8 +788,10 @@ class CompletionTrack(QDialog):
             j -= 1
         first_strawID = self.strawIDs[i]
         last_strawID = self.strawIDs[j]
-        data_dir = GetProjectPaths()['strawresistance']
-        fileName = data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
+        data_dir = GetProjectPaths()["strawresistance"]
+        fileName = (
+            data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
+        )
         # Create new file on computer
         saveF = open(fileName, "a+")
         # Write self.saveFile to new file
@@ -873,8 +894,7 @@ def run():
     paths = GetProjectPaths()
     ctr = CompletionTrack(paths, app)
     ctr.show()
-    ctr.main()
-    sys.exit()
+    app.exec_()
 
 
 if __name__ == "__main__":
