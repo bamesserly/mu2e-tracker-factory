@@ -112,7 +112,7 @@ class Session(BASE, OBJECT):
 
     def checkCredentials(self):
         certifications = [w.certified(self._station) for w in self._sessionWorkers()]
-        return any(certifications) and all(certifications)
+        return any(certifications)
 
     def getWorkers(self):
         return [w.id for w in self._sessionWorkers()]
