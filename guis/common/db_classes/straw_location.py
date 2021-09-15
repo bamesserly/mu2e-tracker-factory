@@ -105,7 +105,6 @@ class StrawLocation(BASE, OBJECT):
 
     @classmethod
     def _construct(cls, number=int(), pallet_id=None):
-
         sl = None
 
         # Try to query the desired straw_location
@@ -171,7 +170,6 @@ class StrawLocation(BASE, OBJECT):
                 straws[i] = straw_position_dict[pos]
             except KeyError:
                 pass
-
         return straws
 
     def isEmpty(self):
@@ -443,7 +441,9 @@ class Pallet(StrawLocation):
     def __init__(
         self, location_type=None, number=int(), pallet_id=None, create_key=None
     ):
-        assert self._palletIsEmpty(pallet_id), "Unable to start new pallet "
+        assert self._palletIsEmpty(
+            pallet_id
+        ), "Unable to create pallet: pallet is not empty."
         super().__init__(
             location_type=location_type,
             number=number,

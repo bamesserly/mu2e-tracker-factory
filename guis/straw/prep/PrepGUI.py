@@ -556,20 +556,35 @@ class Prep(QMainWindow):
     # finish button, save
     def saveData(self):
         print("Saving data...")
+        self.saveDataToText()
+        self.saveDataToDB()
 
-        # SAVE DATA FILE #
-        # This is the csv file with all collected data (Straw IDs, Batch Barcodes, PPGs, etc...)
-        save_time = datetime.now()
-        file_name = self.stationID + "_" + self.palletNumber + ".csv"
+        self.dataSaved = True
+
+        print("dataSaved: " + str(self.dataSaved))
+
+        self.ui.finish.setEnabled(False)
+
+        QMessageBox.about(self, "Save", "Data saved successfully!!")
+
+        self.resetGUI()
+
+    def saveDataToText(self):
+        timestamp = datetime.now()
         workers_str = ", ".join(
             self.sessionWorkers
         ).upper()  # Converts self.sessionWorkers to a string csv-style: "wk-worker01, wk-worker02, etc..."
+        self.saveStrawDataToText(timestamp, workers_str)
+        self.savePalletDataToText(timestamp, workers_str)
+
+    def saveStrawDataToText(self, timestamp, workers_str):
+        file_name = self.stationID + "_" + self.palletNumber + ".csv"
         data_file = self.prepDirectory / file_name
         with open(data_file, "w+") as file:
             file.write("Station: " + self.stationID)
             header = "Timestamp, Pallet ID, Pallet Number, Paper pull time (H:M:S), workers ***NEWLINE***: Comments (optional)***\n"
             file.write(header)
-            file.write(save_time.strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(timestamp.strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.palletID + ",")
             file.write(self.palletNumber + ",")
             file.write(
@@ -610,21 +625,16 @@ class Prep(QMainWindow):
 
             # Done creating data file
 
-        # CREATE & SAVE PALLET FILE
-        # This is a txt file logging the history of each CPAL that all GUIs write to.
-        # This file gets created while running this GUI.
-
+    def savePalletDataToText(self, timestamp, workers_str):
         pfile = self.palletDirectory / self.palletID / str(self.palletNumber + ".csv")
         with open(pfile, "w+") as file:
-
-            # Create File Header
             header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
             header += ", ***" + str(self.strawCount) + " straws initially on pallet***"
             header += "\n"
             file.write(header)
 
             # Record Session Data
-            file.write(save_time.strftime("%Y-%m-%d_%H:%M") + ",")  # Date
+            file.write(timestamp.strftime("%Y-%m-%d_%H:%M") + ",")  # Date
             file.write(self.stationID + ",")
 
             # Record each straw and whether it passes/fails
@@ -650,16 +660,15 @@ class Prep(QMainWindow):
 
             file.write(workers_str)
 
-        # Done creating Pallet File
-
-        # Save straws, then ppg to DB
+    # Add entries to the straw, straw_present and measurement_prep tables
+    def saveDataToDB(self):
         for position in range(24):
-
             straw_id = int(self.strawIDs[position][2:])
             batch = self.batchBarcodes[position]
             batch = "".join(filter(str.isalnum, batch))  # for the db, drop the period
+            ppg = self.paperPullGrades[position][-1]
 
-            # add an entry to the straw table
+            # new entry in straw table
             straw = Straw.Straw(id=straw_id, batch=batch)
 
             # our procedure (created and) knows our CPAL. In creating the CPAL
@@ -667,26 +676,16 @@ class Prep(QMainWindow):
             # straw_position" table), aka slots where straws can go.
             cpal = self.DP.procedure.getStrawLocation()
 
-            # add an entry to the straw_present table, which says that this
-            # straw is present in this certain "straw position"
+            # new entry in straw_present table.
             cpal.addStraw(straw, position)
 
-            # add an entry to the measurement_prep table
-            self.DP.procedure.recordStrawPrepMeasurement(
+            # new entry in measurement_prep table
+            self.DP.procedure.StrawPrepMeasurement(
+                procedure=self.DP.procedure,
                 straw_id=straw_id,
-                paper_pull_grade=self.paperPullGrades[position][-1],
+                paper_pull_grade=ppg,
                 evaluation=None,
-            )
-
-        self.dataSaved = True
-
-        print("dataSaved: " + str(self.dataSaved))
-
-        self.ui.finish.setEnabled(False)
-
-        QMessageBox.about(self, "Save", "Data saved successfully!!")
-
-        self.resetGUI()
+            ).commit()
 
     ############################################################################
     # Worker login and gui lock
@@ -824,7 +823,8 @@ class Prep(QMainWindow):
 
     def verifyPalletID(self, potential_id=None):
 
-        # If no specific string is given to check as an ID, finds the most relevant string to use, and saves it.
+        # If no specific string is given to check as an ID, finds the most
+        # relevant string to use, and saves it.
         if not potential_id:
             if self.palletID != self.input_palletID.text().upper():
                 self.palletID = self.input_palletID.text().upper()
