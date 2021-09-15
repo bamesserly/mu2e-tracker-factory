@@ -75,6 +75,7 @@ from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.gui_utils import generateBox
 
 from random import uniform
 
@@ -256,28 +257,43 @@ class CompletionTrack(QDialog):
     def Change_worker_ID(self, btn):
         label = btn.text()
         portalNum = self.portals.index(btn)
+
         if label == "Log In":
             Current_worker, ok = QInputDialog.getText(
                 self, "Worker Log In", "Scan your worker ID:"
             )
+            Current_worker = Current_worker.upper().strip()
             if not ok:
                 return
-            self.sessionWorkers.append(Current_worker)
-            self.Current_workers[portalNum].setText(Current_worker)
-            print("Welcome " + self.Current_workers[portalNum].text() + " :)")
-            btn.setText("Log Out")
-            # self.ui.tab_widget.setCurrentIndex(1)
+            if not self.DP.validateWorkerID(Current_worker):
+                generateBox("critical", "Login Error", "Invalid worker ID.")
+            elif self.DP.workerLoggedIn(Current_worker):
+                generateBox(
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
+                )
+            else:
+                # Record login with data processor
+                logger.info(f"{Current_worker} logged in")
+                self.DP.saveLogin(Current_worker)
+                self.sessionWorkers.append(Current_worker)
+                self.Current_workers[portalNum].setText(Current_worker)
+                print("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                btn.setText("Log Out")
+                self.ui.tab_widget.setCurrentIndex(1)
+
         elif label == "Log Out":
+            worker = self.Current_workers[portalNum].text()
             self.justLogOut = self.Current_workers[portalNum].text()
-            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
+            self.sessionWorkers.remove(worker)
+            self.DP.saveLogout(worker)
+            print("Goodbye " + worker + " :(")
+            self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
 
         # Recheck credentials
-        credentials = self.credentialChecker.checkCredentials(self.sessionWorkers)
-        self.LockGUI.emit(credentials)
+        self.LockGUI.emit(self.DP.checkCredentials())
 
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""

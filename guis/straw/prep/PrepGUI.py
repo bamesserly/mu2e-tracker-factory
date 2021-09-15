@@ -721,11 +721,12 @@ class Prep(QMainWindow):
 
         elif label == "Log Out":
             portalNum = int(btn.objectName().strip("portal")) - 1
-            self.justLogOut = self.Current_workers[portalNum].text()
-            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
+            worker = self.Current_workers[portalNum].text()
+            self.justLogOut = worker
+            self.sessionWorkers.remove(worker)
+            self.DP.saveLogout(worker)
+            print("Goodbye " + worker + " :(")
+            self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
 
         # Recheck credentials
