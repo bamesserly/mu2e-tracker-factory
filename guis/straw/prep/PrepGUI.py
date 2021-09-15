@@ -570,21 +570,20 @@ class Prep(QMainWindow):
         self.resetGUI()
 
     def saveDataToText(self):
-        timestamp = datetime.now()
         workers_str = ", ".join(
             self.sessionWorkers
         ).upper()  # Converts self.sessionWorkers to a string csv-style: "wk-worker01, wk-worker02, etc..."
-        self.saveStrawDataToText(timestamp, workers_str)
-        self.savePalletDataToText(timestamp, workers_str)
+        self.saveStrawDataToText(workers_str)
+        self.savePalletDataToText(workers_str)
 
-    def saveStrawDataToText(self, timestamp, workers_str):
+    def saveStrawDataToText(self, workers_str):
         file_name = self.stationID + "_" + self.palletNumber + ".csv"
         data_file = self.prepDirectory / file_name
         with open(data_file, "w+") as file:
             file.write("Station: " + self.stationID)
             header = "Timestamp, Pallet ID, Pallet Number, Paper pull time (H:M:S), workers ***NEWLINE***: Comments (optional)***\n"
             file.write(header)
-            file.write(timestamp.strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.palletID + ",")
             file.write(self.palletNumber + ",")
             file.write(
@@ -625,7 +624,7 @@ class Prep(QMainWindow):
 
             # Done creating data file
 
-    def savePalletDataToText(self, timestamp, workers_str):
+    def savePalletDataToText(self, workers_str):
         pfile = self.palletDirectory / self.palletID / str(self.palletNumber + ".csv")
         with open(pfile, "w+") as file:
             header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
@@ -634,12 +633,12 @@ class Prep(QMainWindow):
             file.write(header)
 
             # Record Session Data
-            file.write(timestamp.strftime("%Y-%m-%d_%H:%M") + ",")  # Date
+            file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(self.palletID + ",")
             file.write(self.stationID + ",")
 
             # Record each straw and whether it passes/fails
             for i in range(24):
-
                 straw = self.strawIDs[i]
 
                 # If top straw doesn't exist, record save _'s for straw ID and pass_fail

@@ -71,8 +71,7 @@ from guis.common.gui_utils import generateBox
 from random import uniform
 
 
-class CompletionTrack(QDialog):
-
+class StrawResistanceGUI(QDialog):
     LockGUI = pyqtSignal(bool)
 
     def __init__(self, paths, app):
@@ -301,7 +300,6 @@ class CompletionTrack(QDialog):
 
     ### PALLET INFO ###
     def getPalletNumber(self):
-
         pallet, ok = QInputDialog().getText(
             self, "Pallet Number", "Please scan the Pallet Number", text="CPAL####"
         )
@@ -338,8 +336,6 @@ class CompletionTrack(QDialog):
         return self.palletNumber
 
     def initializePallet(self):
-
-        # Obtain pallet number
         if not self.palletNumber:
             self.getPalletNumber()
 
@@ -376,7 +372,6 @@ class CompletionTrack(QDialog):
         self.interpretEditPallet(CPAL, lastTask, straws, passfail)
 
     def interpretEditPallet(self, CPAL, lastTask, straws, passfail):
-
         self.palletInfoVerified = (
             True  # Initially assume True, can only be switched to False
         )
@@ -524,7 +519,6 @@ class CompletionTrack(QDialog):
         self.enableButtons()
 
     def consolidateOldAndNewMeasurements(self):
-
         for pos in range(24):
             for i in range(4):
                 new_measurement = self.measurements[pos][i]
@@ -548,13 +542,15 @@ class CompletionTrack(QDialog):
                 QMessageBox.Ok | QMessageBox.Cancel,
             )
             if buttonReply == QMessageBox.Ok:
-
                 if self.byHandPopup == None:
                     self.byHandPopup = MeasureByHandPopup()  # Create Popup Window
                 while not self.byHandPopup.multiMeter:
                     self.byHandPopup.getMultiMeter()  # Tries to connect to multimeter
                     if not self.byHandPopup.multiMeter:
-                        message = "There was an error connecting to the multimeter. Make sure it is turned on and plugged into the computer, then try again"
+                        message = (
+                            "There was an error connecting to the multimeter. "
+                            "Make sure it is turned on and plugged into the computer, then try again."
+                        )
                         QMessageBox.about(self, "Connection Error", message)
                         print("hit the not thing")
                 for el in self.failed_measurements:
@@ -576,7 +572,7 @@ class CompletionTrack(QDialog):
 
                     # Save new data
                     self.measurements[pos][meas_type] = meas  # save meas
-                    self.bools[pos][meas_type] = pass_fail  # save boool
+                    self.bools[pos][meas_type] = pass_fail  # save bool
 
                     # Display new measurement
                     if (
@@ -758,11 +754,11 @@ class CompletionTrack(QDialog):
                     pass_fail,
                 )  # Saves measurement and pass_fail as a tuple
 
+    # record resistance measurements to a csv file
     def prepareSaveFile(self):
         heading = "Straw Number, Timestamp, Worker ID, Pallet ID, Resistance(Ohms), Temp(C), Humidity(%), Measurement Type, Pass/Fail \n"
         # temperature, humidity = self.getTempHumid()
         temperature, humidity = 70.1, 40
-        time_stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S_")
 
         for worker in self.sessionWorkers:
             if self.credentialChecker.checkCredentials(worker):
@@ -773,13 +769,17 @@ class CompletionTrack(QDialog):
         self.saveFile += heading
         for pos in range(24):
             strawID = self.strawIDs[pos]
+            db_measurement = self.DP.procedure.StrawResistanceMeasurement(
+                procedure=self.DP.procedure, straw=int(strawID[2:])
+            )
+
             for i in range(4):
                 if strawID:
                     measurement_type = self.meas_type_labels_apprev[i]
                     measurement = self.saveData[pos][i][0]
                     pass_fail = self.saveData[pos][i][1]
                     self.saveFile += strawID.lower() + ","
-                    self.saveFile += time_stamp + ","
+                    self.saveFile += datetime.now().strftime("%Y-%m-%d_%H%M%S_") + ","
                     self.saveFile += worker_with_creds + ","
                     self.saveFile += self.palletNumber.lower() + ","
                     self.saveFile += "%9.5f" % measurement + ","
@@ -787,6 +787,10 @@ class CompletionTrack(QDialog):
                     self.saveFile += str(humidity) + ","
                     self.saveFile += measurement_type + ","
                     self.saveFile += pass_fail
+                    # print("     ",strawID, measurement_type, measurement, pass_fail)
+
+                    db_measurement.setMeasurement(measurement, measurement_type)
+
                 else:
                     # Save blanks for all cells
                     self.saveFile += "_______,__________________,"  # strawID, timestamp
@@ -798,13 +802,55 @@ class CompletionTrack(QDialog):
 
                 self.saveFile += "\n"
 
-    def save(self):
+            print(db_measurement)
+            # db_measurement.commit()
 
-        ## SAVE RESISTANCE DATA ##
-        ## This is a .csv file containing all resistance measurements, pass/fail's, and the temperature and humidity
+    # worst function ever
+    def saveDataToDB(self):
+        procedure = self.DP.procedure
+        db_entries = []
+        for straw_idx, straw in enumerate(self.strawIDs):
+            print(straw_idx, straw)
+            db_entry = self.DP.procedure.StrawResistanceMeasurement(
+                procedure, int(straw[2:])
+            )
+            for meas_type_idx, measurement_type in enumerate(
+                self.meas_type_labels_apprev
+            ):
+                [
+                    db_entry.setMeasurement(
+                        resistance[straw_idx][meas_type_idx][0], measurement_type
+                    )
+                    for resistance in self.saveData
+                ]
+            db_entries.append(db_entry)
+        [entry.commit() for entry in db_entries]
+
+    # resistance measurements, pass/fail, temp/humidity
+    def save(self):
+        self.saveDataToText()
+        self.saveDataToDB()
+        QMessageBox.about(self, "Save", "Data saved successfully!")
+
+    def saveDataToDB(self):
+        pass
+
+    def saveDataToText(self):
+        self.saveResistanceDataToText()
+        self.savePalletDataToText()
+
+    def saveResistanceDataToText(self):
         self.configureSaveData()
         self.prepareSaveFile()
-        # Prepare file name
+        file_name = self.makeResistanceDataFileName()
+        # Create new file on computer
+        saveF = open(file_name, "a+")
+        # Write self.saveFile to new file
+        saveF.write(self.saveFile)
+        # Close new file. Save is complete.
+        saveF.close()
+
+    def makeResistanceDataFileName(self):
         day = datetime.now().strftime("%Y-%m-%d_%H%M%S_")
         # Get lowest straw id
         i = 0
@@ -816,18 +862,9 @@ class CompletionTrack(QDialog):
         first_strawID = self.strawIDs[i]
         last_strawID = self.strawIDs[j]
         data_dir = GetProjectPaths()["strawresistance"]
-        fileName = (
-            data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
-        )
-        # Create new file on computer
-        saveF = open(fileName, "a+")
-        # Write self.saveFile to new file
-        saveF.write(self.saveFile)
-        # Close new file. Save is complete.
-        saveF.close()
+        return data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
 
-        ## SAVE TO PALLET FILE ##
-        ## This is a .txt file logging the history of each CPAL that all GUIs write to.
+    def savePalletDataToText(self):
         for palletid in os.listdir(self.palletDirectory):
             for pallet in os.listdir(self.palletDirectory / palletid):
                 if self.palletNumber + ".csv" == pallet:
@@ -869,8 +906,6 @@ class CompletionTrack(QDialog):
                             if i != len(self.sessionWorkers) - 1:
                                 file.write(",")
                             i += 1
-
-        QMessageBox.about(self, "Save", "Data saved successfully!")
 
     def saveReset(self):
         if self.measureByHand_counter < 2:
@@ -921,7 +956,7 @@ class CompletionTrack(QDialog):
 def run():
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
-    ctr = CompletionTrack(paths, app)
+    ctr = StrawResistanceGUI(paths, app)
     ctr.show()
     app.exec_()
 
