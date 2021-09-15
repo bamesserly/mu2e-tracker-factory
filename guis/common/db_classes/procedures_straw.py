@@ -26,7 +26,7 @@ class Prep(StrawProcedure):
     def __init__(self, station, straw_location, create_key):
         assert (
             station.id == "prep"
-        ), f"Error. Tried to construct prep preocedure for a station '{station.id}' not 'prep'."
+        ), f"Error. Tried to construct prep procedure for a station '{station.id}' not 'prep'."
         super().__init__(station, straw_location, create_key)
 
     class StrawPrepMeasurement(BASE, OBJECT):
@@ -52,6 +52,18 @@ class Prep(StrawProcedure):
             paper_pull_grade=paper_pull_grade,
             evaluation=evaluation,
         ).commit()
+
+
+class Resistance(StrawProcedure):
+    __mapper_args__ = {
+        "polymorphic_identity": "ohms"
+    }  # foreign link to which station.id
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "ohms"
+        ), f"Error. Tried to construct ohms procedure for a station '{station.id}' not 'ohms'."
+        super().__init__(station, straw_location, create_key)
 
 
 """

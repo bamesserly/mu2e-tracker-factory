@@ -35,6 +35,10 @@
 #
 #   File saved at: Mu2e-factory/Straw lab GUIs/Resistance GUI
 
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", "StrawResistance")
+
 import sys
 from pathlib import Path
 import os
@@ -70,6 +74,7 @@ from guis.straw.removestraw import removeStraw
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+from guis.common.dataProcessor import SQLDataProcessor as DP
 
 from random import uniform
 
@@ -151,6 +156,7 @@ class CompletionTrack(QDialog):
         self.strawIDs = [None for i in range(24)]  # list of straw IDs filled with
         self.palletInfoVerified = False
         self.calledInitializePallet = False
+        self.palletID = None
 
         # Worker Info
         self.credentialChecker = Credentials(self.stationID)
@@ -191,6 +197,14 @@ class CompletionTrack(QDialog):
 
         # Keep program running
         self.run_program = True
+
+        # Data Processor
+        self.pro = 3
+        self.pro_index = self.pro - 1
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+        )
 
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
@@ -294,7 +308,7 @@ class CompletionTrack(QDialog):
                 self.getPalletNumber()
 
     def verifyPalletNumber(self, pallet_num):
-        # Verifies that the given pallet id is of a valid format
+        # Verifies that the given pallet number is of a valid format
         verify = True
 
         # check that last 4 characters of ID are integers
@@ -309,6 +323,12 @@ class CompletionTrack(QDialog):
             verify = False
 
         return verify
+
+    def getCPALID(self):
+        return self.palletID
+
+    def getCPALNumber(self):
+        return self.palletNumber
 
     def initializePallet(self):
 
@@ -325,7 +345,9 @@ class CompletionTrack(QDialog):
             rem = removeStraw(self.sessionWorkers)
             rem.palletDirectory = self.palletDirectory
             rem.sessionWorkers = self.sessionWorkers
-            CPAL, lastTask, straws, passfail = rem.getPallet(self.palletNumber)
+            CPAL, lastTask, straws, passfail, self.palletID = rem.getPallet(
+                self.palletNumber
+            )
             self.interpretEditPallet(CPAL, lastTask, straws, passfail)
 
         self.calledInitializePallet = True
@@ -334,11 +356,13 @@ class CompletionTrack(QDialog):
         rem = removeStraw(self.sessionWorkers)
         rem.palletDirectory = self.palletDirectory
         rem.sessionWorkers = self.sessionWorkers
-        CPAL, lastTask, straws, passfail = rem.getPallet(self.palletNumber)
+        CPAL, lastTask, straws, passfail, self.palletID = rem.getPallet(
+            self.palletNumber
+        )
         rem.displayPallet(CPAL, lastTask, straws, passfail)
         rem.exec_()
 
-        CPAL, lastTask, straws, passfail = rem.getPallet(
+        CPAL, lastTask, straws, passfail, self.palletID = rem.getPallet(
             self.palletNumber
         )  # Run again incase changes were made (straws removed, moved, etc...)
         # After executing
@@ -443,57 +467,56 @@ class CompletionTrack(QDialog):
         # Show "processing" image
         self.setStatus("processing")
         time.sleep(0.01)
-        self.app.processEvents()
 
         if not self.palletInfoVerified:
             self.initializePallet()
-            return
-            # If self.getLabInfo() is successful, proceeds with collectData()
-            # collectData() can only be run 10 times
-        if (
+
+        if not (
             self.palletInfoVerified
-            and self.collectData_counter < self.collectData_limit
+            or self.collectData_counter >= self.collectData_limit
         ):
+            return
 
-            # try:
-            #    self.measurements = self.resistanceMeter.rMain()
-            # except FileNotFoundError as e:
-            #    print("File not found", e)
-            #    self.error(False)
-            #    return
-            # except:
-            #    print("Arduino Error")
-            #    self.error(False)
-            #    return
-            self.measurements = [
-                [uniform(100, 900) for i in range(4)] for pos in range(24)
-            ]
+        self.DP.saveStart()  # initialize procedure and commit it to the DB
 
-            self.combineDATA()
-            # Update bools
-            for pos in range(0, 24):
-                for i in range(4):
-                    meas = self.measurements[pos][i]
-                    self.bools[pos][i] = self.meas_type_eval[i](meas)
+        # try:
+        #    self.measurements = self.resistanceMeter.rMain()
+        # except FileNotFoundError as e:
+        #    print("File not found", e)
+        #    self.displayError(True)
+        #    return
+        # except:
+        #    print("Arduino Error")
+        #    self.displayError(True)
+        #    return
+        self.measurements = [[uniform(100, 900) for i in range(4)] for pos in range(24)]
 
-            self.displayData()
+        self.consolidateOldAndNewMeasurements()
 
-            # save new data to old data
-            for pos in range(24):
-                for i in range(4):
-                    # Get old values
-                    old_meas = self.measurements[pos][i]
-                    old_bool = self.bools[pos][i]
-                    # Save to lists
-                    self.old_measurements[pos][i] = old_meas
-                    self.old_bools[pos][i] = old_bool
+        # Update bools
+        for pos in range(0, 24):
+            for i in range(4):
+                meas = self.measurements[pos][i]
+                self.bools[pos][i] = self.meas_type_eval[i](meas)
 
-            self.error(True)
-            self.dataRecorded = True
-            self.collectData_counter += 1
-            self.enableButtons()
+        self.displayData()
 
-    def combineDATA(self):
+        # save new data to old data
+        for pos in range(24):
+            for i in range(4):
+                # Get old values
+                old_meas = self.measurements[pos][i]
+                old_bool = self.bools[pos][i]
+                # Save to lists
+                self.old_measurements[pos][i] = old_meas
+                self.old_bools[pos][i] = old_bool
+
+        self.displayError(False)
+        self.dataRecorded = True
+        self.collectData_counter += 1
+        self.enableButtons()
+
+    def consolidateOldAndNewMeasurements(self):
 
         for pos in range(24):
             for i in range(4):
@@ -684,14 +707,11 @@ class CompletionTrack(QDialog):
         if status in pixMap.keys():
             self.ui.errorLED.setPixmap(pixMap[status])
 
-    def error(self, boo):
-        failed = QPixmap("images/red.png")
-        passed = QPixmap("images/green.png")
-        if not boo:
-            disp = failed
-        else:
-            disp = passed
-        self.ui.errorLED.setPixmap(disp)
+    def displayError(self, failed: bool):
+        red = QPixmap("images/red.png")
+        green = QPixmap("images/green.png")
+        status_color = red if failed else green
+        self.ui.errorLED.setPixmap(status_color)
 
     ### SAVE / RESET ###
     def getTempHumid(self):
@@ -874,6 +894,8 @@ class CompletionTrack(QDialog):
 
     def closeEvent(self, event):
         event.accept()
+        self.DP.handleClose()
+        self.close()
         sys.exit(0)
 
     def main(self):
