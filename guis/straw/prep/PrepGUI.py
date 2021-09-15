@@ -191,11 +191,13 @@ class Prep(QMainWindow):
 
         # enable ppg data collection
         # (if pallet info collection failed, will need to press start again)
-        if self.PalletInfoCollected:
-            self.enablePPGDataCollection()
-            self.timing = True
-            self.startTimer()
-            self.DP.saveStart()  # initialize procedure and commit it to the DB
+        if not self.PalletInfoCollected:
+            return
+
+        self.enablePPGDataCollection()
+        self.timing = True
+        self.startTimer()
+        self.DP.saveStart()  # initialize procedure and commit it to the DB
 
     # disable prelim fields, enable ppg fields
     def enablePPGDataCollection(self):
