@@ -34,7 +34,6 @@ class Prep(StrawProcedure):
         id = Column(Integer, primary_key=True)
         procedure = Column(Integer, ForeignKey("procedure.id"))
         straw = Column(Integer, ForeignKey("straw.id"))
-        # straw = Column(Integer)
         paper_pull_grade = Column(CHAR)
         evaluation = Column(BOOLEAN)
         timestamp = Column(Integer, default=int(datetime.now().timestamp()))
@@ -64,6 +63,49 @@ class Resistance(StrawProcedure):
             station.id == "ohms"
         ), f"Error. Tried to construct ohms procedure for a station '{station.id}' not 'ohms'."
         super().__init__(station, straw_location, create_key)
+
+    class StrawResistanceMeasurement(BASE, OBJECT):
+        __tablename__ = "measurement_ohms"
+        id = Column(Integer, primary_key=True)
+        procedure = Column(Integer, ForeignKey("procedure.id"))
+        straw = Column(Integer, ForeignKey("straw.id"))
+        inside_inside_resistance = Column(REAL)
+        inside_inside_method = Column(String)
+        inside_outside_resistance = Column(REAL)
+        inside_outside_method = Column(String)
+        outside_inside_resistance = Column(REAL)
+        outside_inside_method = Column(String)
+        outside_outside_resistance = Column(REAL)
+        outside_outside_method = Column(String)
+        evaluation = Column(BOOLEAN)
+        timestamp = Column(Integer, default=int(datetime.now().timestamp()))
+
+        def __init__(
+            self,
+            procedure,
+            straw,
+            inside_inside_resistance,
+            inside_inside_method,
+            inside_outside_resistance,
+            inside_outside_method,
+            outside_inside_resistance,
+            outside_inside_method,
+            outside_outside_resistance,
+            outside_outside_method,
+            evaluation,
+        ):
+            self.procedure = procedure
+            self.straw = straw
+            self.inside_inside_resistance = inside_inside_resistance
+            self.inside_inside_method = inside_inside_method
+            self.inside_outside_resistance = inside_outside_resistance
+            self.inside_outside_method = inside_outside_method
+            self.outside_inside_resistance = outside_inside_resistance
+            self.outside_inside_method = outside_inside_method
+            self.outside_outside_resistance = outside_outside_resistance
+            self.outside_outside_method = outside_outside_method
+            self.evaluation = evaluation
+            self.commit()
 
 
 """

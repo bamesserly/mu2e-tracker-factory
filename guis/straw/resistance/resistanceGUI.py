@@ -1,6 +1,5 @@
 #
-#   RESISTANCE TESTING v2.2
-#   Most Recent Update: 10/23/2018
+#   RESISTANCE TESTING
 #
 #   Author:    Joe Dill
 #   Email: <dillx031@umn.edu>
@@ -14,14 +13,6 @@
 #   Description:
 #       A Python3 script using PySerial to control and read from an Arduino Uno and PCB connected to a
 #       full pallet of straws. Returns the data in the in order to be displayed by the packaged GUI.
-#
-#   Updates in v 2.1:
-#       - Implements remove interface
-#           - View/edit pallet button
-#           - When saving, strawIDs and pass/fail written to pallet file
-#           - On open, user only needs to scan CPAL Number. All other info collected
-#
-#   Updates in v 2.2:
 #       - Implements Credentials Class
 #
 #   Packages: PySerial, Straw (custom wrapper class), Resistance (class controlling arduino)
