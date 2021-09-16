@@ -629,12 +629,12 @@ class Prep(QMainWindow):
         with open(pfile, "w+") as file:
             header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
             header += ", ***" + str(self.strawCount) + " straws initially on pallet***"
+            header += f" {self.palletID}"
             header += "\n"
             file.write(header)
 
             # Record Session Data
             file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
-            file.write(self.palletID + ",")
             file.write(self.stationID + ",")
 
             # Record each straw and whether it passes/fails
