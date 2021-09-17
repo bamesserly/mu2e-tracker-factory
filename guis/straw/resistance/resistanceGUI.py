@@ -1,30 +1,12 @@
+################################################################################
 #
-#   RESISTANCE TESTING
+# Straw Resistance Test GUI
 #
-#   Author:    Joe Dill
-#   Email: <dillx031@umn.edu>
+# Read resistance data for a full panel of straws all at once from an Arduino Uno and PCB.
 #
-#   Previous Authors:    Cole Kampa and Zach Riehl
-#   Email: <kampa041@umn.edu> , <riehl046@umn.edu>
+# Next step:
 #
-#   Institution: University of Minnesota
-#   Project: Mu2e
-#
-#   Description:
-#       A Python3 script using PySerial to control and read from an Arduino Uno and PCB connected to a
-#       full pallet of straws. Returns the data in the in order to be displayed by the packaged GUI.
-#       - Implements Credentials Class
-#
-#   Packages: PySerial, Straw (custom wrapper class), Resistance (class controlling arduino)
-#
-#   General Order: arbrcrdrerfrgrhrirjrkrlrmrnrorpr
-#
-#   Adjusted Order: 1)erfrgrhr 2)arbrcrdr 3)mrnrorpr 4)irjrkrlr
-#
-#   Columns in file (for database): straw_barcode, create_time, worker_barcode, workstation_barcode,
-#       resistance, temperature, humidity, test_type, pass/fail
-#
-#   File saved at: Mu2e-factory/Straw lab GUIs/Resistance GUI
+################################################################################
 
 from guis.common.panguilogger import SetupPANGUILogger
 
@@ -113,7 +95,7 @@ class StrawResistanceGUI(QDialog):
         self.ui.collect_button.clicked.connect(self.collectData)
         self.ui.byHand_button.clicked.connect(self.measureByHand)
         self.ui.reset_button.clicked.connect(self.resetGUI)
-        self.ui.save_button.clicked.connect(self.saveReset)
+        self.ui.save_button.clicked.connect(self.finish)
         self.ui.editPallet_button.clicked.connect(self.editPallet)
         self.LockGUI.connect(self.lockGUI)
 
@@ -214,9 +196,6 @@ class StrawResistanceGUI(QDialog):
         self.mainTimer = self.timer  # data processor wants it
         self.running = lambda: self.timer.isRunning()
 
-        # Keep program running
-        self.run_program = True
-
         # Data Processor
         self.pro = 3
         self.pro_index = self.pro - 1
@@ -228,48 +207,9 @@ class StrawResistanceGUI(QDialog):
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
 
-    def resetGUI(self):
-        # Reset text
-        for pos in range(24):
-            for i in range(4):
-                self.meas_input[pos][i].setText("")
-
-        # Data Lists
-        self.measurements = [[None for i in range(4)] for pos in range(24)]
-        self.old_measurements = [[None for i in range(4)] for pos in range(24)]
-        self.bools = [[None for i in range(4)] for pos in range(24)]
-        self.old_bools = [[None for i in range(4)] for pos in range(24)]
-
-        # self.resistanceMeter = Resistance()
-        self.multiMeter = None
-
-        self.strawIDs = [None for i in range(24)]
-
-        self.palletNumber = None
-        self.straw1ID = None
-        self.palletInfoVerified = False
-        self.calledInitializePallet = False
-
-        self.clean_data = [[None for i in range(4)] for pos in range(24)]
-        self.saveFile = ""
-        for el in self.straw_ID_labels:
-            el.setText("St#####")
-        for box in self.box:
-            box.setEnabled(True)
-        self.LEDreset()
-
-        self.clean_data = [[None for i in range(4)] for pos in range(24)]
-        self.saveFile = ""
-
-        # Measurement status
-        self.collectData_counter = 0
-        self.measureByHand_ = 0
-        self.dataRecorded = False
-
-        # Reset buttons
-        self.enableButtons()
-
-    ### WORKER PORTAL ###
+    ############################################################################
+    # Worker login and gui lock
+    ############################################################################
     def Change_worker_ID(self, btn):
         label = btn.text()
         portalNum = self.portals.index(btn)
@@ -324,7 +264,9 @@ class StrawResistanceGUI(QDialog):
             self.ui.tab_widget.setTabText(1, "Resistance *Locked*")
             self.ui.tab_widget.setTabEnabled(1, False)
 
-    ### PALLET INFO ###
+    #############################################################################
+    # Pallet Info -- set, get, validate
+    #############################################################################
     def getPalletNumber(self):
         pallet, ok = QInputDialog().getText(
             self, "Pallet Number", "Please scan the Pallet Number", text="CPAL####"
@@ -459,40 +401,48 @@ class StrawResistanceGUI(QDialog):
             return
 
         for i1 in range(24):
+            if self.strawIDs[i1] or newStrawIDs[i1] not in self.strawIDs:
+                continue
 
-            if not self.strawIDs[i1] and (newStrawIDs[i1] in self.strawIDs):
+            i2 = self.strawIDs.index(newStrawIDs[i1])
 
-                i2 = self.strawIDs.index(newStrawIDs[i1])
+            # Swap ids, measurements, and bools
+            self.strawIDs[i1], self.strawIDs[i2] = (
+                self.strawIDs[i2],
+                self.strawIDs[i1],
+            )
 
-                # Swap ids, measurements, and bools
-                self.strawIDs[i1], self.strawIDs[i2] = (
-                    self.strawIDs[i2],
-                    self.strawIDs[i1],
+            for j in range(4):
+                self.measurements[i1][j], self.measurements[i2][j] = (
+                    self.measurements[i2][j],
+                    self.measurements[i1][j],
+                )
+                self.bools[i1][j], self.bools[i2][j] = (
+                    self.bools[i2][j],
+                    self.bools[i1][j],
                 )
 
-                for j in range(4):
-                    self.measurements[i1][j], self.measurements[i2][j] = (
-                        self.measurements[i2][j],
-                        self.measurements[i1][j],
-                    )
-                    self.bools[i1][j], self.bools[i2][j] = (
-                        self.bools[i2][j],
-                        self.bools[i1][j],
-                    )
+                # Update both positions' displays
+                self.meas_input[i1][j].setText(
+                    self.resMeasString(self.measurements[i1][j])
+                )
+                self.meas_input[i2][j].setText(
+                    self.resMeasString(self.measurements[i2][j])
+                )
+                self.LEDchange(self.bools[i1][j], self.led[i1][j])
+                self.LEDchange(self.bools[i2][j], self.led[i2][j])
 
-                    # Update both positions' displays
-                    self.meas_input[i1][j].setText(
-                        self.resMeasString(self.measurements[i1][j])
-                    )
-                    self.meas_input[i2][j].setText(
-                        self.resMeasString(self.measurements[i2][j])
-                    )
-                    self.LEDchange(self.bools[i1][j], self.led[i1][j])
-                    self.LEDchange(self.bools[i2][j], self.led[i2][j])
-
-    ### RESISTANCE METER MEASUREMENT ###
+    #############################################################################
+    # Collecting data -- two methods, resistance meter or by hand.
+    #
+    # Currently, the collectData function is way overloaded -- it's tied to the
+    # collect data button and it IS the process's flow control -- first
+    # collecting pallet metainfo, then triggering the arduino, then managing
+    # the data
+    #############################################################################
+    # start here -- make sure pallet info collected, then run the automatic
+    # resistance measurement arduino
     def collectData(self):
-        # Show "processing" image
         self.setStatus("processing")
         time.sleep(0.01)
 
@@ -523,7 +473,7 @@ class StrawResistanceGUI(QDialog):
 
         self.consolidateOldAndNewMeasurements()
 
-        # Update bools
+        # Update measurements' pass-fail status
         for pos in range(0, 24):
             for i in range(4):
                 meas = self.measurements[pos][i]
@@ -556,7 +506,9 @@ class StrawResistanceGUI(QDialog):
                     keep_meas = min(old_measurement, new_measurement)
                     self.measurements[pos][i] = keep_meas
 
-    ### BY-HAND MEASUREMENT ###
+    # only ever called from the finish function, which is tied to the save
+    # data button, which only gets pressed after collecting the data with the
+    # resistance meter.
     def measureByHand(self):
         self.getFailedMeasurements()
         if len(self.failed_measurements) > 0:
@@ -662,110 +614,75 @@ class StrawResistanceGUI(QDialog):
 
         QMessageBox.about(self, "Measure by Hand", instructions)
 
-    ### GUI DISPLAY ###
-    def enableButtons(self):
-        # enable/disable buttons depending on state in data collection process
-        self.ui.save_button.setEnabled(bool(self.dataRecorded))
-        self.ui.collect_button.setEnabled(
-            self.collectData_counter < self.collectData_limit
-        )
-        self.ui.collect_button.setAutoDefault(
-            self.collectData_counter < self.collectData_limit
-        )
-        self.ui.editPallet_button.setEnabled(bool(self.palletNumber))
+    #############################################################################
+    # Save
+    #############################################################################
+    def saveData(self):
+        self.configureSaveData()
+        self.saveDataToText()
+        self.saveDataToDB()
+        QMessageBox.about(self, "Save", "Data saved successfully!")
 
-    def updatePositionDisplay(self):
-        # Uses most recent self.strawIDs list to (dis/en)able position boxes and label with straw ID.
-        for i in range(24):
-            # If there is a straw in the given position:
-            if self.strawIDs[i]:
-                self.straw_ID_labels[i].setText(
-                    self.strawIDs[i]
-                )  # Given position box the appropriate straw label
-            else:
-                self.straw_ID_labels[i].setText("NO STRAW")  # no label
-                for lineEdit in self.meas_input[i]:
-                    lineEdit.setText("")
-                    lineEdit.setPlaceholderText("")
-                    lineEdit.setReadOnly(True)
-                for led in self.led[i]:
-                    self.LEDchange(None, led)
-            self.box[i].setEnabled(
-                bool(self.strawIDs[i])
-            )  # (En/Dis)able all elements in box if straw does(n't) exist
+    def saveDataToText(self):
+        self.saveResistanceDataToText()
+        self.savePalletDataToText()
 
-    def displayData(self):
-        for pos in range(24):
-            if self.strawIDs[pos]:  #!= None
-                for i in range(4):
-                    self.LEDchange(self.bools[pos][i], self.led[pos][i])
-                    the_measurement = self.measurements[pos][i]
-                    self.meas_input[pos][i].setText(self.resMeasString(the_measurement))
+    def saveDataToDB(self):
+        # TODO perform checks on the validity/completeness of entries
+        [entry.commit() for entry in self.db_entries]
 
-    def resMeasString(self, meas):
-        if not meas:  # (if meas == None)
-            return ""
-        if meas >= 1000.0:
-            return "Inf"
-        else:
-            return str(meas)
+    # save the csv file of straw-by-straw measurements
+    def saveResistanceDataToText(self):
+        self.prepareSaveFile()
+        file_name = self.makeResistanceDataFileName()
+        saveF = open(file_name, "a+")
+        saveF.write(self.saveFile)
+        saveF.close()
 
-    def LEDreset(self):
-        for pos in self.led:
-            for led in pos:
-                led.setPixmap(QPixmap("images/white.png"))
-        self.ui.errorLED.setPixmap(QPixmap("images/white.png"))
+    # save in the pallet file whether each straw passed or failed resistance
+    # measurements
+    def savePalletDataToText(self):
+        for palletid in os.listdir(self.palletDirectory):
+            for pallet in os.listdir(self.palletDirectory / palletid):
+                if self.palletNumber + ".csv" == pallet:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "a") as file:
+                        # Record Session Data
+                        file.write(
+                            "\n" + datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
+                        )  # Date
+                        file.write(self.stationID + ",")  # Test ID
 
-    def LEDchange(self, data, led):
-        reset = QPixmap("images/white.png")
-        failed = QPixmap("images/red.png")
-        passed = QPixmap("images/green.png")
+                        # Record each straw and whether it passes/fails
+                        for i in range(24):
+                            straw = self.strawIDs[i]
+                            pass_fail = ""
 
-        if data == None:
-            led.setPixmap(reset)
-        elif data == True:
-            led.setPixmap(passed)
-        else:
-            led.setPixmap(failed)
+                            # If straw doesn't exist
+                            if straw == None:
+                                straw = "_______"  # _ x7
+                                pass_fail = "_"
 
-    def setStatus(self, status):
-        pixMap = {
-            "processing": QPixmap("images/yellow.png"),
-            True: QPixmap("images/green.png"),
-            False: QPixmap("images/red.png"),
-            "reset": QPixmap("images/white.png"),
-        }
-        if status in pixMap.keys():
-            self.ui.errorLED.setPixmap(pixMap[status])
+                            # If straw exists, summarize all four booleans (1 fail --> straw fails)
+                            else:
+                                boolean = True
+                                for j in range(4):
+                                    if self.bools[i][j] == False:
+                                        boolean = False
 
-    def displayError(self, failed: bool):
-        red = QPixmap("images/red.png")
-        green = QPixmap("images/green.png")
-        status_color = red if failed else green
-        self.ui.errorLED.setPixmap(status_color)
+                                if boolean:
+                                    pass_fail = "P"
+                                else:
+                                    pass_fail = "F"
 
-    # ===========================================================================
-    # SAVE / RESET ###
-    # ===========================================================================
-    # Not currently used -- temp-humid not important for resistance measurements
-    def getTempHumid(self):
-        directory = GetProjectPaths()["temp_humid_data"] / "464B"
-        D = os.listdir(directory)
-        filename = ""
-        for entry in D:
-            if entry.startswith("464B_" + datetime.now().strftime("%Y-%m-%d")):
-                filename = entry
-        with open(directory / filename) as file:
-            data = csv.reader(file)
-            i = "first"
-            for row in data:
-                if i == "first":
-                    i = "not first"
-                    continue
-                else:
-                    temperature = float(row[1])
-                    humidity = float(row[2])
-        return temperature, humidity
+                            file.write(straw + "," + pass_fail + ",")
+
+                        i = 0
+                        for worker in self.sessionWorkers:
+                            file.write(worker)
+                            if i != len(self.sessionWorkers) - 1:
+                                file.write(",")
+                            i += 1
 
     # clean data -- assemble self.db_entries and self.clean_data from raw
     # self.measurements array
@@ -851,74 +768,9 @@ class StrawResistanceGUI(QDialog):
         data_dir = GetProjectPaths()["strawresistance"]
         return data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
 
-    # save the csv file of straw-by-straw measurements
-    def saveResistanceDataToText(self):
-        self.prepareSaveFile()
-        file_name = self.makeResistanceDataFileName()
-        saveF = open(file_name, "a+")
-        saveF.write(self.saveFile)
-        saveF.close()
-
-    # save in the pallet file whether each straw passed or failed resistance
-    # measurements
-    def savePalletDataToText(self):
-        for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory / palletid):
-                if self.palletNumber + ".csv" == pallet:
-                    pfile = self.palletDirectory / palletid / pallet
-                    with open(pfile, "a") as file:
-                        # Record Session Data
-                        file.write(
-                            "\n" + datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
-                        )  # Date
-                        file.write(self.stationID + ",")  # Test ID
-
-                        # Record each straw and whether it passes/fails
-                        for i in range(24):
-                            straw = self.strawIDs[i]
-                            pass_fail = ""
-
-                            # If straw doesn't exist
-                            if straw == None:
-                                straw = "_______"  # _ x7
-                                pass_fail = "_"
-
-                            # If straw exists, summarize all four booleans (1 fail --> straw fails)
-                            else:
-                                boolean = True
-                                for j in range(4):
-                                    if self.bools[i][j] == False:
-                                        boolean = False
-
-                                if boolean:
-                                    pass_fail = "P"
-                                else:
-                                    pass_fail = "F"
-
-                            file.write(straw + "," + pass_fail + ",")
-
-                        i = 0
-                        for worker in self.sessionWorkers:
-                            file.write(worker)
-                            if i != len(self.sessionWorkers) - 1:
-                                file.write(",")
-                            i += 1
-
-    def saveDataToText(self):
-        self.saveResistanceDataToText()
-        self.savePalletDataToText()
-
-    def saveDataToDB(self):
-        # TODO perform checks on the validity/completeness of entries
-        [entry.commit() for entry in self.db_entries]
-
-    def saveData(self):
-        self.configureSaveData()
-        self.saveDataToText()
-        self.saveDataToDB()
-        QMessageBox.about(self, "Save", "Data saved successfully!")
-
-    def saveReset(self):
+    # If measurements failed, ask whether to re-measure by hand, otherwise,
+    # just save.
+    def finish(self):
         if self.measureByHand_counter < 2:
             message = "There are some failed measurements. Would you like to try measuring by hand?"
             buttonReply = QMessageBox.question(
@@ -927,25 +779,150 @@ class StrawResistanceGUI(QDialog):
             if buttonReply == QMessageBox.Yes:
                 self.measureByHand()
                 return
-            # double-check before save/reset
         warning = "Are you sure you want to Save?"
         buttonReply = QMessageBox.question(
             self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
         )
-        if buttonReply == QMessageBox.Yes:
-            self.stopTimer()
-            self.DP.saveFinish()
-            # Save data
-            self.saveData()
-            # self.resetGUI()
 
-            """#Ask to reset
-            reset_text = "Would you like to resistance test another pallet?"
-            buttonReply = QMessageBox.question(self, 'Test another pallet?', reset_text, QMessageBox.Yes | QMessageBox.No)
-            if buttonReply == QMessageBox.Yes:
-                self.resetGUI() #reset; user can start another pallet
-            if buttonReply == QMessageBox.No:
-                self.run_program = False"""
+        if buttonReply == QMessageBox.No:
+            return
+
+        self.stopTimer()
+        self.DP.saveFinish()
+        self.saveData()
+        # self.resetGUI()
+
+        """#Ask to reset
+        reset_text = "Would you like to resistance test another pallet?"
+        buttonReply = QMessageBox.question(self, 'Test another pallet?', reset_text, QMessageBox.Yes | QMessageBox.No)
+        if buttonReply == QMessageBox.Yes:
+            self.resetGUI() #reset; user can start another pallet
+        """
+
+    #############################################################################
+    # GUI Display/Control
+    #############################################################################
+    def enableButtons(self):
+        # enable/disable buttons depending on state in data collection process
+        self.ui.save_button.setEnabled(bool(self.dataRecorded))
+        self.ui.collect_button.setEnabled(
+            self.collectData_counter < self.collectData_limit
+        )
+        self.ui.collect_button.setAutoDefault(
+            self.collectData_counter < self.collectData_limit
+        )
+        self.ui.editPallet_button.setEnabled(bool(self.palletNumber))
+
+    def updatePositionDisplay(self):
+        # Uses most recent self.strawIDs list to (dis/en)able position boxes and label with straw ID.
+        for i in range(24):
+            # If there is a straw in the given position:
+            if self.strawIDs[i]:
+                self.straw_ID_labels[i].setText(
+                    self.strawIDs[i]
+                )  # Given position box the appropriate straw label
+            else:
+                self.straw_ID_labels[i].setText("NO STRAW")  # no label
+                for lineEdit in self.meas_input[i]:
+                    lineEdit.setText("")
+                    lineEdit.setPlaceholderText("")
+                    lineEdit.setReadOnly(True)
+                for led in self.led[i]:
+                    self.LEDchange(None, led)
+            self.box[i].setEnabled(
+                bool(self.strawIDs[i])
+            )  # (En/Dis)able all elements in box if straw does(n't) exist
+
+    def displayData(self):
+        for pos in range(24):
+            if self.strawIDs[pos]:  #!= None
+                for i in range(4):
+                    self.LEDchange(self.bools[pos][i], self.led[pos][i])
+                    the_measurement = self.measurements[pos][i]
+                    self.meas_input[pos][i].setText(self.resMeasString(the_measurement))
+
+    def resMeasString(self, meas):
+        if not meas:  # (if meas == None)
+            return ""
+        if meas >= 1000.0:
+            return "Inf"
+        else:
+            return str(meas)
+
+    def LEDreset(self):
+        for pos in self.led:
+            for led in pos:
+                led.setPixmap(QPixmap("images/white.png"))
+        self.ui.errorLED.setPixmap(QPixmap("images/white.png"))
+
+    def LEDchange(self, data, led):
+        reset = QPixmap("images/white.png")
+        failed = QPixmap("images/red.png")
+        passed = QPixmap("images/green.png")
+
+        if data == None:
+            led.setPixmap(reset)
+        elif data == True:
+            led.setPixmap(passed)
+        else:
+            led.setPixmap(failed)
+
+    def setStatus(self, status):
+        pixMap = {
+            "processing": QPixmap("images/yellow.png"),
+            True: QPixmap("images/green.png"),
+            False: QPixmap("images/red.png"),
+            "reset": QPixmap("images/white.png"),
+        }
+        if status in pixMap.keys():
+            self.ui.errorLED.setPixmap(pixMap[status])
+
+    def displayError(self, failed: bool):
+        red = QPixmap("images/red.png")
+        green = QPixmap("images/green.png")
+        status_color = red if failed else green
+        self.ui.errorLED.setPixmap(status_color)
+
+    #############################################################################
+    # Utility
+    #############################################################################
+    def resetGUI(self):
+        # Reset text
+        for pos in range(24):
+            for i in range(4):
+                self.meas_input[pos][i].setText("")
+
+        # Data Lists
+        self.measurements = [[None for i in range(4)] for pos in range(24)]
+        self.old_measurements = [[None for i in range(4)] for pos in range(24)]
+        self.bools = [[None for i in range(4)] for pos in range(24)]
+        self.old_bools = [[None for i in range(4)] for pos in range(24)]
+
+        # self.resistanceMeter = Resistance()
+        self.multiMeter = None
+
+        self.strawIDs = [None for i in range(24)]
+
+        self.palletNumber = None
+        self.straw1ID = None
+        self.palletInfoVerified = False
+        self.calledInitializePallet = False
+
+        self.clean_data = [[None for i in range(4)] for pos in range(24)]
+        self.saveFile = ""
+        for el in self.straw_ID_labels:
+            el.setText("St#####")
+        for box in self.box:
+            box.setEnabled(True)
+        self.LEDreset()
+
+        # Measurement status
+        self.collectData_counter = 0
+        self.measureByHand_ = 0
+        self.dataRecorded = False
+
+        # Reset buttons
+        self.enableButtons()
 
     def closeEvent(self, event):
         event.accept()
@@ -953,17 +930,28 @@ class StrawResistanceGUI(QDialog):
         self.close()
         sys.exit(0)
 
-    def main(self):
-        while True:
-
-            if not self.calledInitializePallet:
-                self.lockGUI()
-                if self.ui.tab_widget.currentIndex() == 1:
-                    self.initializePallet()
-
-            self.lockGUI()
-            time.sleep(0.1)
-            self.app.processEvents()
+    ############################################################################
+    # Deprecated
+    ############################################################################
+    # temp-humid not important for resistance measurements
+    def getTempHumid(self):
+        directory = GetProjectPaths()["temp_humid_data"] / "464B"
+        D = os.listdir(directory)
+        filename = ""
+        for entry in D:
+            if entry.startswith("464B_" + datetime.now().strftime("%Y-%m-%d")):
+                filename = entry
+        with open(directory / filename) as file:
+            data = csv.reader(file)
+            i = "first"
+            for row in data:
+                if i == "first":
+                    i = "not first"
+                    continue
+                else:
+                    temperature = float(row[1])
+                    humidity = float(row[2])
+        return temperature, humidity
 
 
 def run():

@@ -1,12 +1,17 @@
-#
-# PrepGUI.py
+################################################################################
 #
 # Straw Prep (Paper Pull) GUI
-# Straw Lab GUIs 20.
 #
-# Author: Joe Dill
-# email: dillx031@umn.edu
+# First step in straw processing in which straw ids/barcodes are assigned to
+# straws, they enter the database for the first time, and they are assigned to
+# a cutting pallet (which also enters the database for the first time).
 #
+# After getting entered into the database, their paper is removed, quality
+# graded, and data saved.
+#
+# Next step: resistance test
+#
+################################################################################
 from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root", "StrawPrep")
@@ -183,7 +188,7 @@ class Prep(QMainWindow):
     # 2. finish paper pull button: checkPPGData
     # 3. finish button: saveData
     ############################################################################
-    # Start button: get prelim data, then enable ppg fields
+    # 1. Start button: get prelim data, then enable ppg fields
     def beginProcess(self):
         # collect panel prelim/metadata
         if not self.PalletInfoCollected:
@@ -516,7 +521,7 @@ class Prep(QMainWindow):
             self.input_batchBarcode[0].setText("NO STRAW")
             self.dataValidity["Batch Barcode"][0] = True
 
-    # finish paper pull button, validate ppg data
+    # 2. finish paper pull button, validate ppg data
     def checkPPGData(self):
         # Makes sure all ppg inputs are good, then stops timing
         # all_pass = True
@@ -553,7 +558,7 @@ class Prep(QMainWindow):
             self.ui.finishPull.setEnabled(False)
             self.ui.finish.setEnabled(True)
 
-    # finish button, save
+    # 3. finish button, save
     def saveData(self):
         print("Saving data...")
         self.saveDataToText()
@@ -1028,7 +1033,7 @@ class Prep(QMainWindow):
         return string
 
     ############################################################################
-    # Utility functions
+    # Utility
     ############################################################################
 
     def updateLineEdit(
