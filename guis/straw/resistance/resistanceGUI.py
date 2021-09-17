@@ -2,7 +2,8 @@
 #
 # Straw Resistance Test GUI
 #
-# Read resistance data for a full panel of straws all at once from an Arduino Uno and PCB.
+# Read resistance data for a full panel of straws all at once from an Arduino
+# Uno and PCB. Save all the data at the very end.
 #
 # Next step:
 #
@@ -42,7 +43,7 @@ from PyQt5.QtWidgets import (
 )
 from guis.straw.resistance.design import Ui_MainWindow
 
-# from guis.straw.resistance.resistanceMeter import Resistance
+from guis.straw.resistance.resistanceMeter import Resistance
 from guis.straw.resistance.measureByHand import MeasureByHandPopup
 from guis.straw.removestraw import removeStraw
 from data.workers.credentials.credentials import Credentials
@@ -51,7 +52,7 @@ from guis.common.save_straw_workers import saveWorkers
 from guis.common.dataProcessor import SQLDataProcessor as DP
 from guis.common.gui_utils import generateBox
 
-from random import uniform
+# from random import uniform
 from enum import Enum, auto
 from guis.common.timer import QLCDTimer
 
@@ -128,7 +129,7 @@ class StrawResistanceGUI(QDialog):
 
         # Measurement classes
         self.removeStraw = removeStraw([])
-        # self.resistanceMeter = Resistance()  # resistance class
+        self.resistanceMeter = Resistance()  # resistance class
         self.byHandPopup = None  # Gets created later if necessary
 
         # Pallet Info
@@ -459,17 +460,19 @@ class StrawResistanceGUI(QDialog):
         self.DP.saveStart()  # initialize procedure and commit it to the DB
         self.procedure = self.DP.procedure  # Resistance(StrawProcedure) object
 
-        # try:
-        #    self.measurements = self.resistanceMeter.rMain()
-        # except FileNotFoundError as e:
-        #    print("File not found", e)
-        #    self.displayError(True)
-        #    return
-        # except:
-        #    print("Arduino Error")
-        #    self.displayError(True)
-        #    return
-        self.measurements = [[uniform(100, 900) for i in range(4)] for pos in range(24)]
+        try:
+            self.measurements = self.resistanceMeter.rMain()
+        except FileNotFoundError as e:
+            print("File not found", e)
+            self.displayError(True)
+            return
+        except:
+            print("Arduino Error")
+            self.displayError(True)
+            return
+
+        # useful for debug
+        # self.measurements = [[uniform(100, 900) for i in range(4)] for pos in range(24)]
 
         self.consolidateOldAndNewMeasurements()
 
