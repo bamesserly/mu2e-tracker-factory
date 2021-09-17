@@ -31,4 +31,6 @@ def SetupPANGUILogger(name="root", tag="PANGUI"):
     logging.getLogger("matplotlib.pyplot").disabled = True
     logging.getLogger("findfont").disabled = True
 
+    logger.info(f"{tag} Logger Initialized")
+
     return logger
