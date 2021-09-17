@@ -1,12 +1,17 @@
-#
-# PrepGUI.py
+################################################################################
 #
 # Straw Prep (Paper Pull) GUI
-# Straw Lab GUIs 20.
 #
-# Author: Joe Dill
-# email: dillx031@umn.edu
+# First step in straw processing in which straw ids/barcodes are assigned to
+# straws, they enter the database for the first time, and they are assigned to
+# a cutting pallet (which also enters the database for the first time).
 #
+# After getting entered into the database, their paper is removed, quality
+# graded, and data saved.
+#
+# Next step: resistance test
+#
+################################################################################
 from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root", "StrawPrep")
@@ -183,7 +188,7 @@ class Prep(QMainWindow):
     # 2. finish paper pull button: checkPPGData
     # 3. finish button: saveData
     ############################################################################
-    # Start button: get prelim data, then enable ppg fields
+    # 1. Start button: get prelim data, then enable ppg fields
     def beginProcess(self):
         # collect panel prelim/metadata
         if not self.PalletInfoCollected:
@@ -516,7 +521,7 @@ class Prep(QMainWindow):
             self.input_batchBarcode[0].setText("NO STRAW")
             self.dataValidity["Batch Barcode"][0] = True
 
-    # finish paper pull button, validate ppg data
+    # 2. finish paper pull button, validate ppg data
     def checkPPGData(self):
         # Makes sure all ppg inputs are good, then stops timing
         # all_pass = True
@@ -553,7 +558,7 @@ class Prep(QMainWindow):
             self.ui.finishPull.setEnabled(False)
             self.ui.finish.setEnabled(True)
 
-    # finish button, save
+    # 3. finish button, save
     def saveData(self):
         print("Saving data...")
         self.saveDataToText()
@@ -570,21 +575,20 @@ class Prep(QMainWindow):
         self.resetGUI()
 
     def saveDataToText(self):
-        timestamp = datetime.now()
         workers_str = ", ".join(
             self.sessionWorkers
         ).upper()  # Converts self.sessionWorkers to a string csv-style: "wk-worker01, wk-worker02, etc..."
-        self.saveStrawDataToText(timestamp, workers_str)
-        self.savePalletDataToText(timestamp, workers_str)
+        self.saveStrawDataToText(workers_str)
+        self.savePalletDataToText(workers_str)
 
-    def saveStrawDataToText(self, timestamp, workers_str):
+    def saveStrawDataToText(self, workers_str):
         file_name = self.stationID + "_" + self.palletNumber + ".csv"
         data_file = self.prepDirectory / file_name
         with open(data_file, "w+") as file:
             file.write("Station: " + self.stationID)
             header = "Timestamp, Pallet ID, Pallet Number, Paper pull time (H:M:S), workers ***NEWLINE***: Comments (optional)***\n"
             file.write(header)
-            file.write(timestamp.strftime("%Y-%m-%d_%H:%M") + ",")
+            file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.palletID + ",")
             file.write(self.palletNumber + ",")
             file.write(
@@ -625,21 +629,21 @@ class Prep(QMainWindow):
 
             # Done creating data file
 
-    def savePalletDataToText(self, timestamp, workers_str):
+    def savePalletDataToText(self, workers_str):
         pfile = self.palletDirectory / self.palletID / str(self.palletNumber + ".csv")
         with open(pfile, "w+") as file:
             header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers"
             header += ", ***" + str(self.strawCount) + " straws initially on pallet***"
+            header += f" {self.palletID}"
             header += "\n"
             file.write(header)
 
             # Record Session Data
-            file.write(timestamp.strftime("%Y-%m-%d_%H:%M") + ",")  # Date
+            file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.stationID + ",")
 
             # Record each straw and whether it passes/fails
             for i in range(24):
-
                 straw = self.strawIDs[i]
 
                 # If top straw doesn't exist, record save _'s for straw ID and pass_fail
@@ -721,11 +725,12 @@ class Prep(QMainWindow):
 
         elif label == "Log Out":
             portalNum = int(btn.objectName().strip("portal")) - 1
-            self.justLogOut = self.Current_workers[portalNum].text()
-            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
+            worker = self.Current_workers[portalNum].text()
+            self.justLogOut = worker
+            self.sessionWorkers.remove(worker)
+            self.DP.saveLogout(worker)
+            print("Goodbye " + worker + " :(")
+            self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
 
         # Recheck credentials
@@ -1028,7 +1033,7 @@ class Prep(QMainWindow):
         return string
 
     ############################################################################
-    # Utility functions
+    # Utility
     ############################################################################
 
     def updateLineEdit(

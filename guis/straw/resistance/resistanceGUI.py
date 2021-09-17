@@ -1,39 +1,17 @@
+################################################################################
 #
-#   RESISTANCE TESTING v2.2
-#   Most Recent Update: 10/23/2018
+# Straw Resistance Test GUI
 #
-#   Author:    Joe Dill
-#   Email: <dillx031@umn.edu>
+# Read resistance data for a full panel of straws all at once from an Arduino
+# Uno and PCB. Save all the data at the very end.
 #
-#   Previous Authors:    Cole Kampa and Zach Riehl
-#   Email: <kampa041@umn.edu> , <riehl046@umn.edu>
+# Next step:
 #
-#   Institution: University of Minnesota
-#   Project: Mu2e
-#
-#   Description:
-#       A Python3 script using PySerial to control and read from an Arduino Uno and PCB connected to a
-#       full pallet of straws. Returns the data in the in order to be displayed by the packaged GUI.
-#
-#   Updates in v 2.1:
-#       - Implements remove interface
-#           - View/edit pallet button
-#           - When saving, strawIDs and pass/fail written to pallet file
-#           - On open, user only needs to scan CPAL Number. All other info collected
-#
-#   Updates in v 2.2:
-#       - Implements Credentials Class
-#
-#   Packages: PySerial, Straw (custom wrapper class), Resistance (class controlling arduino)
-#
-#   General Order: arbrcrdrerfrgrhrirjrkrlrmrnrorpr
-#
-#   Adjusted Order: 1)erfrgrhr 2)arbrcrdr 3)mrnrorpr 4)irjrkrlr
-#
-#   Columns in file (for database): straw_barcode, create_time, worker_barcode, workstation_barcode,
-#       resistance, temperature, humidity, test_type, pass/fail
-#
-#   File saved at: Mu2e-factory/Straw lab GUIs/Resistance GUI
+################################################################################
+
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", "StrawResistance")
 
 import sys
 from pathlib import Path
@@ -41,7 +19,7 @@ import os
 import csv
 from datetime import datetime
 import time
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush, QPixmap
 from PyQt5.QtWidgets import (
     QInputDialog,
@@ -61,16 +39,35 @@ from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
     QMessageBox,
+    QLCDNumber,
 )
 from guis.straw.resistance.design import Ui_MainWindow
+
 from guis.straw.resistance.resistanceMeter import Resistance
 from guis.straw.resistance.measureByHand import MeasureByHandPopup
 from guis.straw.removestraw import removeStraw
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.gui_utils import generateBox
 
-class CompletionTrack(QDialog):
+# from random import uniform
+from enum import Enum, auto
+from guis.common.timer import QLCDTimer
+
+
+class ResistanceMeasurementConfig(Enum):
+    II = 0  # inner-inner
+    IO = auto()  # inner-outer
+    OI = auto()  # outer-inner
+    OO = auto()  # outer-outer
+
+
+class StrawResistanceGUI(QDialog):
+    LockGUI = pyqtSignal(bool)
+    timer_signal = pyqtSignal()
+
     def __init__(self, paths, app):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -99,8 +96,9 @@ class CompletionTrack(QDialog):
         self.ui.collect_button.clicked.connect(self.collectData)
         self.ui.byHand_button.clicked.connect(self.measureByHand)
         self.ui.reset_button.clicked.connect(self.resetGUI)
-        self.ui.save_button.clicked.connect(self.saveReset)
+        self.ui.save_button.clicked.connect(self.finish)
         self.ui.editPallet_button.clicked.connect(self.editPallet)
+        self.LockGUI.connect(self.lockGUI)
 
         # Measurement and Bool Lists
         # Prefills lists to record 4 measurements for 24 straws
@@ -143,6 +141,7 @@ class CompletionTrack(QDialog):
         self.strawIDs = [None for i in range(24)]  # list of straw IDs filled with
         self.palletInfoVerified = False
         self.calledInitializePallet = False
+        self.palletID = None
 
         # Worker Info
         self.credentialChecker = Credentials(self.stationID)
@@ -165,9 +164,10 @@ class CompletionTrack(QDialog):
 
         # Saving Data
         self.dataRecorded = False
-        self.saveData = [[None for i in range(4)] for pos in range(24)]
-        self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
+        self.clean_data = [[None for i in range(4)] for pos in range(24)]
         self.saveFile = ""
+
+        self.db_entries = []
 
         # Measurement Status
         self.collectData_counter = 0
@@ -181,90 +181,94 @@ class CompletionTrack(QDialog):
         self.justLogOut = ""
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
-        # Keep program running
-        self.run_program = True
+        # timing
+        self.timer = QLCDTimer(
+            QLCDNumber(),  # no timer display for this ui TODO
+            QLCDNumber(),  # no timer display for this ui TODO
+            QLCDNumber(),  # no timer display for this ui TODO
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
 
-    def resetGUI(self):
-        # Reset text
-        for pos in range(24):
-            for i in range(4):
-                self.meas_input[pos][i].setText("")
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
+        self.running = lambda: self.timer.isRunning()
 
-        # Data Lists
-        self.measurements = [[None for i in range(4)] for pos in range(24)]
-        self.old_measurements = [[None for i in range(4)] for pos in range(24)]
-        self.bools = [[None for i in range(4)] for pos in range(24)]
-        self.old_bools = [[None for i in range(4)] for pos in range(24)]
+        # Data Processor
+        self.pro = 3
+        self.pro_index = self.pro - 1
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+        )
 
-        self.resistanceMeter = Resistance()
-        self.multiMeter = None
+        # Start it off with the prep tab frozen
+        self.LockGUI.emit(False)
 
-        self.strawIDs = [None for i in range(24)]
-
-        self.palletNumber = None
-        self.straw1ID = None
-        self.palletInfoVerified = False
-        self.calledInitializePallet = False
-
-        self.saveData = [[None for i in range(4)] for pos in range(24)]
-        self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
-        self.saveFile = ""
-        for el in self.straw_ID_labels:
-            el.setText("St#####")
-        for box in self.box:
-            box.setEnabled(True)
-        self.LEDreset()
-
-        self.saveData = [[None for i in range(4)] for pos in range(24)]
-        self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
-        self.saveFile = ""
-
-        # Measurement status
-        self.collectData_counter = 0
-        self.measureByHand_ = 0
-        self.dataRecorded = False
-
-        # Reset buttons
-        self.enableButtons()
-
-    ### WORKER PORTAL ###
+    ############################################################################
+    # Worker login and gui lock
+    ############################################################################
     def Change_worker_ID(self, btn):
         label = btn.text()
         portalNum = self.portals.index(btn)
+
         if label == "Log In":
             Current_worker, ok = QInputDialog.getText(
                 self, "Worker Log In", "Scan your worker ID:"
             )
+            Current_worker = Current_worker.upper().strip()
             if not ok:
                 return
-            self.sessionWorkers.append(Current_worker)
-            self.Current_workers[portalNum].setText(Current_worker)
-            print("Welcome " + self.Current_workers[portalNum].text() + " :)")
-            btn.setText("Log Out")
-            # self.ui.tab_widget.setCurrentIndex(1)
+            if not self.DP.validateWorkerID(Current_worker):
+                generateBox("critical", "Login Error", "Invalid worker ID.")
+            elif self.DP.workerLoggedIn(Current_worker):
+                generateBox(
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
+                )
+            else:
+                # Record login with data processor
+                logger.info(f"{Current_worker} logged in")
+                self.DP.saveLogin(Current_worker)
+                self.sessionWorkers.append(Current_worker)
+                self.Current_workers[portalNum].setText(Current_worker)
+                print("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                btn.setText("Log Out")
+                self.ui.tab_widget.setCurrentIndex(1)
+
         elif label == "Log Out":
+            worker = self.Current_workers[portalNum].text()
             self.justLogOut = self.Current_workers[portalNum].text()
-            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
+            self.sessionWorkers.remove(worker)
+            self.DP.saveLogout(worker)
+            print("Goodbye " + worker + " :(")
+            self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
+
+        # Recheck credentials
+        self.LockGUI.emit(self.DP.checkCredentials())
+
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
 
-    def lockGUI(self):
-        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
+    def lockGUI(self, credentials):
+        if credentials:
+            self.ui.tab_widget.setTabText(1, "Resistance")
+            self.ui.tab_widget.setTabEnabled(1, True)
+        else:
             self.resetGUI()
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, "Resistance *Locked*")
             self.ui.tab_widget.setTabEnabled(1, False)
-        else:
-            self.ui.tab_widget.setTabText(1, "Resistance")
-            self.ui.tab_widget.setTabEnabled(1, True)
 
-    ### PALLET INFO ###
+    #############################################################################
+    # Pallet Info -- set, get, validate
+    #############################################################################
     def getPalletNumber(self):
-
         pallet, ok = QInputDialog().getText(
             self, "Pallet Number", "Please scan the Pallet Number", text="CPAL####"
         )
@@ -278,7 +282,7 @@ class CompletionTrack(QDialog):
                 self.getPalletNumber()
 
     def verifyPalletNumber(self, pallet_num):
-        # Verifies that the given pallet id is of a valid format
+        # Verifies that the given pallet number is of a valid format
         verify = True
 
         # check that last 4 characters of ID are integers
@@ -294,9 +298,13 @@ class CompletionTrack(QDialog):
 
         return verify
 
-    def initializePallet(self):
+    def getCPALID(self):
+        return self.palletID
 
-        # Obtain pallet number
+    def getCPALNumber(self):
+        return self.palletNumber
+
+    def initializePallet(self):
         if not self.palletNumber:
             self.getPalletNumber()
 
@@ -309,7 +317,9 @@ class CompletionTrack(QDialog):
             rem = removeStraw(self.sessionWorkers)
             rem.palletDirectory = self.palletDirectory
             rem.sessionWorkers = self.sessionWorkers
-            CPAL, lastTask, straws, passfail = rem.getPallet(self.palletNumber)
+            CPAL, lastTask, straws, passfail, self.palletID = rem.getPallet(
+                self.palletNumber
+            )
             self.interpretEditPallet(CPAL, lastTask, straws, passfail)
 
         self.calledInitializePallet = True
@@ -318,18 +328,19 @@ class CompletionTrack(QDialog):
         rem = removeStraw(self.sessionWorkers)
         rem.palletDirectory = self.palletDirectory
         rem.sessionWorkers = self.sessionWorkers
-        CPAL, lastTask, straws, passfail = rem.getPallet(self.palletNumber)
+        CPAL, lastTask, straws, passfail, self.palletID = rem.getPallet(
+            self.palletNumber
+        )
         rem.displayPallet(CPAL, lastTask, straws, passfail)
         rem.exec_()
 
-        CPAL, lastTask, straws, passfail = rem.getPallet(
+        CPAL, lastTask, straws, passfail, self.palletID = rem.getPallet(
             self.palletNumber
         )  # Run again incase changes were made (straws removed, moved, etc...)
         # After executing
         self.interpretEditPallet(CPAL, lastTask, straws, passfail)
 
     def interpretEditPallet(self, CPAL, lastTask, straws, passfail):
-
         self.palletInfoVerified = (
             True  # Initially assume True, can only be switched to False
         )
@@ -391,91 +402,104 @@ class CompletionTrack(QDialog):
             return
 
         for i1 in range(24):
+            if self.strawIDs[i1] or newStrawIDs[i1] not in self.strawIDs:
+                continue
 
-            if not self.strawIDs[i1] and (newStrawIDs[i1] in self.strawIDs):
+            i2 = self.strawIDs.index(newStrawIDs[i1])
 
-                i2 = self.strawIDs.index(newStrawIDs[i1])
+            # Swap ids, measurements, and bools
+            self.strawIDs[i1], self.strawIDs[i2] = (
+                self.strawIDs[i2],
+                self.strawIDs[i1],
+            )
 
-                # Swap ids, measurements, and bools
-                self.strawIDs[i1], self.strawIDs[i2] = (
-                    self.strawIDs[i2],
-                    self.strawIDs[i1],
+            for j in range(4):
+                self.measurements[i1][j], self.measurements[i2][j] = (
+                    self.measurements[i2][j],
+                    self.measurements[i1][j],
+                )
+                self.bools[i1][j], self.bools[i2][j] = (
+                    self.bools[i2][j],
+                    self.bools[i1][j],
                 )
 
-                for j in range(4):
-                    self.measurements[i1][j], self.measurements[i2][j] = (
-                        self.measurements[i2][j],
-                        self.measurements[i1][j],
-                    )
-                    self.bools[i1][j], self.bools[i2][j] = (
-                        self.bools[i2][j],
-                        self.bools[i1][j],
-                    )
+                # Update both positions' displays
+                self.meas_input[i1][j].setText(
+                    self.resMeasString(self.measurements[i1][j])
+                )
+                self.meas_input[i2][j].setText(
+                    self.resMeasString(self.measurements[i2][j])
+                )
+                self.LEDchange(self.bools[i1][j], self.led[i1][j])
+                self.LEDchange(self.bools[i2][j], self.led[i2][j])
 
-                    # Update both positions' displays
-                    self.meas_input[i1][j].setText(
-                        self.resMeasString(self.measurements[i1][j])
-                    )
-                    self.meas_input[i2][j].setText(
-                        self.resMeasString(self.measurements[i2][j])
-                    )
-                    self.LEDchange(self.bools[i1][j], self.led[i1][j])
-                    self.LEDchange(self.bools[i2][j], self.led[i2][j])
-
-    ### RESISTANCE METER MEASUREMENT ###
+    #############################################################################
+    # Collecting data -- two methods, resistance meter or by hand.
+    #
+    # Currently, the collectData function is way overloaded -- it's tied to the
+    # collect data button and it IS the process's flow control -- first
+    # collecting pallet metainfo, then triggering the arduino, then managing
+    # the data
+    #############################################################################
+    # start here -- make sure pallet info collected, then run the automatic
+    # resistance measurement arduino
     def collectData(self):
-        # Show "processing" image
         self.setStatus("processing")
         time.sleep(0.01)
-        self.app.processEvents()
 
         if not self.palletInfoVerified:
             self.initializePallet()
-            return
-            # If self.getLabInfo() is successful, proceeds with collectData()
-            # collectData() can only be run 10 times
-        if (
+
+        if not (
             self.palletInfoVerified
-            and self.collectData_counter < self.collectData_limit
+            or self.collectData_counter >= self.collectData_limit
         ):
+            return
 
-            try:
-                self.measurements = self.resistanceMeter.rMain()
-            except FileNotFoundError as e:
-                print("File not found", e)
-                self.error(False)
-                return
-            except:
-                print("Arduino Error")
-                self.error(False)
-                return
+        self.startTimer()
+        self.DP.saveStart()  # initialize procedure and commit it to the DB
+        self.procedure = self.DP.procedure  # Resistance(StrawProcedure) object
 
-            self.combineDATA()
-            # Update bools
-            for pos in range(0, 24):
-                for i in range(4):
-                    meas = self.measurements[pos][i]
-                    self.bools[pos][i] = self.meas_type_eval[i](meas)
+        try:
+            self.measurements = self.resistanceMeter.rMain()
+        except FileNotFoundError as e:
+            print("File not found", e)
+            self.displayError(True)
+            return
+        except:
+            print("Arduino Error")
+            self.displayError(True)
+            return
 
-            self.displayData()
+        # useful for debug
+        # self.measurements = [[uniform(100, 900) for i in range(4)] for pos in range(24)]
 
-            # save new data to old data
-            for pos in range(24):
-                for i in range(4):
-                    # Get old values
-                    old_meas = self.measurements[pos][i]
-                    old_bool = self.bools[pos][i]
-                    # Save to lists
-                    self.old_measurements[pos][i] = old_meas
-                    self.old_bools[pos][i] = old_bool
+        self.consolidateOldAndNewMeasurements()
 
-            self.error(True)
-            self.dataRecorded = True
-            self.collectData_counter += 1
-            self.enableButtons()
+        # Update measurements' pass-fail status
+        for pos in range(0, 24):
+            for i in range(4):
+                meas = self.measurements[pos][i]
+                self.bools[pos][i] = self.meas_type_eval[i](meas)
 
-    def combineDATA(self):
+        self.displayData()
 
+        # save new data to old data
+        for pos in range(24):
+            for i in range(4):
+                # Get old values
+                old_meas = self.measurements[pos][i]
+                old_bool = self.bools[pos][i]
+                # Save to lists
+                self.old_measurements[pos][i] = old_meas
+                self.old_bools[pos][i] = old_bool
+
+        self.displayError(False)
+        self.dataRecorded = True
+        self.collectData_counter += 1
+        self.enableButtons()
+
+    def consolidateOldAndNewMeasurements(self):
         for pos in range(24):
             for i in range(4):
                 new_measurement = self.measurements[pos][i]
@@ -485,7 +509,9 @@ class CompletionTrack(QDialog):
                     keep_meas = min(old_measurement, new_measurement)
                     self.measurements[pos][i] = keep_meas
 
-    ### BY-HAND MEASUREMENT ###
+    # only ever called from the finish function, which is tied to the save
+    # data button, which only gets pressed after collecting the data with the
+    # resistance meter.
     def measureByHand(self):
         self.getFailedMeasurements()
         if len(self.failed_measurements) > 0:
@@ -499,13 +525,15 @@ class CompletionTrack(QDialog):
                 QMessageBox.Ok | QMessageBox.Cancel,
             )
             if buttonReply == QMessageBox.Ok:
-
                 if self.byHandPopup == None:
                     self.byHandPopup = MeasureByHandPopup()  # Create Popup Window
                 while not self.byHandPopup.multiMeter:
                     self.byHandPopup.getMultiMeter()  # Tries to connect to multimeter
                     if not self.byHandPopup.multiMeter:
-                        message = "There was an error connecting to the multimeter. Make sure it is turned on and plugged into the computer, then try again"
+                        message = (
+                            "There was an error connecting to the multimeter. "
+                            "Make sure it is turned on and plugged into the computer, then try again."
+                        )
                         QMessageBox.about(self, "Connection Error", message)
                         print("hit the not thing")
                 for el in self.failed_measurements:
@@ -527,7 +555,7 @@ class CompletionTrack(QDialog):
 
                     # Save new data
                     self.measurements[pos][meas_type] = meas  # save meas
-                    self.bools[pos][meas_type] = pass_fail  # save boool
+                    self.bools[pos][meas_type] = pass_fail  # save bool
 
                     # Display new measurement
                     if (
@@ -589,7 +617,194 @@ class CompletionTrack(QDialog):
 
         QMessageBox.about(self, "Measure by Hand", instructions)
 
-    ### GUI DISPLAY ###
+    #############################################################################
+    # Save
+    #############################################################################
+    def saveData(self):
+        self.configureSaveData()
+        self.saveDataToText()
+        self.saveDataToDB()
+        QMessageBox.about(self, "Save", "Data saved successfully!")
+
+    def saveDataToText(self):
+        self.saveResistanceDataToText()
+        self.savePalletDataToText()
+
+    def saveDataToDB(self):
+        # TODO perform checks on the validity/completeness of entries
+        [entry.commit() for entry in self.db_entries]
+
+    # save the csv file of straw-by-straw measurements
+    def saveResistanceDataToText(self):
+        self.prepareSaveFile()
+        file_name = self.makeResistanceDataFileName()
+        saveF = open(file_name, "a+")
+        saveF.write(self.saveFile)
+        saveF.close()
+
+    # save in the pallet file whether each straw passed or failed resistance
+    # measurements
+    def savePalletDataToText(self):
+        for palletid in os.listdir(self.palletDirectory):
+            for pallet in os.listdir(self.palletDirectory / palletid):
+                if self.palletNumber + ".csv" == pallet:
+                    pfile = self.palletDirectory / palletid / pallet
+                    with open(pfile, "a") as file:
+                        # Record Session Data
+                        file.write(
+                            "\n" + datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
+                        )  # Date
+                        file.write(self.stationID + ",")  # Test ID
+
+                        # Record each straw and whether it passes/fails
+                        for i in range(24):
+                            straw = self.strawIDs[i]
+                            pass_fail = ""
+
+                            # If straw doesn't exist
+                            if straw == None:
+                                straw = "_______"  # _ x7
+                                pass_fail = "_"
+
+                            # If straw exists, summarize all four booleans (1 fail --> straw fails)
+                            else:
+                                boolean = True
+                                for j in range(4):
+                                    if self.bools[i][j] == False:
+                                        boolean = False
+
+                                if boolean:
+                                    pass_fail = "P"
+                                else:
+                                    pass_fail = "F"
+
+                            file.write(straw + "," + pass_fail + ",")
+
+                        i = 0
+                        for worker in self.sessionWorkers:
+                            file.write(worker)
+                            if i != len(self.sessionWorkers) - 1:
+                                file.write(",")
+                            i += 1
+
+    # clean data -- assemble self.db_entries and self.clean_data from raw
+    # self.measurements array
+    def configureSaveData(self):
+        # straw loop
+        for pos in range(24):
+            straw_id = int(self.strawIDs[pos][2:])
+            db_entry = self.procedure.StrawResistanceMeasurement(
+                procedure=self.procedure, straw=straw_id
+            )
+
+            for config in ResistanceMeasurementConfig:
+                i = config.value  # for backwards compatibility
+                resistance = self.measurements[pos][i]
+                resistance = resistance if resistance <= 1000 else float("inf")
+
+                pass_fail = "pass" if self.bools[pos][i] else "fail"
+
+                db_entry.setMeasurement(resistance, config.name.lower())
+
+                # TODO stop using self.clean_data multi-dim array for anything
+                self.clean_data[pos][i] = (
+                    resistance,
+                    pass_fail,
+                )
+
+            self.db_entries.append(db_entry)
+
+    # assemble csv file of straw-by-straw resistance measurements
+    def prepareSaveFile(self):
+        heading = "Straw Number, Timestamp, Worker ID, Pallet ID, Resistance(Ohms), Temp(C), Humidity(%), Measurement Type, Pass/Fail \n"
+        # temperature, humidity = self.getTempHumid()
+        temperature, humidity = 70.1, 40
+
+        for worker in self.sessionWorkers:
+            if self.credentialChecker.checkCredentials(worker):
+                worker_with_creds = worker.lower()
+                break
+
+        # Start compiling data into self.saveFile:
+        self.saveFile += heading
+        for pos in range(24):
+            strawID = self.strawIDs[pos]
+
+            for i in range(4):
+                if strawID:
+                    measurement_type = self.meas_type_labels_apprev[i]
+                    measurement = self.clean_data[pos][i][0]
+                    pass_fail = self.clean_data[pos][i][1]
+                    self.saveFile += strawID.lower() + ","
+                    self.saveFile += datetime.now().strftime("%Y-%m-%d_%H%M%S_") + ","
+                    self.saveFile += worker_with_creds + ","
+                    self.saveFile += self.palletNumber.lower() + ","
+                    self.saveFile += "%9.5f" % measurement + ","
+                    self.saveFile += str(temperature) + ","
+                    self.saveFile += str(humidity) + ","
+                    self.saveFile += measurement_type + ","
+                    self.saveFile += pass_fail
+
+                else:
+                    # Save blanks for all cells
+                    self.saveFile += "_______,__________________,"  # strawID, timestamp
+                    for i in range(len(worker_with_creds)):
+                        self.saveFile += "_"  # workerID
+                    self.saveFile += (
+                        ",________,___,____,__,__,____"  # CPAL --> pass/fail
+                    )
+
+                self.saveFile += "\n"
+
+    # get straw-by-straw resistance measurement csv file fullpath
+    def makeResistanceDataFileName(self):
+        day = datetime.now().strftime("%Y-%m-%d_%H%M%S_")
+        # Get lowest straw id
+        i = 0
+        while self.strawIDs[i] == None:
+            i += 1
+        j = 23
+        while self.strawIDs[j] == None:
+            j -= 1
+        first_strawID = self.strawIDs[i]
+        last_strawID = self.strawIDs[j]
+        data_dir = GetProjectPaths()["strawresistance"]
+        return data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
+
+    # If measurements failed, ask whether to re-measure by hand, otherwise,
+    # just save.
+    def finish(self):
+        if self.measureByHand_counter < 2:
+            message = "There are some failed measurements. Would you like to try measuring by hand?"
+            buttonReply = QMessageBox.question(
+                self, "Measure By-Hand", message, QMessageBox.Yes | QMessageBox.No
+            )
+            if buttonReply == QMessageBox.Yes:
+                self.measureByHand()
+                return
+        warning = "Are you sure you want to Save?"
+        buttonReply = QMessageBox.question(
+            self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
+        )
+
+        if buttonReply == QMessageBox.No:
+            return
+
+        self.stopTimer()
+        self.DP.saveFinish()
+        self.saveData()
+        # self.resetGUI()
+
+        """#Ask to reset
+        reset_text = "Would you like to resistance test another pallet?"
+        buttonReply = QMessageBox.question(self, 'Test another pallet?', reset_text, QMessageBox.Yes | QMessageBox.No)
+        if buttonReply == QMessageBox.Yes:
+            self.resetGUI() #reset; user can start another pallet
+        """
+
+    #############################################################################
+    # GUI Display/Control
+    #############################################################################
     def enableButtons(self):
         # enable/disable buttons depending on state in data collection process
         self.ui.save_button.setEnabled(bool(self.dataRecorded))
@@ -665,18 +880,65 @@ class CompletionTrack(QDialog):
         if status in pixMap.keys():
             self.ui.errorLED.setPixmap(pixMap[status])
 
-    def error(self, boo):
-        failed = QPixmap("images/red.png")
-        passed = QPixmap("images/green.png")
-        if not boo:
-            disp = failed
-        else:
-            disp = passed
-        self.ui.errorLED.setPixmap(disp)
+    def displayError(self, failed: bool):
+        red = QPixmap("images/red.png")
+        green = QPixmap("images/green.png")
+        status_color = red if failed else green
+        self.ui.errorLED.setPixmap(status_color)
 
-    ### SAVE / RESET ###
+    #############################################################################
+    # Utility
+    #############################################################################
+    def resetGUI(self):
+        # Reset text
+        for pos in range(24):
+            for i in range(4):
+                self.meas_input[pos][i].setText("")
+
+        # Data Lists
+        self.measurements = [[None for i in range(4)] for pos in range(24)]
+        self.old_measurements = [[None for i in range(4)] for pos in range(24)]
+        self.bools = [[None for i in range(4)] for pos in range(24)]
+        self.old_bools = [[None for i in range(4)] for pos in range(24)]
+
+        # self.resistanceMeter = Resistance()
+        self.multiMeter = None
+
+        self.strawIDs = [None for i in range(24)]
+
+        self.palletNumber = None
+        self.straw1ID = None
+        self.palletInfoVerified = False
+        self.calledInitializePallet = False
+
+        self.clean_data = [[None for i in range(4)] for pos in range(24)]
+        self.saveFile = ""
+        for el in self.straw_ID_labels:
+            el.setText("St#####")
+        for box in self.box:
+            box.setEnabled(True)
+        self.LEDreset()
+
+        # Measurement status
+        self.collectData_counter = 0
+        self.measureByHand_ = 0
+        self.dataRecorded = False
+
+        # Reset buttons
+        self.enableButtons()
+
+    def closeEvent(self, event):
+        event.accept()
+        self.DP.handleClose()
+        self.close()
+        sys.exit(0)
+
+    ############################################################################
+    # Deprecated
+    ############################################################################
+    # temp-humid not important for resistance measurements
     def getTempHumid(self):
-        directory = GetProjectPaths()['temp_humid_data'] / "464B"
+        directory = GetProjectPaths()["temp_humid_data"] / "464B"
         D = os.listdir(directory)
         filename = ""
         for entry in D:
@@ -694,187 +956,13 @@ class CompletionTrack(QDialog):
                     humidity = float(row[2])
         return temperature, humidity
 
-    def configureSaveData(self):
-        pass_fail_library = {True: "pass", False: "fail"}
-        for pos in range(24):
-            for i in range(4):
-                resistance = self.measurements[pos][
-                    i
-                ]  # Measurement for respective position and index
-                if resistance > 1000:
-                    resistance = float("inf")
-                the_bool = self.bools[pos][i]  # Status of respective measurement
-                pass_fail = pass_fail_library[
-                    the_bool
-                ]  # Translates bool into "pass" or "fail" for the save file
-                self.saveData[pos][i] = (
-                    resistance,
-                    pass_fail,
-                )  # Saves measurement and pass_fail as a tuple
-
-    def prepareSaveFile(self):
-        heading = "Straw Number, Timestamp, Worker ID, Pallet ID, Resistance(Ohms), Temp(C), Humidity(%), Measurement Type, Pass/Fail \n"
-        # temperature, humidity = self.getTempHumid()
-        temperature, humidity = 70.1, 40
-        time_stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S_")
-
-        for worker in self.sessionWorkers:
-            if self.credentialChecker.checkCredentials(worker):
-                worker_with_creds = worker.lower()
-                break
-
-        # Start compiling data into self.saveFile:
-        self.saveFile += heading
-        for pos in range(24):
-            strawID = self.strawIDs[pos]
-            for i in range(4):
-                if strawID:
-                    measurement_type = self.meas_type_labels_apprev[i]
-                    measurement = self.saveData[pos][i][0]
-                    pass_fail = self.saveData[pos][i][1]
-                    self.saveFile += strawID.lower() + ","
-                    self.saveFile += time_stamp + ","
-                    self.saveFile += worker_with_creds + ","
-                    self.saveFile += self.palletNumber.lower() + ","
-                    self.saveFile += "%9.5f" % measurement + ","
-                    self.saveFile += str(temperature) + ","
-                    self.saveFile += str(humidity) + ","
-                    self.saveFile += measurement_type + ","
-                    self.saveFile += pass_fail
-                else:
-                    # Save blanks for all cells
-                    self.saveFile += "_______,__________________,"  # strawID, timestamp
-                    for i in range(len(worker_with_creds)):
-                        self.saveFile += "_"  # workerID
-                    self.saveFile += (
-                        ",________,___,____,__,__,____"  # CPAL --> pass/fail
-                    )
-
-                self.saveFile += "\n"
-
-    def save(self):
-
-        ## SAVE RESISTANCE DATA ##
-        ## This is a .csv file containing all resistance measurements, pass/fail's, and the temperature and humidity
-        self.configureSaveData()
-        self.prepareSaveFile()
-        # Prepare file name
-        day = datetime.now().strftime("%Y-%m-%d_%H%M%S_")
-        # Get lowest straw id
-        i = 0
-        while self.strawIDs[i] == None:
-            i += 1
-        j = 23
-        while self.strawIDs[j] == None:
-            j -= 1
-        first_strawID = self.strawIDs[i]
-        last_strawID = self.strawIDs[j]
-        data_dir = GetProjectPaths()['strawresistance']
-        fileName = data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
-        # Create new file on computer
-        saveF = open(fileName, "a+")
-        # Write self.saveFile to new file
-        saveF.write(self.saveFile)
-        # Close new file. Save is complete.
-        saveF.close()
-
-        ## SAVE TO PALLET FILE ##
-        ## This is a .txt file logging the history of each CPAL that all GUIs write to.
-        for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory / palletid):
-                if self.palletNumber + ".csv" == pallet:
-                    pfile = self.palletDirectory / palletid / pallet
-                    with open(pfile, "a") as file:
-                        # Record Session Data
-                        file.write(
-                            "\n" + datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
-                        )  # Date
-                        file.write(self.stationID + ",")  # Test ID
-
-                        # Record each straw and whether it passes/fails
-                        for i in range(24):
-                            straw = self.strawIDs[i]
-                            pass_fail = ""
-
-                            # If straw doesn't exist
-                            if straw == None:
-                                straw = "_______"  # _ x7
-                                pass_fail = "_"
-
-                            # If straw exists, summarize all four booleans (1 fail --> straw fails)
-                            else:
-                                boolean = True
-                                for j in range(4):
-                                    if self.bools[i][j] == False:
-                                        boolean = False
-
-                                if boolean:
-                                    pass_fail = "P"
-                                else:
-                                    pass_fail = "F"
-
-                            file.write(straw + "," + pass_fail + ",")
-
-                        i = 0
-                        for worker in self.sessionWorkers:
-                            file.write(worker)
-                            if i != len(self.sessionWorkers) - 1:
-                                file.write(",")
-                            i += 1
-
-        QMessageBox.about(self, "Save", "Data saved successfully!")
-
-    def saveReset(self):
-        if self.measureByHand_counter < 2:
-            message = "There are some failed measurements. Would you like to try measuring by hand?"
-            buttonReply = QMessageBox.question(
-                self, "Measure By-Hand", message, QMessageBox.Yes | QMessageBox.No
-            )
-            if buttonReply == QMessageBox.Yes:
-                self.measureByHand()
-                return
-            # double-check before save/reset
-        warning = "Are you sure you want to Save?"
-        buttonReply = QMessageBox.question(
-            self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
-        )
-        if buttonReply == QMessageBox.Yes:
-            # Save data
-            self.save()
-            # self.resetGUI()
-
-            """#Ask to reset
-            reset_text = "Would you like to resistance test another pallet?"
-            buttonReply = QMessageBox.question(self, 'Test another pallet?', reset_text, QMessageBox.Yes | QMessageBox.No)
-            if buttonReply == QMessageBox.Yes:
-                self.resetGUI() #reset; user can start another pallet
-            if buttonReply == QMessageBox.No:
-                self.run_program = False"""
-
-    def closeEvent(self, event):
-        event.accept()
-        sys.exit(0)
-
-    def main(self):
-        while True:
-
-            if not self.calledInitializePallet:
-                self.lockGUI()
-                if self.ui.tab_widget.currentIndex() == 1:
-                    self.initializePallet()
-
-            self.lockGUI()
-            time.sleep(0.1)
-            self.app.processEvents()
-
 
 def run():
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
-    ctr = CompletionTrack(paths, app)
+    ctr = StrawResistanceGUI(paths, app)
     ctr.show()
-    ctr.main()
-    sys.exit()
+    app.exec_()
 
 
 if __name__ == "__main__":

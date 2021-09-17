@@ -76,10 +76,12 @@ class removeStraw(QDialog):
         lastTask = ""
         straws = []
         passfail = []
-        for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory / palletid):
+        CPALID = -1
+        for pid in os.listdir(self.palletDirectory):
+            for pallet in os.listdir(self.palletDirectory / pid):
                 if CPAL + ".csv" == pallet:
-                    pfile = self.palletDirectory / palletid / pallet
+                    CPALID = pid
+                    pfile = self.palletDirectory / pid / pallet
                     with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
@@ -101,7 +103,7 @@ class removeStraw(QDialog):
                                         passfail.append("Incomplete")
                                     else:
                                         passfail.append("Fail")
-        return CPAL, lastTask, straws, passfail
+        return CPAL, lastTask, straws, passfail, CPALID
 
     def displayPallet(self, CPAL, lastTask, straws, passfail):
         for palletid in os.listdir(self.palletDirectory):
@@ -127,7 +129,7 @@ class removeStraw(QDialog):
 
     def delete(self, btn):
         pos = int(btn.objectName().strip("remove_")) - 1
-        CPAL, lastTask, straws, passfail = self.getPallet(
+        CPAL, lastTask, straws, passfail, CPALID = self.getPallet(
             self.ui.palletLabel.text()[8:]
         )
         if straws[pos] == "Empty":
@@ -173,12 +175,12 @@ class removeStraw(QDialog):
                             if i != len(self.sessionWorkers) - 1:
                                 file.write(",")
                             i = i + 1
-        CPAL, lastTask, straws, passfail = self.getPallet(CPAL)
+        CPAL, lastTask, straws, passfail, CPALID = self.getPallet(CPAL)
         self.displayPallet(CPAL, lastTask, straws, passfail)
 
     def moveStraw(self, btn):
         pos = int(btn.objectName().strip("move_")) - 1
-        CPAL, lastTask, straws, passfail = self.getPallet(
+        CPAL, lastTask, straws, passfail, CPALID = self.getPallet(
             self.ui.palletLabel.text()[8:]
         )
 
@@ -279,7 +281,7 @@ class removeStraw(QDialog):
             )
             if not okPressed:
                 return
-            newpal, newlastTask, newstraws, newpassfail = self.getPallet(newpal)
+            newpal, newlastTask, newstraws, newpassfail, CPALID = self.getPallet(newpal)
             if newlastTask != lastTask:
                 buttonReply = QMessageBox.question(
                     self,
@@ -366,5 +368,5 @@ class removeStraw(QDialog):
                                     file.write(",")
                                 i = i + 1
 
-        CPAL, lastTask, straws, passfail = self.getPallet(CPAL)
+        CPAL, lastTask, straws, passfail, CPALID = self.getPallet(CPAL)
         self.displayPallet(CPAL, lastTask, straws, passfail)

@@ -1,5 +1,5 @@
 ################################################################################
-# INDIVIDUAL PROCESS DATA TABLES
+# Panel Process Metadata Classes/Tables
 #
 # These classes define the procedure_details_panX tables. These tables hold
 # info specific to each process. Epoxy batch numbers and timers, process-wide

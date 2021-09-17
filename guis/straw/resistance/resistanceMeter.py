@@ -13,7 +13,7 @@ from guis.common.getresources import GetProjectPaths
 # os.system('mode con: cols=115 lines=50')
 com = "Com6"
 
-calibFile = GetProjectPaths()['strawresistancecal']
+calibFile = GetProjectPaths()["strawresistancecal"]
 dataFile = None
 measLet = "abcdefghijklmnop"
 
@@ -22,7 +22,7 @@ average = "average"
 try:
     cereal = serial.Serial(com, 9600, timeout=10)
     print(cereal.readline().decode("utf-8").rstrip())
-except:
+except serial.serialutil.SerialException:
     print("No Arduino Connected")
     sys.exit()
 
