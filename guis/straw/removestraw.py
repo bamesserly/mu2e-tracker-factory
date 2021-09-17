@@ -82,7 +82,6 @@ class removeStraw(QDialog):
                 if CPAL + ".csv" == pallet:
                     CPALID = pid
                     pfile = self.palletDirectory / pid / pallet
-                    print(pfile)
                     with open(pfile, "r") as file:
                         dummy = csv.reader(file)
                         history = []
