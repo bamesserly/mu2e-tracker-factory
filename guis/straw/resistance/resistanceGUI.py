@@ -56,6 +56,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
     QMessageBox,
+    QLCDNumber,
 )
 from guis.straw.resistance.design import Ui_MainWindow
 
@@ -69,10 +70,20 @@ from guis.common.dataProcessor import SQLDataProcessor as DP
 from guis.common.gui_utils import generateBox
 
 from random import uniform
+from enum import Enum, auto
+from guis.common.timer import QLCDTimer
+
+
+class ResistanceMeasurementConfig(Enum):
+    II = 0  # inner-inner
+    IO = auto()  # inner-outer
+    OI = auto()  # outer-inner
+    OO = auto()  # outer-outer
 
 
 class StrawResistanceGUI(QDialog):
     LockGUI = pyqtSignal(bool)
+    timer_signal = pyqtSignal()
 
     def __init__(self, paths, app):
         super().__init__()
@@ -170,9 +181,10 @@ class StrawResistanceGUI(QDialog):
 
         # Saving Data
         self.dataRecorded = False
-        self.saveData = [[None for i in range(4)] for pos in range(24)]
-        self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
+        self.clean_data = [[None for i in range(4)] for pos in range(24)]
         self.saveFile = ""
+
+        self.db_entries = []
 
         # Measurement Status
         self.collectData_counter = 0
@@ -185,6 +197,22 @@ class StrawResistanceGUI(QDialog):
         # LogOut
         self.justLogOut = ""
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
+
+        # timing
+        self.timer = QLCDTimer(
+            QLCDNumber(),  # no timer display for this ui TODO
+            QLCDNumber(),  # no timer display for this ui TODO
+            QLCDNumber(),  # no timer display for this ui TODO
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
+
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
+        self.running = lambda: self.timer.isRunning()
 
         # Keep program running
         self.run_program = True
@@ -222,8 +250,7 @@ class StrawResistanceGUI(QDialog):
         self.palletInfoVerified = False
         self.calledInitializePallet = False
 
-        self.saveData = [[None for i in range(4)] for pos in range(24)]
-        self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
+        self.clean_data = [[None for i in range(4)] for pos in range(24)]
         self.saveFile = ""
         for el in self.straw_ID_labels:
             el.setText("St#####")
@@ -231,8 +258,7 @@ class StrawResistanceGUI(QDialog):
             box.setEnabled(True)
         self.LEDreset()
 
-        self.saveData = [[None for i in range(4)] for pos in range(24)]
-        self.oldSaveData = [[None for i in range(4)] for pos in range(24)]
+        self.clean_data = [[None for i in range(4)] for pos in range(24)]
         self.saveFile = ""
 
         # Measurement status
@@ -479,7 +505,9 @@ class StrawResistanceGUI(QDialog):
         ):
             return
 
+        self.startTimer()
         self.DP.saveStart()  # initialize procedure and commit it to the DB
+        self.procedure = self.DP.procedure  # Resistance(StrawProcedure) object
 
         # try:
         #    self.measurements = self.resistanceMeter.rMain()
@@ -716,7 +744,10 @@ class StrawResistanceGUI(QDialog):
         status_color = red if failed else green
         self.ui.errorLED.setPixmap(status_color)
 
-    ### SAVE / RESET ###
+    # ===========================================================================
+    # SAVE / RESET ###
+    # ===========================================================================
+    # Not currently used -- temp-humid not important for resistance measurements
     def getTempHumid(self):
         directory = GetProjectPaths()["temp_humid_data"] / "464B"
         D = os.listdir(directory)
@@ -736,25 +767,34 @@ class StrawResistanceGUI(QDialog):
                     humidity = float(row[2])
         return temperature, humidity
 
+    # clean data -- assemble self.db_entries and self.clean_data from raw
+    # self.measurements array
     def configureSaveData(self):
-        pass_fail_library = {True: "pass", False: "fail"}
+        # straw loop
         for pos in range(24):
-            for i in range(4):
-                resistance = self.measurements[pos][
-                    i
-                ]  # Measurement for respective position and index
-                if resistance > 1000:
-                    resistance = float("inf")
-                the_bool = self.bools[pos][i]  # Status of respective measurement
-                pass_fail = pass_fail_library[
-                    the_bool
-                ]  # Translates bool into "pass" or "fail" for the save file
-                self.saveData[pos][i] = (
+            straw_id = int(self.strawIDs[pos][2:])
+            db_entry = self.procedure.StrawResistanceMeasurement(
+                procedure=self.procedure, straw=straw_id
+            )
+
+            for config in ResistanceMeasurementConfig:
+                i = config.value  # for backwards compatibility
+                resistance = self.measurements[pos][i]
+                resistance = resistance if resistance <= 1000 else float("inf")
+
+                pass_fail = "pass" if self.bools[pos][i] else "fail"
+
+                db_entry.setMeasurement(resistance, config.name.lower())
+
+                # TODO stop using self.clean_data multi-dim array for anything
+                self.clean_data[pos][i] = (
                     resistance,
                     pass_fail,
-                )  # Saves measurement and pass_fail as a tuple
+                )
 
-    # record resistance measurements to a csv file
+            self.db_entries.append(db_entry)
+
+    # assemble csv file of straw-by-straw resistance measurements
     def prepareSaveFile(self):
         heading = "Straw Number, Timestamp, Worker ID, Pallet ID, Resistance(Ohms), Temp(C), Humidity(%), Measurement Type, Pass/Fail \n"
         # temperature, humidity = self.getTempHumid()
@@ -769,15 +809,12 @@ class StrawResistanceGUI(QDialog):
         self.saveFile += heading
         for pos in range(24):
             strawID = self.strawIDs[pos]
-            db_measurement = self.DP.procedure.StrawResistanceMeasurement(
-                procedure=self.DP.procedure, straw=int(strawID[2:])
-            )
 
             for i in range(4):
                 if strawID:
                     measurement_type = self.meas_type_labels_apprev[i]
-                    measurement = self.saveData[pos][i][0]
-                    pass_fail = self.saveData[pos][i][1]
+                    measurement = self.clean_data[pos][i][0]
+                    pass_fail = self.clean_data[pos][i][1]
                     self.saveFile += strawID.lower() + ","
                     self.saveFile += datetime.now().strftime("%Y-%m-%d_%H%M%S_") + ","
                     self.saveFile += worker_with_creds + ","
@@ -787,9 +824,6 @@ class StrawResistanceGUI(QDialog):
                     self.saveFile += str(humidity) + ","
                     self.saveFile += measurement_type + ","
                     self.saveFile += pass_fail
-                    # print("     ",strawID, measurement_type, measurement, pass_fail)
-
-                    db_measurement.setMeasurement(measurement, measurement_type)
 
                 else:
                     # Save blanks for all cells
@@ -802,54 +836,7 @@ class StrawResistanceGUI(QDialog):
 
                 self.saveFile += "\n"
 
-            print(db_measurement)
-            # db_measurement.commit()
-
-    # worst function ever
-    def saveDataToDB(self):
-        procedure = self.DP.procedure
-        db_entries = []
-        for straw_idx, straw in enumerate(self.strawIDs):
-            print(straw_idx, straw)
-            db_entry = self.DP.procedure.StrawResistanceMeasurement(
-                procedure, int(straw[2:])
-            )
-            for meas_type_idx, measurement_type in enumerate(
-                self.meas_type_labels_apprev
-            ):
-                [
-                    db_entry.setMeasurement(
-                        resistance[straw_idx][meas_type_idx][0], measurement_type
-                    )
-                    for resistance in self.saveData
-                ]
-            db_entries.append(db_entry)
-        [entry.commit() for entry in db_entries]
-
-    # resistance measurements, pass/fail, temp/humidity
-    def save(self):
-        self.saveDataToText()
-        self.saveDataToDB()
-        QMessageBox.about(self, "Save", "Data saved successfully!")
-
-    def saveDataToDB(self):
-        pass
-
-    def saveDataToText(self):
-        self.saveResistanceDataToText()
-        self.savePalletDataToText()
-
-    def saveResistanceDataToText(self):
-        self.configureSaveData()
-        self.prepareSaveFile()
-        file_name = self.makeResistanceDataFileName()
-        # Create new file on computer
-        saveF = open(file_name, "a+")
-        # Write self.saveFile to new file
-        saveF.write(self.saveFile)
-        # Close new file. Save is complete.
-        saveF.close()
-
+    # get straw-by-straw resistance measurement csv file fullpath
     def makeResistanceDataFileName(self):
         day = datetime.now().strftime("%Y-%m-%d_%H%M%S_")
         # Get lowest straw id
@@ -864,6 +851,16 @@ class StrawResistanceGUI(QDialog):
         data_dir = GetProjectPaths()["strawresistance"]
         return data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
 
+    # save the csv file of straw-by-straw measurements
+    def saveResistanceDataToText(self):
+        self.prepareSaveFile()
+        file_name = self.makeResistanceDataFileName()
+        saveF = open(file_name, "a+")
+        saveF.write(self.saveFile)
+        saveF.close()
+
+    # save in the pallet file whether each straw passed or failed resistance
+    # measurements
     def savePalletDataToText(self):
         for palletid in os.listdir(self.palletDirectory):
             for pallet in os.listdir(self.palletDirectory / palletid):
@@ -907,6 +904,20 @@ class StrawResistanceGUI(QDialog):
                                 file.write(",")
                             i += 1
 
+    def saveDataToText(self):
+        self.saveResistanceDataToText()
+        self.savePalletDataToText()
+
+    def saveDataToDB(self):
+        # TODO perform checks on the validity/completeness of entries
+        [entry.commit() for entry in self.db_entries]
+
+    def saveData(self):
+        self.configureSaveData()
+        self.saveDataToText()
+        self.saveDataToDB()
+        QMessageBox.about(self, "Save", "Data saved successfully!")
+
     def saveReset(self):
         if self.measureByHand_counter < 2:
             message = "There are some failed measurements. Would you like to try measuring by hand?"
@@ -922,8 +933,10 @@ class StrawResistanceGUI(QDialog):
             self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
         )
         if buttonReply == QMessageBox.Yes:
+            self.stopTimer()
+            self.DP.saveFinish()
             # Save data
-            self.save()
+            self.saveData()
             # self.resetGUI()
 
             """#Ask to reset
