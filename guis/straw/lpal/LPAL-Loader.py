@@ -1,6 +1,20 @@
+################################################################################
+#
+# Load Straws onto LPAL
+#
+# Next step: straws are done, onto panel production
+#
+#
+################################################################################
 from pathlib import Path
 from csv import DictReader, DictWriter
 from time import time
+
+# from guis.common.db_classes.straw_location import LoadingPallet
+from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.timer import QLCDTimer
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QLCDNumber
 
 
 def getInput(prompt, checkcondition):
@@ -71,8 +85,64 @@ def getUnfilledPositions(file):
     return [int(row["Position"]) for row in rows if not row["Straw"]]
 
 
-def main():
+# Our sqldp needs an object with these properties
+class LPALLoadingGUI:
+    def __init__(self):
+        # timer stuff
+        timer_signal = pyqtSignal()
+        self.timer = QLCDTimer(
+            QLCDNumber(),  # no timer display for this ui
+            QLCDNumber(),  # no timer display for this ui
+            QLCDNumber(),  # no timer display for this ui
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
+        self.running = lambda: self.timer.isRunning()
 
+        # process info
+        self.pro = 11
+        self.pro_index = self.pro - 1
+        self.data = []
+
+    # Set Pallet numbers/ids
+    def setCPALID(self, cpal_id):
+        self.cpal_id = cpal_id
+
+    def setCPALNumber(self, cpal_number):
+        self.cpal_number = cpal_number
+
+    def setLPALID(self, lpal_id):
+        self.lpal_id = lpal_id
+
+    def setLPALNumber(self, lpal_number):
+        self.lpal_number = lpal_number
+
+    # Get Pallet numbers/ids
+    def getCPALID(self):
+        return self.cpal_id
+
+    def getCPALNumber(self):
+        return self.cpal_number
+
+    def getLPALID(self):
+        return self.lpal_id
+
+    def getLPALNumber(self):
+        return self.lpal_number
+
+
+def run():
+    lpalgui = LPALLoadingGUI()
+    # Data Processor
+    DP = DP(
+        gui=lpalgui,
+        stage="straws",
+    )
     print(
         """
     \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
@@ -91,6 +161,7 @@ def main():
     )
     if lpalid is None:
         return
+    lpalgui.setLPALID(lpalid)
 
     # Scan in LPAL (LPAL####)
     lpal = getInput(
@@ -101,6 +172,7 @@ def main():
     )
     if lpal is None:
         return
+    lpalgui.setLPALNumber(lpal)
 
     # Get file
     file = getFile(lpalid, lpal)
@@ -146,4 +218,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()
