@@ -133,6 +133,18 @@ class Resistance(StrawProcedure):
             setattr(self, which_member, "%9.5f" % measurement)
 
 
+class FillLPAL(StrawProcedure):
+    __mapper_args__ = {
+        "polymorphic_identity": "load"
+    }  # foreign link to which station.id
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "load"
+        ), f"Error. Tried to construct load procedure for a station '{station.id}' not 'load'."
+        super().__init__(station, straw_location, create_key)
+
+
 """
 class Co2Procedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "co2"}

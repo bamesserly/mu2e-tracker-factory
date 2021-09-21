@@ -110,11 +110,11 @@ class LPALLoadingGUI:
         self.data = []
 
     # Set Pallet numbers/ids
-    def setCPALID(self, cpal_id):
-        self.cpal_id = cpal_id
+    # def setCPALID(self, cpal_id):
+    #    self.cpal_id = cpal_id
 
-    def setCPALNumber(self, cpal_number):
-        self.cpal_number = cpal_number
+    # def setCPALNumber(self, cpal_number):
+    #    self.cpal_number = cpal_number
 
     def setLPALID(self, lpal_id):
         self.lpal_id = lpal_id
@@ -123,11 +123,11 @@ class LPALLoadingGUI:
         self.lpal_number = lpal_number
 
     # Get Pallet numbers/ids
-    def getCPALID(self):
-        return self.cpal_id
+    # def getCPALID(self):
+    #    return self.cpal_id
 
-    def getCPALNumber(self):
-        return self.cpal_number
+    # def getCPALNumber(self):
+    #    return self.cpal_number
 
     def getLPALID(self):
         return self.lpal_id
@@ -173,6 +173,9 @@ def run():
     if lpal is None:
         return
     lpalgui.setLPALNumber(lpal)
+
+    self.DP.saveStart()  # initialize procedure and commit it to the DB
+    # self.DP.procedure  # FillLPAL(StrawProcedure) object
 
     # Get file
     file = getFile(lpalid, lpal)
