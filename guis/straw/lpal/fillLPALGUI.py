@@ -6,15 +6,20 @@
 #
 #
 ################################################################################
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", "FillLPAL")
+
 from pathlib import Path
 from csv import DictReader, DictWriter
 from time import time
+import sys
 
 # from guis.common.db_classes.straw_location import LoadingPallet
-from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.dataProcessor import SQLDataProcessor as SQLDP
 from guis.common.timer import QLCDTimer
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QLCDNumber
+from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtWidgets import QApplication, QLCDNumber
 
 
 def getInput(prompt, checkcondition):
@@ -86,10 +91,14 @@ def getUnfilledPositions(file):
 
 
 # Our sqldp needs an object with these properties
-class LPALLoadingGUI:
+class FillLPALGUI(QObject):
+    timer_signal = pyqtSignal()
+
     def __init__(self):
+        super(FillLPALGUI, self).__init__(None)
+        app = QApplication(sys.argv)
+
         # timer stuff
-        timer_signal = pyqtSignal()
         self.timer = QLCDTimer(
             QLCDNumber(),  # no timer display for this ui
             QLCDNumber(),  # no timer display for this ui
@@ -137,9 +146,9 @@ class LPALLoadingGUI:
 
 
 def run():
-    lpalgui = LPALLoadingGUI()
+    lpalgui = FillLPALGUI()
     # Data Processor
-    DP = DP(
+    DP = SQLDP(
         gui=lpalgui,
         stage="straws",
     )
@@ -174,7 +183,7 @@ def run():
         return
     lpalgui.setLPALNumber(lpal)
 
-    self.DP.saveStart()  # initialize procedure and commit it to the DB
+    DP.saveStart()  # initialize procedure and commit it to the DB
     # self.DP.procedure  # FillLPAL(StrawProcedure) object
 
     # Get file
