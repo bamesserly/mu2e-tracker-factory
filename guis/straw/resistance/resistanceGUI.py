@@ -268,7 +268,7 @@ class StrawResistanceGUI(QDialog):
     #############################################################################
     # Pallet Info -- set, get, validate
     #############################################################################
-    def getPalletNumber(self):
+    def setPalletNumber(self):
         pallet, ok = QInputDialog().getText(
             self, "Pallet Number", "Please scan the Pallet Number", text="CPAL####"
         )
@@ -279,7 +279,7 @@ class StrawResistanceGUI(QDialog):
             if self.verifyPalletNumber(pallet):
                 self.palletNumber = pallet
             else:
-                self.getPalletNumber()
+                self.setPalletNumber()
 
     def verifyPalletNumber(self, pallet_num):
         # Verifies that the given pallet number is of a valid format
@@ -298,15 +298,15 @@ class StrawResistanceGUI(QDialog):
 
         return verify
 
-    def getCPALID(self):
+    def getPalletID(self):
         return self.palletID
 
-    def getCPALNumber(self):
+    def getPalletNumber(self):
         return self.palletNumber
 
     def initializePallet(self):
         if not self.palletNumber:
-            self.getPalletNumber()
+            self.setPalletNumber()
 
         if self.palletNumber:
             # Display Pallet Info Window
