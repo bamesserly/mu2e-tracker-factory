@@ -1183,10 +1183,10 @@ class Prep(QMainWindow):
     def tab(self):
         keyboard.press(Key.tab)
 
-    def getCPALID(self):
+    def getPalletID(self):
         return self.palletID
 
-    def getCPALNumber(self):
+    def getPalletNumber(self):
         return self.palletNumber
 
     ############################################################################

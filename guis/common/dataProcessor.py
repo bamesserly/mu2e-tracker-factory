@@ -508,17 +508,17 @@ class DataProcessor(ABC):
     def getPanel(self):
         return self.gui.getCurrentPanel()
 
-    # just the number
-    def getCPALID(self):
-        cpal_id = self.gui.getCPALID()
-        cpal_id = "".join(ch for ch in cpal_id if ch.isdigit())
-        return cpal_id
+    # return just the integer
+    def getPalletID(self):
+        pallet_id = self.gui.getPalletID()
+        pallet_id = "".join(ch for ch in pallet_id if ch.isdigit())
+        return pallet_id
 
-    # just the number
-    def getCPALNumber(self):
-        cpal_number = self.gui.getCPALNumber()
-        cpal_number = "".join(ch for ch in cpal_number if ch.isdigit())
-        return cpal_number
+    # return just the integer
+    def getPalletNumber(self):
+        pallet_number = self.gui.getPalletNumber()
+        pallet_number = "".join(ch for ch in pallet_number if ch.isdigit())
+        return pallet_number
 
     """
     getTimer
@@ -2406,8 +2406,8 @@ class SQLDataProcessor(DataProcessor):
             elif self.stage == "straws":
                 self.session.startStrawProcedure(
                     process=self.getPro(),
-                    cpal_id=self.getCPALID(),
-                    cpal_number=self.getCPALNumber(),
+                    pallet_id=self.getPalletID(),
+                    pallet_number=self.getPalletNumber(),
                 )
             self.procedure = self.session.getProcedure()
 

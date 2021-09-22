@@ -44,6 +44,8 @@ from sqlalchemy import (
 from sqlalchemy import orm
 from datetime import datetime
 from time import time
+from guis.common.db_classes.straw_location import StrawLocation
+from guis.common.db_classes.station import Station
 
 
 class Procedure(BASE, OBJECT):
@@ -161,18 +163,21 @@ class Procedure(BASE, OBJECT):
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
 
     @classmethod
-    def StrawProcedure(cls, process, cpal_id, cpal_number):
-        from guis.common.db_classes.straw_location import StrawLocation
-        from guis.common.db_classes.station import Station
+    def StrawProcedure(cls, process, pallet_id, pallet_number):
 
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
+        pallet = None
+
         # Get panel
-        cpal = StrawLocation.CPAL(pallet_id=cpal_id, number=cpal_number)
+        if station.id == "load":
+            pallet = StrawLocation.LPAL(pallet_id=pallet_id, number=pallet_number)
+        else:
+            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
 
         # Use Procedure._startProcedure() to return object.
-        return StrawProcedure._startProcedure(station=station, straw_location=cpal)
+        return StrawProcedure._startProcedure(station=station, straw_location=pallet)
 
     @staticmethod
     def _queryStation(station=None, production_stage=None, production_step=None):

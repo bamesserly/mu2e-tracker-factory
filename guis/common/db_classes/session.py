@@ -83,13 +83,13 @@ class Session(BASE, OBJECT):
         self._setProcedure(p)
 
     # The /only/ place where a StrawProcedure is created
-    def startStrawProcedure(self, process, cpal_id, cpal_number):
+    def startStrawProcedure(self, process, pallet_id, pallet_number):
 
         assert (
             self.procedure is None
         ), "A procedure has already been defined for this session."
         p = Procedure.StrawProcedure(
-            process=process, cpal_id=cpal_id, cpal_number=cpal_number
+            process=process, pallet_id=pallet_id, pallet_number=pallet_number
         )
         self._setProcedure(p)
 
