@@ -147,17 +147,6 @@ class StrawLocation(BASE, OBJECT):
         return LoadingPallet._construct(number=number, pallet_id=pallet_id)
 
     ## PROPERTIES ##
-    """
-    # return [(pos id, pos number),(pos id, pos number), ...]
-    def getStrawPositions(self):
-        return (
-            DM.query(StrawPosition.id, StrawPosition.position_number)
-            .filter(StrawPosition.location == self.id)
-            .order_by(StrawPosition.position_number.asc())
-            .all()
-        )
-    """
-
     def getStraws(self):
 
         # Query Tuples of Straw Position ids and Straw objects
