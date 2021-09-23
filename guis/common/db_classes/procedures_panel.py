@@ -89,6 +89,10 @@ class Pan1Procedure(PanelProcedure):
         from guis.common.db_classes.straw_location import StrawLocation
 
         # Query Objects
+
+        # If this LPAL number is new, commit a new LPAL entry to the straw
+        # location table. Else, get the existing entry from the db. Either way,
+        # return the corresponding LoadingPallet object.
         lpal = StrawLocation.LPAL(lpal_num)
         straws = lpal.getStraws()
         panel = self.getPanel()

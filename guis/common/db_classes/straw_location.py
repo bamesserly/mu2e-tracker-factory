@@ -40,8 +40,10 @@ from sqlalchemy import (
     Table,
     TEXT,
     func,
+    or_,
 )
 from sqlalchemy.sql.expression import true, false
+from guis.common.db_classes.straw import Straw
 
 
 class StrawLocation(BASE, OBJECT):
@@ -83,6 +85,16 @@ class StrawLocation(BASE, OBJECT):
 
         # Make new positions for this StrawLocation
         self._makeNewPositions()
+
+    def __repr__(self):
+        rep = (
+            f"{self.id} straw location {self.location_type}{str(self.number).zfill(4)}"
+        )
+
+        if self.pallet_id:
+            rep += f" at {self.location_type}ID{str(self.pallet_id).zfill(2)}"
+
+        return rep
 
     """
     _construct
@@ -135,9 +147,7 @@ class StrawLocation(BASE, OBJECT):
         return LoadingPallet._construct(number=number, pallet_id=pallet_id)
 
     ## PROPERTIES ##
-
     def getStraws(self):
-        from guis.common.db_classes.straw import Straw
 
         # Query Tuples of Straw Position ids and Straw objects
         qry = (
@@ -184,11 +194,41 @@ class StrawLocation(BASE, OBJECT):
     def isNew(self):
         return self.new
 
+    # return [0, 6, 8, 14, 22, ...]
+    def getUnfilledPositions(self):
+        unfilled_positions = (
+            DM.query(StrawPosition.position_number)  # get all straw position numbers
+            .outerjoin(
+                StrawPresent, StrawPresent.position == StrawPosition.id
+            )  # and all the matching StrawPresent positions
+            .filter(
+                or_(StrawPresent.position == None, StrawPresent.present == 0)
+            )  # such that the StrawPresent positions don't actually have an entry
+            # or such that the present field is false
+            .filter(StrawPosition.location == self.id)  # for this straw location
+            .order_by(StrawPosition.position_number.asc())
+            .all()
+        )
+
+        return [pos for pos, *remainder in unfilled_positions]
+
+    # return [0, 6, 8, 14, 22, ...]
+    def getFilledPositions(self):
+        filled_positions = (
+            DM.query(StrawPosition.position_number)  # get all straw position numbers
+            .join(
+                StrawPresent, StrawPresent.position == StrawPosition.id
+            )  # where the straw positions have an entry in the StrawPresent table
+            .filter(StrawPresent.present == 1)
+            .filter(StrawPosition.location == self.id)  # for this straw location
+            .order_by(StrawPosition.position_number.asc())
+            .all()
+        )
+        return [pos for pos, *remainder in filled_positions]
+
     ## INSTANCE METHODS ##
 
     def getStrawAtPosition(self, position):
-        from guis.common.db_classes.straw import Straw
-
         return (
             DM.query(Straw)
             .join(StrawPresent, StrawPresent.straw == Straw.id)
@@ -545,11 +585,17 @@ class StrawPosition(BASE, OBJECT):
         self.position_number = position_number
 
     def __repr__(self):
-        return "<StrawPosition(id='%s',location'%s',position_number='%s')>" % (
-            self.id,
-            self.location,
-            self.position_number,
+        return f"<{self.id} straw position {self.position_number} on {repr(self.getStrawLocation())}>"
+
+    def getStrawLocation(self):
+        return (
+            DM.query(StrawLocation)
+            .filter(StrawLocation.id == self.location)
+            .one_or_none()
         )
+
+    def getStrawLocationType(self):
+        return self.getStrawLocation().location_type
 
 
 # Each straw's past (present == false) and current (present == true) straw
