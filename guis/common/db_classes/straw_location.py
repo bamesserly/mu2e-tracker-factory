@@ -43,7 +43,7 @@ from sqlalchemy import (
     or_,
 )
 from sqlalchemy.sql.expression import true, false
-from guis.common.db_classes.straw import Straw
+import guis.common.db_classes.straw as st
 
 
 class StrawLocation(BASE, OBJECT):
@@ -151,8 +151,8 @@ class StrawLocation(BASE, OBJECT):
 
         # Query Tuples of Straw Position ids and Straw objects
         qry = (
-            DM.query(StrawPosition.id, Straw)
-            .join(StrawPresent, StrawPresent.straw == Straw.id)
+            DM.query(StrawPosition.id, st.Straw)
+            .join(StrawPresent, StrawPresent.straw == st.Straw.id)
             .outerjoin(StrawPosition, StrawPosition.id == StrawPresent.position)
             .filter(StrawPosition.location == self.id)
             .filter(StrawPresent.present == True)
@@ -230,8 +230,8 @@ class StrawLocation(BASE, OBJECT):
 
     def getStrawAtPosition(self, position):
         return (
-            DM.query(Straw)
-            .join(StrawPresent, StrawPresent.straw == Straw.id)
+            DM.query(st.Straw)
+            .join(StrawPresent, StrawPresent.straw == st.Straw.id)
             .join(StrawPosition, StrawPresent.position == StrawPosition.id)
             .filter(StrawPosition.location == self.id)
             .filter(StrawPosition.position_number == position)
