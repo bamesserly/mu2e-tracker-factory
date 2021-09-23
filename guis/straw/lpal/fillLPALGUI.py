@@ -122,7 +122,9 @@ def removeStrawFromCurrentLocations(straw, cpals):
     if len(straw_positions) == 0:
         msg = f"Straw ST{straw.id} not found present on any CPAL!"
         logger.warning(msg)
-        if not getYN("\nAre you sure you want to add this straw to this LPAL?"):
+        if getYN("\nAre you sure you want to add this straw to this LPAL?"):
+            return True
+        else:
             return False
     # straw found on exactly 1 CPAL -- GOOD
     elif (
@@ -151,7 +153,8 @@ def addStrawToLPAL(lpal, outfile, cpals):
     # Check: is the lPAL full?
     ########################################################################
     unfilled = getUnfilledPositions(outfile)  # from text file
-    # filled = lpal.getFilledPositions()
+    # print("filled",lpal.getFilledPositions())
+    # print("unfilled",lpal.getUnfilledPositions())
 
     if unfilled != lpal.getUnfilledPositions():
         logger.warning(
