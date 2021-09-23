@@ -14,6 +14,7 @@ from sqlalchemy import (
     TEXT,
     func,
 )
+import guis.common.db_classes.straw_location as sl
 
 
 class Straw(BASE, OBJECT):
@@ -46,6 +47,10 @@ class Straw(BASE, OBJECT):
 
         # Return straw
         return s
+
+    @classmethod
+    def exists(cls, straw_id):
+        return DM.query(Straw).filter(Straw.id == straw_id).one_or_none()
 
     """
     strpBarcode(cls,barcode)
@@ -126,3 +131,16 @@ class Straw(BASE, OBJECT):
         for k, v in d.items():
             d[k] = bool(v)  # Convert 1,0 to True,False
         return d
+
+    # return list of StrawPositions where this straw is marked present
+    def locate(self):
+        return (
+            DM.query(sl.StrawPosition)  # Get all the straw positions
+            # .join(sl.StrawPosition, sl.StrawPosition.location == sl.StrawLocation.id) # where straw positions have an entry in the straw location
+            .join(
+                sl.StrawPresent, sl.StrawPresent.position == sl.StrawPosition.id
+            )  # that also have straw present entries
+            .filter(sl.StrawPresent.present == 1)  # where our straw is in fact present
+            .filter(sl.StrawPresent.straw == self.id)  # for this straw
+            .all()
+        )
