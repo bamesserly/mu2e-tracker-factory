@@ -21,6 +21,7 @@ from guis.common.timer import QLCDTimer
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QApplication, QLCDNumber
 from guis.common.db_classes.straw import Straw
+from guis.common.getresources import GetProjectPaths
 
 
 def getInput(prompt, checkcondition):
@@ -42,21 +43,18 @@ def getYN(instructions):
     return "N" not in s.upper()
 
 
-def getFile(lpalid, lpal):
-    # Generate the filename for this LPAL
-    folder = Path(__file__).resolve().parent  # Directory of the file
-    filename = f"{lpal}_{lpalid}.csv"  # Filename for this LPAL, LPALID
-    file = folder / filename  # Full path
+def getLPALFile(lpalid, lpal):
+    outfile = GetProjectPaths()["lpals"] / f"{lpal}_{lpalid}.csv"
 
     # If it doesn't exist yet, writes a header and all the positions
-    if not file.exists():
-        with file.open("w") as f:
+    if not outfile.exists():
+        with outfile.open("w") as f:
             f.write("Position,Straw,Timestamp\n")
             for i in range(0, 96, 2):
                 f.write(f"{i},,\n")
 
-    # Return file
-    return file
+    # Return outfile
+    return outfile
 
 
 def readRows(file):
@@ -66,7 +64,7 @@ def readRows(file):
     return rows, reader.fieldnames
 
 
-def recordStraw(file, position, straw):
+def saveStrawToLPAL(file, position, straw):
     # Read-in current file
     rows, fieldnames = readRows(file)
 
@@ -90,7 +88,144 @@ def getUnfilledPositions(file):
     return [int(row["Position"]) for row in rows if not row["Straw"]]
 
 
-# Our sqldp needs an object with these properties
+def getOrCreateStraw(straw_id):
+    straw = Straw.exists(straw_id=straw_id)
+    msg = f"Straw {straw_id} not found in the DB."
+    if not straw:
+        if not getYN(msg + " Add a new straw to DB and continue?"):
+            logger.warning(msg)
+        else:
+            straw = Straw(id=straw_id)
+    return straw
+
+
+def removeStrawFromCurrentLocation(straw, straw_position):
+    straw_location = straw_position.getStrawLocation()
+    position_on_straw_location = straw_position.position_number
+    straw_location.removeStraw(straw, position_on_straw_location)
+    logger.info(
+        f"Straw ST{straw.id} removed from {repr(straw_location)}, position {position_on_straw_location}."
+    )
+    return straw_location
+
+
+def removeStrawFromCurrentLocations(straw, cpals):
+    # list of StrawPositions where the DB thinks this straw is currently
+    # located.
+    # Hopefully, it's just present in one place: the cpal from which we're
+    # transferring it.
+    straw_positions = straw.locate()
+
+    # straw not found anywhere. possible that we just created this straw
+    if len(straw_positions) == 0:
+        msg = f"Straw ST{straw.id} not found present on any CPAL!"
+        logger.warning(msg)
+        if not getYN("\nAre you sure you want to add this straw to this LPAL?"):
+            return False
+    # straw found on exactly 1 CPAL -- GOOD
+    elif (
+        len(straw_positions) == 1
+        and straw_positions[0].getStrawLocationType() == "CPAL"
+    ):
+        cpal = removeStrawFromCurrentLocation(straw, straw_positions[0])
+        cpals.add(cpal)  # record this cpal
+        return True
+    # straw found in more than one location
+    else:
+        logger.warning(
+            f"Straw ST{straw.id} found present somewhere other than a single CPAL!"
+        )
+        logger.warning("\n".join([repr(i) for i in straw_positions]))
+        if not getYN(f"Do you want to remove the straw from all of these locations?"):
+            return False
+        for p in straw_positions:
+            straw_location = removeStrawFromCurrentLocation(straw, p)
+            cpals.add(straw_location)  # record this straw location
+        return True
+
+
+def addStrawToLPAL(lpal, outfile, cpals):
+    ########################################################################
+    # Check: is the lPAL full?
+    ########################################################################
+    unfilled = getUnfilledPositions(outfile)  # from text file
+    # filled = lpal.getFilledPositions()
+
+    if unfilled != lpal.getUnfilledPositions():
+        logger.warning(
+            f"Text file {outfile} and database disagree on which LPAL positions are unfilled."
+        )
+
+    if len(unfilled) == 0:
+        logger.info("All positions on this pallet have been filled.")
+        if not getYN("Continue scanning straws?"):
+            if getYN("Finish?"):
+                return "finish"
+    else:
+        logger.info(f"Unfilled Positions:\n{unfilled}")
+        if not getYN("Continue scanning straws?"):
+            return "pause"
+
+    ########################################################################
+    # Scan LPAL position
+    ########################################################################
+    # format POS.0 - POS.99
+    position = getInput(
+        prompt="Scan position barcode",
+        checkcondition=lambda s: len(s) in [5, 6]
+        and s.upper().startswith("POS.")
+        and s[4:].isnumeric()
+        and int(s[4:]) % 2 == 0,
+    )
+    if not position:
+        return "scanning"
+    position = int(position[4:])
+
+    if not position in unfilled:
+        if not getYN("There is already a straw at this position. Continue?"):
+            return "scanning"
+
+    ########################################################################
+    # Scan straw
+    ########################################################################
+    straw_id = getInput(
+        prompt="Scan straw barcode",
+        checkcondition=lambda s: len(s) == 7
+        and s.upper().startswith("ST")
+        and s[2:].isnumeric(),
+    )
+    if not straw_id:
+        return "scanning"
+
+    ########################################################################
+    # Save to Text -- add straw to LPAL txt file
+    ########################################################################
+    saveStrawToLPAL(outfile, position, straw_id)
+
+    ########################################################################
+    # Save to DB
+    ########################################################################
+    # 1. Get Straw object
+    straw = getOrCreateStraw(int(straw_id[2:]))
+    if not straw:
+        return "scanning"
+
+    # 2. Remove straw from current CPAL (and any other pallets)
+    if not removeStrawFromCurrentLocations(straw, cpals):
+        return "scanning"
+
+    # 3. Add straw to LPAL in the DB
+    lpal.addStraw(straw, position)
+    logger.info(
+        f"Straw ST{straw_id} added to LPAL{lpal.number} at position {position}."
+    )
+
+    return "scanning"
+
+
+# Our sqldp needs an object with these properties.
+# Somewhat of a dummy object right now. Eventually, may want to turn this
+# program into a full-fledged gui.
 class FillLPALGUI(QObject):
     timer_signal = pyqtSignal()
 
@@ -132,12 +267,6 @@ class FillLPALGUI(QObject):
 
 
 def run():
-    lpalgui = FillLPALGUI()
-    # Data Processor
-    DP = SQLDP(
-        gui=lpalgui,
-        stage="straws",
-    )
     print(
         """
     \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
@@ -147,7 +276,9 @@ def run():
     |_____|_| /_/   \_\_____| |_____\___/ \__,_|\__,_|\___|_|                                                   
     """
     )
-    # Scan in LPALID (LPALID##)
+    ############################################################################
+    # Scan-in LPAL Info
+    ############################################################################
     lpalid = getInput(
         prompt="Please scan the LPALID (LPALID##)",
         checkcondition=lambda s: len(s) == 8
@@ -156,9 +287,7 @@ def run():
     )
     if lpalid is None:
         return
-    lpalgui.setPalletID(lpalid)
 
-    # Scan in LPAL (LPAL####)
     lpal_number = getInput(
         prompt="Please scan the LPAL (LPAL####)",
         checkcondition=lambda s: len(s) == 8
@@ -167,133 +296,63 @@ def run():
     )
     if lpal_number is None:
         return
-    lpalgui.setPalletNumber(lpal_number)
 
-    # initialize procedure and commit it to the DB
-    # internally, use the lpal number (lpalgui.getPalletNumber) and id
+    ############################################################################
+    # Start the database procedure
+    #
+    # Internally, use the lpal number (lpalgui.getPalletNumber) and id
     # (lpalgui.getPalletID) to create the straw_location object
+    ############################################################################
+    lpalgui = FillLPALGUI()
+    lpalgui.setPalletID(lpalid)
+    lpalgui.setPalletNumber(lpal_number)
+    lpalgui.startTimer()
+    DP = SQLDP(gui=lpalgui, stage="straws")
     DP.saveStart()
-    # self.DP.procedure  # FillLPAL(StrawProcedure) object
+    DP.saveResume()
+    print(DP.getTimer())
 
-    # get the straw location object that DP.saveStart just created.
+    # Retrieve the LoadingPallet(StrawLocation) object that the DP just made
     lpal = DP.procedure.getStrawLocation()
 
-    # DB checks
-    print(lpal.location_type, lpal.number, lpal.pallet_id)
-    # print("is empty?", lpal._palletIsEmpty(lpal.pallet_id))
-    # positions = lpal.getStrawPositions()
-    # print(positions)
-    # print(lpal._queryStrawPresents().all())
-    # print(lpal._queryStrawPositions().all())
-    print(f"Unfilled Positions:\n{lpal.getUnfilledPositions()}")
-    print(f"Filled Positions:\n{lpal.getFilledPositions()}")
+    ############################################################################
+    # Get outfile
+    ############################################################################
+    outfile = getLPALFile(lpal.pallet_id, lpal.number)
 
-    # Get file
-    file = getFile(lpal.pallet_id, lpal.number)
+    ############################################################################
+    # Scan-in straws
+    # Remove them from their CPALs and add them to the LPAL.
+    # Do so continuously until we either finish or break.
+    ############################################################################
+    cpals = set()  # straw location objects from which this lpal was filled
+    status = "scanning"
+    while status == "scanning":
+        print("\n")
+        status = addStrawToLPAL(lpal, outfile, cpals)
 
-    cpals = set()
+    lpalgui.stopTimer()
 
-    # On a loop:
-    while True:
-        # Determine which positions are curently unfilled
-        unfilled = getUnfilledPositions(file)
-        if len(unfilled) == 0:
-            print("All positions on this pallet have been filled.")
-        else:
-            print(f"Unfilled Positions:\n{unfilled}")
-
-        if not getYN("continue?"):
-            break
-
-        # Scan position
-        # format POS.0 - POS.99
-        position = getInput(
-            prompt="Scan position barcode",
-            checkcondition=lambda s: len(s) in [5, 6]
-            and s.upper().startswith("POS.")
-            and s[4:].isnumeric()
-            and int(s[4:]) % 2 == 0,
-        )
-        if position is None:
-            continue
-        position = int(position[4:])
-
-        if not position in unfilled:
-            if not getYN("There is already a straw at this position. Continue?"):
-                continue  # Return to top of loop
-
-        straw_id = getInput(
-            prompt="Scan straw barcode",
-            checkcondition=lambda s: len(s) == 7
-            and s.upper().startswith("ST")
-            and s[2:].isnumeric(),
-        )
-        if straw_id is None:
-            continue
-
-        recordStraw(file, position, straw_id)
-
-        straw_id = int(straw_id[2:])
-
-        # Get straw from DB
-        straw = Straw.exists(straw_id=straw_id)
-
-        msg = f"Straw {straw_id} not found in the DB."
-        if not straw and not getYN(msg + "Add new straw to DB and continue?"):
-            logger.warning(msg)
-            continue
-
-        # list of StrawPositions where this straw is marked present
-        straw_positions = straw.locate()
-
-        # Checking if this straw is already present in another straw location
-        # 0 --> ask for confirmation
-        # exactly 1 && CPAL --> good, remove from other pallet
-        # exactly 1 && !CPAL --> ask for confirmation, remove from other pallet
-        # more than 1 --> ask for confirmation, remove from all other pallets
-
-        # straw not found anywhere. possible that we just created this straw
-        if len(straw_positions) == 0:
-            msg = f"Straw ST{straw_id} not found present on any CPAL!"
-            logger.warning(msg)
-            if not getYN(
-                msg + "\nAre you sure you want to add this straw to this LPAL?"
-            ):
-                continue
-        # straw found on exactly 1 CPAL -- GOOD
-        elif (
-            len(straw_positions) == 1
-            and straw_positions[0].getStrawLocationType() == "CPAL"
-        ):
-            cpal = straw_positions[0].getStrawLocation()
-            cpal.removeStraw(straw, straw_positions[0].position_number)
-            logger.info(f"Straw {straw_id} removed from CPAL{cpal.number}")
-            cpals.add(cpal)  # make note of which cpals have been used to load this LPAL
-        # straw found in more than one location
-        else:
-            logger.warning(
-                f"Straw ST{straw_id} found present in more than one straw location!"
-            )
-            logger.warning("\n".join([repr(i) for i in straw_positions]))
-            if not getYN(
-                f"Do you want to remove the straw from all of these loctions and add it to LPAL{lpal.number} position {position}?"
-            ):
-                continue
-            for p in straw_positions:
-                straw_location = p.getStrawLocation()
-                straw_location.removeStraw(straw, p.position_number)
-                logger.info(f"Straw ST{straw_id} removed from {repr(straw_location)}.")
-                cpals.add(straw_location)
-
-        logger.info(
-            f"Straw ST{straw_id} added to LPAL{lpal.number} at position {position}."
-        )
-
-        lpal.addStraw(straw, position)
-
-        # elif any(p.getStrawLocation().id == lpal.id for p in straw_positions]:
-        # [position.getStrawLocation().removeStraw(straw, position.position_number, True) for position in straw_positions if position.getStrawLocation().location_type == "CPAL"]
+    if status == "finish":
+        logger.info(f"LPAL{lpal.number} loading marked as finished. Goodbye")
+        DP.saveFinish()
+    else:
+        logger.info(f"LPAL{lpal.number} loading paused. Goodbye.")
+        DP.savePause()  # TODO this isn't saving the elapsed time for some reason
 
 
 if __name__ == "__main__":
     run()
+
+# DB checks
+# print(lpal.location_type, lpal.number, lpal.pallet_id)
+# print("is empty?", lpal._palletIsEmpty(lpal.pallet_id))
+# positions = lpal.getStrawPositions()
+# print(positions)
+# print(lpal._queryStrawPresents().all())
+# print(lpal._queryStrawPositions().all())
+# print(f"Unfilled Positions:\n{lpal.getUnfilledPositions()}")
+# print(f"Filled Positions:\n{lpal.getFilledPositions()}")
+
+# elif any(p.getStrawLocation().id == lpal.id for p in straw_positions]:
+# [position.getStrawLocation().removeStraw(straw, position.position_number, True) for position in straw_positions if position.getStrawLocation().location_type == "CPAL"]
