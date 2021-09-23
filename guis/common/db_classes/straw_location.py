@@ -40,6 +40,7 @@ from sqlalchemy import (
     Table,
     TEXT,
     func,
+    or_,
 )
 from sqlalchemy.sql.expression import true, false
 from guis.common.db_classes.straw import Straw
@@ -212,12 +213,14 @@ class StrawLocation(BASE, OBJECT):
                 StrawPresent, StrawPresent.position == StrawPosition.id
             )  # and all the matching StrawPresent positions
             .filter(
-                StrawPresent.position == None
+                or_(StrawPresent.position == None, StrawPresent.present == 0)
             )  # such that the StrawPresent positions don't actually have an entry
+            # or such that the present field is false
             .filter(StrawPosition.location == self.id)  # for this straw location
             .order_by(StrawPosition.position_number.asc())
             .all()
         )
+
         return [pos for pos, *remainder in unfilled_positions]
 
     # return [0, 6, 8, 14, 22, ...]
@@ -227,6 +230,7 @@ class StrawLocation(BASE, OBJECT):
             .join(
                 StrawPresent, StrawPresent.position == StrawPosition.id
             )  # where the straw positions have an entry in the StrawPresent table
+            .filter(StrawPresent.present == 1)
             .filter(StrawPosition.location == self.id)  # for this straw location
             .order_by(StrawPosition.position_number.asc())
             .all()

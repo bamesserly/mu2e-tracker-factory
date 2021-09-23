@@ -44,7 +44,9 @@ def getYN(instructions):
 
 
 def getLPALFile(lpalid, lpal):
-    outfile = GetProjectPaths()["lpals"] / f"{lpal}_{lpalid}.csv"
+    outfile = (
+        GetProjectPaths()["lpals"] / f"LPAL{lpal}_LPALID{str(lpalid).zfill(2)}.csv"
+    )
 
     # If it doesn't exist yet, writes a header and all the positions
     if not outfile.exists():
@@ -310,7 +312,6 @@ def run():
     DP = SQLDP(gui=lpalgui, stage="straws")
     DP.saveStart()
     DP.saveResume()
-    print(DP.getTimer())
 
     # Retrieve the LoadingPallet(StrawLocation) object that the DP just made
     lpal = DP.procedure.getStrawLocation()
