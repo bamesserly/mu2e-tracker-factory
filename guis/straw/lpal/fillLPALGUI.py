@@ -45,7 +45,8 @@ def getYN(instructions):
 
 def getLPALFile(lpalid, lpal):
     outfile = (
-        GetProjectPaths()["lpals"] / f"LPAL{lpal}_LPALID{str(lpalid).zfill(2)}.csv"
+        GetProjectPaths()["lpals"]
+        / f"LPAL{str(lpal).zfill(4)}_LPALID{str(lpalid).zfill(2)}.csv"
     )
 
     # If it doesn't exist yet, writes a header and all the positions
@@ -97,7 +98,7 @@ def getOrCreateStraw(straw_id):
         if not getYN(msg + " Add a new straw to DB and continue?"):
             logger.warning(msg)
         else:
-            straw = Straw(id=straw_id)
+            straw = Straw.Straw(id=straw_id)
     return straw
 
 
