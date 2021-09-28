@@ -278,39 +278,42 @@ void display_status(){
 	}
 	uint32_t now = millis();
 	set_key_metrics(temp_A, temp_2, now);
-	//Serial.print("Temperature 1: "); Serial.println(temp_A);
-	//Serial.print("Temperature 2: "); Serial.println(temp_2);
+	Serial.print("Temperature 1: "); Serial.println(temp_A);
+	Serial.print("Temperature 2: "); Serial.println(temp_2);
 	Serial.print("Time = ");Serial.println(millis());
 	//Serial.print("do_increase_temperature = ");Serial.println(do_increase_temperature); // test for software timer fix
 
-	Serial.print("tempA_max"); Serial.println(tempA_max);
-	Serial.print("tempA_max_timestamp"); Serial.println(tempA_max_timestamp);
-	Serial.print("tempA_setpt_timestamp"); Serial.println(tempA_setpt_timestamp);
-	Serial.print("tempA_first_60_timestamp"); Serial.println(tempA_first_60_timestamp);
-	Serial.print("tempA_first_55_timestamp"); Serial.println(tempA_first_55_timestamp);
-	Serial.print("tempA_first_50_timestamp"); Serial.println(tempA_first_50_timestamp);
-	Serial.print("tempA_first_45_timestamp"); Serial.println(tempA_first_45_timestamp);
-	Serial.print("tempA_first_40_timestamp"); Serial.println(tempA_first_40_timestamp);
-	Serial.print("tempA_first_30_timestamp"); Serial.println(tempA_first_30_timestamp);
-	Serial.print("tempA_last_60_timestamp"); Serial.println(tempA_last_60_timestamp);
-	Serial.print("tempA_last_55_timestamp"); Serial.println(tempA_last_55_timestamp);
-	Serial.print("tempA_last_50_timestamp"); Serial.println(tempA_last_50_timestamp);
-	Serial.print("tempA_last_45_timestamp"); Serial.println(tempA_last_45_timestamp);
-	Serial.print("tempA_last_40_timestamp"); Serial.println(tempA_last_40_timestamp);
-	Serial.print("tempA_last_30_timestamp"); Serial.println(tempA_last_30_timestamp);
+	Serial.print("recovery tempA_max "); Serial.println(tempA_max);
+	Serial.print("recovery tempA_max_timestamp "); Serial.println(tempA_max_timestamp);
+	Serial.print("recovery tempA_setpt_timestamp "); Serial.println(tempA_setpt_timestamp);
+	Serial.print("recovery tempA_first_60_timestamp "); Serial.println(tempA_first_60_timestamp);
+	Serial.print("recovery tempA_first_55_timestamp "); Serial.println(tempA_first_55_timestamp);
+	Serial.print("recovery tempA_first_50_timestamp "); Serial.println(tempA_first_50_timestamp);
+	Serial.print("recovery tempA_first_45_timestamp "); Serial.println(tempA_first_45_timestamp);
+	Serial.print("recovery tempA_first_40_timestamp "); Serial.println(tempA_first_40_timestamp);
+	Serial.print("recovery tempA_first_30_timestamp "); Serial.println(tempA_first_30_timestamp);
+	Serial.print("recovery tempA_last_60_timestamp "); Serial.println(tempA_last_60_timestamp);
+	Serial.print("recovery tempA_last_55_timestamp "); Serial.println(tempA_last_55_timestamp);
+	Serial.print("recovery tempA_last_50_timestamp "); Serial.println(tempA_last_50_timestamp);
+	Serial.print("recovery tempA_last_45_timestamp "); Serial.println(tempA_last_45_timestamp);
+	Serial.print("recovery tempA_last_40_timestamp "); Serial.println(tempA_last_40_timestamp);
+	Serial.print("recovery tempA_last_30_timestamp "); Serial.println(tempA_last_30_timestamp);
 
-	Serial.print("temp2_first_60_timestamp"); Serial.println(temp2_first_60_timestamp);
-	Serial.print("temp2_first_55_timestamp"); Serial.println(temp2_first_55_timestamp);
-	Serial.print("temp2_first_50_timestamp"); Serial.println(temp2_first_50_timestamp);
-	Serial.print("temp2_first_45_timestamp"); Serial.println(temp2_first_45_timestamp);
-	Serial.print("temp2_first_40_timestamp"); Serial.println(temp2_first_40_timestamp);
-	Serial.print("temp2_first_30_timestamp"); Serial.println(temp2_first_30_timestamp);
-	Serial.print("temp2_last_60_timestamp"); Serial.println(temp2_last_60_timestamp);
-	Serial.print("temp2_last_55_timestamp"); Serial.println(temp2_last_55_timestamp);
-	Serial.print("temp2_last_50_timestamp"); Serial.println(temp2_last_50_timestamp);
-	Serial.print("temp2_last_45_timestamp"); Serial.println(temp2_last_45_timestamp);
-	Serial.print("temp2_last_40_timestamp"); Serial.println(temp2_last_40_timestamp);
-	Serial.print("temp2_last_30_timestamp"); Serial.println(temp2_last_30_timestamp);
+	Serial.print("recovery temp2_max "); Serial.println(temp2_max);
+	Serial.print("recovery temp2_max_timestamp "); Serial.println(temp2_max_timestamp);
+	Serial.print("recovery temp2_setpt_timestamp "); Serial.println(temp2_setpt_timestamp);
+	Serial.print("recovery temp2_first_60_timestamp "); Serial.println(temp2_first_60_timestamp);
+	Serial.print("recovery temp2_first_55_timestamp "); Serial.println(temp2_first_55_timestamp);
+	Serial.print("recovery temp2_first_50_timestamp "); Serial.println(temp2_first_50_timestamp);
+	Serial.print("recovery temp2_first_45_timestamp "); Serial.println(temp2_first_45_timestamp);
+	Serial.print("recovery temp2_first_40_timestamp "); Serial.println(temp2_first_40_timestamp);
+	Serial.print("recovery temp2_first_30_timestamp "); Serial.println(temp2_first_30_timestamp);
+	Serial.print("recovery temp2_last_60_timestamp "); Serial.println(temp2_last_60_timestamp);
+	Serial.print("recovery temp2_last_55_timestamp "); Serial.println(temp2_last_55_timestamp);
+	Serial.print("recovery temp2_last_50_timestamp "); Serial.println(temp2_last_50_timestamp);
+	Serial.print("recovery temp2_last_45_timestamp "); Serial.println(temp2_last_45_timestamp);
+	Serial.print("recovery temp2_last_40_timestamp "); Serial.println(temp2_last_40_timestamp);
+	Serial.print("recovery temp2_last_30_timestamp "); Serial.println(temp2_last_30_timestamp);
 
-	delay(10);
+	delay(6);
 }
