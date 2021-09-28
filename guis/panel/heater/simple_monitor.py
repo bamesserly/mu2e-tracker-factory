@@ -186,7 +186,7 @@ class DataThread(threading.Thread):
                     variable = line[1]
                     value = float(line[2])
                     if "timestamp" in test:
-                        value = int(value) / 360000  # convert ms to hours
+                        value = int(value) / 3600000  # convert ms to hours
                         logger.info(f"{variable} {value} hrs")
                     else:
                         logger.info(f"{variable} {value} C")
