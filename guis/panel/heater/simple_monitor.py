@@ -36,12 +36,14 @@ class HeatControl:
         self.tempArec = []  # PAAS-A temperature [C]
         self.temp2rec = []  # 2nd PAAS temperature [C]
 
-        logger.info("initialized")
+        logger.debug("initialized")
 
     def saveMethod_placeholder(self):
         ## self.tempArec = PAAS-A temperatures
         ## self.temp2rec = PAAS-B or PAAS-C temperatures
-        print("last temperature measurements:", self.tempArec[-1], self.temp2rec[-1])
+        logger.info(
+            f"last temperature measurements: {self.tempArec[-1]} {self.temp2rec[-1]}"
+        )
 
     def update_setpoint(self):
         """Get initial user choice temperature setpoint, or change setpoint
@@ -53,7 +55,7 @@ class HeatControl:
             self.hct.setpt = self.setpt
 
     def start_data(self):
-        logger.info("HeatControl::start_data")
+        logger.debug("HeatControl::start_data")
         """ Start serial interface and data collection thread """
         # paas2dict = {"PAAS-B": "b", "PAAS-C": "c", "None": "0"}
         self.paas2input = "PAAS-B"
@@ -125,7 +127,6 @@ class DataThread(threading.Thread):
     """Read data from Arduino in temperature control box"""
 
     def __init__(self, micro, panel, paastype, setpoint):
-        logger.info("DataThread::__init__")
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
@@ -140,15 +141,13 @@ class DataThread(threading.Thread):
                 file.write(
                     ",".join(["Date", "PAASA_Temp[C]", "2ndPAAS_Temp[C]", "Epoc\n"])
                 )
-        logger.info("saving data to %s" % self.datafile)
 
     def run(self):
-        logger.info("thread running")
+        logger.debug("thread running")
         n, nmax = 0, 40
         # flag = self.running.wait(10)
         # print(flag)
         while self.running.isSet():
-            logger.info("HERE")
             self.micro.write(self.paastype)
             self.micro.write(str(self.setpt).encode("utf8"))
             self.micro.write(b"\n")
@@ -162,7 +161,6 @@ class DataThread(threading.Thread):
                     self.micro.write(str(self.setpt).encode("utf8"))
                     self.micro.write(b"\n")
                     continue
-                print(repr(test))  # print all output from arduino
                 if len(test.strip().split()) < 2:  # skip split line error
                     logger.info("skipping fragment of split line")
                     continue
@@ -172,7 +170,7 @@ class DataThread(threading.Thread):
                     duration = float(test.strip().split()[-1])
                     duration = round(duration / 3600000, 3)
                     logger.info(f"Time since start {duration} hours")
-                elif "Temp" in test:  # temperature reading
+                elif "Temperature" in test:  # temperature reading
                     test = test.strip().split()
                     try:
                         float(test[-1])
@@ -183,6 +181,17 @@ class DataThread(threading.Thread):
                         temp1 = test[-1]  # PAAS-A temperature [C]
                     elif test[1] == "2:":
                         temp2 = test[-1]  # 2nd PAAS temperature [C]
+                elif "recovery" in test:
+                    line = test.strip().split()
+                    variable = line[1]
+                    value = float(line[2])
+                    if "timestamp" in test:
+                        value = int(value) / 360000  # convert ms to hours
+                        logger.info(f"{variable} {value} hrs")
+                    else:
+                        logger.info(f"{variable} {value} C")
+                else:
+                    logger.info(test.strip())
                 n += 1
                 time.sleep(1)
             if n == nmax:  # probable error with serial connection
@@ -198,7 +207,7 @@ class DataThread(threading.Thread):
                 self.temp1 = temp1
                 self.temp2 = temp2
                 n = 0
-        logger.info("thread running check")
+        logger.debug("thread running check")
         ## close serial if thread joined
         if self.micro:
             self.micro.close()
