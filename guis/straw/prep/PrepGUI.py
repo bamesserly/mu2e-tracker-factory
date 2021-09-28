@@ -560,13 +560,13 @@ class Prep(QMainWindow):
 
     # 3. finish button, save
     def saveData(self):
-        print("Saving data...")
+        logger.info("Saving data...")
         self.saveDataToText()
         self.saveDataToDB()
 
         self.dataSaved = True
 
-        print("dataSaved: " + str(self.dataSaved))
+        logger.info("dataSaved: " + str(self.dataSaved))
 
         self.ui.finish.setEnabled(False)
 
@@ -719,7 +719,7 @@ class Prep(QMainWindow):
                 self.DP.saveLogin(Current_worker)
                 self.sessionWorkers.append(Current_worker)
                 self.Current_workers[portalNum].setText(Current_worker)
-                print("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                logger.info("Welcome " + self.Current_workers[portalNum].text() + " :)")
                 btn.setText("Log Out")
                 self.ui.tab_widget.setCurrentIndex(1)
 
@@ -729,7 +729,7 @@ class Prep(QMainWindow):
             self.justLogOut = worker
             self.sessionWorkers.remove(worker)
             self.DP.saveLogout(worker)
-            print("Goodbye " + worker + " :(")
+            logger.info("Goodbye " + worker + " :(")
             self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
 
@@ -873,7 +873,7 @@ class Prep(QMainWindow):
             file = potential_num + ".csv"
             path = self.palletDirectory / str("CPALID" + str(id).zfill(2)) / file
             if os.path.exists(path):
-                print(f"{potential_num} has been prepped.")
+                logger.info(f"{potential_num} has been prepped.")
                 QMessageBox.question(
                     self,
                     "Duplicate CPAL Number",
@@ -1210,12 +1210,31 @@ class Prep(QMainWindow):
                         writefile.write(",")
                     i = i + 1
         except IOError:
-            print(
+            logger.error(
                 "Could not update board due to board file being accessed concurrently"
             )
 
 
+def except_hook(exctype, exception, tb):
+    """
+    except_hook(exctype, exception, traceback)
+
+    Description: Enables exception handling that is more intuitive. By default, uncaught exceptions
+                 cause PyQt GUIs to hang and then display the "Python has encountered and error and
+                 needs to close" box. By defining this function (and setting sys.excepthook = except_hook
+                 in the main function), uncaught exceptions immediately close the GUI, and display the
+                 error message on screen (like a normal python script).
+
+    Parameter: exctype - The class of the uncaught exception
+    Parameter: exception - Exception object that went uncaught.
+    Parameter: tb - The traceback of the exception that specifies where and why it happened.
+    """
+    logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
+    sys.exit()
+
+
 def run():
+    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
     ctr = Prep(paths)

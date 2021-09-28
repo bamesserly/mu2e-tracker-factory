@@ -236,7 +236,7 @@ class StrawResistanceGUI(QDialog):
                 self.DP.saveLogin(Current_worker)
                 self.sessionWorkers.append(Current_worker)
                 self.Current_workers[portalNum].setText(Current_worker)
-                print("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                logger.info("Welcome " + self.Current_workers[portalNum].text() + " :)")
                 btn.setText("Log Out")
                 self.ui.tab_widget.setCurrentIndex(1)
 
@@ -245,7 +245,7 @@ class StrawResistanceGUI(QDialog):
             self.justLogOut = self.Current_workers[portalNum].text()
             self.sessionWorkers.remove(worker)
             self.DP.saveLogout(worker)
-            print("Goodbye " + worker + " :(")
+            logger.info("Goodbye " + worker + " :(")
             self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
 
@@ -463,11 +463,11 @@ class StrawResistanceGUI(QDialog):
         try:
             self.measurements = self.resistanceMeter.rMain()
         except FileNotFoundError as e:
-            print("File not found", e)
+            logger.error("File not found", e)
             self.displayError(True)
             return
         except:
-            print("Arduino Error")
+            logger.error("Arduino Error")
             self.displayError(True)
             return
 
@@ -535,7 +535,7 @@ class StrawResistanceGUI(QDialog):
                             "Make sure it is turned on and plugged into the computer, then try again."
                         )
                         QMessageBox.about(self, "Connection Error", message)
-                        print("hit the not thing")
+                        logger.error("hit the not thing")
                 for el in self.failed_measurements:
                     # Record measured by hand
                     self.measureByHand_counter += 1
@@ -720,6 +720,7 @@ class StrawResistanceGUI(QDialog):
         # temperature, humidity = self.getTempHumid()
         temperature, humidity = 70.1, 40
 
+        worker_with_creds = ""
         for worker in self.sessionWorkers:
             if self.credentialChecker.checkCredentials(worker):
                 worker_with_creds = worker.lower()
@@ -957,7 +958,26 @@ class StrawResistanceGUI(QDialog):
         return temperature, humidity
 
 
+def except_hook(exctype, exception, tb):
+    """
+    except_hook(exctype, exception, traceback)
+
+    Description: Enables exception handling that is more intuitive. By default, uncaught exceptions
+                 cause PyQt GUIs to hang and then display the "Python has encountered and error and
+                 needs to close" box. By defining this function (and setting sys.excepthook = except_hook
+                 in the main function), uncaught exceptions immediately close the GUI, and display the
+                 error message on screen (like a normal python script).
+
+    Parameter: exctype - The class of the uncaught exception
+    Parameter: exception - Exception object that went uncaught.
+    Parameter: tb - The traceback of the exception that specifies where and why it happened.
+    """
+    logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
+    sys.exit()
+
+
 def run():
+    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
     ctr = StrawResistanceGUI(paths, app)
