@@ -271,6 +271,10 @@ class StrawLocation(BASE, OBJECT):
         straw_present.remove(commit)
         return straw_present
 
+    def removeAllStraws(self, commit=True):
+        for position in self.getFilledPositions():
+            self.removeStraw(position=position, commit=commit)
+
     def addStraw(self, straw, position, commit=True):
 
         # Make sure there's not already a straw there
@@ -483,7 +487,7 @@ class Pallet(StrawLocation):
     ):
         assert self._palletIsEmpty(
             pallet_id
-        ), "Unable to create pallet: pallet is not empty."
+        ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
         super().__init__(
             location_type=location_type,
             number=number,
