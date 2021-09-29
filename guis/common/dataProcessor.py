@@ -2396,6 +2396,7 @@ class SQLDataProcessor(DataProcessor):
     ##########################################################################
 
     # Create a procedure
+    # Record it in the DB, create/get a straw location
     def ensureProcedure(self):
         # If no procedure has been defined yet, define one.
         if self.procedure is None:

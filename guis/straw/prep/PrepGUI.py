@@ -48,7 +48,7 @@ from guis.straw.prep.design import Ui_MainWindow  ## edit via Qt Designer
 from data.workers.credentials.credentials import Credentials
 from guis.straw.prep.straw_label_script import print_barcodes
 from guis.common.db_classes.straw import Straw
-from guis.common.db_classes.straw_location import StrawPosition
+from guis.common.db_classes.straw_location import StrawPosition, CuttingPallet
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 
@@ -172,6 +172,8 @@ class Prep(QMainWindow):
         self.timing = False
 
         # Data Processor
+        # Record station and session, not yet procedure or straw location
+        # Those are recorded during saveStart
         self.pro = 2
         self.pro_index = self.pro - 1
         self.DP = DP(
@@ -202,7 +204,24 @@ class Prep(QMainWindow):
         self.enablePPGDataCollection()
         self.timing = True
         self.startTimer()
-        self.DP.saveStart()  # initialize procedure and commit it to the DB
+
+        # Make sure old cpal ID is empty
+        old_cpals = CuttingPallet._queryPalletsByID(int(self.getPalletID()[-2:])).all()
+        logger.debug(f"clearing straws from old cpals\n{old_cpals}")
+        for cpal in old_cpals:
+            filled_positions = cpal.getFilledPositions()
+            if len(filled_positions):
+                logger.debug(
+                    f"Clearing {len(filled_positions)} straws from this CPALID."
+                )
+                cpal.removeAllStraws()
+                if cpal.isEmpty():
+                    logger.debug(
+                        f"CPALID is cleared of old straw and ready to be filled with new ones."
+                    )
+
+        # initialize procedure and commit it to the DB
+        self.DP.saveStart()
 
     # disable prelim fields, enable ppg fields
     def enablePPGDataCollection(self):
