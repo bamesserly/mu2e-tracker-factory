@@ -270,13 +270,13 @@ class DataThread(threading.Thread):
             temp1, temp2 = "", ""
             while not (temp1 and temp2) and n < nmax:
                 ino_line = self.micro.readline().decode("utf8")
+                logger.info(f"{repr(ino_line)} {n}")
                 if ino_line == "":
                     n += 1
                     self.micro.write(self.paastype)
                     self.micro.write(str(self.setpt).encode("utf8"))
                     self.micro.write(b"\n")
                     continue
-                # print(repr(ino_line))
                 if len(ino_line.strip().split()) < 2:  # skip split line error
                     logger.info("skipping fragment of split line")
                     continue
@@ -287,7 +287,7 @@ class DataThread(threading.Thread):
                     try:
                         float(ino_line[-1])
                     except ValueError:
-                        logger.info("skipping fragment of split line")
+                        logger.info(f"Can't get value from Temperature line, {ino_line[-1]}")
                         continue
                     if ino_line[1] == "1:":
                         temp1 = ino_line[-1]  # PAAS-A temperature [C]
