@@ -259,14 +259,14 @@ class DataThread(threading.Thread):
 
     def run(self):
         logger.info("thread running")
-        n, nmax = 0, 40
+        n, nmax = 0, 60
         # loop this endlessly until we press the "end data collection" button.
         # each loop finishes in about 10 sec
         while self.running.isSet():
             # self.micro.write(self.paastype)
             # self.micro.write(str(self.setpt).encode("utf8"))
             # self.micro.write(b"\n")
-            # Read nmax (40) arduino lines until we get legit temp vals
+            # Read nmax (60) arduino lines until we get legit temp vals
             temp1, temp2 = "", ""
             while not (temp1 and temp2) and n < nmax:
                 ino_line = self.micro.readline().decode("utf8")
