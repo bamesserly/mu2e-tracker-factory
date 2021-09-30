@@ -259,7 +259,7 @@ class DataThread(threading.Thread):
 
     def run(self):
         logger.info("thread running")
-        n, nmax = 0, 60
+        n, nmax = 0, 161
         # loop this endlessly until we press the "end data collection" button.
         # each loop finishes in about 10 sec
         while self.running.isSet():
@@ -287,7 +287,9 @@ class DataThread(threading.Thread):
                     try:
                         float(ino_line[-1])
                     except ValueError:
-                        logger.info(f"Can't get value from Temperature line, {ino_line[-1]}")
+                        logger.info(
+                            f"Can't get value from Temperature line, {ino_line[-1]}"
+                        )
                         continue
                     if ino_line[1] == "1:":
                         temp1 = ino_line[-1]  # PAAS-A temperature [C]
