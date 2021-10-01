@@ -25,6 +25,10 @@
 # Initializing any straw location commits it to the DB
 #
 ################################################################################
+import logging
+
+logger = logging.getLogger("root")
+
 from guis.common.db_classes.bases import BASE, OBJECT, DM, Barcode
 from sqlalchemy import (
     Column,
@@ -257,17 +261,24 @@ class StrawLocation(BASE, OBJECT):
     # ADD/REMOVE STRAWS
 
     def removeStraw(self, straw=None, position=int(), commit=True):
-        # Query StrawPresent
-        qry = self._queryStrawPresents()
+        qry = (
+            DM.query(StrawPresent)  # get entries from straw present table
+            .filter(StrawPresent.present == True)  # such that straws are present
+            .filter(StrawPosition.location == self.id)  # for this straw location
+        )
         if straw:
-            qry = qry.filter(StrawPresent.straw == straw.id)
+            qry = qry.filter(
+                StrawPresent.straw == straw.id
+            )  # and with straw id matching the argument
         if position:
-            qry = qry.filter(StrawPosition.position_number == position)
+            qry = qry.join(
+                StrawPosition, StrawPosition.id == StrawPresent.position
+            ).filter(  # w/ position matching an entry in straw position table
+                StrawPosition.position_number == position
+            )  # with Straw Position matching the argument
         straw_present = qry.one_or_none()
-        # If there's not a straw there, return early
         if straw_present is None:
             return
-        # Record remove. Commit if requested
         straw_present.remove(commit)
         return straw_present
 
