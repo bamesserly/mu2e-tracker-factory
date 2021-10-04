@@ -4495,7 +4495,7 @@ GUI</string>
                           </font>
                          </property>
                          <property name="text">
-                          <string>Mix 8g 828C, 6g 3140</string>
+                          <string>Mix 8g 815C, 6g 3140</string>
                          </property>
                         </widget>
                        </item>
@@ -4587,7 +4587,7 @@ GUI</string>
                           </font>
                          </property>
                          <property name="text">
-                          <string>Mix 8g 828C, 6g 3140</string>
+                          <string>Mix 8g 815C, 6g 3140</string>
                          </property>
                         </widget>
                        </item>
