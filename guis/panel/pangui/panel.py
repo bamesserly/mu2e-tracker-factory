@@ -15,7 +15,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1818, 863)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
@@ -64,7 +66,9 @@ class Ui_MainWindow(object):
         self.Current_worker1.setObjectName("Current_worker1")
         self.verticalLayout.addWidget(self.Current_worker1)
         self.portal1 = QtWidgets.QPushButton(self.tab_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.portal1.sizePolicy().hasHeightForWidth())
@@ -100,7 +104,9 @@ class Ui_MainWindow(object):
         self.Current_worker2.setObjectName("Current_worker2")
         self.verticalLayout_5.addWidget(self.Current_worker2)
         self.portal2 = QtWidgets.QPushButton(self.tab_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.portal2.sizePolicy().hasHeightForWidth())
@@ -134,7 +140,9 @@ class Ui_MainWindow(object):
         self.Current_worker3.setObjectName("Current_worker3")
         self.verticalLayout_6.addWidget(self.Current_worker3)
         self.portal3 = QtWidgets.QPushButton(self.tab_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.portal3.sizePolicy().hasHeightForWidth())
@@ -168,7 +176,9 @@ class Ui_MainWindow(object):
         self.Current_worker4.setObjectName("Current_worker4")
         self.verticalLayout_7.addWidget(self.Current_worker4)
         self.portal4 = QtWidgets.QPushButton(self.tab_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.portal4.sizePolicy().hasHeightForWidth())
@@ -215,10 +225,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.previousButton = QtWidgets.QPushButton(self.page_14)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.previousButton.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.previousButton.sizePolicy().hasHeightForWidth()
+        )
         self.previousButton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -228,7 +242,9 @@ class Ui_MainWindow(object):
         self.previousButton.setObjectName("previousButton")
         self.horizontalLayout_5.addWidget(self.previousButton, 0, QtCore.Qt.AlignRight)
         self.nextButton = QtWidgets.QPushButton(self.page_14)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.nextButton.sizePolicy().hasHeightForWidth())
@@ -259,10 +275,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.previousButton_2 = QtWidgets.QPushButton(self.page_15)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.previousButton_2.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.previousButton_2.sizePolicy().hasHeightForWidth()
+        )
         self.previousButton_2.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -270,9 +290,13 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.previousButton_2.setFont(font)
         self.previousButton_2.setObjectName("previousButton_2")
-        self.horizontalLayout_7.addWidget(self.previousButton_2, 0, QtCore.Qt.AlignRight)
+        self.horizontalLayout_7.addWidget(
+            self.previousButton_2, 0, QtCore.Qt.AlignRight
+        )
         self.nextButton_2 = QtWidgets.QPushButton(self.page_15)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.nextButton_2.sizePolicy().hasHeightForWidth())
@@ -284,7 +308,9 @@ class Ui_MainWindow(object):
         self.nextButton_2.setFont(font)
         self.nextButton_2.setObjectName("nextButton_2")
         self.horizontalLayout_7.addWidget(self.nextButton_2, 0, QtCore.Qt.AlignLeft)
-        spacerItem = QtWidgets.QSpacerItem(86, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            86, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_7.addItem(spacerItem)
         self.gridLayout_18.addLayout(self.horizontalLayout_7, 1, 0, 1, 1)
         self.gridLayout_18.setRowStretch(0, 1)
@@ -296,7 +322,9 @@ class Ui_MainWindow(object):
         self.gridLayout_14 = QtWidgets.QGridLayout(self.tab)
         self.gridLayout_14.setObjectName("gridLayout_14")
         self.stepsBox = QtWidgets.QGroupBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.stepsBox.sizePolicy().hasHeightForWidth())
@@ -323,7 +351,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.hour_left = QtWidgets.QLCDNumber(self.groupBox_7)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_left.sizePolicy().hasHeightForWidth())
@@ -331,7 +361,9 @@ class Ui_MainWindow(object):
         self.hour_left.setObjectName("hour_left")
         self.horizontalLayout_6.addWidget(self.hour_left)
         self.min_left = QtWidgets.QLCDNumber(self.groupBox_7)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_left.sizePolicy().hasHeightForWidth())
@@ -339,7 +371,9 @@ class Ui_MainWindow(object):
         self.min_left.setObjectName("min_left")
         self.horizontalLayout_6.addWidget(self.min_left)
         self.sec_left = QtWidgets.QLCDNumber(self.groupBox_7)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_left.sizePolicy().hasHeightForWidth())
@@ -349,7 +383,9 @@ class Ui_MainWindow(object):
         self.gridLayout_8.addLayout(self.horizontalLayout_6, 0, 0, 1, 1)
         self.horizontalLayout_4.addWidget(self.groupBox_7)
         self.FinishButton = QtWidgets.QPushButton(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.FinishButton.sizePolicy().hasHeightForWidth())
@@ -362,10 +398,14 @@ class Ui_MainWindow(object):
         self.FinishButton.setObjectName("FinishButton")
         self.horizontalLayout_4.addWidget(self.FinishButton)
         self.proReturnButton = QtWidgets.QPushButton(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.proReturnButton.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.proReturnButton.sizePolicy().hasHeightForWidth()
+        )
         self.proReturnButton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -475,7 +515,9 @@ class Ui_MainWindow(object):
         self.failSelectTab.addWidget(self.page_10)
         self.gridLayout_12.addWidget(self.failSelectTab, 1, 0, 1, 1)
         self.failSelect = QtWidgets.QComboBox(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.failSelect.sizePolicy().hasHeightForWidth())
@@ -612,10 +654,14 @@ class Ui_MainWindow(object):
         self.gridLayout_12.addWidget(self.positionSelectTab, 2, 0, 1, 1)
         self.submitFailure = QtWidgets.QPushButton(self.groupBox)
         self.submitFailure.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.submitFailure.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.submitFailure.sizePolicy().hasHeightForWidth()
+        )
         self.submitFailure.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -629,10 +675,14 @@ class Ui_MainWindow(object):
         self.failStatus.setObjectName("failStatus")
         self.gridLayout_12.addWidget(self.failStatus, 4, 0, 1, 1)
         self.failureComments = QtWidgets.QTextEdit(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.failureComments.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.failureComments.sizePolicy().hasHeightForWidth()
+        )
         self.failureComments.setSizePolicy(sizePolicy)
         self.failureComments.setBaseSize(QtCore.QSize(0, 0))
         font = QtGui.QFont()
@@ -644,7 +694,9 @@ class Ui_MainWindow(object):
         self.gridLayout_12.setColumnStretch(1, 2)
         self.verticalLayout_8.addWidget(self.groupBox)
         self.groupBox_24 = QtWidgets.QGroupBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.groupBox_24.sizePolicy().hasHeightForWidth())
@@ -658,10 +710,14 @@ class Ui_MainWindow(object):
         self.gridLayout_13 = QtWidgets.QGridLayout(self.groupBox_24)
         self.gridLayout_13.setObjectName("gridLayout_13")
         self.previousComments = QtWidgets.QPlainTextEdit(self.groupBox_24)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.previousComments.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.previousComments.sizePolicy().hasHeightForWidth()
+        )
         self.previousComments.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(8)
@@ -672,7 +728,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addWidget(self.groupBox_24)
         self.gridLayout_14.addLayout(self.verticalLayout_8, 0, 3, 1, 1)
         self.GUIpro = QtWidgets.QStackedWidget(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.GUIpro.sizePolicy().hasHeightForWidth())
@@ -683,7 +741,9 @@ class Ui_MainWindow(object):
         self.gridLayout_15 = QtWidgets.QGridLayout(self.p1IR)
         self.gridLayout_15.setObjectName("gridLayout_15")
         self.label_7 = QtWidgets.QLabel(self.p1IR)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
@@ -721,7 +781,9 @@ class Ui_MainWindow(object):
         self.label_140 = QtWidgets.QLabel(self.setup_box)
         palette = QtGui.QPalette()
         self.label_140.setPalette(palette)
-        self.label_140.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_140.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.label_140.setObjectName("label_140")
         self.gridLayout_2.addWidget(self.label_140, 5, 2, 1, 1)
         self.label_17 = QtWidgets.QLabel(self.setup_box)
@@ -782,19 +844,25 @@ class Ui_MainWindow(object):
         self.label_26 = QtWidgets.QLabel(self.setup_box)
         palette = QtGui.QPalette()
         self.label_26.setPalette(palette)
-        self.label_26.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_26.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.label_26.setObjectName("label_26")
         self.gridLayout_2.addWidget(self.label_26, 3, 2, 1, 1)
         self.label_133 = QtWidgets.QLabel(self.setup_box)
         palette = QtGui.QPalette()
         self.label_133.setPalette(palette)
-        self.label_133.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_133.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.label_133.setObjectName("label_133")
         self.gridLayout_2.addWidget(self.label_133, 6, 2, 1, 1)
         self.label_14 = QtWidgets.QLabel(self.setup_box)
         palette = QtGui.QPalette()
         self.label_14.setPalette(palette)
-        self.label_14.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_14.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.label_14.setObjectName("label_14")
         self.gridLayout_2.addWidget(self.label_14, 1, 2, 1, 1)
         self.birInput = QtWidgets.QLineEdit(self.setup_box)
@@ -824,7 +892,9 @@ class Ui_MainWindow(object):
         self.label_13 = QtWidgets.QLabel(self.setup_box)
         palette = QtGui.QPalette()
         self.label_13.setPalette(palette)
-        self.label_13.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_13.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.label_13.setObjectName("label_13")
         self.gridLayout_2.addWidget(self.label_13, 2, 2, 1, 1)
         self.baseInput1 = QtWidgets.QLineEdit(self.setup_box)
@@ -851,7 +921,9 @@ class Ui_MainWindow(object):
         self.label_141 = QtWidgets.QLabel(self.setup_box)
         palette = QtGui.QPalette()
         self.label_141.setPalette(palette)
-        self.label_141.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_141.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
         self.label_141.setObjectName("label_141")
         self.gridLayout_2.addWidget(self.label_141, 4, 2, 1, 1)
         self.pirInputRA = QtWidgets.QLineEdit(self.setup_box)
@@ -877,7 +949,9 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.paasCInput, 7, 3, 1, 1)
         self.horizontalLayout.addWidget(self.setup_box)
         self.startbutton1 = QtWidgets.QPushButton(self.p1IR)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startbutton1.sizePolicy().hasHeightForWidth())
@@ -1011,7 +1085,9 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.maxgap, 1, 3, 1, 1)
         self.gridLayout_15.addWidget(self.bir_box, 2, 0, 1, 2)
         self.groupBox_50 = QtWidgets.QGroupBox(self.p1IR)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_50.sizePolicy().hasHeightForWidth())
@@ -1025,7 +1101,9 @@ class Ui_MainWindow(object):
         self.gridLayout_19 = QtWidgets.QGridLayout(self.groupBox_50)
         self.gridLayout_19.setObjectName("gridLayout_19")
         self.pallet1code = QtWidgets.QLineEdit(self.groupBox_50)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pallet1code.sizePolicy().hasHeightForWidth())
@@ -1040,7 +1118,9 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.gridLayout_19.addWidget(self.label_4, 1, 1, 1, 1)
         self.pallet2code = QtWidgets.QLineEdit(self.groupBox_50)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pallet2code.sizePolicy().hasHeightForWidth())
@@ -1082,7 +1162,9 @@ class Ui_MainWindow(object):
         self.gridLayout_10.addWidget(self.label_129, 0, 0, 1, 1)
         self.epoxy_batch1 = QtWidgets.QLineEdit(self.groupBox_9)
         self.epoxy_batch1.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.epoxy_batch1.sizePolicy().hasHeightForWidth())
@@ -1095,7 +1177,9 @@ class Ui_MainWindow(object):
         self.gridLayout_10.addWidget(self.epoxy_batch1, 0, 1, 1, 1)
         self.epoxy_mixed1 = QtWidgets.QPushButton(self.groupBox_9)
         self.epoxy_mixed1.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.epoxy_mixed1.sizePolicy().hasHeightForWidth())
@@ -1112,7 +1196,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
         self.hour_disp_6 = QtWidgets.QLCDNumber(self.groupBox_9)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_6.sizePolicy().hasHeightForWidth())
@@ -1122,7 +1208,9 @@ class Ui_MainWindow(object):
         self.hour_disp_6.setObjectName("hour_disp_6")
         self.horizontalLayout_9.addWidget(self.hour_disp_6)
         self.min_disp_6 = QtWidgets.QLCDNumber(self.groupBox_9)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_6.sizePolicy().hasHeightForWidth())
@@ -1132,7 +1220,9 @@ class Ui_MainWindow(object):
         self.min_disp_6.setObjectName("min_disp_6")
         self.horizontalLayout_9.addWidget(self.min_disp_6)
         self.sec_disp_6 = QtWidgets.QLCDNumber(self.groupBox_9)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_6.sizePolicy().hasHeightForWidth())
@@ -1144,10 +1234,14 @@ class Ui_MainWindow(object):
         self.gridLayout_10.addLayout(self.horizontalLayout_9, 2, 0, 1, 2)
         self.epoxy_applied1 = QtWidgets.QPushButton(self.groupBox_9)
         self.epoxy_applied1.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_applied1.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_applied1.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_applied1.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         self.epoxy_applied1.setPalette(palette)
@@ -1172,7 +1266,9 @@ class Ui_MainWindow(object):
         self.gridLayout_11 = QtWidgets.QGridLayout(self.groupBox_11)
         self.gridLayout_11.setObjectName("gridLayout_11")
         self.commentBox1 = QtWidgets.QPlainTextEdit(self.groupBox_11)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.commentBox1.sizePolicy().hasHeightForWidth())
@@ -1186,7 +1282,9 @@ class Ui_MainWindow(object):
         self.gridLayout_11.addWidget(self.commentBox1, 0, 0, 1, 1)
         self.horizontalLayout_2.addWidget(self.groupBox_11)
         self.saveButton1 = QtWidgets.QPushButton(self.p1IR)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveButton1.sizePolicy().hasHeightForWidth())
@@ -1218,7 +1316,9 @@ class Ui_MainWindow(object):
         self.gridLayout_9 = QtWidgets.QGridLayout(self.groupBox_12)
         self.gridLayout_9.setObjectName("gridLayout_9")
         self.barcode = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.barcode.sizePolicy().hasHeightForWidth())
@@ -1228,7 +1328,9 @@ class Ui_MainWindow(object):
         self.barcode.setObjectName("barcode")
         self.gridLayout_9.addWidget(self.barcode, 0, 0, 1, 1)
         self.picone1 = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picone1.sizePolicy().hasHeightForWidth())
@@ -1238,7 +1340,9 @@ class Ui_MainWindow(object):
         self.picone1.setObjectName("picone1")
         self.gridLayout_9.addWidget(self.picone1, 0, 1, 1, 2)
         self.picone2 = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picone2.sizePolicy().hasHeightForWidth())
@@ -1248,7 +1352,9 @@ class Ui_MainWindow(object):
         self.picone2.setObjectName("picone2")
         self.gridLayout_9.addWidget(self.picone2, 0, 3, 1, 1)
         self.picone3 = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picone3.sizePolicy().hasHeightForWidth())
@@ -1258,7 +1364,9 @@ class Ui_MainWindow(object):
         self.picone3.setObjectName("picone3")
         self.gridLayout_9.addWidget(self.picone3, 0, 4, 1, 1)
         self.picone4 = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picone4.sizePolicy().hasHeightForWidth())
@@ -1268,7 +1376,9 @@ class Ui_MainWindow(object):
         self.picone4.setObjectName("picone4")
         self.gridLayout_9.addWidget(self.picone4, 1, 0, 1, 1)
         self.picone5 = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picone5.sizePolicy().hasHeightForWidth())
@@ -1278,7 +1388,9 @@ class Ui_MainWindow(object):
         self.picone5.setObjectName("picone5")
         self.gridLayout_9.addWidget(self.picone5, 1, 1, 1, 1)
         self.paas_attach = QtWidgets.QPushButton(self.groupBox_12)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.paas_attach.sizePolicy().hasHeightForWidth())
@@ -1294,7 +1406,9 @@ class Ui_MainWindow(object):
         self.gridLayout_63 = QtWidgets.QGridLayout(self.p2Straws)
         self.gridLayout_63.setObjectName("gridLayout_63")
         self.label_613 = QtWidgets.QLabel(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_613.sizePolicy().hasHeightForWidth())
@@ -1317,7 +1431,9 @@ class Ui_MainWindow(object):
         self.label_33.setObjectName("label_33")
         self.gridLayout_20.addWidget(self.label_33, 1, 0, 1, 1)
         self.paasBInput = QtWidgets.QLineEdit(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.paasBInput.sizePolicy().hasHeightForWidth())
@@ -1325,7 +1441,9 @@ class Ui_MainWindow(object):
         self.paasBInput.setObjectName("paasBInput")
         self.gridLayout_20.addWidget(self.paasBInput, 1, 1, 1, 1)
         self.startbutton2 = QtWidgets.QPushButton(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startbutton2.sizePolicy().hasHeightForWidth())
@@ -1339,7 +1457,9 @@ class Ui_MainWindow(object):
         self.startbutton2.setObjectName("startbutton2")
         self.gridLayout_20.addWidget(self.startbutton2, 0, 2, 2, 1)
         self.panelInput2 = QtWidgets.QLineEdit(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelInput2.sizePolicy().hasHeightForWidth())
@@ -1361,7 +1481,9 @@ class Ui_MainWindow(object):
         self.gridLayout_62 = QtWidgets.QGridLayout()
         self.gridLayout_62.setObjectName("gridLayout_62")
         self.groupBox_52 = QtWidgets.QGroupBox(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_52.sizePolicy().hasHeightForWidth())
@@ -1375,7 +1497,9 @@ class Ui_MainWindow(object):
         self.gridLayout_21 = QtWidgets.QGridLayout(self.groupBox_52)
         self.gridLayout_21.setObjectName("gridLayout_21")
         self.epoxy_batch = QtWidgets.QLineEdit(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.epoxy_batch.sizePolicy().hasHeightForWidth())
@@ -1388,7 +1512,9 @@ class Ui_MainWindow(object):
         self.epoxy_batch.setObjectName("epoxy_batch")
         self.gridLayout_21.addWidget(self.epoxy_batch, 1, 0, 1, 1)
         self.epoxy_mixed = QtWidgets.QPushButton(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.epoxy_mixed.sizePolicy().hasHeightForWidth())
@@ -1401,7 +1527,9 @@ class Ui_MainWindow(object):
         self.epoxy_mixed.setObjectName("epoxy_mixed")
         self.gridLayout_21.addWidget(self.epoxy_mixed, 2, 0, 1, 3)
         self.label_617 = QtWidgets.QLabel(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_617.sizePolicy().hasHeightForWidth())
@@ -1413,7 +1541,9 @@ class Ui_MainWindow(object):
         self.label_617.setObjectName("label_617")
         self.gridLayout_21.addWidget(self.label_617, 0, 0, 1, 3)
         self.label_615 = QtWidgets.QLabel(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_615.sizePolicy().hasHeightForWidth())
@@ -1421,10 +1551,14 @@ class Ui_MainWindow(object):
         self.label_615.setObjectName("label_615")
         self.gridLayout_21.addWidget(self.label_615, 1, 1, 1, 2)
         self.epoxy_inject1 = QtWidgets.QPushButton(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_inject1.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_inject1.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_inject1.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -1436,7 +1570,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_11.setObjectName("horizontalLayout_11")
         self.hour_disp = QtWidgets.QLCDNumber(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp.sizePolicy().hasHeightForWidth())
@@ -1444,7 +1580,9 @@ class Ui_MainWindow(object):
         self.hour_disp.setObjectName("hour_disp")
         self.horizontalLayout_11.addWidget(self.hour_disp)
         self.min_disp = QtWidgets.QLCDNumber(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp.sizePolicy().hasHeightForWidth())
@@ -1452,7 +1590,9 @@ class Ui_MainWindow(object):
         self.min_disp.setObjectName("min_disp")
         self.horizontalLayout_11.addWidget(self.min_disp)
         self.sec_disp = QtWidgets.QLCDNumber(self.groupBox_52)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp.sizePolicy().hasHeightForWidth())
@@ -1465,7 +1605,9 @@ class Ui_MainWindow(object):
         self.gridLayout_21.addLayout(self.horizontalLayout_11, 5, 0, 1, 3)
         self.gridLayout_62.addWidget(self.groupBox_52, 0, 0, 1, 1)
         self.groupBox_53 = QtWidgets.QGroupBox(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_53.sizePolicy().hasHeightForWidth())
@@ -1479,7 +1621,9 @@ class Ui_MainWindow(object):
         self.gridLayout_22 = QtWidgets.QGridLayout(self.groupBox_53)
         self.gridLayout_22.setObjectName("gridLayout_22")
         self.label_618 = QtWidgets.QLabel(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_618.sizePolicy().hasHeightForWidth())
@@ -1491,10 +1635,14 @@ class Ui_MainWindow(object):
         self.label_618.setObjectName("label_618")
         self.gridLayout_22.addWidget(self.label_618, 0, 0, 1, 3)
         self.epoxy_batch_2 = QtWidgets.QLineEdit(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_batch_2.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_batch_2.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_batch_2.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -1504,10 +1652,14 @@ class Ui_MainWindow(object):
         self.epoxy_batch_2.setObjectName("epoxy_batch_2")
         self.gridLayout_22.addWidget(self.epoxy_batch_2, 1, 0, 1, 1)
         self.epoxy_mixed_2 = QtWidgets.QPushButton(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_mixed_2.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_mixed_2.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_mixed_2.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -1517,7 +1669,9 @@ class Ui_MainWindow(object):
         self.epoxy_mixed_2.setObjectName("epoxy_mixed_2")
         self.gridLayout_22.addWidget(self.epoxy_mixed_2, 2, 0, 1, 3)
         self.label_616 = QtWidgets.QLabel(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_616.sizePolicy().hasHeightForWidth())
@@ -1525,10 +1679,14 @@ class Ui_MainWindow(object):
         self.label_616.setObjectName("label_616")
         self.gridLayout_22.addWidget(self.label_616, 1, 1, 1, 2)
         self.epoxy_inject2 = QtWidgets.QPushButton(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_inject2.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_inject2.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_inject2.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -1540,7 +1698,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_12.setObjectName("horizontalLayout_12")
         self.hour_disp_2 = QtWidgets.QLCDNumber(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_2.sizePolicy().hasHeightForWidth())
@@ -1548,7 +1708,9 @@ class Ui_MainWindow(object):
         self.hour_disp_2.setObjectName("hour_disp_2")
         self.horizontalLayout_12.addWidget(self.hour_disp_2)
         self.min_disp_2 = QtWidgets.QLCDNumber(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_2.sizePolicy().hasHeightForWidth())
@@ -1556,7 +1718,9 @@ class Ui_MainWindow(object):
         self.min_disp_2.setObjectName("min_disp_2")
         self.horizontalLayout_12.addWidget(self.min_disp_2)
         self.sec_disp_2 = QtWidgets.QLCDNumber(self.groupBox_53)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_2.sizePolicy().hasHeightForWidth())
@@ -1566,7 +1730,9 @@ class Ui_MainWindow(object):
         self.gridLayout_22.addLayout(self.horizontalLayout_12, 5, 0, 1, 3)
         self.gridLayout_62.addWidget(self.groupBox_53, 0, 1, 1, 1)
         self.groupBox_51 = QtWidgets.QGroupBox(self.p2Straws)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_51.sizePolicy().hasHeightForWidth())
@@ -1580,7 +1746,9 @@ class Ui_MainWindow(object):
         self.gridLayout_23 = QtWidgets.QGridLayout(self.groupBox_51)
         self.gridLayout_23.setObjectName("gridLayout_23")
         self.label_614 = QtWidgets.QLabel(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_614.sizePolicy().hasHeightForWidth())
@@ -1592,7 +1760,9 @@ class Ui_MainWindow(object):
         self.label_614.setObjectName("label_614")
         self.gridLayout_23.addWidget(self.label_614, 2, 1, 1, 2)
         self.heat_start = QtWidgets.QPushButton(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.heat_start.sizePolicy().hasHeightForWidth())
@@ -1605,7 +1775,9 @@ class Ui_MainWindow(object):
         self.heat_start.setObjectName("heat_start")
         self.gridLayout_23.addWidget(self.heat_start, 0, 0, 1, 3)
         self.label_619 = QtWidgets.QLabel(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_619.sizePolicy().hasHeightForWidth())
@@ -1617,7 +1789,9 @@ class Ui_MainWindow(object):
         self.label_619.setObjectName("label_619")
         self.gridLayout_23.addWidget(self.label_619, 3, 1, 1, 2)
         self.temp4_2 = QtWidgets.QLineEdit(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.temp4_2.sizePolicy().hasHeightForWidth())
@@ -1632,7 +1806,9 @@ class Ui_MainWindow(object):
         self.temp4_2.setObjectName("temp4_2")
         self.gridLayout_23.addWidget(self.temp4_2, 3, 0, 1, 1)
         self.temp4 = QtWidgets.QLineEdit(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.temp4.sizePolicy().hasHeightForWidth())
@@ -1649,7 +1825,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
         self.hour_disp_3 = QtWidgets.QLCDNumber(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_3.sizePolicy().hasHeightForWidth())
@@ -1657,7 +1835,9 @@ class Ui_MainWindow(object):
         self.hour_disp_3.setObjectName("hour_disp_3")
         self.horizontalLayout_13.addWidget(self.hour_disp_3)
         self.min_disp_3 = QtWidgets.QLCDNumber(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_3.sizePolicy().hasHeightForWidth())
@@ -1665,7 +1845,9 @@ class Ui_MainWindow(object):
         self.min_disp_3.setObjectName("min_disp_3")
         self.horizontalLayout_13.addWidget(self.min_disp_3)
         self.sec_disp_3 = QtWidgets.QLCDNumber(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_3.sizePolicy().hasHeightForWidth())
@@ -1674,10 +1856,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13.addWidget(self.sec_disp_3)
         self.gridLayout_23.addLayout(self.horizontalLayout_13, 5, 0, 1, 3)
         self.heat_finished = QtWidgets.QPushButton(self.groupBox_51)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heat_finished.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.heat_finished.sizePolicy().hasHeightForWidth()
+        )
         self.heat_finished.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -1767,7 +1953,9 @@ class Ui_MainWindow(object):
         self.commentBox2.setObjectName("commentBox2")
         self.gridLayout_24.addWidget(self.commentBox2, 0, 0, 1, 1)
         self.saveButton2 = QtWidgets.QPushButton(self.groupBox_54)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveButton2.sizePolicy().hasHeightForWidth())
@@ -1806,7 +1994,9 @@ class Ui_MainWindow(object):
         self.scrollArea.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.scrollArea.setLineWidth(1)
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.scrollArea.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents
+        )
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
@@ -1852,10 +2042,14 @@ class Ui_MainWindow(object):
         self.label_15.setObjectName("label_15")
         self.gridLayout_64.addWidget(self.label_15, 8, 0, 1, 1)
         self.panelInput3_2 = QtWidgets.QLineEdit(self.p3Wire)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.panelInput3_2.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.panelInput3_2.sizePolicy().hasHeightForWidth()
+        )
         self.panelInput3_2.setSizePolicy(sizePolicy)
         self.panelInput3_2.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.panelInput3_2.setText("")
@@ -1863,7 +2057,9 @@ class Ui_MainWindow(object):
         self.panelInput3_2.setObjectName("panelInput3_2")
         self.gridLayout_64.addWidget(self.panelInput3_2, 8, 1, 1, 2)
         self.panelInput3 = QtWidgets.QLineEdit(self.p3Wire)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelInput3.sizePolicy().hasHeightForWidth())
@@ -1882,7 +2078,9 @@ class Ui_MainWindow(object):
         self.label_12.setObjectName("label_12")
         self.gridLayout_64.addWidget(self.label_12, 3, 0, 1, 1)
         self.startbutton3 = QtWidgets.QPushButton(self.p3Wire)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startbutton3.sizePolicy().hasHeightForWidth())
@@ -1896,7 +2094,9 @@ class Ui_MainWindow(object):
         self.gridLayout_64.addWidget(self.startbutton3, 2, 3, 2, 1)
         self.wireInput = QtWidgets.QLineEdit(self.p3Wire)
         self.wireInput.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.wireInput.sizePolicy().hasHeightForWidth())
@@ -1913,10 +2113,14 @@ class Ui_MainWindow(object):
         self.gridLayout_69.setObjectName("gridLayout_69")
         self.gridLayout_64.addLayout(self.gridLayout_69, 4, 0, 1, 1)
         self.launch_wire_tensioner = QtWidgets.QPushButton(self.p3Wire)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.launch_wire_tensioner.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.launch_wire_tensioner.sizePolicy().hasHeightForWidth()
+        )
         self.launch_wire_tensioner.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -1934,7 +2138,9 @@ class Ui_MainWindow(object):
         self.launch_tension_box.setObjectName("launch_tension_box")
         self.gridLayout_64.addWidget(self.launch_tension_box, 7, 3, 1, 1)
         self.launchHVpro3 = QtWidgets.QPushButton(self.p3Wire)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.launchHVpro3.sizePolicy().hasHeightForWidth())
@@ -1962,7 +2168,9 @@ class Ui_MainWindow(object):
         self.commentBox3.setObjectName("commentBox3")
         self.gridLayout_32.addWidget(self.commentBox3, 0, 0, 1, 1)
         self.saveButton3 = QtWidgets.QPushButton(self.groupBox_8)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveButton3.sizePolicy().hasHeightForWidth())
@@ -1983,7 +2191,9 @@ class Ui_MainWindow(object):
         self.gridLayout_46 = QtWidgets.QGridLayout(self.p4PP)
         self.gridLayout_46.setObjectName("gridLayout_46")
         self.pictureLinks = QtWidgets.QGroupBox(self.p4PP)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pictureLinks.sizePolicy().hasHeightForWidth())
@@ -1997,7 +2207,9 @@ class Ui_MainWindow(object):
         self.gridLayout_59 = QtWidgets.QGridLayout(self.pictureLinks)
         self.gridLayout_59.setObjectName("gridLayout_59")
         self.picfour1_2 = QtWidgets.QPushButton(self.pictureLinks)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour1_2.sizePolicy().hasHeightForWidth())
@@ -2008,7 +2220,9 @@ class Ui_MainWindow(object):
         self.picfour1_2.setObjectName("picfour1_2")
         self.gridLayout_59.addWidget(self.picfour1_2, 0, 0, 1, 1)
         self.picfour2_2 = QtWidgets.QPushButton(self.pictureLinks)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour2_2.sizePolicy().hasHeightForWidth())
@@ -2019,7 +2233,9 @@ class Ui_MainWindow(object):
         self.picfour2_2.setObjectName("picfour2_2")
         self.gridLayout_59.addWidget(self.picfour2_2, 1, 0, 1, 1)
         self.picfour3_2 = QtWidgets.QPushButton(self.pictureLinks)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour3_2.sizePolicy().hasHeightForWidth())
@@ -2041,7 +2257,9 @@ class Ui_MainWindow(object):
         self.label_144.setObjectName("label_144")
         self.horizontalLayout_32.addWidget(self.label_144)
         self.panelInput4 = QtWidgets.QLineEdit(self.p4PP)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelInput4.sizePolicy().hasHeightForWidth())
@@ -2053,7 +2271,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_32.addWidget(self.panelInput4)
         self.panelAndStart.addLayout(self.horizontalLayout_32)
         self.startButton4 = QtWidgets.QPushButton(self.p4PP)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startButton4.sizePolicy().hasHeightForWidth())
@@ -2068,7 +2288,9 @@ class Ui_MainWindow(object):
         self.panelAndStart.addWidget(self.startButton4)
         self.gridLayout_46.addLayout(self.panelAndStart, 1, 0, 1, 1)
         self.mainLabel = QtWidgets.QLabel(self.p4PP)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mainLabel.sizePolicy().hasHeightForWidth())
@@ -2098,7 +2320,9 @@ class Ui_MainWindow(object):
         self.commentBox4.setObjectName("commentBox4")
         self.gridLayout_51.addWidget(self.commentBox4, 0, 0, 1, 1)
         self.saveButton = QtWidgets.QPushButton(self.commentBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveButton.sizePolicy().hasHeightForWidth())
@@ -2128,10 +2352,14 @@ class Ui_MainWindow(object):
         self.gridLayout_48.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.gridLayout_48.setObjectName("gridLayout_48")
         self.epoxy_batch_4 = QtWidgets.QLineEdit(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_batch_4.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_batch_4.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_batch_4.setSizePolicy(sizePolicy)
         self.epoxy_batch_4.setText("")
         self.epoxy_batch_4.setMaxLength(6)
@@ -2144,7 +2372,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_34.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.horizontalLayout_34.setObjectName("horizontalLayout_34")
         self.hour_disp_7 = QtWidgets.QLCDNumber(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_7.sizePolicy().hasHeightForWidth())
@@ -2152,7 +2382,9 @@ class Ui_MainWindow(object):
         self.hour_disp_7.setObjectName("hour_disp_7")
         self.horizontalLayout_34.addWidget(self.hour_disp_7)
         self.min_disp_7 = QtWidgets.QLCDNumber(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_7.sizePolicy().hasHeightForWidth())
@@ -2160,7 +2392,9 @@ class Ui_MainWindow(object):
         self.min_disp_7.setObjectName("min_disp_7")
         self.horizontalLayout_34.addWidget(self.min_disp_7)
         self.sec_disp_7 = QtWidgets.QLCDNumber(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_7.sizePolicy().hasHeightForWidth())
@@ -2179,10 +2413,14 @@ class Ui_MainWindow(object):
         self.label_622.setObjectName("label_622")
         self.gridLayout_48.addWidget(self.label_622, 0, 0, 1, 1)
         self.epoxyFinishedRP = QtWidgets.QPushButton(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyFinishedRP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyFinishedRP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyFinishedRP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2192,10 +2430,14 @@ class Ui_MainWindow(object):
         self.epoxyFinishedRP.setObjectName("epoxyFinishedRP")
         self.gridLayout_48.addWidget(self.epoxyFinishedRP, 5, 0, 1, 2)
         self.epoxyInjectedRP = QtWidgets.QPushButton(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyInjectedRP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyInjectedRP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyInjectedRP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2205,7 +2447,9 @@ class Ui_MainWindow(object):
         self.epoxyInjectedRP.setObjectName("epoxyInjectedRP")
         self.gridLayout_48.addWidget(self.epoxyInjectedRP, 4, 0, 1, 2)
         self.epoxyMixedRP = QtWidgets.QPushButton(self.rightPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.epoxyMixedRP.sizePolicy().hasHeightForWidth())
@@ -2236,10 +2480,14 @@ class Ui_MainWindow(object):
         self.label_620.setObjectName("label_620")
         self.gridLayout_47.addWidget(self.label_620, 0, 0, 1, 1)
         self.epoxy_batch_3 = QtWidgets.QLineEdit(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_batch_3.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_batch_3.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_batch_3.setSizePolicy(sizePolicy)
         self.epoxy_batch_3.setText("")
         self.epoxy_batch_3.setMaxLength(6)
@@ -2249,7 +2497,9 @@ class Ui_MainWindow(object):
         self.label_621.setObjectName("label_621")
         self.gridLayout_47.addWidget(self.label_621, 1, 1, 1, 1)
         self.epoxyMixedLP = QtWidgets.QPushButton(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.epoxyMixedLP.sizePolicy().hasHeightForWidth())
@@ -2265,7 +2515,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_33.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.horizontalLayout_33.setObjectName("horizontalLayout_33")
         self.hour_disp_5 = QtWidgets.QLCDNumber(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_5.sizePolicy().hasHeightForWidth())
@@ -2273,7 +2525,9 @@ class Ui_MainWindow(object):
         self.hour_disp_5.setObjectName("hour_disp_5")
         self.horizontalLayout_33.addWidget(self.hour_disp_5)
         self.min_disp_5 = QtWidgets.QLCDNumber(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_5.sizePolicy().hasHeightForWidth())
@@ -2281,7 +2535,9 @@ class Ui_MainWindow(object):
         self.min_disp_5.setObjectName("min_disp_5")
         self.horizontalLayout_33.addWidget(self.min_disp_5)
         self.sec_disp_5 = QtWidgets.QLCDNumber(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_5.sizePolicy().hasHeightForWidth())
@@ -2293,10 +2549,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_33.setStretch(2, 1)
         self.gridLayout_47.addLayout(self.horizontalLayout_33, 3, 0, 1, 2)
         self.epoxyInjectedLP = QtWidgets.QPushButton(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyInjectedLP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyInjectedLP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyInjectedLP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2306,10 +2566,14 @@ class Ui_MainWindow(object):
         self.epoxyInjectedLP.setObjectName("epoxyInjectedLP")
         self.gridLayout_47.addWidget(self.epoxyInjectedLP, 4, 0, 1, 2)
         self.epoxyFinishedLP = QtWidgets.QPushButton(self.leftPinProtector)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyFinishedLP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyFinishedLP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyFinishedLP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2341,10 +2605,14 @@ class Ui_MainWindow(object):
         self.label_624.setObjectName("label_624")
         self.gridLayout_49.addWidget(self.label_624, 0, 0, 1, 1)
         self.epoxy_batch_5 = QtWidgets.QLineEdit(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_batch_5.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_batch_5.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_batch_5.setSizePolicy(sizePolicy)
         self.epoxy_batch_5.setText("")
         self.epoxy_batch_5.setMaxLength(6)
@@ -2355,10 +2623,14 @@ class Ui_MainWindow(object):
         self.gridLayout_49.addWidget(self.label_625, 1, 1, 1, 1)
         self.verticalLayout_2.addLayout(self.gridLayout_49)
         self.epoxyMixedLOP = QtWidgets.QPushButton(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyMixedLOP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyMixedLOP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyMixedLOP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2371,7 +2643,9 @@ class Ui_MainWindow(object):
         self.timerLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.timerLayout.setObjectName("timerLayout")
         self.hour_disp_11 = QtWidgets.QLCDNumber(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_11.sizePolicy().hasHeightForWidth())
@@ -2379,7 +2653,9 @@ class Ui_MainWindow(object):
         self.hour_disp_11.setObjectName("hour_disp_11")
         self.timerLayout.addWidget(self.hour_disp_11)
         self.min_disp_11 = QtWidgets.QLCDNumber(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_11.sizePolicy().hasHeightForWidth())
@@ -2387,7 +2663,9 @@ class Ui_MainWindow(object):
         self.min_disp_11.setObjectName("min_disp_11")
         self.timerLayout.addWidget(self.min_disp_11)
         self.sec_disp_11 = QtWidgets.QLCDNumber(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_11.sizePolicy().hasHeightForWidth())
@@ -2399,10 +2677,14 @@ class Ui_MainWindow(object):
         self.timerLayout.setStretch(2, 1)
         self.verticalLayout_2.addLayout(self.timerLayout)
         self.epoxyAppliedLOP = QtWidgets.QPushButton(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyAppliedLOP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyAppliedLOP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyAppliedLOP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2412,10 +2694,14 @@ class Ui_MainWindow(object):
         self.epoxyAppliedLOP.setObjectName("epoxyAppliedLOP")
         self.verticalLayout_2.addWidget(self.epoxyAppliedLOP)
         self.epoxyCuredLOP = QtWidgets.QPushButton(self.leftOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyCuredLOP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyCuredLOP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyCuredLOP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2444,10 +2730,14 @@ class Ui_MainWindow(object):
         self.label_626.setObjectName("label_626")
         self.gridLayout_50.addWidget(self.label_626, 0, 0, 1, 1)
         self.epoxy_batch_6 = QtWidgets.QLineEdit(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_batch_6.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_batch_6.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_batch_6.setSizePolicy(sizePolicy)
         self.epoxy_batch_6.setText("")
         self.epoxy_batch_6.setMaxLength(6)
@@ -2458,10 +2748,14 @@ class Ui_MainWindow(object):
         self.gridLayout_50.addWidget(self.label_627, 1, 1, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_50)
         self.epoxyMixedROP = QtWidgets.QPushButton(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyMixedROP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyMixedROP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyMixedROP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2474,7 +2768,9 @@ class Ui_MainWindow(object):
         self.timerLayout_2.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.timerLayout_2.setObjectName("timerLayout_2")
         self.hour_disp_13 = QtWidgets.QLCDNumber(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_13.sizePolicy().hasHeightForWidth())
@@ -2482,7 +2778,9 @@ class Ui_MainWindow(object):
         self.hour_disp_13.setObjectName("hour_disp_13")
         self.timerLayout_2.addWidget(self.hour_disp_13)
         self.min_disp_13 = QtWidgets.QLCDNumber(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_13.sizePolicy().hasHeightForWidth())
@@ -2490,7 +2788,9 @@ class Ui_MainWindow(object):
         self.min_disp_13.setObjectName("min_disp_13")
         self.timerLayout_2.addWidget(self.min_disp_13)
         self.sec_disp_13 = QtWidgets.QLCDNumber(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_13.sizePolicy().hasHeightForWidth())
@@ -2502,10 +2802,14 @@ class Ui_MainWindow(object):
         self.timerLayout_2.setStretch(2, 1)
         self.verticalLayout_3.addLayout(self.timerLayout_2)
         self.epoxyAppliedROP = QtWidgets.QPushButton(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyAppliedROP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyAppliedROP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyAppliedROP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2515,10 +2819,14 @@ class Ui_MainWindow(object):
         self.epoxyAppliedROP.setObjectName("epoxyAppliedROP")
         self.verticalLayout_3.addWidget(self.epoxyAppliedROP)
         self.epoxyCuredROP = QtWidgets.QPushButton(self.rightOmegaPiece)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxyCuredROP.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxyCuredROP.sizePolicy().hasHeightForWidth()
+        )
         self.epoxyCuredROP.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2538,7 +2846,9 @@ class Ui_MainWindow(object):
         self.gridLayout_56 = QtWidgets.QGridLayout()
         self.gridLayout_56.setObjectName("gridLayout_56")
         self.label_36 = QtWidgets.QLabel(self.p5HV)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_36.sizePolicy().hasHeightForWidth())
@@ -2557,7 +2867,9 @@ class Ui_MainWindow(object):
         self.label_145.setObjectName("label_145")
         self.gridLayout_56.addWidget(self.label_145, 1, 0, 1, 1)
         self.panelInput5 = QtWidgets.QLineEdit(self.p5HV)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelInput5.sizePolicy().hasHeightForWidth())
@@ -2567,7 +2879,9 @@ class Ui_MainWindow(object):
         self.panelInput5.setObjectName("panelInput5")
         self.gridLayout_56.addWidget(self.panelInput5, 1, 1, 1, 1)
         self.startButton5 = QtWidgets.QPushButton(self.p5HV)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startButton5.sizePolicy().hasHeightForWidth())
@@ -2618,7 +2932,9 @@ class Ui_MainWindow(object):
         self.scrollAreaHV.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.scrollAreaHV.setLineWidth(1)
         self.scrollAreaHV.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.scrollAreaHV.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.scrollAreaHV.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents
+        )
         self.scrollAreaHV.setWidgetResizable(True)
         self.scrollAreaHV.setObjectName("scrollAreaHV")
         self.scrollContents = QtWidgets.QWidget()
@@ -2645,10 +2961,14 @@ class Ui_MainWindow(object):
         self.commentBox5.setObjectName("commentBox5")
         self.gridLayout_52.addWidget(self.commentBox5, 0, 0, 1, 1)
         self.pro5CommentSaveButton = QtWidgets.QPushButton(self.commentBoxLayout_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pro5CommentSaveButton.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.pro5CommentSaveButton.sizePolicy().hasHeightForWidth()
+        )
         self.pro5CommentSaveButton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -2669,7 +2989,9 @@ class Ui_MainWindow(object):
         self.gridLayout_54 = QtWidgets.QGridLayout(self.images)
         self.gridLayout_54.setObjectName("gridLayout_54")
         self.picfour1_3 = QtWidgets.QPushButton(self.images)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour1_3.sizePolicy().hasHeightForWidth())
@@ -2680,7 +3002,9 @@ class Ui_MainWindow(object):
         self.picfour1_3.setObjectName("picfour1_3")
         self.gridLayout_54.addWidget(self.picfour1_3, 0, 0, 1, 1)
         self.picfour3_3 = QtWidgets.QPushButton(self.images)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour3_3.sizePolicy().hasHeightForWidth())
@@ -2691,7 +3015,9 @@ class Ui_MainWindow(object):
         self.picfour3_3.setObjectName("picfour3_3")
         self.gridLayout_54.addWidget(self.picfour3_3, 1, 0, 1, 1)
         self.picfour2_3 = QtWidgets.QPushButton(self.images)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour2_3.sizePolicy().hasHeightForWidth())
@@ -2747,7 +3073,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.heat_start4 = QtWidgets.QPushButton(self.groupBox_21)
         self.heat_start4.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.heat_start4.sizePolicy().hasHeightForWidth())
@@ -2761,10 +3089,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.heat_start4)
         self.heat_finished4 = QtWidgets.QPushButton(self.groupBox_21)
         self.heat_finished4.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heat_finished4.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.heat_finished4.sizePolicy().hasHeightForWidth()
+        )
         self.heat_finished4.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -2809,7 +3141,9 @@ class Ui_MainWindow(object):
         self.gridLayout_34.addWidget(self.commentBox6, 0, 0, 1, 1)
         self.horizontalLayout_20.addWidget(self.groupBox_22)
         self.saveButton4 = QtWidgets.QPushButton(self.p6Manifold)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveButton4.sizePolicy().hasHeightForWidth())
@@ -2833,7 +3167,9 @@ class Ui_MainWindow(object):
         self.gridLayout_33 = QtWidgets.QGridLayout(self.groupBox_14)
         self.gridLayout_33.setObjectName("gridLayout_33")
         self.picfour1 = QtWidgets.QPushButton(self.groupBox_14)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour1.sizePolicy().hasHeightForWidth())
@@ -2844,10 +3180,14 @@ class Ui_MainWindow(object):
         self.picfour1.setObjectName("picfour1")
         self.gridLayout_33.addWidget(self.picfour1, 0, 0, 1, 1)
         self.paas_attach_3 = QtWidgets.QPushButton(self.groupBox_14)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.paas_attach_3.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.paas_attach_3.sizePolicy().hasHeightForWidth()
+        )
         self.paas_attach_3.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -2855,7 +3195,9 @@ class Ui_MainWindow(object):
         self.paas_attach_3.setObjectName("paas_attach_3")
         self.gridLayout_33.addWidget(self.paas_attach_3, 0, 1, 1, 1)
         self.picfour3 = QtWidgets.QPushButton(self.groupBox_14)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour3.sizePolicy().hasHeightForWidth())
@@ -2866,7 +3208,9 @@ class Ui_MainWindow(object):
         self.picfour3.setObjectName("picfour3")
         self.gridLayout_33.addWidget(self.picfour3, 1, 0, 1, 1)
         self.picfour2 = QtWidgets.QPushButton(self.groupBox_14)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.picfour2.sizePolicy().hasHeightForWidth())
@@ -2891,7 +3235,9 @@ class Ui_MainWindow(object):
         self.label_28.setObjectName("label_28")
         self.gridLayout_36.addWidget(self.label_28, 0, 2, 2, 1)
         self.startButton6 = QtWidgets.QPushButton(self.p6Manifold)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startButton6.sizePolicy().hasHeightForWidth())
@@ -3022,10 +3368,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_30.setObjectName("horizontalLayout_30")
         self.epoxy_mixed42 = QtWidgets.QPushButton(self.groupBox_16)
         self.epoxy_mixed42.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_mixed42.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_mixed42.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_mixed42.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -3036,10 +3386,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_30.addWidget(self.epoxy_mixed42)
         self.epoxy_applied42 = QtWidgets.QPushButton(self.groupBox_16)
         self.epoxy_applied42.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.epoxy_applied42.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.epoxy_applied42.sizePolicy().hasHeightForWidth()
+        )
         self.epoxy_applied42.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -3089,7 +3443,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_21 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_21.setObjectName("horizontalLayout_21")
         self.hour_disp_8 = QtWidgets.QLCDNumber(self.groupBox_15)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.hour_disp_8.sizePolicy().hasHeightForWidth())
@@ -3097,7 +3453,9 @@ class Ui_MainWindow(object):
         self.hour_disp_8.setObjectName("hour_disp_8")
         self.horizontalLayout_21.addWidget(self.hour_disp_8)
         self.min_disp_8 = QtWidgets.QLCDNumber(self.groupBox_15)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.min_disp_8.sizePolicy().hasHeightForWidth())
@@ -3105,7 +3463,9 @@ class Ui_MainWindow(object):
         self.min_disp_8.setObjectName("min_disp_8")
         self.horizontalLayout_21.addWidget(self.min_disp_8)
         self.sec_disp_8 = QtWidgets.QLCDNumber(self.groupBox_15)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sec_disp_8.sizePolicy().hasHeightForWidth())
@@ -3140,7 +3500,9 @@ class Ui_MainWindow(object):
         self.pro6PanelHeater.setObjectName("pro6PanelHeater")
         self.gridLayout_65.addWidget(self.pro6PanelHeater, 2, 0, 1, 1)
         self.launchHVpro6 = QtWidgets.QPushButton(self.gridGroupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.launchHVpro6.sizePolicy().hasHeightForWidth())
@@ -3179,7 +3541,9 @@ class Ui_MainWindow(object):
         self.label_130.setObjectName("label_130")
         self.horizontalLayout_24.addWidget(self.label_130)
         self.panelInput7 = QtWidgets.QLineEdit(self.p7Flooding)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelInput7.sizePolicy().hasHeightForWidth())
@@ -3190,7 +3554,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_24.addWidget(self.panelInput7)
         self.horizontalLayout_25.addLayout(self.horizontalLayout_24)
         self.startButton7 = QtWidgets.QPushButton(self.p7Flooding)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startButton7.sizePolicy().hasHeightForWidth())
@@ -3323,7 +3689,9 @@ class Ui_MainWindow(object):
         self.gridLayout_43.addWidget(self.commentBox7, 0, 0, 1, 1)
         self.horizontalLayout_29.addWidget(self.groupBox_23)
         self.saveButton5 = QtWidgets.QPushButton(self.p7Flooding)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveButton5.sizePolicy().hasHeightForWidth())
@@ -3356,7 +3724,9 @@ class Ui_MainWindow(object):
         self.gridLayout_86 = QtWidgets.QGridLayout(self.p8FinalQC)
         self.gridLayout_86.setObjectName("gridLayout_86")
         self.label_35 = QtWidgets.QLabel(self.p8FinalQC)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_35.sizePolicy().hasHeightForWidth())
@@ -3368,7 +3738,9 @@ class Ui_MainWindow(object):
         self.gridLayout_86.addWidget(self.label_35, 0, 0, 1, 1)
         self.gridLayout_67 = QtWidgets.QGridLayout()
         self.gridLayout_67.setObjectName("gridLayout_67")
-        spacerItem1 = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            100, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_67.addItem(spacerItem1, 2, 2, 1, 1)
         self.label_496 = QtWidgets.QLabel(self.p8FinalQC)
         self.label_496.setObjectName("label_496")
@@ -3426,20 +3798,32 @@ class Ui_MainWindow(object):
         self.label_491.setObjectName("label_491")
         self.gridLayout_67.addWidget(self.label_491, 1, 0, 1, 1)
         self.centerRing2DE = QtWidgets.QDateEdit(self.p8FinalQC)
-        self.centerRing2DE.setDateTime(QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0)))
-        self.centerRing2DE.setMinimumDateTime(QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0)))
+        self.centerRing2DE.setDateTime(
+            QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0))
+        )
+        self.centerRing2DE.setMinimumDateTime(
+            QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0))
+        )
         self.centerRing2DE.setDate(QtCore.QDate(2000, 1, 1))
         self.centerRing2DE.setObjectName("centerRing2DE")
         self.gridLayout_67.addWidget(self.centerRing2DE, 2, 5, 1, 1)
         self.leftRing2DE = QtWidgets.QDateEdit(self.p8FinalQC)
-        self.leftRing2DE.setDateTime(QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0)))
-        self.leftRing2DE.setMinimumDateTime(QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0)))
+        self.leftRing2DE.setDateTime(
+            QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0))
+        )
+        self.leftRing2DE.setMinimumDateTime(
+            QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0))
+        )
         self.leftRing2DE.setDate(QtCore.QDate(2000, 1, 1))
         self.leftRing2DE.setObjectName("leftRing2DE")
         self.gridLayout_67.addWidget(self.leftRing2DE, 1, 5, 1, 1)
         self.rightRing2DE = QtWidgets.QDateEdit(self.p8FinalQC)
-        self.rightRing2DE.setDateTime(QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0)))
-        self.rightRing2DE.setMinimumDateTime(QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0)))
+        self.rightRing2DE.setDateTime(
+            QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0))
+        )
+        self.rightRing2DE.setMinimumDateTime(
+            QtCore.QDateTime(QtCore.QDate(2000, 1, 1), QtCore.QTime(0, 0, 0))
+        )
         self.rightRing2DE.setDate(QtCore.QDate(2000, 1, 1))
         self.rightRing2DE.setObjectName("rightRing2DE")
         self.gridLayout_67.addWidget(self.rightRing2DE, 3, 5, 1, 1)
@@ -3453,7 +3837,9 @@ class Ui_MainWindow(object):
         self.rightRing3TE = QtWidgets.QTimeEdit(self.p8FinalQC)
         self.rightRing3TE.setObjectName("rightRing3TE")
         self.gridLayout_67.addWidget(self.rightRing3TE, 3, 6, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_67.addItem(spacerItem2, 2, 8, 1, 1)
         self.center_cover_6 = QtWidgets.QLineEdit(self.p8FinalQC)
         self.center_cover_6.setMaxLength(7)
@@ -3469,7 +3855,9 @@ class Ui_MainWindow(object):
         self.submitCoversPB.setObjectName("submitCoversPB")
         self.gridLayout_67.addWidget(self.submitCoversPB, 4, 0, 1, 2)
         self.label_490 = QtWidgets.QLabel(self.p8FinalQC)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_490.sizePolicy().hasHeightForWidth())
@@ -3477,7 +3865,9 @@ class Ui_MainWindow(object):
         self.label_490.setObjectName("label_490")
         self.gridLayout_67.addWidget(self.label_490, 0, 0, 1, 1)
         self.panelInput_8 = QtWidgets.QLineEdit(self.p8FinalQC)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.panelInput_8.sizePolicy().hasHeightForWidth())
@@ -3485,10 +3875,14 @@ class Ui_MainWindow(object):
         self.panelInput_8.setObjectName("panelInput_8")
         self.gridLayout_67.addWidget(self.panelInput_8, 0, 1, 1, 2)
         self.startButton_8 = QtWidgets.QPushButton(self.p8FinalQC)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.startButton_8.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.startButton_8.sizePolicy().hasHeightForWidth()
+        )
         self.startButton_8.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -3505,10 +3899,14 @@ class Ui_MainWindow(object):
         self.line_2.setObjectName("line_2")
         self.gridLayout_86.addWidget(self.line_2, 2, 0, 1, 3)
         self.pro8StageLabel = QtWidgets.QLabel(self.p8FinalQC)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pro8StageLabel.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.pro8StageLabel.sizePolicy().hasHeightForWidth()
+        )
         self.pro8StageLabel.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(16)
@@ -3531,10 +3929,14 @@ class Ui_MainWindow(object):
         self.commentBox8_6.setObjectName("commentBox8_6")
         self.gridLayout_442.addWidget(self.commentBox8_6, 0, 0, 1, 1)
         self.saveButton8_6 = QtWidgets.QPushButton(self.commentGroupBox8)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.saveButton8_6.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.saveButton8_6.sizePolicy().hasHeightForWidth()
+        )
         self.saveButton8_6.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -3557,7 +3959,9 @@ class Ui_MainWindow(object):
         self.gridLayout_79.setObjectName("gridLayout_79")
         self.prepCompletePB = QtWidgets.QPushButton(self.groupBox_6)
         self.prepCompletePB.setObjectName("prepCompletePB")
-        self.gridLayout_79.addWidget(self.prepCompletePB, 0, 0, 1, 1, QtCore.Qt.AlignVCenter)
+        self.gridLayout_79.addWidget(
+            self.prepCompletePB, 0, 0, 1, 1, QtCore.Qt.AlignVCenter
+        )
         self.gridLayout_80.addWidget(self.groupBox_6, 1, 0, 1, 1)
         self.stackedWidget.addWidget(self.page_17)
         self.page_16 = QtWidgets.QWidget()
@@ -3601,11 +4005,17 @@ class Ui_MainWindow(object):
         self.launch_leak_test_2.setFont(font)
         self.launch_leak_test_2.setObjectName("launch_leak_test_2")
         self.gridLayout_75.addWidget(self.launch_leak_test_2, 1, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
+        spacerItem3 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum
+        )
         self.gridLayout_75.addItem(spacerItem3, 2, 0, 1, 1)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem4 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_75.addItem(spacerItem4, 4, 0, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem5 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_75.addItem(spacerItem5, 0, 0, 1, 1)
         self.gridLayout_76.addWidget(self.groupBox_4, 0, 0, 1, 1)
         self.stackedWidget.addWidget(self.page_11)
@@ -3674,7 +4084,9 @@ class Ui_MainWindow(object):
         self.leak_next.addItem("")
         self.leak_next.addItem("")
         self.gridLayout_73.addWidget(self.leak_next, 7, 1, 1, 2)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem6 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_73.addItem(spacerItem6, 9, 0, 1, 1)
         self.gridLayout_66.addWidget(self.groupBox_2, 0, 0, 1, 1)
         self.stackedWidget.addWidget(self.page_5)
@@ -3785,7 +4197,9 @@ class Ui_MainWindow(object):
         self.gridLayout_85 = QtWidgets.QGridLayout(self.page_20)
         self.gridLayout_85.setObjectName("gridLayout_85")
         self.label_44 = QtWidgets.QLabel(self.page_20)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_44.sizePolicy().hasHeightForWidth())
@@ -3844,7 +4258,9 @@ class Ui_MainWindow(object):
         self.gridLayout_7 = QtWidgets.QGridLayout(self.page_2)
         self.gridLayout_7.setObjectName("gridLayout_7")
         self.pro1Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro1Select.sizePolicy().hasHeightForWidth())
@@ -3860,7 +4276,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro1Select)
         self.gridLayout_7.addWidget(self.pro1Select, 0, 0, 1, 1)
         self.pro2Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro2Select.sizePolicy().hasHeightForWidth())
@@ -3874,7 +4292,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro2Select)
         self.gridLayout_7.addWidget(self.pro2Select, 1, 0, 1, 1)
         self.pro3Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro3Select.sizePolicy().hasHeightForWidth())
@@ -3888,7 +4308,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro3Select)
         self.gridLayout_7.addWidget(self.pro3Select, 2, 0, 1, 1)
         self.pro4Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro4Select.sizePolicy().hasHeightForWidth())
@@ -3902,7 +4324,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro4Select)
         self.gridLayout_7.addWidget(self.pro4Select, 3, 0, 1, 1)
         self.pro5Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro5Select.sizePolicy().hasHeightForWidth())
@@ -3916,7 +4340,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro5Select)
         self.gridLayout_7.addWidget(self.pro5Select, 4, 0, 1, 1)
         self.pro6Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro6Select.sizePolicy().hasHeightForWidth())
@@ -3930,7 +4356,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro6Select)
         self.gridLayout_7.addWidget(self.pro6Select, 5, 0, 1, 1)
         self.pro7Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro7Select.sizePolicy().hasHeightForWidth())
@@ -3944,7 +4372,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro7Select)
         self.gridLayout_7.addWidget(self.pro7Select, 6, 0, 1, 1)
         self.pro8Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro8Select.sizePolicy().hasHeightForWidth())
@@ -3958,7 +4388,9 @@ class Ui_MainWindow(object):
         self.proSelectButtons.addButton(self.pro8Select)
         self.gridLayout_7.addWidget(self.pro8Select, 7, 0, 1, 1)
         self.pro9Select = QtWidgets.QPushButton(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pro9Select.sizePolicy().hasHeightForWidth())
@@ -3978,7 +4410,9 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.actionStandard_Operating_Procedure = QtWidgets.QAction(MainWindow)
-        self.actionStandard_Operating_Procedure.setObjectName("actionStandard_Operating_Procedure")
+        self.actionStandard_Operating_Procedure.setObjectName(
+            "actionStandard_Operating_Procedure"
+        )
         self.actionDiagrams = QtWidgets.QAction(MainWindow)
         self.actionDiagrams.setObjectName("actionDiagrams")
 
@@ -4181,36 +4615,58 @@ class Ui_MainWindow(object):
         self.portal3.setText(_translate("MainWindow", "Log In"))
         self.label_19.setText(_translate("MainWindow", "Current Worker:"))
         self.portal4.setText(_translate("MainWindow", "Log In"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Worker Portal"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_3),
+            _translate("MainWindow", "Worker Portal"),
+        )
         self.Parts.setTitle(_translate("MainWindow", "Parts"))
         self.Tools.setTitle(_translate("MainWindow", "Tools"))
         self.Supplies.setTitle(_translate("MainWindow", "Supplies"))
         self.previousButton.setText(_translate("MainWindow", "<"))
         self.nextButton.setText(_translate("MainWindow", ">"))
-        self.checkEmAllButton.setText(_translate("MainWindow", "Check All Tools, Parts, and Supplies"))
+        self.checkEmAllButton.setText(
+            _translate("MainWindow", "Check All Tools, Parts, and Supplies")
+        )
         self.MoldRelease.setTitle(_translate("MainWindow", "Mold Release Checklist"))
         self.previousButton_2.setText(_translate("MainWindow", "<"))
         self.nextButton_2.setText(_translate("MainWindow", ">"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Supplies List"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2),
+            _translate("MainWindow", "Supplies List"),
+        )
         self.stepsBox.setTitle(_translate("MainWindow", "Steps:"))
         self.groupBox_7.setTitle(_translate("MainWindow", "Elapsed Time"))
         self.FinishButton.setText(_translate("MainWindow", "Finish"))
         self.proReturnButton.setText(_translate("MainWindow", "Day Select"))
         self.groupBox.setTitle(_translate("MainWindow", "In Case of Failure"))
         self.anchorFail.setItemText(0, _translate("MainWindow", "Select failure mode"))
-        self.anchorFail.setItemText(1, _translate("MainWindow", "Wire snapped under tension"))
-        self.anchorFail.setItemText(2, _translate("MainWindow", "Wire snapped due to kink"))
-        self.anchorFail.setItemText(3, _translate("MainWindow", "Incorrect anchor length (bad tension)"))
+        self.anchorFail.setItemText(
+            1, _translate("MainWindow", "Wire snapped under tension")
+        )
+        self.anchorFail.setItemText(
+            2, _translate("MainWindow", "Wire snapped due to kink")
+        )
+        self.anchorFail.setItemText(
+            3, _translate("MainWindow", "Incorrect anchor length (bad tension)")
+        )
         self.anchorFail.setItemText(4, _translate("MainWindow", "Broken latch"))
-        self.anchorFail.setItemText(5, _translate("MainWindow", "Wire is too curled/kinked to be used"))
-        self.anchorFail.setItemText(6, _translate("MainWindow", "Wire slipped from anchor epoxy joint"))
-        self.anchorFail.setItemText(7, _translate("MainWindow", "Unable to attach to straw"))
+        self.anchorFail.setItemText(
+            5, _translate("MainWindow", "Wire is too curled/kinked to be used")
+        )
+        self.anchorFail.setItemText(
+            6, _translate("MainWindow", "Wire slipped from anchor epoxy joint")
+        )
+        self.anchorFail.setItemText(
+            7, _translate("MainWindow", "Unable to attach to straw")
+        )
         self.anchorFail.setItemText(8, _translate("MainWindow", "Other"))
         self.tapFail.setItemText(0, _translate("MainWindow", "Select failure mode"))
         self.tapFail.setItemText(1, _translate("MainWindow", "Broken"))
         self.tapFail.setItemText(2, _translate("MainWindow", "Other"))
         self.strawFail.setItemText(0, _translate("MainWindow", "Select failure mode"))
-        self.strawFail.setItemText(1, _translate("MainWindow", "Straw krinkled under tension"))
+        self.strawFail.setItemText(
+            1, _translate("MainWindow", "Straw krinkled under tension")
+        )
         self.strawFail.setItemText(2, _translate("MainWindow", "Straw is too dirty"))
         self.strawFail.setItemText(3, _translate("MainWindow", "Other"))
         self.screwFail.setItemText(0, _translate("MainWindow", "Select failure mode"))
@@ -4218,9 +4674,15 @@ class Ui_MainWindow(object):
         self.screwFail.setItemText(2, _translate("MainWindow", "Broken"))
         self.screwFail.setItemText(3, _translate("MainWindow", "Other"))
         self.pinFail.setItemText(0, _translate("MainWindow", "Select failure mode"))
-        self.pinFail.setItemText(1, _translate("MainWindow", "Pin detached while threading string"))
-        self.pinFail.setItemText(2, _translate("MainWindow", "Pin detached while threading wire"))
-        self.pinFail.setItemText(3, _translate("MainWindow", "Pin detached while soldering"))
+        self.pinFail.setItemText(
+            1, _translate("MainWindow", "Pin detached while threading string")
+        )
+        self.pinFail.setItemText(
+            2, _translate("MainWindow", "Pin detached while threading wire")
+        )
+        self.pinFail.setItemText(
+            3, _translate("MainWindow", "Pin detached while soldering")
+        )
         self.pinFail.setItemText(4, _translate("MainWindow", "Other"))
         self.failSelect.setItemText(0, _translate("MainWindow", "Select failed item"))
         self.failSelect.setItemText(1, _translate("MainWindow", "Anchor"))
@@ -4229,7 +4691,9 @@ class Ui_MainWindow(object):
         self.failSelect.setItemText(4, _translate("MainWindow", "Straw"))
         self.failSelect.setItemText(5, _translate("MainWindow", "Tap"))
         self.failSelect.setItemText(6, _translate("MainWindow", "Other"))
-        self.positionSelect.setItemText(0, _translate("MainWindow", "Select position on panel"))
+        self.positionSelect.setItemText(
+            0, _translate("MainWindow", "Select position on panel")
+        )
         self.positionSelect.setItemText(1, _translate("MainWindow", "0"))
         self.positionSelect.setItemText(2, _translate("MainWindow", "1"))
         self.positionSelect.setItemText(3, _translate("MainWindow", "2"))
@@ -4327,7 +4791,9 @@ class Ui_MainWindow(object):
         self.positionSelect.setItemText(95, _translate("MainWindow", "94"))
         self.positionSelect.setItemText(96, _translate("MainWindow", "95"))
         self.submitFailure.setText(_translate("MainWindow", "Submit Failure"))
-        self.failureComments.setPlaceholderText(_translate("MainWindow", "Enter comments for failure."))
+        self.failureComments.setPlaceholderText(
+            _translate("MainWindow", "Enter comments for failure.")
+        )
         self.groupBox_24.setTitle(_translate("MainWindow", "Previous Comments"))
         self.label_7.setText(_translate("MainWindow", "Process 1 - Inner Rings"))
         self.setup_box.setTitle(_translate("MainWindow", "Setup"))
@@ -4443,8 +4909,9 @@ class Ui_MainWindow(object):
         self.epoxy_applied1.setText(_translate("MainWindow", "Masking Removed"))
         self.groupBox_11.setTitle(_translate("MainWindow", "Comments"))
         self.saveButton1.setText(_translate("MainWindow", "Save"))
-        self.pro1PanelHeater.setText(_translate("MainWindow", "Launch Panel \n"
-"Heater GUI"))
+        self.pro1PanelHeater.setText(
+            _translate("MainWindow", "Launch Panel \n" "Heater GUI")
+        )
         self.groupBox_12.setTitle(_translate("MainWindow", "Informative Images/Gifs"))
         self.barcode.setText(_translate("MainWindow", "Barcode Placement"))
         self.picone1.setText(_translate("MainWindow", "PAAS A/C, ALF, Conducton Ring"))
@@ -4453,7 +4920,9 @@ class Ui_MainWindow(object):
         self.picone4.setText(_translate("MainWindow", "BIR Hole Positions"))
         self.picone5.setText(_translate("MainWindow", "Alf Placement"))
         self.paas_attach.setText(_translate("MainWindow", "Attaching PAAS Plates"))
-        self.label_613.setText(_translate("MainWindow", "Process 2 - Straw Installation and Epoxy"))
+        self.label_613.setText(
+            _translate("MainWindow", "Process 2 - Straw Installation and Epoxy")
+        )
         self.label_33.setText(_translate("MainWindow", "PAAS B"))
         self.paasBInput.setPlaceholderText(_translate("MainWindow", "PAAS B-**"))
         self.startbutton2.setText(_translate("MainWindow", "Start"))
@@ -4477,7 +4946,9 @@ class Ui_MainWindow(object):
         self.label_619.setText(_translate("MainWindow", "PAAS-B Max Temp [C]"))
         self.heat_finished.setText(_translate("MainWindow", "Heat Finished"))
         self.groupBox_19.setTitle(_translate("MainWindow", "Informative Images/Gifs"))
-        self.timer_instructions.setText(_translate("MainWindow", "Heating Timer Instructions"))
+        self.timer_instructions.setText(
+            _translate("MainWindow", "Heating Timer Instructions")
+        )
         self.picone2_2.setText(_translate("MainWindow", "Epoxy Mixing"))
         self.paas_attach_2.setText(_translate("MainWindow", "Attaching PAAS Plates"))
         self.groupBox_20.setTitle(_translate("MainWindow", "Launch GUIs"))
@@ -4485,7 +4956,11 @@ class Ui_MainWindow(object):
         self.launch_straw_tensioner.setText(_translate("MainWindow", "Straw Tensioner"))
         self.groupBox_54.setTitle(_translate("MainWindow", "Comments"))
         self.saveButton2.setText(_translate("MainWindow", "Save"))
-        self.label_6.setText(_translate("MainWindow", "Process 3 - Sense Wire Installation and Soldering"))
+        self.label_6.setText(
+            _translate(
+                "MainWindow", "Process 3 - Sense Wire Installation and Soldering"
+            )
+        )
         self.label_22.setText(_translate("MainWindow", "Straw"))
         self.label_34.setText(_translate("MainWindow", "Continuity Checks"))
         self.label_32.setText(_translate("MainWindow", "Position in Pins"))
@@ -4497,12 +4972,13 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Wire Spool:"))
         self.startbutton3.setText(_translate("MainWindow", "Start"))
         self.wireInput.setPlaceholderText(_translate("MainWindow", "WIRE.******"))
-        self.launch_wire_tensioner.setText(_translate("MainWindow", "Launch Wire \n"
-"Tensioner"))
-        self.launch_tension_box.setText(_translate("MainWindow", "Launch\n"
-"Tension Box"))
-        self.launchHVpro3.setText(_translate("MainWindow", "Launch HV\n"
-"GUI"))
+        self.launch_wire_tensioner.setText(
+            _translate("MainWindow", "Launch Wire \n" "Tensioner")
+        )
+        self.launch_tension_box.setText(
+            _translate("MainWindow", "Launch\n" "Tension Box")
+        )
+        self.launchHVpro3.setText(_translate("MainWindow", "Launch HV\n" "GUI"))
         self.groupBox_8.setTitle(_translate("MainWindow", "Comments"))
         self.saveButton3.setText(_translate("MainWindow", "Save"))
         self.pictureLinks.setTitle(_translate("MainWindow", "Informative Images"))
@@ -4566,13 +5042,18 @@ class Ui_MainWindow(object):
         self.groupBox_22.setTitle(_translate("MainWindow", "Comments"))
         self.saveButton4.setText(_translate("MainWindow", "Save"))
         self.groupBox_14.setTitle(_translate("MainWindow", "Informative Images"))
-        self.picfour1.setText(_translate("MainWindow", "PAAS A/C, ALF,\n"
-" Conducton Ring"))
+        self.picfour1.setText(
+            _translate("MainWindow", "PAAS A/C, ALF,\n" " Conducton Ring")
+        )
         self.paas_attach_3.setText(_translate("MainWindow", "Attaching PAAS Plates"))
         self.picfour3.setText(_translate("MainWindow", "Heating"))
         self.picfour2.setText(_translate("MainWindow", "Epoxy Mixing"))
-        self.label_25.setText(_translate("MainWindow", "Process 6 - Manifold Installation"))
-        self.label_28.setText(_translate("MainWindow", "Ribs Baseplate/MIR Gap (Left):"))
+        self.label_25.setText(
+            _translate("MainWindow", "Process 6 - Manifold Installation")
+        )
+        self.label_28.setText(
+            _translate("MainWindow", "Ribs Baseplate/MIR Gap (Left):")
+        )
         self.startButton6.setText(_translate("MainWindow", "Start"))
         self.frameInput.setPlaceholderText(_translate("MainWindow", "F***"))
         self.label_24.setText(_translate("MainWindow", "Panel:"))
@@ -4597,7 +5078,9 @@ class Ui_MainWindow(object):
         self.bpmirgapL.setItemText(13, _translate("MainWindow", "13"))
         self.bpmirgapL.setItemText(14, _translate("MainWindow", "14"))
         self.bpmirgapL.setItemText(15, _translate("MainWindow", "15"))
-        self.label_135.setText(_translate("MainWindow", "Ribs Baseplate/MIR Gap (Right):"))
+        self.label_135.setText(
+            _translate("MainWindow", "Ribs Baseplate/MIR Gap (Right):")
+        )
         self.bpmirgapR.setItemText(0, _translate("MainWindow", "Select"))
         self.bpmirgapR.setItemText(1, _translate("MainWindow", "1"))
         self.bpmirgapR.setItemText(2, _translate("MainWindow", "2"))
@@ -4627,10 +5110,12 @@ class Ui_MainWindow(object):
         self.label_131.setText(_translate("MainWindow", "Epoxy Batch:"))
         self.epoxy_applied41.setText(_translate("MainWindow", "Epoxy Applied"))
         self.gridGroupBox.setTitle(_translate("MainWindow", "External GUIs"))
-        self.pro6TensionBox.setText(_translate("MainWindow", "Launch Panel \n"
-"Tension Box"))
-        self.pro6PanelHeater.setText(_translate("MainWindow", "Launch Panel \n"
-"Heater GUI"))
+        self.pro6TensionBox.setText(
+            _translate("MainWindow", "Launch Panel \n" "Tension Box")
+        )
+        self.pro6PanelHeater.setText(
+            _translate("MainWindow", "Launch Panel \n" "Heater GUI")
+        )
         self.launchHVpro6.setText(_translate("MainWindow", "Launch HV GUI"))
         self.label_31.setText(_translate("MainWindow", "Process 7 - Flooding"))
         self.label_130.setText(_translate("MainWindow", "Panel:"))
@@ -4653,17 +5138,23 @@ class Ui_MainWindow(object):
         self.label_35.setText(_translate("MainWindow", "Process 8 - Final QC"))
         self.label_496.setText(_translate("MainWindow", "Center O-Ring"))
         self.label_492.setText(_translate("MainWindow", "Left O-Ring"))
-        self.centerRing1LE.setToolTip(_translate("MainWindow", "Enter OS0000 if unknown"))
+        self.centerRing1LE.setToolTip(
+            _translate("MainWindow", "Enter OS0000 if unknown")
+        )
         self.centerRing1LE.setPlaceholderText(_translate("MainWindow", "OS****"))
         self.rightRing4LE.setPlaceholderText(_translate("MainWindow", "******"))
         self.label_495.setText(_translate("MainWindow", "Right O-Ring"))
         self.leftRing4LE.setPlaceholderText(_translate("MainWindow", "******"))
-        self.rightRing1LE.setToolTip(_translate("MainWindow", "Enter OL0000 if unknown"))
+        self.rightRing1LE.setToolTip(
+            _translate("MainWindow", "Enter OL0000 if unknown")
+        )
         self.rightRing1LE.setPlaceholderText(_translate("MainWindow", "OL****"))
         self.label_493.setText(_translate("MainWindow", "Center Cover"))
         self.leftRing1LE.setToolTip(_translate("MainWindow", "Enter OL0000 if unknown"))
         self.leftRing1LE.setPlaceholderText(_translate("MainWindow", "OL****"))
-        self.left_cover_6.setToolTip(_translate("MainWindow", "Enter LCOV000 if unknown"))
+        self.left_cover_6.setToolTip(
+            _translate("MainWindow", "Enter LCOV000 if unknown")
+        )
         self.left_cover_6.setPlaceholderText(_translate("MainWindow", "LCOV***"))
         self.label_494.setText(_translate("MainWindow", "Right Cover"))
         self.centerRing4LE.setPlaceholderText(_translate("MainWindow", "******"))
@@ -4671,11 +5162,15 @@ class Ui_MainWindow(object):
         self.centerRing2DE.setDisplayFormat(_translate("MainWindow", "ddMMMyy"))
         self.leftRing2DE.setDisplayFormat(_translate("MainWindow", "ddMMMyy"))
         self.rightRing2DE.setDisplayFormat(_translate("MainWindow", "ddMMMyy"))
-        self.right_cover_6.setToolTip(_translate("MainWindow", "Enter RCOV000 if unknown"))
+        self.right_cover_6.setToolTip(
+            _translate("MainWindow", "Enter RCOV000 if unknown")
+        )
         self.right_cover_6.setPlaceholderText(_translate("MainWindow", "RCOV***"))
         self.leftRing3TE.setDisplayFormat(_translate("MainWindow", "HHmm"))
         self.rightRing3TE.setDisplayFormat(_translate("MainWindow", "HHmm"))
-        self.center_cover_6.setToolTip(_translate("MainWindow", "Enter CCOV000 if unknown"))
+        self.center_cover_6.setToolTip(
+            _translate("MainWindow", "Enter CCOV000 if unknown")
+        )
         self.center_cover_6.setPlaceholderText(_translate("MainWindow", "CCOV***"))
         self.centerRing3TE.setDisplayFormat(_translate("MainWindow", "HHmm"))
         self.submitRingsPB.setText(_translate("MainWindow", "Submit Rings"))
@@ -4716,9 +5211,13 @@ class Ui_MainWindow(object):
         self.groupBox_3.setTitle(_translate("MainWindow", "Resolution"))
         self.submitResoPB.setText(_translate("MainWindow", "Submit"))
         self.resoBackPB.setText(_translate("MainWindow", "Back"))
-        self.resolutionPTE.setPlaceholderText(_translate("MainWindow", "What was done to resolve the leak?"))
+        self.resolutionPTE.setPlaceholderText(
+            _translate("MainWindow", "What was done to resolve the leak?")
+        )
         self.groupBox_10.setTitle(_translate("MainWindow", "Shipping"))
-        self.shippingPB.setText(_translate("MainWindow", "Move to Shipping (Finish Final QC)"))
+        self.shippingPB.setText(
+            _translate("MainWindow", "Move to Shipping (Finish Final QC)")
+        )
         self.shipBackPB.setText(_translate("MainWindow", "Back to Test Options"))
         self.badSWGroupBox.setTitle(_translate("MainWindow", "Bad Straw/Wire"))
         self.label_499.setText(_translate("MainWindow", "Failure"))
@@ -4737,9 +5236,13 @@ class Ui_MainWindow(object):
         self.stageSelectCB.setItemText(3, _translate("MainWindow", "Shipping"))
         self.goToStagePB.setText(_translate("MainWindow", "Go To Preperation"))
         self.groupBox_189.setTitle(_translate("MainWindow", "Launch GUIs"))
-        self.launch_resistance_test.setText(_translate("MainWindow", "Launch Resistance Test"))
+        self.launch_resistance_test.setText(
+            _translate("MainWindow", "Launch Resistance Test")
+        )
         self.launch_leak_test.setText(_translate("MainWindow", "Launch Leak Test"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Panel"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Panel")
+        )
         self.pro1Select.setText(_translate("MainWindow", "Process 1 - Inner Ring"))
         self.pro2Select.setText(_translate("MainWindow", "Process 2 - Straws"))
         self.pro3Select.setText(_translate("MainWindow", "Process 3 - Sense Wire"))
@@ -4749,5 +5252,7 @@ class Ui_MainWindow(object):
         self.pro7Select.setText(_translate("MainWindow", "Process 7 - Flooding"))
         self.pro8Select.setText(_translate("MainWindow", "Process 8 - Final QC"))
         self.pro9Select.setText(_translate("MainWindow", "Process 9 - Storage"))
-        self.actionStandard_Operating_Procedure.setText(_translate("MainWindow", "Standard Operating Procedure"))
+        self.actionStandard_Operating_Procedure.setText(
+            _translate("MainWindow", "Standard Operating Procedure")
+        )
         self.actionDiagrams.setText(_translate("MainWindow", "Diagrams"))
