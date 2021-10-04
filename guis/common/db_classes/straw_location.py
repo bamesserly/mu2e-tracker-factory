@@ -260,7 +260,7 @@ class StrawLocation(BASE, OBJECT):
 
     # ADD/REMOVE STRAWS
 
-    def removeStraw(self, straw=None, position=int(), commit=True):
+    def removeStraw(self, straw=None, position=None, commit=True):
         qry = (
             DM.query(StrawPresent)  # get entries from straw present table
             .filter(StrawPresent.present == True)  # such that straws are present
@@ -270,7 +270,7 @@ class StrawLocation(BASE, OBJECT):
             qry = qry.filter(
                 StrawPresent.straw == straw.id
             )  # and with straw id matching the argument
-        if position:
+        if position is not None:
             qry = qry.join(
                 StrawPosition, StrawPosition.id == StrawPresent.position
             ).filter(  # w/ position matching an entry in straw position table
