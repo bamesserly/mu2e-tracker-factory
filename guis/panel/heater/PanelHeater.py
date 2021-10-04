@@ -270,7 +270,7 @@ class DataThread(threading.Thread):
             temp1, temp2 = "", ""
             while not (temp1 and temp2) and n < nmax:
                 ino_line = self.micro.readline().decode("utf8")
-                logger.info(f"{repr(ino_line)} {n}")
+                # logger.debug(f"{repr(ino_line)} {n}")
                 if ino_line == "":
                     n += 1
                     self.micro.write(self.paastype)
@@ -278,7 +278,7 @@ class DataThread(threading.Thread):
                     self.micro.write(b"\n")
                     continue
                 if len(ino_line.strip().split()) < 2:  # skip split line error
-                    logger.info("skipping fragment of split line")
+                    logger.debug("skipping fragment of split line")
                     continue
                 if "val" in ino_line:  # duty cycle 0-255 for voltage control
                     logger.info(ino_line.strip())
