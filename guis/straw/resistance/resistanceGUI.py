@@ -325,6 +325,8 @@ class StrawResistanceGUI(QDialog):
 
         self.calledInitializePallet = True
 
+    # launch the removeStraw gui -- in which users can move and remove straws
+    # from the pallet
     def editPallet(self):
         rem = removeStraw(self.sessionWorkers)
         rem.palletDirectory = self.palletDirectory
@@ -389,6 +391,7 @@ class StrawResistanceGUI(QDialog):
             instructions = "The following straws failed Straw Prep and need to be removed before testing resistance:"
             for strawID in remove_straws:
                 instructions += "\n" + strawID
+            logger.debug(instructions)
             buttonreply = QMessageBox.question(
                 self,
                 "Remove Straws",
