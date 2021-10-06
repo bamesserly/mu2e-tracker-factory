@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger("root")
+
 import time
 import os
 import csv
@@ -8,6 +12,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from guis.straw.remove import *
 from guis.common.getresources import GetProjectPaths
+from guis.common.db_classes.straw_location import StrawLocation
 
 
 class removeStraw(QDialog):
@@ -69,7 +74,7 @@ class removeStraw(QDialog):
             self.ui.pf_23,
             self.ui.pf_24,
         ]
-        self.ui.removeButtons.buttonClicked.connect(self.delete)
+        self.ui.removeButtons.buttonClicked.connect(self.delete)  # "Remove Straw"
         self.ui.moveButtons.buttonClicked.connect(self.moveStraw)
 
     def getPallet(self, CPAL):
@@ -127,18 +132,23 @@ class removeStraw(QDialog):
         for pos in range(len(self.pfLabels)):
             self.pfLabels[pos].setText(passfail[pos])
 
+    ############################################################################
+    # Remove Straw (from pallet)
+    ############################################################################
     def delete(self, btn):
-        pos = int(btn.objectName().strip("remove_")) - 1
+        position = int(btn.objectName().strip("remove_")) - 1
+        # get pallet info from txt file
         CPAL, lastTask, straws, passfail, CPALID = self.getPallet(
             self.ui.palletLabel.text()[8:]
         )
-        if straws[pos] == "Empty":
+
+        if straws[position] == "Empty":
             return
         buttonReply = QMessageBox.question(
             self,
             "Straw Removal Confirmation",
             "Are you sure you want to permanently remove "
-            + straws[pos]
+            + straws[position]
             + " from "
             + CPAL
             + " ?",
@@ -147,6 +157,15 @@ class removeStraw(QDialog):
         )
         if buttonReply != QMessageBox.Yes:
             return
+
+        # remove straw from pallet in database
+        cpal_number = int("".join(ch for ch in CPAL if ch.isdigit()))
+        cpal = StrawLocation.CPAL(cpal_number)
+        logger.debug(str(vars(cpal)).split(",")[1:])
+        removed_straw_present = cpal.removeStraw(position=position)
+        logger.info(f"Removed {removed_straw_present} from {CPAL}")
+
+        # Remove straw from pallet txt file
         for palletid in os.listdir(self.palletDirectory):
             for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
@@ -156,7 +175,7 @@ class removeStraw(QDialog):
                         file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                         file.write(lastTask + ",")
                         for place in range(len(straws)):
-                            if place == pos:
+                            if place == position:
                                 file.write("_______,_,")
                                 continue
                             if straws[place] == "Empty":
@@ -175,6 +194,8 @@ class removeStraw(QDialog):
                             if i != len(self.sessionWorkers) - 1:
                                 file.write(",")
                             i = i + 1
+
+        # Get new pallet info from updated txt file
         CPAL, lastTask, straws, passfail, CPALID = self.getPallet(CPAL)
         self.displayPallet(CPAL, lastTask, straws, passfail)
 
