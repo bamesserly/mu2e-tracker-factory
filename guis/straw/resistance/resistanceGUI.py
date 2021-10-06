@@ -52,7 +52,7 @@ from guis.common.save_straw_workers import saveWorkers
 from guis.common.dataProcessor import SQLDataProcessor as DP
 from guis.common.gui_utils import generateBox
 
-# from random import uniform
+from random import uniform
 from enum import Enum, auto
 from guis.common.timer import QLCDTimer
 
@@ -200,10 +200,7 @@ class StrawResistanceGUI(QDialog):
         # Data Processor
         self.pro = 3
         self.pro_index = self.pro - 1
-        self.DP = DP(
-            gui=self,
-            stage="straws",
-        )
+        self.DP = DP(gui=self, stage="straws",)
 
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
@@ -226,9 +223,7 @@ class StrawResistanceGUI(QDialog):
                 generateBox("critical", "Login Error", "Invalid worker ID.")
             elif self.DP.workerLoggedIn(Current_worker):
                 generateBox(
-                    "critical",
-                    "Login Error",
-                    "This worker ID is already logged in.",
+                    "critical", "Login Error", "This worker ID is already logged in.",
                 )
             else:
                 # Record login with data processor
@@ -325,8 +320,7 @@ class StrawResistanceGUI(QDialog):
 
         self.calledInitializePallet = True
 
-    # launch the removeStraw gui -- in which users can move and remove straws
-    # from the pallet
+    # Remove straws from the pallet -- using the removeStraw gui.
     def editPallet(self):
         rem = removeStraw(self.sessionWorkers)
         rem.palletDirectory = self.palletDirectory
@@ -378,13 +372,11 @@ class StrawResistanceGUI(QDialog):
             self.strawIDs = [None for i in range(24)]  # defaults to None
             for i in range(24):
                 if straws[i] != "Empty":
-                    logger.debug(
-                        f"interpretEditPallet: Changing self.strawIDs, position {i} to {straws[i]}"
-                    )
                     self.strawIDs[i] = straws[i]  # If slot isn't empty, save strawID
             self.updatePositionDisplay()
 
-        # If failed straws are present, instruct user to remove them and run editPallet() (which will call this function again)
+        # If failed straws are present, instruct user to remove them and run
+        # editPallet() (which will call this function again)
         else:
             self.palletInfoVerified = False
 
@@ -402,6 +394,8 @@ class StrawResistanceGUI(QDialog):
 
             if buttonreply != QMessageBox.Cancel:
                 self.editPallet()
+
+        logger.debug(f"interpretEditPallet self.strawIDs {self.strawIDs}")
 
     def checkForMovedStraws(self, newStrawIDs):
         # straws_moved = False
@@ -479,15 +473,12 @@ class StrawResistanceGUI(QDialog):
             return
 
         # useful for debug
-        # self.measurements = [[uniform(100, 900) for i in range(4)] for pos in range(24)]
+        # self.measurements = [[uniform(200, 249) for i in range(4)] for pos in range(24)]
+        self.measurements = [[205.0, 1000.0, 1000.0, 206.0] for pos in range(24)]
 
         self.consolidateOldAndNewMeasurements()
 
-        # Update measurements' pass-fail status
-        for pos in range(0, 24):
-            for i in range(4):
-                meas = self.measurements[pos][i]
-                self.bools[pos][i] = self.meas_type_eval[i](meas)
+        self.updatePassFailStatus()
 
         self.displayData()
 
@@ -506,6 +497,13 @@ class StrawResistanceGUI(QDialog):
         self.collectData_counter += 1
         self.enableButtons()
 
+    # Update measurements' pass-fail status
+    def updatePassFailStatus(self):
+        for pos in range(0, 24):
+            for i in range(4):
+                meas = self.measurements[pos][i]
+                self.bools[pos][i] = self.meas_type_eval[i](meas)
+
     def consolidateOldAndNewMeasurements(self):
         for pos in range(24):
             for i in range(4):
@@ -520,6 +518,7 @@ class StrawResistanceGUI(QDialog):
     # data button, which only gets pressed after collecting the data with the
     # resistance meter.
     def measureByHand(self):
+        self.updatePassFailStatus()
         self.getFailedMeasurements()
         if len(self.failed_measurements) > 0:
             instructions = (
@@ -543,6 +542,9 @@ class StrawResistanceGUI(QDialog):
                         )
                         QMessageBox.about(self, "Connection Error", message)
                         logger.error("hit the not thing")
+                logger.debug(
+                    "measureByHand: failed measurements {self.failed_measurements}"
+                )
                 for el in self.failed_measurements:
                     # Record measured by hand
                     self.measureByHand_counter += 1
@@ -592,6 +594,7 @@ class StrawResistanceGUI(QDialog):
 
             else:
                 return
+
         else:
             message = "Data looks good. No by-hand measurements required!"
             QMessageBox.about(self, "Measure By-Hand", message)
@@ -600,7 +603,7 @@ class StrawResistanceGUI(QDialog):
         self.failed_measurements = list()
         for pos in range(24):
             for i in range(4):
-                if not self.bools[pos][i]:
+                if not self.bools[pos][i] and self.strawIDs[pos]:
                     self.failed_measurements.append([pos, i])
 
     def showByHandMeasurementInstructions(self, pos, measurement_type):
@@ -645,6 +648,7 @@ class StrawResistanceGUI(QDialog):
     def saveResistanceDataToText(self):
         self.prepareSaveFile()
         file_name = self.makeResistanceDataFileName()
+        logger.debug(f"Saving resistance data to {file_name}")
         saveF = open(file_name, "a+")
         saveF.write(self.saveFile)
         saveF.close()
@@ -656,6 +660,7 @@ class StrawResistanceGUI(QDialog):
             for pallet in os.listdir(self.palletDirectory / palletid):
                 if self.palletNumber + ".csv" == pallet:
                     pfile = self.palletDirectory / palletid / pallet
+                    logger.debug(f"Saving pallet info to {pfile}")
                     with open(pfile, "a") as file:
                         # Record Session Data
                         file.write(
@@ -695,22 +700,22 @@ class StrawResistanceGUI(QDialog):
                             i += 1
 
     # clean data -- assemble self.db_entries and self.clean_data from raw
-    # self.measurements array
+    # self.measurements array. Don't make db entries where there no straws.
     def configureSaveData(self):
+        logger.debug("Cleaning data...")
         assert self.strawIDs is not None, logger.error(
             "configureSaveData: self.strawIDs is None!"
         )
         # straw loop
         for pos in range(24):
-            try:
+            db_entry = None
+            if self.strawIDs[pos]:
                 straw_id = int(self.strawIDs[pos][2:])
-            except TypeError:
-                logger.debug(f"None self.strawIDs entry at position {pos}.")
-                continue
-
-            db_entry = self.procedure.StrawResistanceMeasurement(
-                procedure=self.procedure, straw=straw_id
-            )
+                db_entry = self.procedure.StrawResistanceMeasurement(
+                    procedure=self.procedure, straw=straw_id
+                )
+            else:
+                logger.debug(f"No straw in position {pos}.")
 
             for config in ResistanceMeasurementConfig:
                 i = config.value  # for backwards compatibility
@@ -719,7 +724,8 @@ class StrawResistanceGUI(QDialog):
 
                 pass_fail = "pass" if self.bools[pos][i] else "fail"
 
-                db_entry.setMeasurement(resistance, config.name.lower())
+                if self.strawIDs[pos] and db_entry:
+                    db_entry.setMeasurement(resistance, config.name.lower())
 
                 # TODO stop using self.clean_data multi-dim array for anything
                 self.clean_data[pos][i] = (
@@ -727,7 +733,8 @@ class StrawResistanceGUI(QDialog):
                     pass_fail,
                 )
 
-            self.db_entries.append(db_entry)
+            if self.strawIDs[pos] and db_entry:
+                self.db_entries.append(db_entry)
 
     # assemble csv file of straw-by-straw resistance measurements
     def prepareSaveFile(self):
@@ -790,6 +797,8 @@ class StrawResistanceGUI(QDialog):
     # If measurements failed, ask whether to re-measure by hand, otherwise,
     # just save.
     def finish(self):
+        self.updatePassFailStatus()
+        self.getFailedMeasurements()
         if self.measureByHand_counter < 2:
             message = "There are some failed measurements. Would you like to try measuring by hand?"
             buttonReply = QMessageBox.question(
