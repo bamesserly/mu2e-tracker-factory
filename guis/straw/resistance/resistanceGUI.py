@@ -304,6 +304,7 @@ class StrawResistanceGUI(QDialog):
     def getPalletNumber(self):
         return self.palletNumber
 
+    # Get straw list and other info from pallet txt file
     def initializePallet(self):
         if not self.palletNumber:
             self.setPalletNumber()
@@ -340,6 +341,7 @@ class StrawResistanceGUI(QDialog):
         # After executing
         self.interpretEditPallet(CPAL, lastTask, straws, passfail)
 
+    # Set the straw list, verify previous step was prep
     def interpretEditPallet(self, CPAL, lastTask, straws, passfail):
         self.palletInfoVerified = (
             True  # Initially assume True, can only be switched to False
@@ -366,7 +368,6 @@ class StrawResistanceGUI(QDialog):
 
         # No failed straws are present
         if len(remove_straws) == 0:
-
             self.checkForMovedStraws(
                 straws
             )  # Checks if any straws have been moved. If so, transfers data
@@ -375,6 +376,9 @@ class StrawResistanceGUI(QDialog):
             self.strawIDs = [None for i in range(24)]  # defaults to None
             for i in range(24):
                 if straws[i] != "Empty":
+                    logger.debug(
+                        f"interpretEditPallet: Changing self.strawIDs, position {i} to {straws[i]}"
+                    )
                     self.strawIDs[i] = straws[i]  # If slot isn't empty, save strawID
             self.updatePositionDisplay()
 
@@ -690,9 +694,17 @@ class StrawResistanceGUI(QDialog):
     # clean data -- assemble self.db_entries and self.clean_data from raw
     # self.measurements array
     def configureSaveData(self):
+        assert self.strawIDs is not None, logger.error(
+            "configureSaveData: self.strawIDs is None!"
+        )
         # straw loop
         for pos in range(24):
-            straw_id = int(self.strawIDs[pos][2:])
+            try:
+                straw_id = int(self.strawIDs[pos][2:])
+            except TypeError:
+                logger.debug(f"None self.strawIDs entry at position {pos}.")
+                continue
+
             db_entry = self.procedure.StrawResistanceMeasurement(
                 procedure=self.procedure, straw=straw_id
             )
