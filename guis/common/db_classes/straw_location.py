@@ -131,11 +131,7 @@ class StrawLocation(BASE, OBJECT):
 
         # If None was found, make a new one.
         if sl is None:
-            sl = cls(
-                number=number,
-                pallet_id=pallet_id,
-                create_key=cls.__create_key,
-            )
+            sl = cls(number=number, pallet_id=pallet_id, create_key=cls.__create_key,)
 
         return sl
 
@@ -270,19 +266,17 @@ class StrawLocation(BASE, OBJECT):
             .filter(StrawPresent.present == True)  # such that straws are present
             .filter(StrawPosition.location == self.id)  # for this straw location
         )
-        logger.debug(f"removeStraw: straws matching query 0: {qry.all()}")
         if straw:
             qry = qry.filter(
                 StrawPresent.straw == straw.id
             )  # and with straw id matching the argument
-        logger.debug(f"removeStraw: straws matching query 1: {qry.all()}")
         if position is not None:
             qry = qry.join(
                 StrawPosition, StrawPosition.id == StrawPresent.position
             ).filter(  # w/ position matching an entry in straw position table
                 StrawPosition.position_number == position
             )  # with Straw Position matching the argument
-        logger.debug(f"removeStraw: straws matching query 2: {qry.all()}")
+        logger.debug(f"removeStraw: straws matching query: {qry.all()}")
         straw_present = qry.one_or_none()
         if straw_present is None:
             return
