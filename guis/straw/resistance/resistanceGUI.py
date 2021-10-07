@@ -435,10 +435,10 @@ class StrawResistanceGUI(QDialog):
                 self.LEDchange(self.bools[i2][j], self.led[i2][j])
 
     #############################################################################
-    # Collecting data -- two methods, resistance meter or by hand.
+    # Control flow: collect data, measure by hand, finish, measure by hand
     #
-    # Currently, the collectData function is way overloaded -- it's tied to the
-    # collect data button and it IS the process's flow control -- first
+    # TODO Currently, the collectData function is way overloaded -- it's tied
+    # to the collect data button and it IS the process's flow control -- first
     # collecting pallet metainfo, then triggering the arduino, then managing
     # the data
     #############################################################################
@@ -497,27 +497,45 @@ class StrawResistanceGUI(QDialog):
         self.collectData_counter += 1
         self.enableButtons()
 
-    # Update self.bools (the measurements' pass-fail status) from the
-    # measurements themselves using the dict self.meas_type_eval
-    def updatePassFailStatus(self):
-        for pos in range(0, 24):
-            for i in range(4):
-                meas = self.measurements[pos][i]
-                self.bools[pos][i] = self.meas_type_eval[i](meas)
+    # If measurements failed, ask whether to re-measure by hand, otherwise,
+    # just save.
+    def finish(self):
+        self.updatePassFailStatus() # UPDATE self.bools
+        self.setFailedMeasurements() # RESET AND FILL self.failed_measurements
+        self.debug(f"top of finish: measure by hand counter {self.measureByHand_counter}")
+        self.debug(f"top of finish: len(failed measurements) {len(self.failed_measurements)}")
+        if len(self.failed_measurements) != 0:
+            message = "There are some failed measurements. Would you like to try measuring by hand?"
+            buttonReply = QMessageBox.question(
+                self, "Measure By-Hand", message, QMessageBox.Yes | QMessageBox.No
+            )
+            if buttonReply == QMessageBox.Yes:
+                self.measureByHand()
+                return
 
-    def consolidateOldAndNewMeasurements(self):
-        for pos in range(24):
-            for i in range(4):
-                new_measurement = self.measurements[pos][i]
-                old_measurement = self.old_measurements[pos][i]
-                if old_measurement != None:  # Prevents errors during first collection
-                    # Save smallest measurement
-                    keep_meas = min(old_measurement, new_measurement)
-                    self.measurements[pos][i] = keep_meas
+        warning = "Are you sure you want to Save?"
+        buttonReply = QMessageBox.question(
+            self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
+        )
 
-    # only ever called from the finish function, which is tied to the save
-    # data button, which only gets pressed after collecting the data with the
-    # resistance meter.
+        if buttonReply == QMessageBox.No:
+            return
+
+        self.stopTimer()
+        self.DP.saveFinish()
+        self.saveData()
+        # self.resetGUI()
+
+        """#Ask to reset
+        reset_text = "Would you like to resistance test another pallet?"
+        buttonReply = QMessageBox.question(self, 'Test another pallet?', reset_text, QMessageBox.Yes | QMessageBox.No)
+        if buttonReply == QMessageBox.Yes:
+            self.resetGUI() #reset; user can start another pallet
+        """
+
+    # In addition to having its own button, also called from the finish
+    # function, which is tied to the save data button, which only gets pressed
+    # after collecting the data with the resistance meter.
     def measureByHand(self):
         self.updatePassFailStatus()
         self.setFailedMeasurements()
@@ -606,6 +624,24 @@ class StrawResistanceGUI(QDialog):
                 )
                 break  # user pressed x in corner, stop running measureByHand()
 
+    def consolidateOldAndNewMeasurements(self):
+        for pos in range(24):
+            for i in range(4):
+                new_measurement = self.measurements[pos][i]
+                old_measurement = self.old_measurements[pos][i]
+                if old_measurement != None:  # Prevents errors during first collection
+                    # Save smallest measurement
+                    keep_meas = min(old_measurement, new_measurement)
+                    self.measurements[pos][i] = keep_meas
+
+    # Update self.bools (the measurements' pass-fail status) from the
+    # measurements themselves using the dict self.meas_type_eval
+    def updatePassFailStatus(self):
+        for pos in range(0, 24):
+            for i in range(4):
+                meas = self.measurements[pos][i]
+                self.bools[pos][i] = self.meas_type_eval[i](meas)
+
     # Set the data member self.failed_measurements from self.bools.
     # It's a list of lists [ [position, int(ResistanceMeasurementConfig)], ...]
     def setFailedMeasurements(self):
@@ -640,6 +676,7 @@ class StrawResistanceGUI(QDialog):
     # Save
     #############################################################################
     def saveData(self):
+        logger.info("Saving Data!")
         self.configureSaveData()
         self.saveDataToText()
         self.saveDataToDB()
@@ -802,40 +839,6 @@ class StrawResistanceGUI(QDialog):
         last_strawID = self.strawIDs[j]
         data_dir = GetProjectPaths()["strawresistance"]
         return data_dir / f"Straw_Resistance{day}_{first_strawID}-{last_strawID}.csv"
-
-    # If measurements failed, ask whether to re-measure by hand, otherwise,
-    # just save.
-    def finish(self):
-        self.updatePassFailStatus() # UPDATE self.bools
-        self.setFailedMeasurements() # RESET AND FILL self.failed_measurements
-        if len(self.failed_measurements) != 0:
-            message = "There are some failed measurements. Would you like to try measuring by hand?"
-            buttonReply = QMessageBox.question(
-                self, "Measure By-Hand", message, QMessageBox.Yes | QMessageBox.No
-            )
-            if buttonReply == QMessageBox.Yes:
-                self.measureByHand()
-                return
-
-        warning = "Are you sure you want to Save?"
-        buttonReply = QMessageBox.question(
-            self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
-        )
-
-        if buttonReply == QMessageBox.No:
-            return
-
-        self.stopTimer()
-        self.DP.saveFinish()
-        self.saveData()
-        # self.resetGUI()
-
-        """#Ask to reset
-        reset_text = "Would you like to resistance test another pallet?"
-        buttonReply = QMessageBox.question(self, 'Test another pallet?', reset_text, QMessageBox.Yes | QMessageBox.No)
-        if buttonReply == QMessageBox.Yes:
-            self.resetGUI() #reset; user can start another pallet
-        """
 
     #############################################################################
     # GUI Display/Control
