@@ -121,6 +121,9 @@ class StrawLocation(BASE, OBJECT):
 
     @classmethod
     def _construct(cls, number=int(), pallet_id=None):
+        assert int(
+            number
+        ), "Error: attempting to retrieve or create a straw location with a non-integer number."
         sl = None
 
         # Try to query the desired straw_location
@@ -128,11 +131,7 @@ class StrawLocation(BASE, OBJECT):
 
         # If None was found, make a new one.
         if sl is None:
-            sl = cls(
-                number=number,
-                pallet_id=pallet_id,
-                create_key=cls.__create_key,
-            )
+            sl = cls(number=number, pallet_id=pallet_id, create_key=cls.__create_key,)
 
         return sl
 
@@ -259,8 +258,9 @@ class StrawLocation(BASE, OBJECT):
         return DM.commitEntries(positions)
 
     # ADD/REMOVE STRAWS
-
+    # straw argument here is a Straw object
     def removeStraw(self, straw=None, position=None, commit=True):
+        logger.debug(f"removing straw in position {position}")
         qry = (
             DM.query(StrawPresent)  # get entries from straw present table
             .filter(StrawPresent.present == True)  # such that straws are present
@@ -276,6 +276,7 @@ class StrawLocation(BASE, OBJECT):
             ).filter(  # w/ position matching an entry in straw position table
                 StrawPosition.position_number == position
             )  # with Straw Position matching the argument
+        logger.debug(f"removeStraw: straws matching query: {qry.all()}")
         straw_present = qry.one_or_none()
         if straw_present is None:
             return

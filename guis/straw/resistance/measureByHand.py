@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger("root")
+
 from PyQt5.QtWidgets import *
 from PyQt5 import *
 from PyQt5.QtGui import *
@@ -144,12 +148,12 @@ class MeasureByHandPopup(QtWidgets.QDialog):
             QMessageBox.about(self, "Connect Multimeter", error_message)
             return None, None
         else:
-            print("got multiMeter!")
+            #logger.debug("got multiMeter!")
             self.reset()
-            print("values reset")
+            #logger.debug("values reset")
             self.eval_expression = (
                 eval_expression  # lambda expression for that meas_type
             )
-            print("got evaluation expression!")
+            logger.info("Got a by-hand measurement!")
             self.exec_()  # Display Window
             return self.return_meas, self.return_bool
