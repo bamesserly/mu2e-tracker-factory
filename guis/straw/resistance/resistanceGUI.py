@@ -474,7 +474,7 @@ class StrawResistanceGUI(QDialog):
 
         # useful for debug
         # self.measurements = [[uniform(200, 249) for i in range(4)] for pos in range(24)]
-        self.measurements = [[205.0, 1000.0, 1000.0, 206.0] for pos in range(24)]
+        # self.measurements = [[205.0, 1000.0, 200.0, 206.0] for pos in range(24)]
 
         self.consolidateOldAndNewMeasurements()
 
@@ -500,10 +500,14 @@ class StrawResistanceGUI(QDialog):
     # If measurements failed, ask whether to re-measure by hand, otherwise,
     # just save.
     def finish(self):
-        self.updatePassFailStatus() # UPDATE self.bools
-        self.setFailedMeasurements() # RESET AND FILL self.failed_measurements
-        self.debug(f"top of finish: measure by hand counter {self.measureByHand_counter}")
-        self.debug(f"top of finish: len(failed measurements) {len(self.failed_measurements)}")
+        self.updatePassFailStatus()  # UPDATE self.bools
+        self.setFailedMeasurements()  # RESET AND FILL self.failed_measurements
+        logger.debug(
+            f"top of finish: measure by hand counter {self.measureByHand_counter}"
+        )
+        logger.debug(
+            f"top of finish: len(failed measurements) {len(self.failed_measurements)}"
+        )
         if len(self.failed_measurements) != 0:
             message = "There are some failed measurements. Would you like to try measuring by hand?"
             buttonReply = QMessageBox.question(
@@ -547,14 +551,9 @@ class StrawResistanceGUI(QDialog):
             return
 
         # ask user to turn on multimeter
-        instructions = (
-            "Turn on the Multimeter. This program will crash if you do not."
-        )
+        instructions = "Turn on the Multimeter. This program will crash if you do not."
         buttonReply = QMessageBox.question(
-            self,
-            "Measure By-Hand",
-            instructions,
-            QMessageBox.Ok | QMessageBox.Cancel,
+            self, "Measure By-Hand", instructions, QMessageBox.Ok | QMessageBox.Cancel,
         )
         if buttonReply != QMessageBox.Ok:
             return
@@ -572,9 +571,7 @@ class StrawResistanceGUI(QDialog):
                 QMessageBox.about(self, "Connection Error", message)
                 logger.error("hit the not thing")
 
-        logger.debug(
-            "measureByHand: failed measurements {self.failed_measurements}"
-        )
+        logger.debug(f"measureByHand: failed measurements {self.failed_measurements}")
 
         # loop through failed measurements to redo them by hand
         for el in self.failed_measurements:
