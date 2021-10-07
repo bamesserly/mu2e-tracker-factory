@@ -497,7 +497,8 @@ class StrawResistanceGUI(QDialog):
         self.collectData_counter += 1
         self.enableButtons()
 
-    # Update measurements' pass-fail status
+    # Update self.bools (the measurements' pass-fail status) from the
+    # measurements themselves using the dict self.meas_type_eval
     def updatePassFailStatus(self):
         for pos in range(0, 24):
             for i in range(4):
@@ -519,87 +520,95 @@ class StrawResistanceGUI(QDialog):
     # resistance meter.
     def measureByHand(self):
         self.updatePassFailStatus()
-        self.getFailedMeasurements()
-        if len(self.failed_measurements) > 0:
-            instructions = (
-                "Turn on the Multimeter. This program will crash if you do not."
-            )
-            buttonReply = QMessageBox.question(
-                self,
-                "Measure By-Hand",
-                instructions,
-                QMessageBox.Ok | QMessageBox.Cancel,
-            )
-            if buttonReply == QMessageBox.Ok:
-                if self.byHandPopup == None:
-                    self.byHandPopup = MeasureByHandPopup()  # Create Popup Window
-                while not self.byHandPopup.multiMeter:
-                    self.byHandPopup.getMultiMeter()  # Tries to connect to multimeter
-                    if not self.byHandPopup.multiMeter:
-                        message = (
-                            "There was an error connecting to the multimeter. "
-                            "Make sure it is turned on and plugged into the computer, then try again."
-                        )
-                        QMessageBox.about(self, "Connection Error", message)
-                        logger.error("hit the not thing")
-                logger.debug(
-                    "measureByHand: failed measurements {self.failed_measurements}"
-                )
-                for el in self.failed_measurements:
-                    # Record measured by hand
-                    self.measureByHand_counter += 1
-                    # Get Specific Measurement Information
-                    pos = el[0]
-                    if not bool(self.strawIDs[pos]):
-                        continue
-                    strawID = self.strawIDs[pos]
-                    meas_type = el[1]
-                    meas_type_label = self.meas_type_labels[meas_type]
-                    eval_expression = self.meas_type_eval[meas_type]
-                    # Prepare labels in popup display
-                    self.byHandPopup.setLabels(pos, strawID, meas_type_label)
+        self.setFailedMeasurements()
 
-                    # Get Data
-                    meas, pass_fail = self.byHandPopup.byHand_main(eval_expression)
-
-                    # Save new data
-                    self.measurements[pos][meas_type] = meas  # save meas
-                    self.bools[pos][meas_type] = pass_fail  # save bool
-
-                    # Display new measurement
-                    if (
-                        meas != 0.0
-                    ):  # meas == 0.0 if no text if entered (user presses x in corner)
-                        if meas >= 1000.0:
-                            self.meas_input[pos][meas_type].setText("Inf")
-                        else:
-                            self.meas_input[pos][meas_type].setText(str(meas))
-                        # Change LED
-                        self.LEDchange(pass_fail, self.led[pos][meas_type])
-                        # If collectData() is run again later, combineData() needs most recent measurements
-                        self.old_measurements[pos][meas_type] = meas
-                        self.old_bools[pos][meas_type] = pass_fail
-
-                        if not any(
-                            None in x
-                            for x in [i for i, j in zip(self.bools, self.strawIDs) if j]
-                        ):
-                            self.dataRecorded = True
-                            self.enableButtons()
-                    else:
-                        self.measureByHand_counter -= (
-                            1  # if broken early, counter doesn't increase
-                        )
-                        break  # user pressed x in corner, stop running measureByHand()
-
-            else:
-                return
-
-        else:
+        # no failed measurements, we're done here
+        if len(self.failed_measurements) == 0:
             message = "Data looks good. No by-hand measurements required!"
             QMessageBox.about(self, "Measure By-Hand", message)
+            return
 
-    def getFailedMeasurements(self):
+        # ask user to turn on multimeter
+        instructions = (
+            "Turn on the Multimeter. This program will crash if you do not."
+        )
+        buttonReply = QMessageBox.question(
+            self,
+            "Measure By-Hand",
+            instructions,
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+        if buttonReply != QMessageBox.Ok:
+            return
+
+        # Initialize by-hand measurer, connect to multimeter
+        if self.byHandPopup == None:
+            self.byHandPopup = MeasureByHandPopup()  # Create Popup Window
+        while not self.byHandPopup.multiMeter:
+            self.byHandPopup.getMultiMeter()  # Tries to connect to multimeter
+            if not self.byHandPopup.multiMeter:
+                message = (
+                    "There was an error connecting to the multimeter. "
+                    "Make sure it is turned on and plugged into the computer, then try again."
+                )
+                QMessageBox.about(self, "Connection Error", message)
+                logger.error("hit the not thing")
+
+        logger.debug(
+            "measureByHand: failed measurements {self.failed_measurements}"
+        )
+
+        # loop through failed measurements to redo them by hand
+        for el in self.failed_measurements:
+            # Record measured by hand
+            self.measureByHand_counter += 1
+            # Get Specific Measurement Information
+            pos = el[0]
+            if not bool(self.strawIDs[pos]):
+                continue
+            strawID = self.strawIDs[pos]
+            meas_type = el[1]
+            meas_type_label = self.meas_type_labels[meas_type]
+            eval_expression = self.meas_type_eval[meas_type]
+            # Prepare labels in popup display
+            self.byHandPopup.setLabels(pos, strawID, meas_type_label)
+
+            # Get Data
+            meas, pass_fail = self.byHandPopup.byHand_main(eval_expression)
+
+            # Save new data -- also set self.bools
+            self.measurements[pos][meas_type] = meas  # save meas
+            self.bools[pos][meas_type] = pass_fail  # save bool
+
+            # Display new measurement
+            if (
+                meas != 0.0
+            ):  # meas == 0.0 if no text if entered (user presses x in corner)
+                if meas >= 1000.0:
+                    self.meas_input[pos][meas_type].setText("Inf")
+                else:
+                    self.meas_input[pos][meas_type].setText(str(meas))
+                # Change LED
+                self.LEDchange(pass_fail, self.led[pos][meas_type])
+                # If collectData() is run again later, combineData() needs most recent measurements
+                self.old_measurements[pos][meas_type] = meas
+                self.old_bools[pos][meas_type] = pass_fail
+
+                if not any(
+                    None in x
+                    for x in [i for i, j in zip(self.bools, self.strawIDs) if j]
+                ):
+                    self.dataRecorded = True
+                    self.enableButtons()
+            else:
+                self.measureByHand_counter -= (
+                    1  # if broken early, counter doesn't increase
+                )
+                break  # user pressed x in corner, stop running measureByHand()
+
+    # Set the data member self.failed_measurements from self.bools.
+    # It's a list of lists [ [position, int(ResistanceMeasurementConfig)], ...]
+    def setFailedMeasurements(self):
         self.failed_measurements = list()
         for pos in range(24):
             for i in range(4):
@@ -797,9 +806,9 @@ class StrawResistanceGUI(QDialog):
     # If measurements failed, ask whether to re-measure by hand, otherwise,
     # just save.
     def finish(self):
-        self.updatePassFailStatus()
-        self.getFailedMeasurements()
-        if self.measureByHand_counter < 2:
+        self.updatePassFailStatus() # UPDATE self.bools
+        self.setFailedMeasurements() # RESET AND FILL self.failed_measurements
+        if len(self.failed_measurements) != 0:
             message = "There are some failed measurements. Would you like to try measuring by hand?"
             buttonReply = QMessageBox.question(
                 self, "Measure By-Hand", message, QMessageBox.Yes | QMessageBox.No
@@ -807,6 +816,7 @@ class StrawResistanceGUI(QDialog):
             if buttonReply == QMessageBox.Yes:
                 self.measureByHand()
                 return
+
         warning = "Are you sure you want to Save?"
         buttonReply = QMessageBox.question(
             self, "Save?", warning, QMessageBox.Yes | QMessageBox.No
