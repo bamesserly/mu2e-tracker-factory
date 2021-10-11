@@ -832,10 +832,15 @@ class TxtDataProcessor(DataProcessor):
         # now to append data...
         # to do this we will make a new row to add to the file
         # row = var1,var2,var3,...    ...,timestamp
+
         row = ""
         for i in range(header[0]):  # for each piece of data
             if len(data) == 0:
                 break
+            # TODO beyond 24 hours, the data value gets a comma e.g. "1 day,
+            # and 5 hours", messing up the parsing.
+            # TODO put this condition into a function and use it in both of
+            # these saveData functions.
             if isinstance(data[i], tuple) and isinstance(
                 data[i][0], timedelta
             ):  # is a timedelta tuple
@@ -895,6 +900,10 @@ class TxtDataProcessor(DataProcessor):
                 if len(data) == 0:
                     break
                 # is a timedelta tuple
+                # TODO beyond 24 hours, the data value gets a comma e.g. "1 day,
+                # and 5 hours", messing up the parsing.
+                # TODO put this condition into a function and use it in both of
+                # these saveData functions.
                 if isinstance(data[i], tuple) and isinstance(data[i][0], timedelta):
                     file.write(
                         f"{header[i+1]},{data[i][0]},{data[i][1]},{self.timestamp()}\n"
@@ -1431,7 +1440,7 @@ class TxtDataProcessor(DataProcessor):
     # in the data list in gui main.  The number at the beginning should be the same in data_count in gui main.
     def _pro1header(self):
         return [
-            20,
+            22,
             "Panel ID",
             "Base Plate ID",
             "BIR ID",
@@ -1450,6 +1459,8 @@ class TxtDataProcessor(DataProcessor):
             "Max BP/BIR Gap [mils]",
             "Epoxy Batch ID",
             "Working Time of Epoxy(H:M:S)",
+            "PAASA",
+            "PAASB",
             "Pallet Upper",
             "Pallet Lower",
         ]
