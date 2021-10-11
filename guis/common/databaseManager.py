@@ -31,7 +31,11 @@ class DatabaseManager:
 
         ## Connect to Local SQL database
         self._Connection = dbconnection()
-        self._engine = create_engine(f"sqlite:///{self._local_db}", pool_pre_ping=True)
+        self._engine = create_engine(
+            f"sqlite:///{self._local_db}",
+            pool_pre_ping=True,
+            connect_args={"timeout": 30},
+        )
         self._Connection.configure(bind=self._engine)
         self._init_connection()
 
