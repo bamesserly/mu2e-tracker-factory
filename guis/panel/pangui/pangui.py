@@ -1597,20 +1597,40 @@ class panelGUI(QMainWindow):
     """
     closeGUI(self)
 
-        Description:    Function called when the 'Close GUI' button is pressed on the drop down box.
-                        Gives the DP a chance to handle the close, then closes the GUI.
-    """
+        Description:    calls closeEvent AND gets called by closeEvent
+                        Function called when the 'Close GUI' button is pressed
+                        on the drop down box.  Gives the DP a chance to handle
+                        the close, then closes the GUI.
+
+                        Circular calling is avoided because the call to this
+                        from within closeEvent doesn't trigger another call to
+                        closeEvent.
+        """
 
     def closeGUI(self):
         if self.DP is not None:
             self.DP.handleClose()
-        self.close()
+            self.DP = None
+        self.close()  # calls closeEvent (when this call is not from closeEvent)
 
     """
     closeEvent(self, event)
 
-        Description: Handles the clicking of the red 'X' to close the GUI window. If the GUI is running, the GUI
-        cannot be closed this way. Otherwise, gives a prompt to confirm exit.
+        Description: Called directly when the red 'X' is used to close the GUI.
+        GUI cannot be closed this way when it is running(). So this function
+        can be directly called from the process selection tab, or the other
+        tabs before a process has started.
+
+        Also called via the closeGUI function -- which first triggers an automerge,
+        ends the process, deletes the dataprocessor(s), and then calls
+        closeEvent automatically through self.close().
+
+        closeGUI is called when pause-closing the GUI AND by this function,
+        closeEvent, to make sure that we close down safely when the red
+        'X' is pressed.
+
+        Circular calling is avoided because only the first call to self.close()
+        calls this closeEvent function.
 
         Parameter: event - Event that specifies the clicking of the red 'X'.
     """
