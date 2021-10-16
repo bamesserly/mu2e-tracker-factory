@@ -2242,6 +2242,13 @@ class facileDBGUI(QMainWindow):
     def graphSpecificHeat(self, pro):
         heatData = getattr(self.data,f'p{pro}HeatData')
 
+        # iterate through list and delete values in excess of 100 degrees celsius or below 0 degrees celsius
+        current = 0
+        while current < len(heatData):
+            if heatData[current][2] < 0 or heatData[current][3] < 0 or heatData[current][2] > 100 or heatData[current][3] > 100:
+                del heatData[current]
+            else: current += 1
+
         # make x data list by converting raw timesamps to matplotlib dates
         xData = [
             mpl.dates.epoch2num(toop[1])
