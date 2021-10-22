@@ -2242,12 +2242,7 @@ class facileDBGUI(QMainWindow):
     def graphSpecificHeat(self, pro):
         heatData = getattr(self.data,f'p{pro}HeatData')
 
-        # iterate through list and delete values in excess of 100 degrees celsius or below 0 degrees celsius
-        current = 0
-        while current < len(heatData):
-            if heatData[current][2] < 0 or heatData[current][3] < 0 or heatData[current][2] > 100 or heatData[current][3] > 100:
-                del heatData[current]
-            else: current += 1
+        #heatData[:] = [i for i in heatData if (-100. < i[2] < 150. and -100. < i[3] < 150.)]
 
         # make x data list by converting raw timesamps to matplotlib dates
         xData = [
@@ -2274,6 +2269,7 @@ class facileDBGUI(QMainWindow):
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel(f'Temperature {labelAddOn}(°C)', fontsize=20)  # set y axis label
+        plt.ylim(0.,65.)
 
         if pro > 1:
             letter = "B" if pro == 2 else "C"
