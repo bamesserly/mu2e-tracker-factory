@@ -379,6 +379,7 @@ class DataCanvas(FigureCanvas):
                 box.height * 1.0,
             ]
         )
+        self.axes.set_ylim(0, 60)
         self.prev = None
         self.prev2 = None
 

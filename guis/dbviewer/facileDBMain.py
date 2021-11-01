@@ -2242,6 +2242,8 @@ class facileDBGUI(QMainWindow):
     def graphSpecificHeat(self, pro):
         heatData = getattr(self.data,f'p{pro}HeatData')
 
+        #heatData[:] = [i for i in heatData if (-100. < i[2] < 150. and -100. < i[3] < 150.)]
+
         # make x data list by converting raw timesamps to matplotlib dates
         xData = [
             mpl.dates.epoch2num(toop[1])
@@ -2267,6 +2269,7 @@ class facileDBGUI(QMainWindow):
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel(f'Temperature {labelAddOn}(°C)', fontsize=20)  # set y axis label
+        plt.ylim(0.,65.)
 
         if pro > 1:
             letter = "B" if pro == 2 else "C"
