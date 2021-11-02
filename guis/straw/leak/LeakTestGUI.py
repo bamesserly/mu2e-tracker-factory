@@ -845,10 +845,10 @@ class LeakTestStatus(QMainWindow):
                     # Write the leak rate to the GUI
                     self.UpdateStrawText.emit(chamber)
 
-                    ########################################################
+                    ############################################################
                     # PASS type 1
                     # At least 20 entries, acceptable rate and rate error
-                    ########################################################
+                    ############################################################
                     if (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] < self.max_leakrate
@@ -859,11 +859,11 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
                         self.StrawStatus.emit(chamber, True)
                         self.passed[chamber] = "P"
-                    ########################################################
+                    ############################################################
                     # PASS type 2
                     # At least 20 entries, acceptable rate, unacceptable
                     # rate error, but event time 7.5 hrs +
-                    ########################################################
+                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] < self.max_leakrate
@@ -874,11 +874,11 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
                         self.StrawStatus.emit(chamber, True)
                         self.passed[chamber] = "P"
-                    ########################################################
+                    ############################################################
                     # FAIL type 1
                     # At least 20 entries, unacceptable rate, acceptable
                     # error. A well-understood failure.
-                    ########################################################
+                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] > self.max_leakrate
@@ -889,11 +889,11 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                         self.StrawStatus.emit(chamber, False)
                         self.passed[chamber] = "F"
-                    ########################################################
+                    ############################################################
                     # FAIL type 2
                     # At least 20 entries, unacceptable rate, unacceptable
                     # error, 7.5 hrs+.
-                    ########################################################
+                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] > self.max_leakrate
@@ -904,11 +904,11 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                         self.StrawStatus.emit(chamber, False)
                         self.passed[chamber] = "F"
-                    ########################################################
+                    ############################################################
                     # FAIL type 3
                     # At least 20 entries, and even rate - err is above
                     # threshold. Doesn't even pass within error bars
-                    ########################################################
+                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and (self.leak_rate[chamber] - 10 * self.leak_rate_err[chamber])
@@ -919,16 +919,12 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                         self.StrawStatus.emit(chamber, False)
                         self.passed[chamber] = "F"
-                    ########################################################
+                    ############################################################
                     # UNHANDLED PASS-FAIL CASE
-                    ########################################################
+                    # AFAICT this just happens when we don't have enough data
+                    ############################################################
                     else:
-                        logger.debug("Unhandled pass-fail case.")
-                        logger.debug(f"chamber = {chamber}")
-                        logger.debug(f"nentries = {len(PPM[chamber])}")
-                        logger.debug(f"leak rate = {self.leak_rate[chamber]}")
-                        logger.debug(f"leak rate err = {self.leak_rate_err[chamber]}")
-                        logger.debug(f"eventtime = {eventtime}")
+                        pass
 
                     ## Graph and save graph of fit
                     x = np.linspace(0, max(timestamp[chamber]))
