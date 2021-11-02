@@ -31,6 +31,12 @@ def GetProjectPaths():
     return paths
 
 
+# list of strings ["COM1", "COM8", etc.]
+def GetStrawLeakInoPorts():
+    ports = pkg_resources.read_text(resources, "straw_leak_ino_ports.txt")
+    return [i.strip() for i in ports.split("\n")]
+
+
 def GetLocalDatabasePath():
     with pkg_resources.path(data, "database.db") as p:
         return str(p.resolve())

@@ -8,6 +8,7 @@ resources/networkDatabasePath.txt
 resources/dbvDatabasePath.txt
 resources/rootDirectory.txt
 resources/rootDirectoryLocation.txt
+resources/straw_leak_ino_ports.txt
 guis/straw/Prep GUI/dailytotal.txt
 guis/straw/Prep GUI/date.txt
 logfiles/

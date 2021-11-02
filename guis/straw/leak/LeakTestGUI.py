@@ -42,7 +42,7 @@ from pathlib import Path
 
 from data.workers.credentials.credentials import Credentials
 from guis.straw.leak.remove import Ui_DialogBox
-from guis.common.getresources import GetProjectPaths
+from guis.common.getresources import GetProjectPaths, GetStrawLeakInoPorts
 from guis.common.save_straw_workers import saveWorkers
 
 # Import logger from Modules (only do this once)
@@ -74,18 +74,7 @@ class LeakTestStatus(QMainWindow):
         self.ui.setupUi(self)
         self.show()
         ## Add a timeout (0.08 sec) to avoid freezing GUI while waiting for serial data from arduinos
-        self.COM = [
-            "COM8",
-            "COM9",
-            "COM10",
-            "COM11",
-            "COM12",
-            "COM3",
-            "COM4",
-            "COM5",
-            "COM6",
-            "COM7",
-        ]
+        self.COM = GetStrawLeakInoPorts()
         self.COM_con = [None, None, None, None, None, None, None, None, None, None]
         self.arduino = [
             serial.Serial(port=self.COM_con[0], baudrate=115200, timeout=0.08),
