@@ -994,8 +994,10 @@ class LeakTestStatus(QMainWindow):
         chamber = int(btn.objectName().strip("ActionButton"))
         ROW = int(chamber / 5)
         COL = chamber % 5
+        logger.debug(f"Load/Unload called for chamber {chamber}.")
 
-        # if chamber is empty...
+        # if chamber is empty...(loading)
+        # return after
         if self.chambers_status[ROW][COL][:5] == "empty":
             # ensure a credentialed worker is logged in
             if self.checkCredentials():
@@ -1020,62 +1022,26 @@ class LeakTestStatus(QMainWindow):
             return
 
         # else (chamber is not empty...)
-        do_save_data = True
+        save_to_master = True  # save to the master leak rate spreadsheet?
 
-        # Warn if user is trying to unload an unfinished straw
+        # Unload an unfinished straw - ask to save to master spreadsheet
         if self.passed[chamber] == "U":
-            msg = (
-                f"You are attempting to unload "
-                "{self.Choosenames[ROW][COL][:7]}, which has not "
-                "finished leak testing.  Would you like to save leak "
-                "data for this straw?"
+            msg = "Has this straw conclusively failed leak test?"
+            reply = QMessageBox.question(
+                self,
+                "Conclusive Failure",
+                msg,
+                QMessageBox.Yes,
+                QMessageBox.No,
             )
-            reply = QMessageBox()
-            reply.setText("Incomplete test")
-            reply.setInformativeText(msg)
-            reply.setStandardButtons(
-                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
-            )
-            reply.setDefaultButton(QMessageBox.Yes)
 
-            # Save and Unload
-            if reply == QMessageBox.Yes:
-                pass
-            # Don't save and ...
-            elif reply == QMessageBox.No:
-                do_save_data = False
-                msg = (
-                    f"You are about to unload "
-                    "{self.Choosenames[ROW][COL][:7]} without saving. "
-                    "Continue?"
-                )
-                reply = QMessageBox.warning(
-                    self,
-                    "Straw Not Finished Leak Testing",
-                    msg,
-                    QMessageBox.Yes,
-                    QMessageBox.Abort,
-                )
-                reply.setDefaultButton(QMessageBox.Abort)
-                # ... still unload
-                if reply == QMessageBox.Yes:
-                    pass
-                # ... abort the unload
-                else:
-                    return
-            # Abort saving and unloading
-            else:
-                return
+            # Not a conclusive failure -- don't save to master spreadsheet
+            if reply == QMessageBox.No:
+                save_to_master = False
 
-        if do_save_data:
-            thread = threading.Thread(
-                target=self.unloadAction, args=(ROW, COL, chamber, btn)
-            )
-        else:
-            thread = threading.Thread(
-                target=self.unloadActionNoSaving,
-                args=(ROW, COL, chamber, btn),
-            )
+        thread = threading.Thread(
+            target=self.unloadAction, args=(ROW, COL, chamber, btn, save_to_master)
+        )
         thread.daemon = True  # Daemonize thread
         thread.start()
 
@@ -1095,8 +1061,9 @@ class LeakTestStatus(QMainWindow):
         if path3.is_file():
             os.remove(path3)
 
-    def unloadAction(self, ROW, COL, chamber, btn):
-        self.SaveCSV(chamber)
+    def unloadAction(self, ROW, COL, chamber, btn, save_to_master=True):
+        if save_to_master:
+            self.SaveCSV(chamber)
         self.Save(chamber)
         self.chambers_status[ROW][COL] = "empty"
         self.leak_rate[chamber] = 0
@@ -1170,7 +1137,7 @@ class LeakTestStatus(QMainWindow):
             self.Choosenames[ROW][COL] + "_rawdata.txt"
         )
         x = open(self.files[chamber], "a+", 1)
-        print("Saving data to file %s" % self.Choosenames[ROW][COL])
+        logger.debug(f"Saving data to file {self.Choosenames[ROW][COL]}")
 
     def Plot(self, btn):
         """Make and display a copy of the fitted data"""
@@ -1195,7 +1162,7 @@ class LeakTestStatus(QMainWindow):
             shutil.copyfile(str(filepath), str(filepath_temp))
             os.startfile(filepath_temp, "open")
         else:
-            print("No fit yet for chamber", chamber, "data. Wait for more data.")
+            logger.info(f"No fit yet for chamber {chamber} data. Wait for more data.")
 
     def Change_worker_ID(self, btn):
         label = btn.text()
@@ -1258,7 +1225,7 @@ class LeakTestStatus(QMainWindow):
         Current_worker = self.getWorker()
 
         if self.Choosenames[ROW][COL][:7] in self.straw_list:
-            print(
+            logger.info(
                 "Data for straw %s in chamber %s already saved"
                 % (self.Choosenames[ROW][COL][:7], chamber)
             )
@@ -1274,7 +1241,7 @@ class LeakTestStatus(QMainWindow):
             with open(self.result, "a+", 1) as result:
                 if not first:
                     result.write("\n")
-                print("Saving chamber %s data to CSV file" % chamber)
+                logger.info("Saving chamber %s data to CSV file" % chamber)
                 result.write(self.Choosenames[ROW][COL][:7] + ",")
                 # result.write(self.StrawLabels[chamber].text() + ",")
                 result.write(currenttime + ",")
@@ -1592,7 +1559,7 @@ class LeakTestStatus(QMainWindow):
                     # com is a list: [strawID,chamber,worker,comment,epochTime,humanTime,inflationTestStatus]
                     # com = file.readline()
                     com = row.split(sep=",")
-                    print(com)
+                    logger.info(com)
                     if (
                         com
                         != [
@@ -1650,7 +1617,7 @@ class StrawSelect(QDialog):
             try:
                 checkStraw(self.straw_load, "C-O2", "leak")
 
-                print("Straw", self.straw_load, "loaded")
+                logger.info(f"Straw {self.straw_load} loaded")
                 self.deleteLater()
             except StrawRemovedError:
                 QMessageBox.critical(
@@ -1673,7 +1640,7 @@ class StrawSelect(QDialog):
                     self, "Testing Error", "Unable to test straw:\n" + error.message
                 )
         else:
-            print("Not a valid straw barcode. Try formatting like st00023.")
+            logger.warning("Not a valid straw barcode. Try formatting like st00023.")
             self.straw_load = "empty"
 
     def Cancel(self):
@@ -1695,10 +1662,10 @@ class WorkerID(QDialog):
     def WorkerIDInput(self):
         self.Worker_ID = self.ui.lineEdit.text()
         if True:
-            print("Welcome", self.Worker_ID + "!")
+            logger.info(f"Welcome {self.Worker_ID}!")
             self.deleteLater()
         else:
-            print("Not a valid worker ID.")
+            logger.info("Not a valid worker ID.")
             self.Worker_ID = "Unknown worker"
 
 
