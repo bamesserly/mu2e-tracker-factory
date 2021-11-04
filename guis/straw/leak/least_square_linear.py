@@ -104,6 +104,37 @@ def get_slope_err_zero_intercept(xi, yi, yi_err):
     return slope_err
 
 
+def get_fit(timestamp, PPM, PPM_err):
+    slope = get_slope(
+        timestamp,
+        PPM,
+        PPM_err,
+    )
+
+    if slope == 0:
+        slope = 1e-100
+
+    slope_err = get_slope_err(
+        timestamp,
+        PPM,
+        PPM_err,
+    )
+
+    intercept = get_intercept(
+        timestamp,
+        PPM,
+        PPM_err,
+    )
+
+    intercept_err = get_intercept_err(
+        timestamp,
+        PPM,
+        PPM_err,
+    )
+
+    return slope, slope_err, intercept, intercept_err
+
+
 # This method check jump for the lastest 10 mins. To modify the time, change the constant 40 and 20 in the code
 def jump_check_average(PPM):
     Nsigma = 1

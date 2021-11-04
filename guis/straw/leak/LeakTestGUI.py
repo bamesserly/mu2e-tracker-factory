@@ -94,58 +94,7 @@ class LeakTestStatus(QMainWindow):
         self.leakDirectoryCom = self.leakDirectory / "comments"
         self.workerDirectory = paths["leakworkers"]
 
-        self.starttime = [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ]
+        self.starttime = 50 * [0]
 
         self.Choosenames = [
             ["empty0", "empty1", "empty2", "empty3", "empty4"],
@@ -784,7 +733,6 @@ class LeakTestStatus(QMainWindow):
 
                     # If max PPM is larger than threshold and we haven't already passed,
                     # Then mark this chamber as a large leak (red) and skip it
-                    # TODO need to have the option to unload such straws.
                     if (
                         max(PPM[chamber]) > self.max_co2_level
                         and self.passed[chamber] != "P"
@@ -798,30 +746,17 @@ class LeakTestStatus(QMainWindow):
                     #    continue
 
                     # Calculate leak rate and related parameters
-                    slope[chamber] = get_slope(
+                    (
+                        slope[chamber],
+                        slope_err[chamber],
+                        intercept[chamber],
+                        intercept_err[chamber],
+                    ) = get_fit(
                         timestamp[chamber],
                         PPM[chamber],
                         PPM_err[chamber],
                     )
 
-                    if slope[chamber] == 0:
-                        slope[chamber] = 1e-100
-
-                    slope_err[chamber] = get_slope_err(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
-                    )
-                    intercept[chamber] = get_intercept(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
-                    )
-                    intercept_err[chamber] = get_intercept_err(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
-                    )
                     # leak rate in cc/min = slope(PPM/sec) * chamber_volume(cc) * 10^-6(1/PPM) * 60 (sec/min) * conversion_rate
                     self.leak_rate[chamber] = (
                         slope[chamber]
