@@ -1,191 +1,104 @@
-from least_square_linear import *
-from WriteToFile import *
+from guis.straw.leak.least_square_linear import get_fit
+from guis.common.getresources import GetProjectPaths
+from resources.straw_leak_chamber_volumes import (
+    get_chamber_volume,
+    get_chamber_volume_err,
+    calculate_leak_rate,
+    calculate_leak_rate_err,
+)
 import csv
 from pathlib import Path
 
 
-class RefitLeakData:
-    def __init__(self):
-        # self.directory = Path("C:\Users\Mu2e\Desktop")
-        self.directory = Path("C:\\Users\Mu2e\Desktop").resolve()
-        print(self.directory.resolve())
-        self.directory = str(self.directory)
-        self.directory += "\\"
-        self.leak_rate = 0
-        self.leak_rate_err = 0
-        self.error = False
-        self.file = ""
-        self.skip = 0
-        self.excluded_time = 120
+def calc_ppm_err(ppm):
+    return ((ppm * 0.02) ** 2 + 20 ** 2) ** 0.5
 
-    def refit(self):
-        PPM = []
-        PPM_err = []
-        starttime = 0
-        timestamp = []
-        slope = []
-        slope_err = []
-        intercept = []
-        intercept_err = []
-        conversion_rate = 0.14
-        chamber_volume = [
-            594,
-            607,
-            595,
-            605,
-            595,
-            606,
-            609,
-            612,
-            606,
-            595,
-            592,
-            603,
-            612,
-            606,
-            567,
-            585,
-            575,
-            610,
-            615,
-            587,
-            611,
-            600,
-            542,
-            594,
-            591,
-            598,
-            451,
-            627,
-            588,
-            649,
-            544,
-            600,
-            534,
-            594,
-            612,
-            606,
-            594,
-            515,
-            583,
-            601,
-            557,
-            510,
-            550,
-            559,
-            527,
-            567,
-            544,
-            572,
-            561,
-            578,
-        ]
-        chamber_volume_err = [
-            13,
-            31,
-            15,
-            10,
-            21,
-            37,
-            7,
-            12,
-            17,
-            15,
-            15,
-            12,
-            7,
-            4,
-            2,
-            8,
-            15,
-            6,
-            10,
-            11,
-            4,
-            3,
-            8,
-            6,
-            9,
-            31,
-            11,
-            25,
-            20,
-            16,
-            8,
-            8,
-            11,
-            8,
-            6,
-            6,
-            10,
-            8,
-            10,
-            8,
-            6,
-            8,
-            6,
-            9,
-            6,
-            7,
-            6,
-            8,
-            7,
-            6,
-        ]
-        try:
-            chamber = int(self.file[15:17])
-        except:
-            chamber = int(self.file[15:16])
 
-        try:
-            with open(self.directory + self.file + ".txt", "r+", 1) as readfile:
-                index = 0
+def get_data_from_file(raw_data_fullpath):
+    excluded_time = 120  # ignore first 2 minutes of data
+    starttime = 0
+    timestamps = []
+    PPM = []
+    PPM_err = []
 
-                for line in readfile:
-                    numbers_float = line.split()[:3]
-                    index = index + 1
-                    if numbers_float[2] == "0.00" or index <= self.skip:
-                        continue
-                    if starttime == 0:
-                        starttime = float(numbers_float[0])
-                    eventtime = float(numbers_float[0]) - starttime
-                    if eventtime > self.excluded_time:
-                        timestamp.append(eventtime)
-                        PPM.append(float(numbers_float[2]))
-                        PPM_err.append(
-                            ((float(numbers_float[2]) * 0.02) ** 2 + 20 ** 2) ** 0.5
-                        )
+    with open(raw_data_fullpath, "r+", 1) as readfile:
+        lines_read = 0
+        for line in readfile:
+            line = line.split()
+            timestamp = float(line[0])
+            ppm = float(line[2])
 
-            slope = get_slope(timestamp, PPM, PPM_err)
-            if slope == 0:
-                slope = 1e-100
-            slope_err = get_slope_err(timestamp, PPM, PPM_err)
-            intercept = get_intercept(timestamp, PPM, PPM_err)
-            intercept_err = get_intercept_err(timestamp, PPM, PPM_err)
-            self.leak_rate = (
-                slope * chamber_volume[chamber] * (10 ** -6) * 60 * conversion_rate
-            )
-            self.leak_rate_err = (
-                (self.leak_rate / slope) ** 2 * slope_err ** 2
-                + (self.leak_rate / chamber_volume[chamber]) ** 2
-                * chamber_volume_err[chamber] ** 2
-            ) ** 0.5
-        except Exception as e:
-            print(e)
-            self.error = True
+            lines_read = lines_read + 1
+            if ppm == "0.00":
+                continue
+            if starttime == 0:
+                starttime = timestamp
+            eventtime = timestamp - starttime
+            if eventtime < excluded_time:
+                continue
+            timestamps.append(eventtime)
+            PPM.append(ppm)
+            PPM_err.append(calc_ppm_err(ppm))
 
-    def main(self):
-        self.file = input("\nEnter file name (no extension): ").strip().lower()
-        self.skip = int(input("Enter number of data points to skip: ").strip())
-        self.refit()
-        if self.error:
-            print("\nSomething went wrong.\n")
-        else:
-            print("\nLeak Rate and Error: ")
-            print(round(self.leak_rate, 7), round(self.leak_rate_err, 8))
-            input("\nPress enter to continue.")
+    return timestamps, PPM, PPM_err
+
+
+def refit(raw_data_filename, n_skips_start, n_skips_end):
+    directory = GetProjectPaths()["strawleakdata"] / "raw_data"
+    leak_rate = 0
+    leak_rate_err = 0
+
+    slope = []
+    slope_err = []
+    intercept = []
+    intercept_err = []
+
+    # Get data
+    timestamp, PPM, PPM_err = get_data_from_file(directory / raw_data_filename)
+
+    # Skip points at beginning and end
+    def truncate(container, nstart, nend):
+        return container[nstart - 1 : len(container) - nend]
+
+    timestamp = truncate(timestamp, n_skips_start, n_skips_end)
+    PPM = truncate(PPM, n_skips_start, n_skips_end)
+    PPM_err = truncate(PPM_err, n_skips_start, n_skips_end)
+
+    # Calculate slopes, leak rates
+    try:
+        chamber = int(raw_data_filename[15:17])
+    except:
+        chamber = int(raw_data_filename[15:16])
+    slope, slope_err, intercept, intrcept_err = get_fit(timestamp, PPM, PPM_err)
+
+    leak_rate = calculate_leak_rate(slope, get_chamber_volume(chamber))
+
+    leak_rate_err = calculate_leak_rate_err(
+        leak_rate,
+        slope,
+        slope_err,
+        get_chamber_volume(chamber),
+        get_chamber_volume_err(chamber),
+    )
+
+    return leak_rate, leak_rate_err
+
+
+def run():
+    raw_data_filename = input("\nEnter file name: ").strip()
+    n_points_to_skip_start = int(
+        input("Enter number of data points to skip from start: ").strip() or 0
+    )
+    n_points_to_skip_end = int(
+        input("Enter number of data points to skip at end: ").strip() or 0
+    )
+    leak_rate, leak_rate_err = refit(
+        raw_data_filename, n_points_to_skip_start, n_points_to_skip_end
+    )
+    print("\nLeak Rate and Error: ")
+    print(round(leak_rate, 7), round(leak_rate_err, 8))
+    input("\nPress enter to continue.")
 
 
 if __name__ == "__main__":
-    app = RefitLeakData()
-    app.main()
+    run()
