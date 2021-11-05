@@ -47,6 +47,20 @@ def refit(raw_data_filename, n_skips_start, n_skips_end):
 
 
 def run():
+    print(
+        """
+    \n
+     _                _      _____       __ _ _   
+    | |              | |    |  __ \     / _(_) |  
+    | |     ___  __ _| | __ | |__) |___| |_ _| |_ 
+    | |    / _ \/ _` | |/ / |  _  // _ \  _| | __|
+    | |___|  __/ (_| |   <  | | \ \  __/ | | | |_ 
+    |______\___|\__,_|_|\_\ |_|  \_\___|_| |_|\__|
+    \n
+    Re-measure the leak rate given a raw data file.
+    Exclude points from the fit at the beginning or end of the data.
+    """
+    )
     raw_data_filename = input("\nEnter file name: ").strip()
     n_points_to_skip_start = int(
         input("Enter number of data points to skip from start: ").strip() or 0
