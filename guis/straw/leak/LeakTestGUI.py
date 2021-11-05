@@ -1,13 +1,15 @@
-### X0306b.py Updated - Ben Hiltbrand <hiltb004@umn.edu>
-
-### Attempts to upload to database when unloading straw, with an error message if it fails
-### Rudimentary checking of straws before loading, with error messages
-### Interface with the pressurization GUI for handling of removing straws
-### Improved performance by using multithreading
-### Implemented signals to retain thread-safety
-### 10/24/18 - Implemented new credentials system
-### 12/04/18 - Bug fixes
-
+################################################################################
+#
+# Straw Leak Test GUI
+#
+# Happens after prep, resistance, and CO2 endpiece steps.
+#
+# This process is not currently uploaded to the DB, all data is saved to txt
+# files and pdfs only.
+#
+# Next step: consolidation/cutting
+#
+################################################################################
 from PyQt5 import QtCore, QtGui
 import time, sys, logging, random, os, os.path, shutil, functools
 from PyQt5.QtWidgets import (
@@ -44,6 +46,7 @@ from data.workers.credentials.credentials import Credentials
 from guis.straw.leak.remove import Ui_DialogBox
 from guis.common.getresources import GetProjectPaths, GetStrawLeakInoPorts
 from guis.common.save_straw_workers import saveWorkers
+from guis.straw.leak.straw_leak_utilities import *
 
 # Import logger from Modules (only do this once)
 from guis.common.panguilogger import SetupPANGUILogger
@@ -94,58 +97,7 @@ class LeakTestStatus(QMainWindow):
         self.leakDirectoryCom = self.leakDirectory / "comments"
         self.workerDirectory = paths["leakworkers"]
 
-        self.starttime = [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ]
+        self.starttime = 50 * [0]
 
         self.Choosenames = [
             ["empty0", "empty1", "empty2", "empty3", "empty4"],
@@ -183,48 +135,22 @@ class LeakTestStatus(QMainWindow):
         result = open(self.result, "a+", 1)
         result.close()
 
-        self.chamber_volume = [
-            [594, 607, 595, 605, 595],
-            [606, 609, 612, 606, 595],
-            [592, 603, 612, 606, 567],
-            [585, 575, 610, 615, 587],
-            [611, 600, 542, 594, 591],
-            [598, 451, 627, 588, 649],
-            [544, 600, 534, 594, 612],
-            [606, 594, 515, 583, 601],
-            [557, 510, 550, 559, 527],
-            [567, 544, 572, 561, 578],
-        ]
+        self.chamber_volume = CHAMBER_VOLUME
 
-        self.chamber_volume_err = [
-            [13, 31, 15, 10, 21],
-            [37, 7, 12, 17, 15],
-            [15, 12, 7, 4, 2],
-            [8, 15, 6, 10, 11],
-            [4, 3, 8, 6, 9],
-            [31, 11, 25, 20, 16],
-            [8, 8, 11, 8, 6],
-            [6, 10, 8, 10, 8],
-            [6, 8, 6, 9, 6],
-            [7, 6, 8, 7, 6],
-        ]
+        self.chamber_volume_err = CHAMBER_VOLUME_ERR
 
         self.leak_rate = [0] * 50
         self.leak_rate_err = [0] * 50
-
         self.passed = ["U"] * 50
 
-        self.straw_volume = 26.0
+        # chamber volume occupied = chamber volume empty - straw volume
         for n in range(len(self.chamber_volume)):
             for m in range(len(self.chamber_volume[n])):
-                self.chamber_volume[n][m] = (
-                    self.chamber_volume[n][m] - self.straw_volume
-                )
+                self.chamber_volume[n][m] = self.chamber_volume[n][m] - STRAW_VOLUME
         # (conversion_rate*real_leak_rate=the_leak_rate_when_using_20/80_argon/co2 in chamber)
         # Conversion rate proportional to amount of CO2 (1/5)
         # Partial pressure of CO2 as 2 absolution ATM presure inside and 0 outside, chamber will be 1 to 0(1/2)
         # Multiplied by 1.4 for the argon gas leaking as well conservative estimate (should we reduce?
-        self.conversion_rate = 0.14
         # max leak rate for straws
         self.max_leakrate = 0.00009645060  # cc/min
 
@@ -722,45 +648,11 @@ class LeakTestStatus(QMainWindow):
 
                     # open the raw data readings for this chamber and save them
                     # in the PPM, PPM_err, and timestamp variables
-                    with open(
-                        outfile,
-                        "r+",
-                        1,
-                    ) as readfile:
-                        # example line: <timestamp> <chamber> <reading> <human timestmap>
-                        for line in readfile:
-                            numbers_float = line.split()[:3]
-
-                            # skip empty readings
-                            if numbers_float[2] == "0.00":
-                                continue
-
-                            # set start time for this chamber
-                            if self.starttime[chamber] == 0:
-                                self.starttime[chamber] = float(numbers_float[0])
-
-                            # set time for this reading
-                            try:
-                                eventtime = (
-                                    float(numbers_float[0]) - self.starttime[chamber]
-                                )
-                            except ValueError:
-                                logger.error(
-                                    f"This happens when one of the empty raw data files get corrupted"
-                                )
-                                logger.error(f"The file is {outfile}")
-
-                            # Don't record first two minutes of data
-                            if eventtime <= self.excluded_time:
-                                continue
-
-                            # record data
-                            PPM[chamber].append(float(numbers_float[2]))
-                            PPM_err[chamber].append(
-                                ((float(numbers_float[2]) * 0.02) ** 2 + 20 ** 2) ** 0.5
-                            )
-                            timestamp[chamber].append(eventtime)
-                    # END with open(outfile,"r+",1,) as readfile:
+                    (
+                        timestamp[chamber],
+                        PPM[chamber],
+                        PPM_err[chamber],
+                    ) = get_data_from_file(outfile)
 
                     # Chamber is empty -- go no further
                     # self.Choosenames[ROW][COL] = "ST00854_chamber0_2021_06_15"
@@ -784,7 +676,6 @@ class LeakTestStatus(QMainWindow):
 
                     # If max PPM is larger than threshold and we haven't already passed,
                     # Then mark this chamber as a large leak (red) and skip it
-                    # TODO need to have the option to unload such straws.
                     if (
                         max(PPM[chamber]) > self.max_co2_level
                         and self.passed[chamber] != "P"
@@ -798,45 +689,29 @@ class LeakTestStatus(QMainWindow):
                     #    continue
 
                     # Calculate leak rate and related parameters
-                    slope[chamber] = get_slope(
+                    (
+                        slope[chamber],
+                        slope_err[chamber],
+                        intercept[chamber],
+                        intercept_err[chamber],
+                    ) = get_fit(
                         timestamp[chamber],
                         PPM[chamber],
                         PPM_err[chamber],
                     )
 
-                    if slope[chamber] == 0:
-                        slope[chamber] = 1e-100
+                    self.leak_rate[chamber] = calculate_leak_rate(
+                        slope[chamber], self.chamber_volume[ROW][COL]
+                    )
 
-                    slope_err[chamber] = get_slope_err(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
+                    self.leak_rate_err[chamber] = calculate_leak_rate_err(
+                        leak_rate[chamber],
+                        slope[chamber],
+                        slope_err[chamber],
+                        self.chamber_volume[ROW][COL],
+                        self.chamber_volume_err[ROW][COL],
                     )
-                    intercept[chamber] = get_intercept(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
-                    )
-                    intercept_err[chamber] = get_intercept_err(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
-                    )
-                    # leak rate in cc/min = slope(PPM/sec) * chamber_volume(cc) * 10^-6(1/PPM) * 60 (sec/min) * conversion_rate
-                    self.leak_rate[chamber] = (
-                        slope[chamber]
-                        * self.chamber_volume[ROW][COL]
-                        * (10 ** -6)
-                        * 60
-                        * self.conversion_rate
-                    )
-                    # error = sqrt((lr/slope)^2 * slope_err^2 + (lr/ch_vol)^2 * ch_vol_err^2)
-                    self.leak_rate_err[chamber] = (
-                        (self.leak_rate[chamber] / slope[chamber]) ** 2
-                        * slope_err[chamber] ** 2
-                        + (self.leak_rate[chamber] / self.chamber_volume[ROW][COL]) ** 2
-                        * self.chamber_volume_err[ROW][COL] ** 2
-                    ) ** 0.5
+
                     straw_status = "unknown status"
                     # print("Leak rate for straw %s in chamber %.0f is %.2f +- %.2f CC per minute * 10^-5"
                     #% (self.Choosenames[ROW][COL][:7],chamber,self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)))
