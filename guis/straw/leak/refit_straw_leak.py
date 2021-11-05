@@ -20,7 +20,7 @@ def refit(raw_data_filename, n_skips_start, n_skips_end):
 
     # Skip points at beginning and end
     def truncate(container, nstart, nend):
-        return container[nstart - 1 : len(container) - nend]
+        return container[max(nstart - 1, 0) : len(container) - nend]
 
     timestamp = truncate(timestamp, n_skips_start, n_skips_end)
     PPM = truncate(PPM, n_skips_start, n_skips_end)
