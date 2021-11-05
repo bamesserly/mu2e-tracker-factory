@@ -31,8 +31,6 @@ from PyQt5.QtWidgets import (
 from PyQt5 import QtGui
 import serial  ## Takes this from pyserial, not serial
 import datetime
-import numpy as np
-import matplotlib.pyplot as plt
 from guis.straw.leak.least_square_linear import *  ## Contributes fit functions
 from guis.straw.leak.leakUI import Ui_MainWindow  ## Main GUI window
 from guis.straw.leak.N0207a import Ui_Dialog  ## Pop-up GUI window for straw selection
@@ -147,19 +145,9 @@ class LeakTestStatus(QMainWindow):
         for n in range(len(self.chamber_volume)):
             for m in range(len(self.chamber_volume[n])):
                 self.chamber_volume[n][m] = self.chamber_volume[n][m] - STRAW_VOLUME
-        # (conversion_rate*real_leak_rate=the_leak_rate_when_using_20/80_argon/co2 in chamber)
-        # Conversion rate proportional to amount of CO2 (1/5)
-        # Partial pressure of CO2 as 2 absolution ATM presure inside and 0 outside, chamber will be 1 to 0(1/2)
-        # Multiplied by 1.4 for the argon gas leaking as well conservative estimate (should we reduce?
-        # max leak rate for straws
-        self.max_leakrate = 0.00009645060  # cc/min
 
-        self.excluded_time = 120  # wait 2 minutes before using data for fit
         self.max_time = (
             7200  # When time exceeds 2 hours stops fitting data (still saving it)
-        )
-        self.min_number_datapoints = (
-            10  # requires 10 datapoints before attempting to fit
         )
         self.max_co2_level = (
             1800  # when PPM exceeds 1800 stops fitting and warns user of failure
@@ -180,7 +168,7 @@ class LeakTestStatus(QMainWindow):
         ]
 
         ## buttons for plotting belong to a QButtonGroup called PdfButtons
-        self.ui.PdfButtons.buttonClicked.connect(self.Plot)
+        self.ui.PdfButtons.buttonClicked.connect(self.DisplayPlot)
         for x in self.ui.PdfButtons.buttons():
             x.setText("Plot")
             x.setDisabled(True)
@@ -666,7 +654,7 @@ class LeakTestStatus(QMainWindow):
                         self.StrawProcessing.emit(chamber)
 
                     # Not enough data for this chamber, skip it
-                    if len(PPM[chamber]) < self.min_number_datapoints:
+                    if len(PPM[chamber]) < MIN_N_DATAPOINTS_FOR_FIT:
                         # print("Straw %s in chamber %.0f is in preparation stage. Please wait for more data" %(self.Choosenames[ROW][COL][:7],chamber))
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 225, 0);")
                         # self.ChamberLabels[f].setText('Processing')
@@ -713,7 +701,6 @@ class LeakTestStatus(QMainWindow):
                         self.chamber_volume_err[ROW][COL],
                     )
 
-                    straw_status = "unknown status"
                     # print("Leak rate for straw %s in chamber %.0f is %.2f +- %.2f CC per minute * 10^-5"
                     #% (self.Choosenames[ROW][COL][:7],chamber,self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)))
                     # self.ChamberLabels[chamber].setText(str('%.2f ± %.2f' % ((self.leak_rate[chamber]*(10**5)),self.leak_rate_err[chamber]*(10**5))))
@@ -721,123 +708,42 @@ class LeakTestStatus(QMainWindow):
                     # Write the leak rate to the GUI
                     self.UpdateStrawText.emit(chamber)
 
-                    ############################################################
-                    # PASS type 1
-                    # At least 20 entries, acceptable rate and rate error
-                    ############################################################
-                    if (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] < self.max_leakrate
-                        and self.leak_rate_err[chamber] < self.max_leakrate / 10
-                    ):
-                        # print("Straw in chamber %.0f has Passed, Please remove" % chamber)
-                        straw_status = "Passed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
-                        self.StrawStatus.emit(chamber, True)
-                        self.passed[chamber] = "P"
-                    ############################################################
-                    # PASS type 2
-                    # At least 20 entries, acceptable rate, unacceptable
-                    # rate error, but event time 7.5 hrs +
-                    ############################################################
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] < self.max_leakrate
-                        and running_duration > 27000  # cut off after... 7.5 hours???
-                    ):
-                        # print("Straw in chamber %.0f has Passed, Please remove" % chamber)
-                        straw_status = "Passed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
-                        self.StrawStatus.emit(chamber, True)
-                        self.passed[chamber] = "P"
-                    ############################################################
-                    # FAIL type 1
-                    # At least 20 entries, unacceptable rate, acceptable
-                    # error. A well-understood failure.
-                    ############################################################
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] > self.max_leakrate
-                        and self.leak_rate_err[chamber] < self.max_leakrate / 10
-                    ):
-                        # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
-                        straw_status = "Failed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
-                        self.StrawStatus.emit(chamber, False)
-                        self.passed[chamber] = "F"
-                    ############################################################
-                    # FAIL type 2
-                    # At least 20 entries, unacceptable rate, unacceptable
-                    # error, 7.5 hrs+.
-                    ############################################################
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] > self.max_leakrate
-                        and running_duration > 27000
-                    ):
-                        # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
-                        straw_status = "Failed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
-                        self.StrawStatus.emit(chamber, False)
-                        self.passed[chamber] = "F"
-                    ############################################################
-                    # FAIL type 3
-                    # At least 20 entries, and even rate - err is above
-                    # threshold. Doesn't even pass within error bars
-                    ############################################################
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and (self.leak_rate[chamber] - 10 * self.leak_rate_err[chamber])
-                        > self.max_leakrate
-                    ):
-                        # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
-                        straw_status = "Failed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
-                        self.StrawStatus.emit(chamber, False)
-                        self.passed[chamber] = "F"
-                    ############################################################
-                    # UNHANDLED PASS-FAIL CASE
-                    # AFAICT this just happens when we don't have enough data
-                    ############################################################
+                    # pass, fail, or unknown
+                    leak_status = evaluate_leak_rate(
+                        len(PPM[chamber]),
+                        self.leak_rate[chamber],
+                        self.leak_rate_err[chamber],
+                        running_duration,
+                    )
+
+                    # Update the GUI given the pass-fail status
+                    if leak_status == PassFailStatus.PASS:
+                        StrawStatus.emit(chamber, True)
+                    elif leak_status == PassFailStatus.FAIL:
+                        StrawStatus.emit(chamber, False)
                     else:
                         pass
 
+                    self.passed[chamber] = leak_status.value
+
+                    title = self.Choosenames[ROW][COL] + "_fit"
+                    outfile = self.leakDirectoryRaw / title
+                    outfile = outfile.with_suffix(".pdf")
+
+                    plot(
+                        title,
+                        timestamp[chamber],
+                        PPM[chamber],
+                        slope[chamber],
+                        slope_err[chamber],
+                        intercept[chamber],
+                        self.leak_rate[chamber],
+                        self.leak_rate_err[chamber],
+                        leak_status,
+                        outfile,
+                    )
+
                     ## Graph and save graph of fit
-                    x = np.linspace(0, max(timestamp[chamber]))
-                    y = slope[chamber] * x + intercept[chamber]
-                    plt.plot(timestamp[chamber], PPM[chamber], "bo")
-                    # plt.errorbar(timestamp[f],PPM[f], yerr=PPM_err[f], fmt='o')
-                    plt.plot(x, y, "r")
-                    plt.xlabel("time (s)")
-                    plt.ylabel("CO2 level (PPM)")
-                    plt.title(self.Choosenames[ROW][COL] + "_fit")
-                    info_string = (
-                        "Slope = %.2f +- %.2f x $10^{-3}$ PPM/sec \n"
-                        % (
-                            slope[chamber] * 10 ** 4,
-                            slope_err[chamber] * 10 ** 4,
-                        )
-                        + "Leak Rate = %.2f +- %.2f x $10^{-5}$ cc/min \n"
-                        % (
-                            self.leak_rate[chamber] * (10 ** 5),
-                            self.leak_rate_err[chamber] * (10 ** 5),
-                        )
-                        + straw_status
-                        + "\n"
-                        + currenttime
-                    )
-                    plt.figtext(
-                        0.49,
-                        0.80,
-                        info_string,
-                        fontsize=12,
-                        color="r",
-                    )
-                    outfig = self.leakDirectoryRaw / str(
-                        self.Choosenames[ROW][COL] + "_fit.pdf"
-                    )
-                    plt.savefig(outfig)
-                    plt.clf()
                 # END loop over chambers
             # END while any(self._running)
 
@@ -1001,7 +907,7 @@ class LeakTestStatus(QMainWindow):
         x.close()
         logger.debug(f"Saving data to file {self.Choosenames[ROW][COL]}")
 
-    def Plot(self, btn):
+    def DisplayPlot(self, btn):
         """Make and display a copy of the fitted data"""
         chamber = int(btn.objectName().strip("PdfButton"))
         ROW = int(chamber / 5)

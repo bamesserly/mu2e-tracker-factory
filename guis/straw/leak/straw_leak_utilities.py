@@ -1,8 +1,27 @@
+################################################################################
+# Constants and functions serving the leak test gui and the leak test refit
+# program.
+#
+# Read raw leak data, calculate slopes and leak rates, data on chamber volumes,
+# chamber map to rows-columns, data and fit plotting, fit quality evaluation
+################################################################################
 from sys import exit
+from enum import Enum
+import numpy as np
+import matplotlib.pyplot as plt
+import datetime
 
+# (conversion_rate*real_leak_rate=the_leak_rate_when_using_20/80_argon/co2 in
+# chamber) Conversion rate proportional to amount of CO2 (1/5) Partial pressure
+# of CO2 as 2 absolution ATM presure inside and 0 outside, chamber will be 1 to
+# 0(1/2) Multiplied by 1.4 for the argon gas leaking as well conservative
+# estimate (should we reduce?
 LEAK_RATE_SCALING = 0.14  # unitless -- CO2 --> ArCO2 (*1/8), pressure diff (*1/2)
 STRAW_VOLUME = 26.0  # ccs, uncut straw
 EXCLUDE_RAW_DATA_SECONDS = 120  # skip first 2 minutes of raw data file
+MIN_N_DATAPOINTS_FOR_FIT = 10
+MAX_ALLOWED_LEAK_RATE = 0.00009645060  # cc/min
+
 
 CHAMBER_VOLUME = [
     [594, 607, 595, 605, 595],
@@ -29,6 +48,12 @@ CHAMBER_VOLUME_ERR = [
     [6, 8, 6, 9, 6],
     [7, 6, 8, 7, 6],
 ]  # ccs
+
+
+class PassFailStatus(Enum):
+    PASS = "P"
+    FAIL = "F"
+    UNKNOWN = "U"
 
 
 # Get chamber number given row and column
@@ -118,3 +143,78 @@ def get_data_from_file(raw_data_fullpath):
             PPM_err.append(calc_ppm_err(ppm))
 
     return timestamps, PPM, PPM_err
+
+
+# return PassFailStatus object -- PASS, FAIL, UNKNOWN
+def evaluate_leak_rate(npoints, leak_rate, leak_rate_err, end_timestamp):
+    if npoints <= 20:
+        return PassFailStatus.UNKNOWN
+    # PASS. Acceptable leak rate and (acceptable error or 7.5 hrs of data)
+    if (leak_rate < MAX_ALLOWED_LEAK_RATE) and (
+        leak_rate_err < MAX_ALLOWED_LEAK_RATE / 10 or end_timestamp > 27000
+    ):
+        return PassFailStatus.PASS
+    # FAIL. Unacceptable rate and (acceptable error or 7.5 hrs of data)
+    elif (leak_rate > MAX_ALLOWED_LEAK_RATE) and (
+        leak_rate_err < MAX_ALLOWED_LEAK_RATE / 10 or end_timestamp > 27000
+    ):
+        return PassFailStatus.FAIL
+    # FAIL. Doesn't even pass within error bars.
+    elif (leak_rate - 10 * leak_rate_err) > MAX_ALLOWED_LEAK_RATE:
+        return PassFailStatus.FAIL
+    # UNHANDLED PASS-FAIL CASE
+    else:
+        return PassFailStatus.UNKNOWN
+
+
+# plot data and fit line
+def plot(
+    title,
+    x_values,
+    y_values,
+    slope,
+    slope_err,
+    intercept,
+    leak_rate,
+    leak_rate_err,
+    leak_status,
+    outfile,
+):
+    currenttime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    status_string = {
+        PassFailStatus.PASS: "Passed leak requirement",
+        PassFailStatus.FAIL: "Failed leak requirement",
+        PassFailStatus.UNKNOWN: "unknown status",
+    }[leak_status]
+    x = np.linspace(0, max(x_values))
+    y = slope * x + intercept
+    plt.plot(x_values, y_values, "bo")
+    # plt.errorbar(timestamp[f],PPM[f], yerr=PPM_err[f], fmt='o')
+    plt.plot(x, y, "r")
+    plt.xlabel("time (s)")
+    plt.ylabel("CO2 level (PPM)")
+    plt.title(title)
+    info_string = (
+        "Slope = %.2f +- %.2f x $10^{-3}$ PPM/sec \n"
+        % (
+            slope * 10 ** 4,
+            slope_err * 10 ** 4,
+        )
+        + "Leak Rate = %.2f +- %.2f x $10^{-5}$ cc/min \n"
+        % (
+            leak_rate * (10 ** 5),
+            leak_rate_err * (10 ** 5),
+        )
+        + status_string
+        + "\n"
+        + currenttime
+    )
+    plt.figtext(
+        0.49,
+        0.80,
+        info_string,
+        fontsize=12,
+        color="r",
+    )
+    plt.savefig(outfile)
+    plt.clf()
