@@ -1,11 +1,6 @@
 from guis.straw.leak.least_square_linear import get_fit
+from guis.straw.leak.straw_leak_utilities import *
 from guis.common.getresources import GetProjectPaths
-from resources.straw_leak_chamber_volumes import (
-    get_chamber_volume,
-    get_chamber_volume_err,
-    calculate_leak_rate,
-    calculate_leak_rate_err,
-)
 import csv
 from pathlib import Path
 
