@@ -78,8 +78,9 @@ def calculate_leak_rate(slope, chamber_volume):
 def calculate_leak_rate_err(
     leak_rate, slope, slope_err, chamber_volume, chamber_volume_err
 ):
-    return (leak_rate / slope) ** 2 * slope_err ** 2 + (
-        leak_rate / chamber_volume ** 2 * chamber_volume_err ** 2
+    return (
+        (leak_rate / slope) ** 2 * slope_err ** 2
+        + (leak_rate / chamber_volume) ** 2 * chamber_volume_err ** 2
     ) ** 0.5
 
 
