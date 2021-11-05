@@ -10,39 +10,6 @@ import csv
 from pathlib import Path
 
 
-def calc_ppm_err(ppm):
-    return ((ppm * 0.02) ** 2 + 20 ** 2) ** 0.5
-
-
-def get_data_from_file(raw_data_fullpath):
-    excluded_time = 120  # ignore first 2 minutes of data
-    starttime = 0
-    timestamps = []
-    PPM = []
-    PPM_err = []
-
-    with open(raw_data_fullpath, "r+", 1) as readfile:
-        lines_read = 0
-        for line in readfile:
-            line = line.split()
-            timestamp = float(line[0])
-            ppm = float(line[2])
-
-            lines_read = lines_read + 1
-            if ppm == "0.00":
-                continue
-            if starttime == 0:
-                starttime = timestamp
-            eventtime = timestamp - starttime
-            if eventtime < excluded_time:
-                continue
-            timestamps.append(eventtime)
-            PPM.append(ppm)
-            PPM_err.append(calc_ppm_err(ppm))
-
-    return timestamps, PPM, PPM_err
-
-
 def refit(raw_data_filename, n_skips_start, n_skips_end):
     directory = GetProjectPaths()["strawleakdata"] / "raw_data"
     leak_rate = 0
