@@ -998,6 +998,7 @@ class LeakTestStatus(QMainWindow):
             self.Choosenames[ROW][COL] + "_rawdata.txt"
         )
         x = open(self.files[chamber], "a+", 1)
+        x.close()
         logger.debug(f"Saving data to file {self.Choosenames[ROW][COL]}")
 
     def Plot(self, btn):
