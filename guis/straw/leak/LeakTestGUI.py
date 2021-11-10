@@ -133,18 +133,14 @@ class LeakTestStatus(QMainWindow):
         result = open(self.result, "a+", 1)
         result.close()
 
-        self.chamber_volume = CHAMBER_VOLUME
-
-        self.chamber_volume_err = CHAMBER_VOLUME_ERR
-
         self.leak_rate = [0] * 50
         self.leak_rate_err = [0] * 50
         self.passed = ["U"] * 50
 
         # chamber volume occupied = chamber volume empty - straw volume
-        for n in range(len(self.chamber_volume)):
-            for m in range(len(self.chamber_volume[n])):
-                self.chamber_volume[n][m] = self.chamber_volume[n][m] - STRAW_VOLUME
+        for n in range(len(CHAMBER_VOLUME)):
+            for m in range(len(CHAMBER_VOLUME[n])):
+                CHAMBER_VOLUME[n][m] = CHAMBER_VOLUME[n][m] - STRAW_VOLUME
 
         self.max_time = (
             7200  # When time exceeds 2 hours stops fitting data (still saving it)
@@ -505,6 +501,48 @@ class LeakTestStatus(QMainWindow):
             if (time.time() - beginning_time) > starting_up_time:
                 starting_up = False
 
+    def read_arduino_line(row):
+        # Check arduino connection, update GUI status, return if no connection
+        if self.COM_con[row] == None:
+            self.ArduinoStart.emit(row, None)
+            return None
+
+        self.ArduinoStart.emit(row, True)
+
+        # Read the arduino line
+        arduino_line = self.arduino[row].readline().strip()
+
+        if arduino_line == b"":
+            return None
+
+        return arduino_line
+
+    def parse_arduino_line(line):
+        line = ["%5.2f" % float(member) for member in arduino_line.split()]
+        ppm = float(arduino_line[1])
+        column = int(float(arduino_line[0]))
+        chamber = chamber_from_row_col(row, col)
+        return chamber, ppm
+
+    def write_raw_ppm_to_file(chamber, ppm):
+        human_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        unix_time = time.time()
+
+        with open(self.files[chamber], "a+", 1) as f:
+            f.write(
+                str(format(unix_time, ".0f"))
+                + "\t"
+                + str(chamber)
+                + "\t"
+                + ("%.0f" % ppm)
+                + "\t"
+                + str(human_datetime)
+                + "\n"
+            )
+            f.flush()  ## Needed to send data in buffer to file
+
+        return unix_time
+
     # (1) Read arduino data, (2) fit leak rate, (3) plot
     def handleStart(self):
         """Start data collection for all chambers connected to the Arduino"""
@@ -512,19 +550,12 @@ class LeakTestStatus(QMainWindow):
         # self._running[0] = True
         # for x in self.ui.ActionButtons.buttons():
         #    x.setEnabled(True)
-        empty_lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        pasttime = [
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-        ]
+        t_previous_measurement = 10 * [
+            time.time()
+        ]  # time that the n-1th measurement was made for a row
+        n_consecutive_empty_readings = 10 * [
+            0
+        ]  # number of consecutive empty lines read for a row
         while any(self._running):
             i = 0
             ####################################################################
@@ -532,88 +563,52 @@ class LeakTestStatus(QMainWindow):
             ####################################################################
             for tf in self._running:
                 # cycles through rows
-                ROW = i
+                row = i
                 i = i + 1
 
-                if self.testThreads("Buffer" + str(ROW)):
+                if self.testThreads("Buffer" + str(row)):
                     continue
 
                 if tf != True:
                     continue
 
-                ################################################################
-                # WRITE ARDUINO DATA TO RAW DATA FILES
-                # Read arduino output for this row and save data to multiple
-                # raw data files, one for each chamber
-                ################################################################
-                # ppms = self.arduino[ROW].readline().strip().split()
-                if empty_lines[ROW] > 60:
-                    self.arduino[ROW].close()
-                    self.Connect_Arduino(self.COM[ROW])
-                    if self.COM_con[ROW] != None:
-                        empty_lines[ROW] = 0
+                # READ a single arduino line corresponding to one ppm
+                # measured in one chamber.
+                arduino_line = read_arduino_line(row)
 
-                if self.COM_con[ROW] == None:
-                    # self.Arduinos[ROW].setStyleSheet("background-color: rgb(170, 0, 0);")
-                    self.ArduinoStart.emit(ROW, False)
-                    continue
-                else:
-                    # self.Arduinos[ROW].setStyleSheet("background-color: rgb(0, 170, 0);")
-                    self.ArduinoStart.emit(ROW, True)
+                if not arduino_line:
+                    n_consecutive_empty_readings[row] += 1
 
-                arduino_line = self.arduino[ROW].readline().strip()
-                if arduino_line == b"":
-                    empty_lines[ROW] = empty_lines[ROW] + 1
+                    # if we've gotten many empty readings for this row in sequence,
+                    # reconnect and reset the count of empty readings
+                    if n_consecutive_empty_readings[row] > 60:
+                        self.arduino[row].close()
+                        self.Connect_Arduino(self.COM[row])
+                        if self.COM_con[row] != None:
+                            n_consecutive_empty_readings[row] = 0
+
                     continue
 
-                empty_lines[ROW] = 0
-                ppms = arduino_line.split()
-                formattedList = ["%5.2f" % float(member) for member in ppms]
-                currenttime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                epoctime = [
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                ]
+                n_consecutive_empty_readings[row] = 0
 
-                file = int(float(formattedList[0]))
-                file = file + ROW * 5
-                with open(self.files[file], "a+", 1) as f:
-                    f.write(
-                        str(format(epoctime[ROW], ".0f"))
-                        + "\t"
-                        + str(file)
-                        + "\t"
-                        + ("%.0f" % float(formattedList[1]))
-                        + "\t"
-                        + str(currenttime)
-                        + "\n"
-                    )
-                    f.flush()  ## Needed to send data in buffer to file
-                # print(epoctime,'\t',file,'\t',formattedList[1],'\t',currenttime)
+                # WRITE the ppm to a chamber-, date-specific file
+                chamber, ppm = parse_arduino_line(arduino_line)
 
-                # only read new data and update plot at most every 15 seconds
-                if epoctime[ROW] < (pasttime[ROW] + 15.0):  ## Previously 15.0
+                t_latest_measurement[row] = write_raw_ppm_to_file(chamber, ppm)
+
+                # FIT AND PLOT -- Loop chambers in this row. Read data from the
+                # raw data files, measure leak rates, plot data + fits to pdf
+                # files.
+
+                # update the plots in this row no more than once every 15 sec
+                if t_latest_measurement[row] < (t_previous_measurement[row] + 15.0):
                     continue
 
-                ################################################################
-                # FIT AND PLOT
-                # Loop chambers in this row, read data from raw data files,
-                # measure leak rates, plot data + fits to pdf files.
-                ################################################################
-                # print("")
-                # print(self.COM[ROW])
-                pasttime[ROW] = epoctime[ROW]
-                for COL in range(5):
+                t_previous_measurement[row] = t_latest_measurement[row]
+
+                for col in range(5):
                     # cycles through columns
-                    chamber = ROW * 5 + COL
+                    chamber = chamber_from_row_col(row, col)
                     ppm = []
                     ppm_err = []
                     timestamps = []
@@ -621,9 +616,7 @@ class LeakTestStatus(QMainWindow):
                     slope_err = 0
                     intercept = 0
                     intercept_err = 0
-                    outfile = self.leakDirectoryRaw / str(
-                        self.Choosenames[ROW][COL] + "_rawdata.txt"
-                    )
+                    outfile = self.files[chamber]
 
                     # open the raw data readings for this chamber and save them
                     # in the ppm, ppm_err, and timestamps variables
@@ -635,8 +628,8 @@ class LeakTestStatus(QMainWindow):
                     running_duration = timestamps[-1]
 
                     # Chamber is empty -- go no further
-                    # self.Choosenames[ROW][COL] = "ST00854_chamber0_2021_06_15"
-                    if str(self.Choosenames[ROW][COL])[0:5] == "empty":
+                    # self.Choosenames[row][col] = "ST00854_chamber0_2021_06_15"
+                    if str(self.Choosenames[row][col])[0:5] == "empty":
                         # print("No straw in chamber %.0f" % (chamber))
                         continue
 
@@ -646,7 +639,7 @@ class LeakTestStatus(QMainWindow):
 
                     # Not enough data for this chamber, skip it
                     if len(ppm) < MIN_N_DATAPOINTS_FOR_FIT:
-                        # print("Straw %s in chamber %.0f is in preparation stage. Please wait for more data" %(self.Choosenames[ROW][COL][:7],chamber))
+                        # print("Straw %s in chamber %.0f is in preparation stage. Please wait for more data" %(self.Choosenames[row][col][:7],chamber))
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 225, 0);")
                         # self.ChamberLabels[f].setText('Processing')
                         continue
@@ -662,7 +655,7 @@ class LeakTestStatus(QMainWindow):
                         continue
 
                     # if max(timestamps) > self.max_time :
-                    #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[ROW][COL][:7],chamber))
+                    #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[row][col][:7],chamber))
                     #    continue
 
                     # Calculate leak rate and related parameters
@@ -673,19 +666,19 @@ class LeakTestStatus(QMainWindow):
                     )
 
                     self.leak_rate[chamber] = calculate_leak_rate(
-                        slope, self.chamber_volume[ROW][COL]
+                        slope, CHAMBER_VOLUME[row][col]
                     )
 
                     self.leak_rate_err[chamber] = calculate_leak_rate_err(
                         self.leak_rate[chamber],
                         slope,
                         slope_err,
-                        self.chamber_volume[ROW][COL],
-                        self.chamber_volume_err[ROW][COL],
+                        CHAMBER_VOLUME[row][col],
+                        CHAMBER_VOLUME_ERR[row][col],
                     )
 
                     # print("Leak rate for straw %s in chamber %.0f is %.2f +- %.2f CC per minute * 10^-5"
-                    #% (self.Choosenames[ROW][COL][:7],chamber,self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)))
+                    #% (self.Choosenames[row][col][:7],chamber,self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)))
                     # self.ChamberLabels[chamber].setText(str('%.2f ± %.2f' % ((self.leak_rate[chamber]*(10**5)),self.leak_rate_err[chamber]*(10**5))))
 
                     # Write the leak rate to the GUI
@@ -709,7 +702,7 @@ class LeakTestStatus(QMainWindow):
 
                     self.passed[chamber] = leak_status.value
 
-                    title = self.Choosenames[ROW][COL] + "_fit"
+                    title = self.Choosenames[row][col] + "_fit"
                     outfile = self.leakDirectoryRaw / title
                     outfile = outfile.with_suffix(".pdf")
 
@@ -880,11 +873,11 @@ class LeakTestStatus(QMainWindow):
         self.update_name(ROW, COL)
         self._running[ROW] = wasrunning
 
-    def update_name(self, ROW, COL):
+    def update_name(self, row, col):
         """Change file name based on chamber contents"""
-        chamber = ROW * 5 + COL
+        chamber = chamber_from_row_col(row, col)
         self.files[chamber] = self.leakDirectoryRaw / str(
-            self.Choosenames[ROW][COL] + "_rawdata.txt"
+            self.Choosenames[row][col] + "_rawdata.txt"
         )
         x = open(self.files[chamber], "a+", 1)
         x.close()
