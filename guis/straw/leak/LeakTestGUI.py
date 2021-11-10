@@ -653,6 +653,7 @@ class LeakTestStatus(QMainWindow):
                         PPM[chamber],
                         PPM_err[chamber],
                     ) = get_data_from_file(outfile)
+                    running_duration = timestamp[chamber][-1]
 
                     # Chamber is empty -- go no further
                     # self.Choosenames[ROW][COL] = "ST00854_chamber0_2021_06_15"
@@ -705,7 +706,7 @@ class LeakTestStatus(QMainWindow):
                     )
 
                     self.leak_rate_err[chamber] = calculate_leak_rate_err(
-                        leak_rate[chamber],
+                        self.leak_rate[chamber],
                         slope[chamber],
                         slope_err[chamber],
                         self.chamber_volume[ROW][COL],
@@ -742,7 +743,7 @@ class LeakTestStatus(QMainWindow):
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] < self.max_leakrate
-                        and eventtime > 27000  # cut off after... 7.5 hours???
+                        and running_duration > 27000  # cut off after... 7.5 hours???
                     ):
                         # print("Straw in chamber %.0f has Passed, Please remove" % chamber)
                         straw_status = "Passed leak requirement"
@@ -772,7 +773,7 @@ class LeakTestStatus(QMainWindow):
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] > self.max_leakrate
-                        and eventtime > 27000
+                        and running_duration > 27000
                     ):
                         # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
                         straw_status = "Failed leak requirement"
