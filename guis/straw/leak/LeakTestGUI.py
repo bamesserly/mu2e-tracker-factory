@@ -150,7 +150,7 @@ class LeakTestStatus(QMainWindow):
             7200  # When time exceeds 2 hours stops fitting data (still saving it)
         )
         self.max_co2_level = (
-            1800  # when PPM exceeds 1800 stops fitting and warns user of failure
+            1800  # when ppm exceeds 1800 stops fitting and warns user of failure
         )
 
         ## set of Arduino status boxes
@@ -611,37 +611,28 @@ class LeakTestStatus(QMainWindow):
                 # print("")
                 # print(self.COM[ROW])
                 pasttime[ROW] = epoctime[ROW]
-                PPM = {}
-                PPM_err = {}
-                timestamp = {}
-                #                        starttime = {}
-                slope = {}
-                slope_err = {}
-                intercept = {}
-                intercept_err = {}
                 for COL in range(5):
                     # cycles through columns
                     chamber = ROW * 5 + COL
-                    PPM[chamber] = []
-                    PPM_err[chamber] = []
-                    timestamp[chamber] = []
-                    #                            starttime[chamber] = 0
-                    slope[chamber] = 0
-                    slope_err[chamber] = 0
-                    intercept[chamber] = 0
-                    intercept_err[chamber] = 0
+                    ppm = []
+                    ppm_err = []
+                    timestamps = []
+                    slope = 0
+                    slope_err = 0
+                    intercept = 0
+                    intercept_err = 0
                     outfile = self.leakDirectoryRaw / str(
                         self.Choosenames[ROW][COL] + "_rawdata.txt"
                     )
 
                     # open the raw data readings for this chamber and save them
-                    # in the PPM, PPM_err, and timestamp variables
+                    # in the ppm, ppm_err, and timestamps variables
                     (
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
+                        timestamps,
+                        ppm,
+                        ppm_err,
                     ) = get_data_from_file(outfile)
-                    running_duration = timestamp[chamber][-1]
+                    running_duration = timestamps[-1]
 
                     # Chamber is empty -- go no further
                     # self.Choosenames[ROW][COL] = "ST00854_chamber0_2021_06_15"
@@ -654,7 +645,7 @@ class LeakTestStatus(QMainWindow):
                         self.StrawProcessing.emit(chamber)
 
                     # Not enough data for this chamber, skip it
-                    if len(PPM[chamber]) < MIN_N_DATAPOINTS_FOR_FIT:
+                    if len(ppm) < MIN_N_DATAPOINTS_FOR_FIT:
                         # print("Straw %s in chamber %.0f is in preparation stage. Please wait for more data" %(self.Choosenames[ROW][COL][:7],chamber))
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 225, 0);")
                         # self.ChamberLabels[f].setText('Processing')
@@ -663,40 +654,32 @@ class LeakTestStatus(QMainWindow):
                     # unlock the button that shows the leak plot for this chamber
                     self.EnablePlot.emit(chamber)
 
-                    # If max PPM is larger than threshold and we haven't already passed,
+                    # If max ppm is larger than threshold and we haven't already passed,
                     # Then mark this chamber as a large leak (red) and skip it
-                    if (
-                        max(PPM[chamber]) > self.max_co2_level
-                        and self.passed[chamber] != "P"
-                    ):
+                    if max(ppm) > self.max_co2_level and self.passed[chamber] != "P":
                         self.LargeLeak.emit(chamber)
                         self.leak_rate[chamber] = 100
                         continue
 
-                    # if max(timestamp[chamber]) > self.max_time :
+                    # if max(timestamps) > self.max_time :
                     #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[ROW][COL][:7],chamber))
                     #    continue
 
                     # Calculate leak rate and related parameters
-                    (
-                        slope[chamber],
-                        slope_err[chamber],
-                        intercept[chamber],
-                        intercept_err[chamber],
-                    ) = get_fit(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
+                    (slope, slope_err, intercept, intercept_err,) = get_fit(
+                        timestamps,
+                        ppm,
+                        ppm_err,
                     )
 
                     self.leak_rate[chamber] = calculate_leak_rate(
-                        slope[chamber], self.chamber_volume[ROW][COL]
+                        slope, self.chamber_volume[ROW][COL]
                     )
 
                     self.leak_rate_err[chamber] = calculate_leak_rate_err(
                         self.leak_rate[chamber],
-                        slope[chamber],
-                        slope_err[chamber],
+                        slope,
+                        slope_err,
                         self.chamber_volume[ROW][COL],
                         self.chamber_volume_err[ROW][COL],
                     )
@@ -710,7 +693,7 @@ class LeakTestStatus(QMainWindow):
 
                     # pass, fail, or unknown
                     leak_status = evaluate_leak_rate(
-                        len(PPM[chamber]),
+                        len(ppm),
                         self.leak_rate[chamber],
                         self.leak_rate_err[chamber],
                         running_duration,
@@ -732,11 +715,11 @@ class LeakTestStatus(QMainWindow):
 
                     plot(
                         title,
-                        timestamp[chamber],
-                        PPM[chamber],
-                        slope[chamber],
-                        slope_err[chamber],
-                        intercept[chamber],
+                        timestamps,
+                        ppm,
+                        slope,
+                        slope_err,
+                        intercept,
                         self.leak_rate[chamber],
                         self.leak_rate_err[chamber],
                         leak_status,
