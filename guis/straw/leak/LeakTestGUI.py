@@ -501,7 +501,7 @@ class LeakTestStatus(QMainWindow):
             if (time.time() - beginning_time) > starting_up_time:
                 starting_up = False
 
-    def read_arduino_line(row):
+    def read_arduino_line(self, row):
         # Check arduino connection, update GUI status, return if no connection
         if self.COM_con[row] == None:
             self.ArduinoStart.emit(row, None)
@@ -517,14 +517,14 @@ class LeakTestStatus(QMainWindow):
 
         return arduino_line
 
-    def parse_arduino_line(line):
-        line = ["%5.2f" % float(member) for member in arduino_line.split()]
-        ppm = float(arduino_line[1])
-        column = int(float(arduino_line[0]))
+    def parse_arduino_line(self, line, row):
+        line = ["%5.2f" % float(member) for member in line.split()]
+        ppm = float(line[1])
+        col = int(float(line[0]))
         chamber = chamber_from_row_col(row, col)
         return chamber, ppm
 
-    def write_raw_ppm_to_file(chamber, ppm):
+    def write_raw_ppm_to_file(self, chamber, ppm):
         human_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         unix_time = time.time()
 
@@ -550,6 +550,9 @@ class LeakTestStatus(QMainWindow):
         # self._running[0] = True
         # for x in self.ui.ActionButtons.buttons():
         #    x.setEnabled(True)
+        t_latest_measurement = 10 * [
+            0
+        ]  # time that the nth measurement was made for a row
         t_previous_measurement = 10 * [
             time.time()
         ]  # time that the n-1th measurement was made for a row
@@ -574,7 +577,7 @@ class LeakTestStatus(QMainWindow):
 
                 # READ a single arduino line corresponding to one ppm
                 # measured in one chamber.
-                arduino_line = read_arduino_line(row)
+                arduino_line = self.read_arduino_line(row)
 
                 if not arduino_line:
                     n_consecutive_empty_readings[row] += 1
@@ -592,9 +595,9 @@ class LeakTestStatus(QMainWindow):
                 n_consecutive_empty_readings[row] = 0
 
                 # WRITE the ppm to a chamber-, date-specific file
-                chamber, ppm = parse_arduino_line(arduino_line)
+                chamber, ppm = self.parse_arduino_line(arduino_line, row)
 
-                t_latest_measurement[row] = write_raw_ppm_to_file(chamber, ppm)
+                t_latest_measurement[row] = self.write_raw_ppm_to_file(chamber, ppm)
 
                 # FIT AND PLOT -- Loop chambers in this row. Read data from the
                 # raw data files, measure leak rates, plot data + fits to pdf
@@ -884,7 +887,7 @@ class LeakTestStatus(QMainWindow):
         )
         x = open(self.files[chamber], "a+", 1)
         x.close()
-        logger.debug(f"Saving data to file {self.Choosenames[ROW][COL]}")
+        logger.debug(f"Saving data to file {self.Choosenames[row][col]}")
 
     def DisplayPlot(self, btn):
         """Make and display a copy of the fitted data"""
