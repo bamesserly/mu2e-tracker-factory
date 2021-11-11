@@ -700,9 +700,9 @@ class LeakTestStatus(QMainWindow):
 
                     # Update the GUI given the pass-fail status
                     if leak_status == PassFailStatus.PASS:
-                        StrawStatus.emit(chamber, True)
+                        self.StrawStatus.emit(chamber, True)
                     elif leak_status == PassFailStatus.FAIL:
-                        StrawStatus.emit(chamber, False)
+                        self.StrawStatus.emit(chamber, False)
                     else:
                         pass
 
