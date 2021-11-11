@@ -653,7 +653,11 @@ class LeakTestStatus(QMainWindow):
                         PPM[chamber],
                         PPM_err[chamber],
                     ) = get_data_from_file(outfile)
-                    running_duration = timestamp[chamber][-1]
+                    running_duration = 0
+                    try:
+                        running_duration = timestamp[chamber][-1]
+                    except IndexError:
+                        pass
 
                     # Chamber is empty -- go no further
                     # self.Choosenames[ROW][COL] = "ST00854_chamber0_2021_06_15"
@@ -689,7 +693,11 @@ class LeakTestStatus(QMainWindow):
                     #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[ROW][COL][:7],chamber))
                     #    continue
 
+                    ############################################################
+                    ############################################################
                     # Calculate leak rate and related parameters
+                    ############################################################
+                    ############################################################
                     (
                         slope[chamber],
                         slope_err[chamber],
@@ -722,9 +730,13 @@ class LeakTestStatus(QMainWindow):
                     self.UpdateStrawText.emit(chamber)
 
                     ############################################################
+                    ############################################################
+                    # Evaluate leak rate (pass or fail?)
+                    ############################################################
+                    ############################################################
+
                     # PASS type 1
                     # At least 20 entries, acceptable rate and rate error
-                    ############################################################
                     if (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] < self.max_leakrate
@@ -735,11 +747,9 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
                         self.StrawStatus.emit(chamber, True)
                         self.passed[chamber] = "P"
-                    ############################################################
                     # PASS type 2
                     # At least 20 entries, acceptable rate, unacceptable
                     # rate error, but event time 7.5 hrs +
-                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] < self.max_leakrate
@@ -750,11 +760,9 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
                         self.StrawStatus.emit(chamber, True)
                         self.passed[chamber] = "P"
-                    ############################################################
                     # FAIL type 1
                     # At least 20 entries, unacceptable rate, acceptable
                     # error. A well-understood failure.
-                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] > self.max_leakrate
@@ -765,11 +773,9 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                         self.StrawStatus.emit(chamber, False)
                         self.passed[chamber] = "F"
-                    ############################################################
                     # FAIL type 2
                     # At least 20 entries, unacceptable rate, unacceptable
                     # error, 7.5 hrs+.
-                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and self.leak_rate[chamber] > self.max_leakrate
@@ -780,11 +786,9 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                         self.StrawStatus.emit(chamber, False)
                         self.passed[chamber] = "F"
-                    ############################################################
                     # FAIL type 3
                     # At least 20 entries, and even rate - err is above
                     # threshold. Doesn't even pass within error bars
-                    ############################################################
                     elif (
                         len(PPM[chamber]) > 20
                         and (self.leak_rate[chamber] - 10 * self.leak_rate_err[chamber])
@@ -795,14 +799,16 @@ class LeakTestStatus(QMainWindow):
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
                         self.StrawStatus.emit(chamber, False)
                         self.passed[chamber] = "F"
-                    ############################################################
                     # UNHANDLED PASS-FAIL CASE
                     # AFAICT this just happens when we don't have enough data
-                    ############################################################
                     else:
                         pass
 
+                    ############################################################
+                    ############################################################
                     ## Graph and save graph of fit
+                    ############################################################
+                    ############################################################
                     x = np.linspace(0, max(timestamp[chamber]))
                     y = slope[chamber] * x + intercept[chamber]
                     plt.plot(timestamp[chamber], PPM[chamber], "bo")
