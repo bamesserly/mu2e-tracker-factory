@@ -625,7 +625,10 @@ class LeakTestStatus(QMainWindow):
                         ppm,
                         ppm_err,
                     ) = get_data_from_file(outfile)
-                    running_duration = timestamps[-1]
+                    try:
+                        running_duration = timestamps[-1]
+                    except IndexError:
+                        running_duration = 0
 
                     # Chamber is empty -- go no further
                     # self.Choosenames[row][col] = "ST00854_chamber0_2021_06_15"
