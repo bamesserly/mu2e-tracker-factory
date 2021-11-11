@@ -628,6 +628,7 @@ class LeakTestStatus(QMainWindow):
                         ppm,
                         ppm_err,
                     ) = get_data_from_file(outfile)
+
                     try:
                         running_duration = timestamps[-1]
                     except IndexError:
@@ -664,7 +665,10 @@ class LeakTestStatus(QMainWindow):
                     #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[row][col][:7],chamber))
                     #    continue
 
+                    ############################################################
+                    ############################################################
                     # Calculate leak rate and related parameters
+
                     (slope, slope_err, intercept, intercept_err,) = get_fit(
                         timestamps,
                         ppm,
