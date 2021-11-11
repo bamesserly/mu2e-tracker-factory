@@ -31,8 +31,6 @@ from PyQt5.QtWidgets import (
 from PyQt5 import QtGui
 import serial  ## Takes this from pyserial, not serial
 import datetime
-import numpy as np
-import matplotlib.pyplot as plt
 from guis.straw.leak.least_square_linear import *  ## Contributes fit functions
 from guis.straw.leak.leakUI import Ui_MainWindow  ## Main GUI window
 from guis.straw.leak.N0207a import Ui_Dialog  ## Pop-up GUI window for straw selection
@@ -135,34 +133,20 @@ class LeakTestStatus(QMainWindow):
         result = open(self.result, "a+", 1)
         result.close()
 
-        self.chamber_volume = CHAMBER_VOLUME
-
-        self.chamber_volume_err = CHAMBER_VOLUME_ERR
-
         self.leak_rate = [0] * 50
         self.leak_rate_err = [0] * 50
         self.passed = ["U"] * 50
 
         # chamber volume occupied = chamber volume empty - straw volume
-        for n in range(len(self.chamber_volume)):
-            for m in range(len(self.chamber_volume[n])):
-                self.chamber_volume[n][m] = self.chamber_volume[n][m] - STRAW_VOLUME
-        # (conversion_rate*real_leak_rate=the_leak_rate_when_using_20/80_argon/co2 in chamber)
-        # Conversion rate proportional to amount of CO2 (1/5)
-        # Partial pressure of CO2 as 2 absolution ATM presure inside and 0 outside, chamber will be 1 to 0(1/2)
-        # Multiplied by 1.4 for the argon gas leaking as well conservative estimate (should we reduce?
-        # max leak rate for straws
-        self.max_leakrate = 0.00009645060  # cc/min
+        for n in range(len(CHAMBER_VOLUME)):
+            for m in range(len(CHAMBER_VOLUME[n])):
+                CHAMBER_VOLUME[n][m] = CHAMBER_VOLUME[n][m] - STRAW_VOLUME
 
-        self.excluded_time = 120  # wait 2 minutes before using data for fit
         self.max_time = (
             7200  # When time exceeds 2 hours stops fitting data (still saving it)
         )
-        self.min_number_datapoints = (
-            10  # requires 10 datapoints before attempting to fit
-        )
         self.max_co2_level = (
-            1800  # when PPM exceeds 1800 stops fitting and warns user of failure
+            1800  # when ppm exceeds 1800 stops fitting and warns user of failure
         )
 
         ## set of Arduino status boxes
@@ -180,7 +164,7 @@ class LeakTestStatus(QMainWindow):
         ]
 
         ## buttons for plotting belong to a QButtonGroup called PdfButtons
-        self.ui.PdfButtons.buttonClicked.connect(self.Plot)
+        self.ui.PdfButtons.buttonClicked.connect(self.DisplayPlot)
         for x in self.ui.PdfButtons.buttons():
             x.setText("Plot")
             x.setDisabled(True)
@@ -517,6 +501,48 @@ class LeakTestStatus(QMainWindow):
             if (time.time() - beginning_time) > starting_up_time:
                 starting_up = False
 
+    def read_arduino_line(self, row):
+        # Check arduino connection, update GUI status, return if no connection
+        if self.COM_con[row] == None:
+            self.ArduinoStart.emit(row, None)
+            return None
+
+        self.ArduinoStart.emit(row, True)
+
+        # Read the arduino line
+        arduino_line = self.arduino[row].readline().strip()
+
+        if arduino_line == b"":
+            return None
+
+        return arduino_line
+
+    def parse_arduino_line(self, line, row):
+        line = ["%5.2f" % float(member) for member in line.split()]
+        ppm = float(line[1])
+        col = int(float(line[0]))
+        chamber = chamber_from_row_col(row, col)
+        return chamber, ppm
+
+    def write_raw_ppm_to_file(self, chamber, ppm):
+        human_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        unix_time = time.time()
+
+        with open(self.files[chamber], "a+", 1) as f:
+            f.write(
+                str(format(unix_time, ".0f"))
+                + "\t"
+                + str(chamber)
+                + "\t"
+                + ("%.0f" % ppm)
+                + "\t"
+                + str(human_datetime)
+                + "\n"
+            )
+            f.flush()  ## Needed to send data in buffer to file
+
+        return unix_time
+
     # (1) Read arduino data, (2) fit leak rate, (3) plot
     def handleStart(self):
         """Start data collection for all chambers connected to the Arduino"""
@@ -524,19 +550,15 @@ class LeakTestStatus(QMainWindow):
         # self._running[0] = True
         # for x in self.ui.ActionButtons.buttons():
         #    x.setEnabled(True)
-        empty_lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        pasttime = [
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-            time.time(),
-        ]
+        t_latest_measurement = 10 * [
+            0
+        ]  # time that the nth measurement was made for a row
+        t_previous_measurement = 10 * [
+            time.time()
+        ]  # time that the n-1th measurement was made for a row
+        n_consecutive_empty_readings = 10 * [
+            0
+        ]  # number of consecutive empty lines read for a row
         while any(self._running):
             i = 0
             ####################################################################
@@ -544,124 +566,77 @@ class LeakTestStatus(QMainWindow):
             ####################################################################
             for tf in self._running:
                 # cycles through rows
-                ROW = i
+                row = i
                 i = i + 1
 
-                if self.testThreads("Buffer" + str(ROW)):
+                if self.testThreads("Buffer" + str(row)):
                     continue
 
                 if tf != True:
                     continue
 
-                ################################################################
-                # WRITE ARDUINO DATA TO RAW DATA FILES
-                # Read arduino output for this row and save data to multiple
-                # raw data files, one for each chamber
-                ################################################################
-                # ppms = self.arduino[ROW].readline().strip().split()
-                if empty_lines[ROW] > 60:
-                    self.arduino[ROW].close()
-                    self.Connect_Arduino(self.COM[ROW])
-                    if self.COM_con[ROW] != None:
-                        empty_lines[ROW] = 0
+                # READ a single arduino line corresponding to one ppm
+                # measured in one chamber.
+                arduino_line = self.read_arduino_line(row)
 
-                if self.COM_con[ROW] == None:
-                    # self.Arduinos[ROW].setStyleSheet("background-color: rgb(170, 0, 0);")
-                    self.ArduinoStart.emit(ROW, False)
-                    continue
-                else:
-                    # self.Arduinos[ROW].setStyleSheet("background-color: rgb(0, 170, 0);")
-                    self.ArduinoStart.emit(ROW, True)
+                if not arduino_line:
+                    n_consecutive_empty_readings[row] += 1
 
-                arduino_line = self.arduino[ROW].readline().strip()
-                if arduino_line == b"":
-                    empty_lines[ROW] = empty_lines[ROW] + 1
+                    # if we've gotten many empty readings for this row in sequence,
+                    # reconnect and reset the count of empty readings
+                    if n_consecutive_empty_readings[row] > 60:
+                        self.arduino[row].close()
+                        self.Connect_Arduino(self.COM[row])
+                        if self.COM_con[row] != None:
+                            n_consecutive_empty_readings[row] = 0
+
                     continue
 
-                empty_lines[ROW] = 0
-                ppms = arduino_line.split()
-                formattedList = ["%5.2f" % float(member) for member in ppms]
-                currenttime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                epoctime = [
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                    time.time(),
-                ]
+                n_consecutive_empty_readings[row] = 0
 
-                file = int(float(formattedList[0]))
-                file = file + ROW * 5
-                with open(self.files[file], "a+", 1) as f:
-                    f.write(
-                        str(format(epoctime[ROW], ".0f"))
-                        + "\t"
-                        + str(file)
-                        + "\t"
-                        + ("%.0f" % float(formattedList[1]))
-                        + "\t"
-                        + str(currenttime)
-                        + "\n"
-                    )
-                    f.flush()  ## Needed to send data in buffer to file
-                # print(epoctime,'\t',file,'\t',formattedList[1],'\t',currenttime)
+                # WRITE the ppm to a chamber-, date-specific file
+                chamber, ppm = self.parse_arduino_line(arduino_line, row)
 
-                # only read new data and update plot at most every 15 seconds
-                if epoctime[ROW] < (pasttime[ROW] + 15.0):  ## Previously 15.0
+                t_latest_measurement[row] = self.write_raw_ppm_to_file(chamber, ppm)
+
+                # FIT AND PLOT -- Loop chambers in this row. Read data from the
+                # raw data files, measure leak rates, plot data + fits to pdf
+                # files.
+
+                # update the plots in this row no more than once every 15 sec
+                if t_latest_measurement[row] < (t_previous_measurement[row] + 15.0):
                     continue
 
-                ################################################################
-                # FIT AND PLOT
-                # Loop chambers in this row, read data from raw data files,
-                # measure leak rates, plot data + fits to pdf files.
-                ################################################################
-                # print("")
-                # print(self.COM[ROW])
-                pasttime[ROW] = epoctime[ROW]
-                PPM = {}
-                PPM_err = {}
-                timestamp = {}
-                #                        starttime = {}
-                slope = {}
-                slope_err = {}
-                intercept = {}
-                intercept_err = {}
-                for COL in range(5):
+                t_previous_measurement[row] = t_latest_measurement[row]
+
+                for col in range(5):
                     # cycles through columns
-                    chamber = ROW * 5 + COL
-                    PPM[chamber] = []
-                    PPM_err[chamber] = []
-                    timestamp[chamber] = []
-                    #                            starttime[chamber] = 0
-                    slope[chamber] = 0
-                    slope_err[chamber] = 0
-                    intercept[chamber] = 0
-                    intercept_err[chamber] = 0
-                    outfile = self.leakDirectoryRaw / str(
-                        self.Choosenames[ROW][COL] + "_rawdata.txt"
-                    )
+                    chamber = chamber_from_row_col(row, col)
+                    ppm = []
+                    ppm_err = []
+                    timestamps = []
+                    slope = 0
+                    slope_err = 0
+                    intercept = 0
+                    intercept_err = 0
+                    outfile = self.files[chamber]
 
                     # open the raw data readings for this chamber and save them
-                    # in the PPM, PPM_err, and timestamp variables
+                    # in the ppm, ppm_err, and timestamps variables
                     (
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
+                        timestamps,
+                        ppm,
+                        ppm_err,
                     ) = get_data_from_file(outfile)
-                    running_duration = 0
+
                     try:
-                        running_duration = timestamp[chamber][-1]
+                        running_duration = timestamps[-1]
                     except IndexError:
-                        pass
+                        running_duration = 0
 
                     # Chamber is empty -- go no further
-                    # self.Choosenames[ROW][COL] = "ST00854_chamber0_2021_06_15"
-                    if str(self.Choosenames[ROW][COL])[0:5] == "empty":
+                    # self.Choosenames[row][col] = "ST00854_chamber0_2021_06_15"
+                    if str(self.Choosenames[row][col])[0:5] == "empty":
                         # print("No straw in chamber %.0f" % (chamber))
                         continue
 
@@ -670,8 +645,8 @@ class LeakTestStatus(QMainWindow):
                         self.StrawProcessing.emit(chamber)
 
                     # Not enough data for this chamber, skip it
-                    if len(PPM[chamber]) < self.min_number_datapoints:
-                        # print("Straw %s in chamber %.0f is in preparation stage. Please wait for more data" %(self.Choosenames[ROW][COL][:7],chamber))
+                    if len(ppm) < MIN_N_DATAPOINTS_FOR_FIT:
+                        # print("Straw %s in chamber %.0f is in preparation stage. Please wait for more data" %(self.Choosenames[row][col][:7],chamber))
                         # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 225, 0);")
                         # self.ChamberLabels[f].setText('Processing')
                         continue
@@ -679,171 +654,82 @@ class LeakTestStatus(QMainWindow):
                     # unlock the button that shows the leak plot for this chamber
                     self.EnablePlot.emit(chamber)
 
-                    # If max PPM is larger than threshold and we haven't already passed,
+                    # If max ppm is larger than threshold and we haven't already passed,
                     # Then mark this chamber as a large leak (red) and skip it
-                    if (
-                        max(PPM[chamber]) > self.max_co2_level
-                        and self.passed[chamber] != "P"
-                    ):
+                    if max(ppm) > self.max_co2_level and self.passed[chamber] != "P":
                         self.LargeLeak.emit(chamber)
                         self.leak_rate[chamber] = 100
                         continue
 
-                    # if max(timestamp[chamber]) > self.max_time :
-                    #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[ROW][COL][:7],chamber))
+                    # if max(timestamps) > self.max_time :
+                    #    print("Straw %s has been in Chamber %.0f for over 2 hours.  Data is saving but no longer fitting." %(self.Choosenames[row][col][:7],chamber))
                     #    continue
 
                     ############################################################
                     ############################################################
                     # Calculate leak rate and related parameters
-                    ############################################################
-                    ############################################################
-                    (
-                        slope[chamber],
-                        slope_err[chamber],
-                        intercept[chamber],
-                        intercept_err[chamber],
-                    ) = get_fit(
-                        timestamp[chamber],
-                        PPM[chamber],
-                        PPM_err[chamber],
+
+                    (slope, slope_err, intercept, intercept_err,) = get_fit(
+                        timestamps,
+                        ppm,
+                        ppm_err,
                     )
 
                     self.leak_rate[chamber] = calculate_leak_rate(
-                        slope[chamber], self.chamber_volume[ROW][COL]
+                        slope, CHAMBER_VOLUME[row][col]
                     )
 
                     self.leak_rate_err[chamber] = calculate_leak_rate_err(
                         self.leak_rate[chamber],
-                        slope[chamber],
-                        slope_err[chamber],
-                        self.chamber_volume[ROW][COL],
-                        self.chamber_volume_err[ROW][COL],
+                        slope,
+                        slope_err,
+                        CHAMBER_VOLUME[row][col],
+                        CHAMBER_VOLUME_ERR[row][col],
                     )
 
-                    straw_status = "unknown status"
                     # print("Leak rate for straw %s in chamber %.0f is %.2f +- %.2f CC per minute * 10^-5"
-                    #% (self.Choosenames[ROW][COL][:7],chamber,self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)))
+                    #% (self.Choosenames[row][col][:7],chamber,self.leak_rate[chamber] *(10**5),self.leak_rate_err[chamber]*(10**5)))
                     # self.ChamberLabels[chamber].setText(str('%.2f ± %.2f' % ((self.leak_rate[chamber]*(10**5)),self.leak_rate_err[chamber]*(10**5))))
 
                     # Write the leak rate to the GUI
                     self.UpdateStrawText.emit(chamber)
 
-                    ############################################################
-                    ############################################################
-                    # Evaluate leak rate (pass or fail?)
-                    ############################################################
-                    ############################################################
+                    # pass, fail, or unknown
+                    leak_status = evaluate_leak_rate(
+                        len(ppm),
+                        self.leak_rate[chamber],
+                        self.leak_rate_err[chamber],
+                        running_duration,
+                    )
 
-                    # PASS type 1
-                    # At least 20 entries, acceptable rate and rate error
-                    if (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] < self.max_leakrate
-                        and self.leak_rate_err[chamber] < self.max_leakrate / 10
-                    ):
-                        # print("Straw in chamber %.0f has Passed, Please remove" % chamber)
-                        straw_status = "Passed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
+                    # Update the GUI given the pass-fail status
+                    if leak_status == PassFailStatus.PASS:
                         self.StrawStatus.emit(chamber, True)
-                        self.passed[chamber] = "P"
-                    # PASS type 2
-                    # At least 20 entries, acceptable rate, unacceptable
-                    # rate error, but event time 7.5 hrs +
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] < self.max_leakrate
-                        and running_duration > 27000  # cut off after... 7.5 hours???
-                    ):
-                        # print("Straw in chamber %.0f has Passed, Please remove" % chamber)
-                        straw_status = "Passed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
-                        self.StrawStatus.emit(chamber, True)
-                        self.passed[chamber] = "P"
-                    # FAIL type 1
-                    # At least 20 entries, unacceptable rate, acceptable
-                    # error. A well-understood failure.
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] > self.max_leakrate
-                        and self.leak_rate_err[chamber] < self.max_leakrate / 10
-                    ):
-                        # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
-                        straw_status = "Failed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
+                    elif leak_status == PassFailStatus.FAIL:
                         self.StrawStatus.emit(chamber, False)
-                        self.passed[chamber] = "F"
-                    # FAIL type 2
-                    # At least 20 entries, unacceptable rate, unacceptable
-                    # error, 7.5 hrs+.
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and self.leak_rate[chamber] > self.max_leakrate
-                        and running_duration > 27000
-                    ):
-                        # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
-                        straw_status = "Failed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
-                        self.StrawStatus.emit(chamber, False)
-                        self.passed[chamber] = "F"
-                    # FAIL type 3
-                    # At least 20 entries, and even rate - err is above
-                    # threshold. Doesn't even pass within error bars
-                    elif (
-                        len(PPM[chamber]) > 20
-                        and (self.leak_rate[chamber] - 10 * self.leak_rate_err[chamber])
-                        > self.max_leakrate
-                    ):
-                        # print("FAILURE SHAME DISHONOR: Straw in chamber %.0f has failed, Please remove and reglue ends" % chamber)
-                        straw_status = "Failed leak requirement"
-                        # self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
-                        self.StrawStatus.emit(chamber, False)
-                        self.passed[chamber] = "F"
-                    # UNHANDLED PASS-FAIL CASE
-                    # AFAICT this just happens when we don't have enough data
                     else:
                         pass
 
-                    ############################################################
-                    ############################################################
+                    self.passed[chamber] = leak_status.value
+
+                    title = self.Choosenames[row][col] + "_fit"
+                    outfile = self.leakDirectoryRaw / title
+                    outfile = outfile.with_suffix(".pdf")
+
+                    plot(
+                        title,
+                        timestamps,
+                        ppm,
+                        slope,
+                        slope_err,
+                        intercept,
+                        self.leak_rate[chamber],
+                        self.leak_rate_err[chamber],
+                        leak_status,
+                        outfile,
+                    )
+
                     ## Graph and save graph of fit
-                    ############################################################
-                    ############################################################
-                    x = np.linspace(0, max(timestamp[chamber]))
-                    y = slope[chamber] * x + intercept[chamber]
-                    plt.plot(timestamp[chamber], PPM[chamber], "bo")
-                    # plt.errorbar(timestamp[f],PPM[f], yerr=PPM_err[f], fmt='o')
-                    plt.plot(x, y, "r")
-                    plt.xlabel("time (s)")
-                    plt.ylabel("CO2 level (PPM)")
-                    plt.title(self.Choosenames[ROW][COL] + "_fit")
-                    info_string = (
-                        "Slope = %.2f +- %.2f x $10^{-3}$ PPM/sec \n"
-                        % (
-                            slope[chamber] * 10 ** 4,
-                            slope_err[chamber] * 10 ** 4,
-                        )
-                        + "Leak Rate = %.2f +- %.2f x $10^{-5}$ cc/min \n"
-                        % (
-                            self.leak_rate[chamber] * (10 ** 5),
-                            self.leak_rate_err[chamber] * (10 ** 5),
-                        )
-                        + straw_status
-                        + "\n"
-                        + currenttime
-                    )
-                    plt.figtext(
-                        0.49,
-                        0.80,
-                        info_string,
-                        fontsize=12,
-                        color="r",
-                    )
-                    outfig = self.leakDirectoryRaw / str(
-                        self.Choosenames[ROW][COL] + "_fit.pdf"
-                    )
-                    plt.savefig(outfig)
-                    plt.clf()
                 # END loop over chambers
             # END while any(self._running)
 
@@ -997,17 +883,17 @@ class LeakTestStatus(QMainWindow):
         self.update_name(ROW, COL)
         self._running[ROW] = wasrunning
 
-    def update_name(self, ROW, COL):
+    def update_name(self, row, col):
         """Change file name based on chamber contents"""
-        chamber = ROW * 5 + COL
+        chamber = chamber_from_row_col(row, col)
         self.files[chamber] = self.leakDirectoryRaw / str(
-            self.Choosenames[ROW][COL] + "_rawdata.txt"
+            self.Choosenames[row][col] + "_rawdata.txt"
         )
         x = open(self.files[chamber], "a+", 1)
         x.close()
-        logger.debug(f"Saving data to file {self.Choosenames[ROW][COL]}")
+        logger.debug(f"Saving data to file {self.Choosenames[row][col]}")
 
-    def Plot(self, btn):
+    def DisplayPlot(self, btn):
         """Make and display a copy of the fitted data"""
         chamber = int(btn.objectName().strip("PdfButton"))
         ROW = int(chamber / 5)

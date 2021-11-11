@@ -16,22 +16,22 @@ def refit(raw_data_filename, n_skips_start, n_skips_end):
     intercept_err = []
 
     # Get data
-    timestamp, PPM, PPM_err = get_data_from_file(directory / raw_data_filename)
+    timestamp, ppm, ppm_err = get_data_from_file(directory / raw_data_filename)
 
     # Skip points at beginning and end
     def truncate(container, nstart, nend):
         return container[max(nstart - 1, 0) : len(container) - nend]
 
     timestamp = truncate(timestamp, n_skips_start, n_skips_end)
-    PPM = truncate(PPM, n_skips_start, n_skips_end)
-    PPM_err = truncate(PPM_err, n_skips_start, n_skips_end)
+    ppm = truncate(ppm, n_skips_start, n_skips_end)
+    ppm_err = truncate(ppm_err, n_skips_start, n_skips_end)
 
     # Calculate slopes, leak rates
     try:
         chamber = int(raw_data_filename[15:17])
     except:
         chamber = int(raw_data_filename[15:16])
-    slope, slope_err, intercept, intrcept_err = get_fit(timestamp, PPM, PPM_err)
+    slope, slope_err, intercept, intrcept_err = get_fit(timestamp, ppm, ppm_err)
 
     leak_rate = calculate_leak_rate(slope, get_chamber_volume(chamber))
 
@@ -41,6 +41,30 @@ def refit(raw_data_filename, n_skips_start, n_skips_end):
         slope_err,
         get_chamber_volume(chamber),
         get_chamber_volume_err(chamber),
+    )
+
+    # pass, fail, or unknown
+    leak_status = evaluate_leak_rate(len(ppm), leak_rate, leak_rate_err, timestamp[-1])
+
+    print("\nStatus leak rate after refit:", leak_status)
+
+    title = str(Path(raw_data_filename).with_suffix(""))
+    title = title.split("_")[:-1]
+    title = "_".join(title) + "_refit"
+    outfile = directory / title
+    outfile = outfile.with_suffix(".pdf")
+
+    plot(
+        title,
+        timestamp,
+        ppm,
+        slope,
+        slope_err,
+        intercept,
+        leak_rate,
+        leak_rate_err,
+        leak_status,
+        outfile,
     )
 
     return leak_rate, leak_rate_err
