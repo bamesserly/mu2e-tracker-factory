@@ -56,7 +56,6 @@ LIST OF IMPORTANT WIDGETS:
     Initialized in .setupUi
     Panel input                 --> panelNumLE
     Voltage input               --> voltageBox
-    Panel side input            --> sideBox
     Straw position              --> positionBox
     Amps input                  --> ampsLE
     Trip status input           --> tripBox
@@ -224,7 +223,7 @@ class highVoltageGUI(QMainWindow):
         pass
 
             # graph on right side
-    
+
     # graph on right
     def _init_plot(self):
         self.plot = pg.plot()
@@ -233,23 +232,23 @@ class highVoltageGUI(QMainWindow):
             size=10,
             brush=pg.mkBrush(255, 255, 255, 120)
         )
-  
+
         self.plot.addItem(self.scatter)
         self.ui.graphLayout.addWidget(self.plot)
 
     # update graph
     def replot(self):
         self.scatter.clear()
-        
+
         numPoints = 0
         xs = []
         ys = []
         for z in range(96):
             if self.getAmp(z) != "":
                 numPoints += 1
-                xs.append(float(self.getAmp(z))) 
+                xs.append(float(self.getAmp(z)))
                 ys.append(float(z))
-        
+
         points = [{'pos': [ys[z],xs[z]], 'data':1} for z in range(numPoints)]
 
         self.scatter.addPoints(points)
@@ -271,12 +270,6 @@ class highVoltageGUI(QMainWindow):
             self.givePop("Please choose a voltage option")
             return
 
-        # return if side isn't chosen
-        if self.ui.sideBox.currentIndex() == 0:
-            # show error and return early
-            self.givePop("Please choose a side option")
-            return
-
         # enable data entry widgets
         self.ui.positionBox.setEnabled(True)
         self.ui.ampsLE.setEnabled(True)
@@ -284,7 +277,6 @@ class highVoltageGUI(QMainWindow):
         self.ui.subStrawButton.setEnabled(True)
 
         # disable panel entry widgets
-        self.ui.sideBox.setDisabled(True)
         self.ui.voltageBox.setDisabled(True)
         self.ui.panelNumLE.setDisabled(True)
         self.ui.subPanelButton.setDisabled(True)
@@ -308,7 +300,7 @@ class highVoltageGUI(QMainWindow):
         # save straw
         self.saveHVMeasurement(
             self.straw,
-            self.ui.sideBox.currentText(),
+            "left",
             self.ui.ampsLE.text(),
             self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex(),
@@ -363,7 +355,8 @@ class highVoltageGUI(QMainWindow):
             #   position then the whole tuple will be (None,None,None,None,None,None)
             bigList = self.loadMethod()()
             # figure out side and voltage
-            side = self.getSide()
+            # Side is hardcoded to left
+            side = 0
             volt = self.getVolt()
             # adjust volt to match int from db
             volt = 1500 if volt else 1100
@@ -389,7 +382,7 @@ class highVoltageGUI(QMainWindow):
                         tSList[toop[4]] = toop[5]
                         self.setAmp(toop[4], str(toop[side]))
                         self.setTrip(toop[4], toop[3])
-            
+
             self.replot()
 
     # Save one HV measurement, append CSV file
@@ -471,12 +464,6 @@ class highVoltageGUI(QMainWindow):
     # boool = new checkbox value
     def setTrip(self, position, boool):
         self.isTripped[position].setChecked(bool(boool))
-
-    # gets the current side in side combo box represented as an int
-    # 1 = right, 0 = left
-    def getSide(self):
-        # index of right is 1, index of left is 2, so subtract 1
-        return (self.ui.sideBox.currentIndex()) % 2
 
     # gets the current voltage in voltage combo box represented as an int
     # 0 = 1100V, 1 = 1500V
