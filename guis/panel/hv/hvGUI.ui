@@ -31,49 +31,59 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_5">
-    <item row="0" column="0" colspan="2">
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0" alignment="Qt::AlignLeft">
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <pointsize>16</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Panel</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="voltageBox">
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <item>
+       <property name="text">
+        <string>None</string>
+       </property>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="panelNumLE">
-        <property name="maximumSize">
-         <size>
-          <width>120</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="maxLength">
-         <number>5</number>
-        </property>
-        <property name="placeholderText">
-         <string>MN***</string>
-        </property>
-       </widget>
+      <item>
+       <property name="text">
+        <string>1100V</string>
+       </property>
       </item>
-     </layout>
+      <item>
+       <property name="text">
+        <string>1500V</string>
+       </property>
+      </item>
+     </widget>
     </item>
-    <item row="0" column="3" rowspan="8">
+    <item row="5" column="0" colspan="2">
+     <widget class="QPushButton" name="subStrawButton">
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string> Submit Straw</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_7">
+      <property name="font">
+       <font>
+        <pointsize>14</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Voltage</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3" rowspan="7">
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_55">
@@ -158,7 +168,7 @@
            <x>0</x>
            <y>0</y>
            <width>327</width>
-           <height>342</height>
+           <height>344</height>
           </rect>
          </property>
         </widget>
@@ -166,7 +176,21 @@
       </item>
      </layout>
     </item>
-    <item row="0" column="4" rowspan="8">
+    <item row="2" column="0" colspan="2">
+     <widget class="QPushButton" name="subPanelButton">
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Start Session</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4" rowspan="7">
      <widget class="QFrame" name="frame">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -187,98 +211,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0" alignment="Qt::AlignLeft">
-     <widget class="QLabel" name="label_3">
-      <property name="font">
-       <font>
-        <pointsize>14</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Side</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QComboBox" name="sideBox">
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
-      <item>
-       <property name="text">
-        <string>None</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Right</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Left</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_7">
-      <property name="font">
-       <font>
-        <pointsize>14</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Voltage</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QComboBox" name="voltageBox">
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
-      <item>
-       <property name="text">
-        <string>None</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>1100V</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>1500V</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="2">
+    <item row="4" column="0" colspan="2">
      <layout class="QGridLayout" name="gridLayout">
       <item row="4" column="1">
        <widget class="QComboBox" name="tripBox">
@@ -421,7 +354,7 @@
       </item>
      </layout>
     </item>
-    <item row="5" column="2">
+    <item row="4" column="2">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -437,7 +370,7 @@
       </property>
      </spacer>
     </item>
-    <item row="7" column="0">
+    <item row="6" column="0">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -450,33 +383,59 @@
       </property>
      </spacer>
     </item>
-    <item row="3" column="0" colspan="2">
-     <widget class="QPushButton" name="subPanelButton">
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_6">
       <property name="font">
        <font>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
+        <pointsize>16</pointsize>
        </font>
       </property>
       <property name="text">
-       <string>Start Session</string>
+       <string/>
       </property>
      </widget>
     </item>
-    <item row="6" column="0" colspan="2">
-     <widget class="QPushButton" name="subStrawButton">
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string> Submit Straw</string>
-      </property>
-     </widget>
+    <item row="0" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0" alignment="Qt::AlignLeft">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>16</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Panel</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="panelNumLE">
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="maxLength">
+         <number>5</number>
+        </property>
+        <property name="placeholderText">
+         <string>MN***</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
