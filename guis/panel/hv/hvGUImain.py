@@ -300,7 +300,7 @@ class highVoltageGUI(QMainWindow):
         # save straw
         self.saveHVMeasurement(
             self.straw,
-            "left",
+            "Left",
             self.ui.ampsLE.text(),
             self.ui.voltageBox.currentText(),
             self.ui.tripBox.currentIndex(),
