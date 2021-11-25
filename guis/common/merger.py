@@ -167,7 +167,7 @@ class Merger:
             LEFT OUTER JOIN
             {dst_prefix}{table} t ON srct.id = t.id
             WHERE
-            srct.timestamp > t.timestamp
+            srct.timestamp >= t.timestamp
             OR
             t.id IS NULL;
             """
