@@ -191,7 +191,7 @@ bool set_first_condition(const float temp, const float set_temp, const uint32_t 
 }
 
 bool is_at_temp(const float temp, const float set_temp) {
-	return set_temp - 2 < temp && temp < set_temp + 2;
+	return set_temp - 1 < temp && temp < set_temp + 1;
 }
 
 void set_key_metrics(float temp_A, float temp_2, uint32_t now){
@@ -205,15 +205,15 @@ void set_key_metrics(float temp_A, float temp_2, uint32_t now){
 		temp2_max = temp_2;
 	}
 
-	// Last time that paas was within +/- 5 degree of its setpoint
-		if(setpointA - 5 < temp_A && temp_A < setpointA + 5){ // A set point time
+	// Last time that paas was within +/- 3 degree of its setpoint
+		if(setpointA - 3 < temp_A && temp_A < setpointA + 3){ // A set point time
 			tempA_setpt_timestamp = now;
 		}
-		if(setpoint2 - 5 < temp_2 && temp_2 < setpoint2 + 5){ // 2 set point time
+		if(setpoint2 - 3 < temp_2 && temp_2 < setpoint2 + 3){ // 2 set point time
 			temp2_setpt_timestamp = now;
 		}
 
-	// First time that paas was within +- 2 degrees of 60, 55, 50, 45, 40, 30
+	// First time that paas was within +- 1 degrees of 60, 55, 50, 45, 40, 30
 	if (set_first_condition(temp_A, 60, tempA_first_60_timestamp))
 		tempA_first_60_timestamp  = now; 
 	if (set_first_condition(temp_A, 55, tempA_first_55_timestamp))
