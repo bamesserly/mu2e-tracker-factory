@@ -13,7 +13,18 @@ Reminder: these are the columns that we need to submit
  is_tripped    BOOLEAN DEFAULT (either 0 (false) or 1 (true))
  timestamp     INTEGER ("epoch" time (msec, sec), if no time avail, use file create datetime).
 
-step 1: submit a single data point with random values for the above columns
+step 1: submit a single data point with random values for the above columns. Done!
+step 2: read in a (shortened) csv file and submit it to the DB
+Other todos: 
+* add uniqueness constraint to the measurement_pan5 database table. Use
+panel_heat as reference.
+* check for measurements in the csv files that are ALREADY in the DB. Can
+convert_to_epoch reproduce the timestamp in the DB exactly?
+* more sophisticated: in the python code, first read in the data for a
+panel/process/position and make sure you're not resubmitting a duplicate
+measurement.
+
+* maybe need to go batch-by-batch of files to see if they're already in the DB.
 """
 
 
