@@ -1,6 +1,16 @@
-# New data format as of 2020-09-16
-# Attempted 3 fitting methods.
-# The numpy.statistics and sklearn models are identical.
+################################################################################
+#
+# Read in panel leak rate raw data file straight off of labview.
+# Plot it and fit it. Can specify the fitting and plotting limits.
+# Accepts the "old" and "new" (circa 2020-09 15) data formats.
+#
+# Attempted 3 fitting methods. The numpy.statistics and sklearn models are
+# identical. Third method just makes a line out of the first and last points.
+# Enough randomness in those two points that it just serves as a sanity check.
+#
+# Next: pass the data to a function that loads the data into the DB.
+#
+################################################################################
 import pandas as pd
 import matplotlib.pyplot as plt
 import optparse
@@ -136,7 +146,10 @@ def GetFitStartTime(total_duration):
         return total_duration * 0.1
 
 
-# Plot full range of data points
+################################################################################
+# Plot full range of (just) data points -- used for stuff we don't fit, like
+# temperature
+################################################################################
 def PlotDataPoints(df, column_name, axis, color=None, label=None):
     time = df["TIME(DAYS)"]
     yvals = df[column_name]
@@ -237,9 +250,9 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 
 
 ################################################################################
-# PLOT
-# From the dataframe, plot data points, straight-line fit using first and last
-# points, and straight-line fit using least squares
+# Make a fit from a df and plot it
+# (1) Straight-line fit using first and last points, and (2) straight-line fit
+# using least squares
 ################################################################################
 def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
     # Standard numpy least squares linear regression
@@ -421,13 +434,9 @@ def main(options):
     plt.show()
 
 
-def SetFloatOption(prompt, default_option):
-    try:
-        return float(input(prompt))
-    except ValueError:
-        return default_option
-
-
+################################################################################
+# called when run like `python -m guis.panel.leak` (Used like this w/in PANGUI)
+################################################################################
 def RunInteractive():
     options = GetOptions()
     print("Specify options. Press <return> to skip an option and use the default.")
@@ -441,6 +450,13 @@ def RunInteractive():
         assert Path(options.infile).is_file()
     except AssertionError:
         sys.exit("Input file not found.")
+
+    def SetFloatOption(prompt, default_option):
+        try:
+            return float(input(prompt))
+        except ValueError:
+            return default_option
+
     options.fit_start_time = SetFloatOption("Fit start> ", options.fit_start_time)
     options.fit_end_time = SetFloatOption("Fit end> ", options.fit_end_time)
     options.min_diff_pressure = SetFloatOption("Differential pressure y-axis min> ", options.min_diff_pressure)
@@ -451,6 +467,9 @@ def RunInteractive():
     main(options)
 
 
+################################################################################
+# called when run directly like `python -m guis.panel.leak.PlotLeakRate <flags>
+################################################################################
 if __name__ == "__main__":
     options = GetOptions()
     main(options)
