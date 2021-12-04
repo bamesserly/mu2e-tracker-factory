@@ -234,23 +234,6 @@ def main(options):
     # read raw data files into a dataframe
     df = ReadLeakRateFile(options.infile, options.is_new_format)
 
-    # constrain the DF to between fit start and end times
-    total_duration = df["TIME(DAYS)"].iat[-1]
-    fit_start_time = (
-        GetFitStartTime(total_duration)
-        if not options.fit_start_time
-        else options.fit_start_time
-    )
-    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
-    print("Total duration of leak test:", round(total_duration, 3))
-    print(
-        "Fit will be performed between",
-        round(fit_start_time, 3),
-        "and",
-        round(fit_end_time, 3),
-        "days",
-    )
-
     # prep plots
     params = {"mathtext.default": "regular"}
     fig, axs = plt.subplots(2, figsize=(13, 11))
@@ -270,6 +253,23 @@ def main(options):
         pass
     PlotDataPoints(df, "RefPSIA", axRefP, color_pressure_ref, "$P_{Ref}$")
     PlotDataPoints(df, "FillPSIA", axRefP, color_pressure_fill, "$P_{Fill}$")
+
+    # get the start, end, and elapsed times over which to make the fit
+    total_duration = df["TIME(DAYS)"].iat[-1]
+    fit_start_time = (
+        GetFitStartTime(total_duration)
+        if not options.fit_start_time
+        else options.fit_start_time
+    )
+    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
+    print("Total duration of leak test:", round(total_duration, 3))
+    print(
+        "Fit will be performed between",
+        round(fit_start_time, 3),
+        "and",
+        round(fit_end_time, 3),
+        "days",
+    )
 
     # Do fit and plot it
     if options.do_fit:
@@ -327,7 +327,7 @@ def main(options):
 
     # Create outdir for panel pdfs
     panel_id = GetPanelIDFromFilename(options.infile)
-    plots_dir = GetProjectPaths()['panelleak'] / panel_id
+    plots_dir = GetProjectPaths()["panelleak"] / panel_id
     plots_dir.mkdir(exist_ok=True, parents=True)
 
     # fit start/endtime tag
@@ -356,7 +356,7 @@ def main(options):
 def RunInteractive():
     options = GetOptions()
     print("Specify options. Press <return> to skip an option and use the default.")
-    options.infile = input("Input data file> ").strip(' \'\t\n"')
+    options.infile = input("Input data file> ").strip(" '\t\n\"")
     try:
         assert options.infile
     except AssertionError:
@@ -375,10 +375,18 @@ def RunInteractive():
 
     options.fit_start_time = SetFloatOption("Fit start> ", options.fit_start_time)
     options.fit_end_time = SetFloatOption("Fit end> ", options.fit_end_time)
-    options.min_diff_pressure = SetFloatOption("Differential pressure y-axis min> ", options.min_diff_pressure)
-    options.max_diff_pressure = SetFloatOption("Differential pressure y-axis max> ", options.max_diff_pressure)
-    options.min_ref_pressure = SetFloatOption("Reference pressure y-axis min> ", options.min_ref_pressure)
-    options.max_ref_pressure = SetFloatOption("Reference pressure y-axis max> ", options.max_ref_pressure)
+    options.min_diff_pressure = SetFloatOption(
+        "Differential pressure y-axis min> ", options.min_diff_pressure
+    )
+    options.max_diff_pressure = SetFloatOption(
+        "Differential pressure y-axis max> ", options.max_diff_pressure
+    )
+    options.min_ref_pressure = SetFloatOption(
+        "Reference pressure y-axis min> ", options.min_ref_pressure
+    )
+    options.max_ref_pressure = SetFloatOption(
+        "Reference pressure y-axis max> ", options.max_ref_pressure
+    )
     print(options)
     main(options)
 
