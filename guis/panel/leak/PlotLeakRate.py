@@ -22,6 +22,7 @@ from guis.common.getresources import GetProjectPaths
 from pathlib import Path
 import sys
 from guis.panel.leak.panel_leak_utilities import *
+from guis.panel.leak.load_leak_csv_into_db import main as load_into_db
 
 ################################################################################
 # Constants
@@ -388,6 +389,9 @@ def RunInteractive():
         "Reference pressure y-axis max> ", options.max_ref_pressure
     )
     print(options)
+
+    load_into_db(options.infile)
+
     main(options)
 
 
