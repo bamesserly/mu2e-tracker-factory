@@ -10,15 +10,20 @@ kINCHES_H2O_PER_PSI = 27.6799048
 # Unit conversion factor for PSI change per day to sccm
 kPSI_PER_DAY_TO_SCCM = 0.17995993587933934
 
+kPROCESSES = list(range(1, 9))
+
 ################################################################################
 # Helper functions
 ################################################################################
 def ConvertInchesH2OToPSI(pressure_inches_h2O):
     return pressure_inches_h2O / kINCHES_H2O_PER_PSI
 
+
 ################################################################################
 # READ INPUT
 # Read the raw data (old or new format) into a dataframe
+# dataframe format:
+# TIME(DAYS)  FillPSIA  RefPSIA  PRESSURE(PSI)  BOX TEMPERATURE(C)  ROOM TEMPERATURE(C)  Heater%
 ################################################################################
 def ReadLeakRateFile(infile, is_new_format="true"):
     if is_new_format:
