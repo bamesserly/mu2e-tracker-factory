@@ -1,28 +1,32 @@
-# New data format as of 2020-09-16
-# Attempted 3 fitting methods.
-# The numpy.statistics and sklearn models are identical.
-import pandas as pd
+################################################################################
+#
+# Read in panel leak rate raw data file straight off of labview.
+# Plot it and fit it. Can specify the fitting and plotting limits.
+# Accepts the "old" and "new" (circa 2020-09 15) data formats.
+#
+# Attempted 3 fitting methods. The numpy.statistics and sklearn models are
+# identical. Third method just makes a line out of the first and last points.
+# Enough randomness in those two points that it just serves as a sanity check.
+#
+# Next: pass the data to a function that loads the data into the DB.
+#
+################################################################################
 import matplotlib.pyplot as plt
 import optparse
 from scipy import interpolate, stats, signal
 import numpy as np
 from sklearn.linear_model import LinearRegression
-import datetime
 import os
 import re
 from guis.common.getresources import GetProjectPaths
 from pathlib import Path
 import sys
+from guis.panel.leak.panel_leak_utilities import *
+from guis.panel.leak.load_leak_csv_into_db import main as load_into_db
 
 ################################################################################
 # Constants
 ################################################################################
-# Unit conversion factor for inches of water to psi.
-kINCHES_H2O_PER_PSI = 27.6799048
-
-# Unit conversion factor for PSI change per day to sccm
-kPSI_PER_DAY_TO_SCCM = 0.17995993587933934
-
 # Default relative time after which the fit begins (days)
 kFIT_START_TIME = 0.2
 
@@ -114,10 +118,6 @@ def GetOptions():
 ################################################################################
 # Helper functions
 ################################################################################
-def ConvertInchesH2OToPSI(pressure_inches_h2O):
-    return pressure_inches_h2O / kINCHES_H2O_PER_PSI
-
-
 # Raw data file name: "201109_1257_MN061test6.txt"
 def GetPanelIDFromFilename(filename):
     return re.search(r"MN\d\d\d", filename).group(0)
@@ -136,7 +136,10 @@ def GetFitStartTime(total_duration):
         return total_duration * 0.1
 
 
-# Plot full range of data points
+################################################################################
+# Plot full range of (just) data points -- used for stuff we don't fit, like
+# temperature
+################################################################################
 def PlotDataPoints(df, column_name, axis, color=None, label=None):
     time = df["TIME(DAYS)"]
     yvals = df[column_name]
@@ -164,82 +167,9 @@ def PlotDataPoints(df, column_name, axis, color=None, label=None):
 
 
 ################################################################################
-# READ INPUT
-# Read the raw data (old or new format) into a dataframe
-################################################################################
-def ReadLeakRateFile(infile, is_new_format="true"):
-    if is_new_format:
-        # read input file
-        df = pd.read_csv(infile, engine="python", header=1, sep="\t")
-
-        # remove whitespace from column headers
-        df.columns = df.columns.str.replace(" ", "")
-
-        # convert pressure from inches of water to psi
-        df['Diff"H2O'] = ConvertInchesH2OToPSI(df['Diff"H2O'])
-        df = df.rename(columns={'Diff"H2O': "PRESSURE(PSI)"})
-
-        # rename time
-        df = df.rename(columns={"Elapdays": "TIME(DAYS)"})
-
-        # rename temps
-        df = df.rename(columns={"RoomdegC": "ROOM TEMPERATURE(C)"})
-        df = df.rename(columns={"EncldegC": "BOX TEMPERATURE(C)"})
-
-        ## make a new column: pressure/temp
-        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["RoomdegC"]
-
-        return df
-    else:
-        # read input file
-        df = pd.read_csv(infile, engine="python", header=4, sep=",", encoding="cp1252")
-
-        # remove whitespace from column headers
-        df.columns = df.columns.str.replace(" ", "")
-        df.columns = df.columns.str.replace("\t", "")
-        df.columns = df.columns.str.replace(u"°", "")
-
-        # convert pressure from inches of water to psi
-        df["PRESSURE(INH20D)"] = ConvertInchesH2OToPSI(df["PRESSURE(INH20D)"])
-        df = df.rename(columns={"PRESSURE(INH20D)": "PRESSURE(PSI)"})
-
-        # rename temp
-        df = df.rename(columns={"TEMPERATURE(C)": "BOX TEMPERATURE(C)"})
-
-        # convert absolute time to elapsed days
-        def get_time(time_str):
-            """Converts a time string from the datafile to UNIX time."""
-            if "." in time_str:
-                # More than 1 day has passed
-                days, time_s = time_str.split(".")
-            else:
-                # Less than 1 day has passed
-                days = "0"
-                time_s = time_str
-            days = int(days)
-            hours, minutes, seconds = map(int, time_s.split(":"))
-
-            td = datetime.timedelta(
-                days=days, hours=hours, minutes=minutes, seconds=seconds
-            )
-            total_seconds = int(round(td.total_seconds()))
-
-            return total_seconds / 24 / 60 / 60
-
-        df["TIME(hh:mm:ss)"] = df["TIME(hh:mm:ss)"].apply(get_time)
-        df = df.rename(columns={"TIME(hh:mm:ss)": "TIME(DAYS)"})
-
-        ## make a new column: pressure/temp
-        # print(df.columns)
-        # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["ROOM TEMPERATURE(C)"]
-
-        return df
-
-
-################################################################################
-# PLOT
-# From the dataframe, plot data points, straight-line fit using first and last
-# points, and straight-line fit using least squares
+# Make a fit from a df and plot it
+# (1) Straight-line fit using first and last points, and (2) straight-line fit
+# using least squares
 ################################################################################
 def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
     # Standard numpy least squares linear regression
@@ -305,23 +235,6 @@ def main(options):
     # read raw data files into a dataframe
     df = ReadLeakRateFile(options.infile, options.is_new_format)
 
-    # constrain the DF to between fit start and end times
-    total_duration = df["TIME(DAYS)"].iat[-1]
-    fit_start_time = (
-        GetFitStartTime(total_duration)
-        if not options.fit_start_time
-        else options.fit_start_time
-    )
-    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
-    print("Total duration of leak test:", round(total_duration, 3))
-    print(
-        "Fit will be performed between",
-        round(fit_start_time, 3),
-        "and",
-        round(fit_end_time, 3),
-        "days",
-    )
-
     # prep plots
     params = {"mathtext.default": "regular"}
     fig, axs = plt.subplots(2, figsize=(13, 11))
@@ -341,6 +254,23 @@ def main(options):
         pass
     PlotDataPoints(df, "RefPSIA", axRefP, color_pressure_ref, "$P_{Ref}$")
     PlotDataPoints(df, "FillPSIA", axRefP, color_pressure_fill, "$P_{Fill}$")
+
+    # get the start, end, and elapsed times over which to make the fit
+    total_duration = df["TIME(DAYS)"].iat[-1]
+    fit_start_time = (
+        GetFitStartTime(total_duration)
+        if not options.fit_start_time
+        else options.fit_start_time
+    )
+    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
+    print("Total duration of leak test:", round(total_duration, 3))
+    print(
+        "Fit will be performed between",
+        round(fit_start_time, 3),
+        "and",
+        round(fit_end_time, 3),
+        "days",
+    )
 
     # Do fit and plot it
     if options.do_fit:
@@ -398,7 +328,7 @@ def main(options):
 
     # Create outdir for panel pdfs
     panel_id = GetPanelIDFromFilename(options.infile)
-    plots_dir = GetProjectPaths()['panelleak'] / panel_id
+    plots_dir = GetProjectPaths()["panelleak"] / panel_id
     plots_dir.mkdir(exist_ok=True, parents=True)
 
     # fit start/endtime tag
@@ -421,17 +351,13 @@ def main(options):
     plt.show()
 
 
-def SetFloatOption(prompt, default_option):
-    try:
-        return float(input(prompt))
-    except ValueError:
-        return default_option
-
-
+################################################################################
+# called when run like `python -m guis.panel.leak` (Used like this w/in PANGUI)
+################################################################################
 def RunInteractive():
     options = GetOptions()
     print("Specify options. Press <return> to skip an option and use the default.")
-    options.infile = input("Input data file> ").strip(' \'\t\n"')
+    options.infile = input("Input data file> ").strip(" '\t\n\"")
     try:
         assert options.infile
     except AssertionError:
@@ -441,16 +367,37 @@ def RunInteractive():
         assert Path(options.infile).is_file()
     except AssertionError:
         sys.exit("Input file not found.")
+
+    def SetFloatOption(prompt, default_option):
+        try:
+            return float(input(prompt))
+        except ValueError:
+            return default_option
+
     options.fit_start_time = SetFloatOption("Fit start> ", options.fit_start_time)
     options.fit_end_time = SetFloatOption("Fit end> ", options.fit_end_time)
-    options.min_diff_pressure = SetFloatOption("Differential pressure y-axis min> ", options.min_diff_pressure)
-    options.max_diff_pressure = SetFloatOption("Differential pressure y-axis max> ", options.max_diff_pressure)
-    options.min_ref_pressure = SetFloatOption("Reference pressure y-axis min> ", options.min_ref_pressure)
-    options.max_ref_pressure = SetFloatOption("Reference pressure y-axis max> ", options.max_ref_pressure)
+    options.min_diff_pressure = SetFloatOption(
+        "Differential pressure y-axis min> ", options.min_diff_pressure
+    )
+    options.max_diff_pressure = SetFloatOption(
+        "Differential pressure y-axis max> ", options.max_diff_pressure
+    )
+    options.min_ref_pressure = SetFloatOption(
+        "Reference pressure y-axis min> ", options.min_ref_pressure
+    )
+    options.max_ref_pressure = SetFloatOption(
+        "Reference pressure y-axis max> ", options.max_ref_pressure
+    )
     print(options)
+
+    load_into_db(options.infile)
+
     main(options)
 
 
+################################################################################
+# called when run directly like `python -m guis.panel.leak.PlotLeakRate <flags>
+################################################################################
 if __name__ == "__main__":
     options = GetOptions()
     main(options)
