@@ -19,6 +19,8 @@ import logging
 
 logger = logging.getLogger("root")
 
+kFILENAME_DATE_FORMAT = "%y%m%d_%H%M"
+
 
 ################################################################################
 # Misc Utilities
@@ -26,10 +28,8 @@ logger = logging.getLogger("root")
 # Converts timestamp of one specific format to epoch time
 # Does not include miliseconds
 def convert_to_epoch(date_time):
-    # 2021-04-13T14:07:16.219870
     # "211012_1749"
-    date_format = "%y%m%d_%H%M"
-    epoch = int(time.mktime(time.strptime(date_time[0:18], date_format)))
+    epoch = int(time.mktime(time.strptime(date_time, kFILENAME_DATE_FORMAT)))
     return epoch
 
 
@@ -66,14 +66,27 @@ def format_tag(tag):
     return "".join(filter(str.isalnum, tag)).lower()
 
 
-# Extract date, panel, and tag from filename
+class ParseException(Exception):
+    pass
+
+
+# Extract date, panel, and tag from filename.
+# Some validation on the results.
 # "211012_1749_MN169 test 1.txt"
 def parse_filename(filename):
     logger.debug("Getting test info from input file.")
     filename = Path(filename).stem  # remove txt suffix
     timestamp = filename[0:11]
-    panel_number = int(re.search(r"MN\d\d\d", filename).group(0)[2:])
-    tag = format_tag(filename[17:])
+    panel_number = re.search(r"MN\d\d\d", filename).group(0)[2:]
+    # tag = format_tag(filename[17:])
+    tag_start_idx = filename.find(panel_number) + len(panel_number)
+    tag = format_tag(filename[tag_start_idx:])
+    try:
+        time.strptime(timestamp, kFILENAME_DATE_FORMAT)
+        panel_number = int(panel_number)
+        assert len(tag)
+    except:
+        raise ParseException
     return timestamp, panel_number, tag
 
 
@@ -230,16 +243,19 @@ def main(data_file):
 
     # check input file, panel number, test timestamp, test tag
     validate_data_file(data_file)
-    timestamp, panel_number, tag = parse_filename(data_file)
+
+    try:
+        timestamp, panel_number, tag = parse_filename(data_file)
+    except ParseException:
+        timestamp, epoch_time = validate_timestamp(timestamp)
+        panel_number = validate_panel_number(panel_number)
+        tag = validate_tag(tag)
+
     logger.debug(f"{timestamp},{panel_number},{tag} extracted from filename.")
     print(
         f"Test info:\n\ttimestamp: {timestamp}\n\tpanel: MN{panel_number}\n\ttag: {tag}"
     )
     epoch_time = convert_to_epoch(timestamp)
-
-    # timestamp, epoch_time = validate_timestamp(timestamp)
-    # panel_number = validate_panel_number(panel_number)
-    # tag = validate_tag(tag)
 
     # set up database
     database = GetLocalDatabasePath()
