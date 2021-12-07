@@ -3,7 +3,9 @@ from pathlib import Path
 from datetime import datetime
 import sqlalchemy as sqla
 
+from guis.common.panguilogger import SetupPANGUILogger
 from guis.common.advancedthreading import LoopingReusableThread
+from guis.common.getresources import GetLocalDatabasePath, GetNetworkDatabasePath
 
 import logging
 
@@ -28,7 +30,8 @@ class Merger:
         self.src_db = src_db
         self.dst_db = dst_db
 
-        logger.info("Merging to database %s" % dst_db)
+        logger.log(1, f"Merging from database {src_db}")
+        logger.info(f"Merging to database {dst_db}")
 
         # Allias used when attaching source database
         self.attach_alias = "att"  # Alias for source database
@@ -86,10 +89,10 @@ class Merger:
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
         )
         # for t in self.getTables():
-        #    logger.info(t)
-        #    self.__execute(
-        #        self.merge(t, execute=False)
-        #    )
+        #   logger.log(1, f"    {t}")
+        #   self.__execute(
+        #       self.merge(t, execute=False)
+        #   )
         finish = datetime.now()
         dt = (finish - start).total_seconds()
         logger.info(f"Automerge complete ({dt}s)")
@@ -203,11 +206,6 @@ class AutoMerger(Merger, LoopingReusableThread):
 
 
 if __name__ == "__main__":
-    local = (
-        "\\\\spa-mu2e-network\\Files\\Development_Environment\\Database\\database.db"
-    )
-    network = (
-        "\\\\spa-mu2e-network\\Files\\Development_Environment\\Database\\network.db"
-    )
-    merger = AutoMerger(src_db=local, dst_db=network, merge_frequency=30)
-    merger.start()
+    logger = SetupPANGUILogger("root", "IsolatedAutoMerge", be_verbose=True)
+    merger = Merger(src_db=GetLocalDatabasePath(), dst_db=GetNetworkDatabasePath())
+    merger.mergeAll()
