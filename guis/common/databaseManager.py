@@ -12,6 +12,7 @@ import logging
 logger = logging.getLogger("root")
 
 from guis.common.merger import AutoMerger
+from guis.common.getresources import GetLocalDatabasePath, GetNetworkDatabasePath
 
 # Load resources manager
 try:
@@ -26,7 +27,7 @@ class DatabaseManager:
     def __init__(self, local_db=None, merge=True):
 
         ## Local Database File information
-        self._local_db = self._loadLocalDatabasePath() if local_db is None else local_db
+        self._local_db = GetLocalDatabasePath() if local_db is None else local_db
         logger.info("Reading and writing from database %s" % self._local_db)
 
         ## Connect to Local SQL database
@@ -43,7 +44,7 @@ class DatabaseManager:
         if merge:
             self.__merger = AutoMerger(
                 src_db=self._local_db,
-                dst_db=self._loadNetworkDatabasePath(),
+                dst_db=GetNetworkDatabasePath(),
                 name="AutoMerger",
                 daemon=True,
                 merge_frequency=600,
@@ -52,16 +53,6 @@ class DatabaseManager:
 
     def merge(self):
         self.__merger.main()
-
-    # The local DB shalt always be located in data/database.db
-    def _loadLocalDatabasePath(self):
-        with pkg_resources.path(data, "database.db") as p:
-            return p.resolve()
-
-    # The merge-destination DB is set in resources/networkDatabasePath.txt,
-    # which is created by setup.py
-    def _loadNetworkDatabasePath(self):
-        return pkg_resources.read_text(resources, "networkDatabasePath.txt")
 
     def getLocalDatabasePath(self):
         return self._local_db

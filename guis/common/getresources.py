@@ -40,3 +40,7 @@ def GetStrawLeakInoPorts():
 def GetLocalDatabasePath():
     with pkg_resources.path(data, "database.db") as p:
         return str(p.resolve())
+
+
+def GetNetworkDatabasePath():
+    return pkg_resources.read_text(resources, "networkDatabasePath.txt")
