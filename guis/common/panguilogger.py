@@ -3,7 +3,7 @@ from os import getenv
 import logging
 
 # the order that these lines appear in is important!
-def SetupPANGUILogger(name="root", tag="PANGUI"):
+def SetupPANGUILogger(name="root", tag="PANGUI", be_verbose=False):
     sformatter = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
     fformatter = logging.Formatter(
         "[%(asctime)s][%(levelname)-8s][%(threadName)-10s][%(module)-11s] %(message)s",
@@ -13,6 +13,8 @@ def SetupPANGUILogger(name="root", tag="PANGUI"):
     shandler = logging.StreamHandler()
     shandler.setFormatter(sformatter)
     shandler.setLevel(logging.INFO)
+    if be_verbose:
+        shandler.setLevel(1)
 
     logfile = "./logfiles/" + datetime.strftime(
         datetime.now(), f"%Y%m%d_%H%M%S_{tag}_{getenv('USERDOMAIN')}_log.txt"
@@ -23,6 +25,8 @@ def SetupPANGUILogger(name="root", tag="PANGUI"):
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
+    if be_verbose:
+        logger.setLevel(1)
     logger.addHandler(shandler)
     logger.addHandler(fhandler)
 
