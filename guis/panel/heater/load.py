@@ -80,12 +80,9 @@ if __name__ == "__main__":
 
 for key in good:
     for i in good[key]:
+    
         path = Path(rootdir + i[0] + ".csv").absolute()
-        try:
-            load.run(str(key), str(i[1]), rootdir + str(i[0]) + ".csv")
-        except:
-            bad_files.append(i[0])
-        
+        load.run(key, i[1], rootdir + i[0] + ".csv")
 
 #
 # Copy "bad" files to separate folder.
