@@ -1,16 +1,19 @@
-#   Update: 10/23/18 by Joe Dill
-#   Incorporated Credentials Class
-
-#   Update: 10/24/18 by Ben Hiltbrand
-#   Added upload to Mu2e Hardware database
-
-from datetime import datetime
+################################################################################
+#
+# Attach CO2 endpieces
+#
+# Next step: leak test
+#
+################################################################################
+import pyautogui
+import time
+import os
 import csv
 import os
 import pyautogui
 import sys
-import time
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from datetime import datetime
+from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
     QApplication,
@@ -36,10 +39,7 @@ from pathlib import Path
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.gui_utils import except_hook
-from guis.common.save_straw_workers import saveWorkers
-from guis.straw.checkstraw import *
-from guis.straw.co2.co2 import Ui_MainWindow  ## edit via Qt Designer
-from guis.straw.removestraw import removeStraw
+from guis.common.dataProcessor import SQLDataProcessor as DP
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -48,6 +48,10 @@ keyboard = Controller()
 
 
 class CO2(QMainWindow):
+
+    LockGUI = pyqtSignal(bool)
+    timer_signal = pyqtSignal()
+
     def __init__(self, paths, webapp=None, parent=None):
         super(CO2, self).__init__(parent)
         self.ui = Ui_MainWindow()
@@ -76,6 +80,8 @@ class CO2(QMainWindow):
         self.ui.finish.clicked.connect(self.finish)
         self.ui.viewButton.clicked.connect(self.editPallet)
 
+        self.LockGUI.connect(self.lockGUI)
+
         self.ui.palletNumInput.returnPressed.connect(self.scan)
         self.ui.epoxyBatchInput.returnPressed.connect(self.scan)
         self.ui.DP190BatchInput.returnPressed.connect(self.scan)
@@ -103,40 +109,86 @@ class CO2(QMainWindow):
         self.justLogOut = ""
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
-    ############################################################################
-    # Worker login and gui lock
-    ############################################################################
+        # timing
+        self.timer = QLCDTimer(
+            QLCDNumber(),  # no timer display for this ui TODO
+            QLCDNumber(),  # no timer display for this ui TODO
+            QLCDNumber(),  # no timer display for this ui TODO
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
+
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
+        self.running = lambda: self.timer.isRunning()
+
+        # Data Processor
+        # Record station and session, not yet procedure or straw location
+        # Those are recorded during saveStart
+        self.pro = 3
+        self.pro_index = self.pro - 1
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+        )
+
+        # Start it off with the prep tab frozen
+        self.LockGUI.emit(False)
+
     def Change_worker_ID(self, btn):
         label = btn.text()
-        portalNum = 0
+        portalNum = self.portals.index(btn)
         if label == "Log In":
-            portalNum = int(btn.objectName().strip("portal")) - 1
             Current_worker, ok = QInputDialog.getText(
                 self, "Worker Log In", "Scan your worker ID:"
             )
+            Current_worker = Current_worker.upper().strip()
             if not ok:
                 return
-            self.sessionWorkers.append(Current_worker)
-            self.Current_workers[portalNum].setText(Current_worker)
-            print("Welcome " + self.Current_workers[portalNum].text() + " :)")
-            btn.setText("Log Out")
-            # self.ui.tab_widget.setCurrentIndex(1)
+            if not self.DP.validateWorkerID(Current_worker):
+                generateBox("critical", "Login Error", "Invalid worker ID.")
+            elif self.DP.workerLoggedIn(Current_worker):
+                generateBox(
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
+                )
+            else:
+                # Record login with data processor
+                logger.info(f"{Current_worker} logged in")
+                self.DP.saveLogin(Current_worker)
+                self.sessionWorkers.append(Current_worker)
+                self.Current_workers[portalNum].setText(Current_worker)
+                logger.info("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                btn.setText("Log Out")
+                self.ui.tab_widget.setCurrentIndex(1)
+
         elif label == "Log Out":
-            portalNum = int(btn.objectName().strip("portal")) - 1
+            worker = self.Current_workers[portalNum].text()
             self.justLogOut = self.Current_workers[portalNum].text()
-            self.sessionWorkers.remove(self.Current_workers[portalNum].text())
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
+            self.sessionWorkers.remove(worker)
+            self.DP.saveLogout(worker)
+            logger.info("Goodbye " + worker + " :(")
+            self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
+
+        # Recheck credentials
+        self.LockGUI.emit(self.DP.checkCredentials())
+
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
 
-    def lockGUI(self):
-        self.ui.tab_widget.setTabText(1, "CO2 Endpiece")
-        if not self.credentialChecker.checkCredentials(self.sessionWorkers):
+    def lockGUI(self, credentials):
+        if credentials:
+            self.ui.tab_widget.setTabText(1, "CO2 Endpiece")
+            self.ui.tab_widget.setTabEnabled(1, True)
+        else:
             self.ui.tab_widget.setCurrentIndex(0)
             self.ui.tab_widget.setTabText(1, "CO2 Endpiece *Locked*")
+            self.ui.tab_widget.setTabEnabled(1, False)
 
     ############################################################################
     # Finish insertion button
