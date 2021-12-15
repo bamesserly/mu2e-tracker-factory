@@ -5,6 +5,9 @@
 # Next step: leak test
 #
 ################################################################################
+from guis.common.panguilogger import SetupPANGUILogger
+
+logger = SetupPANGUILogger("root", "CO2")
 import pyautogui
 import time
 import os
@@ -36,10 +39,13 @@ from PyQt5.QtWidgets import (
 from pynput.keyboard import Key, Controller
 from pathlib import Path
 
+from guis.straw.removestraw import removeStraw
+from guis.straw.checkstraw import Check, StrawFailedError
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.gui_utils import except_hook
 from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.timer import QLCDTimer
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -48,7 +54,6 @@ keyboard = Controller()
 
 
 class CO2(QMainWindow):
-
     LockGUI = pyqtSignal(bool)
     timer_signal = pyqtSignal()
 
@@ -97,7 +102,6 @@ class CO2(QMainWindow):
         self.straws = []
         self.sessionWorkers = []
 
-        self.timing = False
         self.startTime = 0
 
         self.ui.sec_disp.setNumDigits(2)
@@ -109,11 +113,11 @@ class CO2(QMainWindow):
         self.justLogOut = ""
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
-        # timing
+        # Timing info
         self.timer = QLCDTimer(
-            QLCDNumber(),  # no timer display for this ui TODO
-            QLCDNumber(),  # no timer display for this ui TODO
-            QLCDNumber(),  # no timer display for this ui TODO
+            self.ui.hour_disp,
+            self.ui.min_disp,
+            self.ui.sec_disp,
             lambda: self.timer_signal.emit(),
             max_time=28800,
         )  # 0 - Main Timer: Turns red after 8 hours
@@ -124,6 +128,8 @@ class CO2(QMainWindow):
         self.resetTimer = lambda: self.timer.reset()
         self.mainTimer = self.timer  # data processor wants it
         self.running = lambda: self.timer.isRunning()
+
+        self.timing = False
 
         # Data Processor
         # Record station and session, not yet procedure or straw location
@@ -138,6 +144,30 @@ class CO2(QMainWindow):
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
 
+    def updateBoard(self):
+        status = []
+        try:
+            with open(self.boardPath / "Progression Status.csv") as readfile:
+                data = csv.reader(readfile)
+                for row in data:
+                    for pallet in row:
+                        status.append(pallet)
+            status[int(self.palletID[6:]) - 1] == 22
+            with open(self.boardPath / "Progression Status.csv", "w") as writefile:
+                i = 0
+                for pallet in status:
+                    writefile.write(pallet)
+                    if i != 23:
+                        writefile.write(",")
+                    i = i + 1
+        except IOError:
+            print(
+                "Could not update board due to board file being accessed concurrently"
+            )
+
+    ############################################################################
+    # Worker login and gui lock
+    ############################################################################
     def Change_worker_ID(self, btn):
         label = btn.text()
         portalNum = self.portals.index(btn)
@@ -191,15 +221,179 @@ class CO2(QMainWindow):
             self.ui.tab_widget.setTabEnabled(1, False)
 
     ############################################################################
-    # Finish insertion button
-    # Stop timer, enable finish button
+    # Start Button
+    # Verify inputs (cpal, epoxy batch, dp190 batch)
+    # Start the timer
     ############################################################################
-    def stopWatch(self):
-        self.startTime = time.time()
-        self.timing = True
+    def initialData(self):
+        valid = [bool() for i in range(4)]
 
+        # Get inputs
+        self.palletNum = self.ui.palletNumInput.text().strip().upper()
+        self.epoxyBatch = self.ui.epoxyBatchInput.text().strip().upper()
+        self.DP190Batch = self.ui.DP190BatchInput.text().strip().upper()
+
+        # Verify inputs
+        valid[1] = self.verifyPalletNumber(self.palletNum)
+        valid[2] = self.verifyEpoxyBatch(self.epoxyBatch)
+        valid[3] = self.verifyDP190Batch(self.DP190Batch)
+
+        # Verify that pallet number corresponds to a CPALID
+        valid[0] = self.find_cpal_file(self.palletNum)
+
+        self.update_colors(valid)
+
+        if not all(valid):
+            return
+
+        # Verify pallet file has record of prep and ohms being completed
+        pallet_checker = Check()
+        try:
+            pallet_checker.check(self.palletNum, ["prep", "ohms"])
+        except StrawFailedError as error:
+            QMessageBox.critical(
+                self,
+                "Testing Error",
+                "Unable to test this pallet:\n" + error.message,
+            )
+            self.editPallet()
+            return
+
+        # enable and disable fields and buttons
+        self.ui.palletNumInput.setDisabled(True)
+        self.ui.epoxyBatchInput.setDisabled(True)
+        self.ui.DP190BatchInput.setDisabled(True)
+        self.ui.start.setDisabled(True)
+        self.ui.viewButton.setEnabled(True)
         self.ui.finishInsertion.setEnabled(True)
         self.ui.finish.setDisabled(True)
+
+        self.timing = True
+        self.startTimer()
+
+        # initialize procedure and commit it to the DB
+        self.DP.saveStart()
+
+    ############################################################################
+    # Verification functions
+    ############################################################################
+    def verifyPalletNumber(self, pallet_num):
+        # Verifies that the given pallet id is of a valid format
+        verify = True
+
+        # check that last 4 characters of ID are integers
+        if len(pallet_num) == 8:
+            verify = pallet_num[
+                4:7
+            ].isnumeric()  # makes sure last four digits are numbers
+        else:
+            verify = False  # fails if palled_num
+
+        if not pallet_num.upper().startswith("CPAL"):
+            verify = False
+
+        return verify
+
+    def verifyEpoxyBatch(self, eb):
+        eb = eb.strip().upper()
+
+        if len(eb) != 13:
+            return False
+        if not eb.startswith("CO2."):
+            return False
+        if eb[4:9].isnumeric():
+            # Month
+            if not int(eb[4:6]) in range(13):
+                return False
+            # Day
+            if not int(eb[6:8]) in range(1, 32):
+                return False
+            # Year
+            if not int(eb[8:10]) in range(
+                17, (datetime.now().year - 2000) + 1
+            ):  # Max: current year
+                return False
+        if not eb[10] == ".":
+            return False
+        if not eb[11:13].isnumeric():
+            return False
+
+        return True
+
+    def verifyDP190Batch(self, string):
+        string = string.upper().strip()
+
+        if len(string) == 9:
+            return string.startswith("DP190.") and string[6:9].isnumeric()
+        else:
+            return False
+
+    ############################################################################
+    # Misc
+    ############################################################################
+    def find_cpal_file(self, pallet):
+        for palletid in os.listdir(self.palletDirectory):
+            for pallet in os.listdir(self.palletDirectory / palletid):
+                if self.palletNum + ".csv" == pallet:
+                    self.palletID = palletid
+                    return True
+        QMessageBox.critical(
+            self,
+            "Pallet File Error",
+            f"Unable to find CPAL File for {self.palletNum}",
+        )
+        return False
+
+    # Color the input fields whether they're valid (green) or not (red)
+    def update_colors(self, valid):
+        if valid[0] and valid[1]:
+            self.ui.palletNumInput.setStyleSheet("")
+            self.ui.palletNumInput.setText(self.palletNum)
+            self.ui.viewButton.setEnabled(True)
+        else:
+            self.ui.palletNumInput.setStyleSheet("background-color:rgb(255, 0, 0)")
+
+        if valid[2]:
+            self.ui.epoxyBatchInput.setStyleSheet("")
+            self.ui.epoxyBatchInput.setText(self.epoxyBatch)
+        else:
+            self.ui.epoxyBatchInput.setStyleSheet("background-color:rgb(255, 0, 0)")
+
+        if valid[3]:
+            self.ui.DP190BatchInput.setStyleSheet("")
+            self.ui.DP190BatchInput.setText(self.DP190Batch)
+        else:
+            self.ui.DP190BatchInput.setStyleSheet("background-color:rgb(255, 0, 0)")
+
+    def scan(self):
+
+        # Get current lineEdit
+        lineEdit = self.focusWidget()
+
+        string = lineEdit.text().strip().upper()
+
+        verify = {
+            self.ui.palletNumInput: self.verifyPalletNumber(string),
+            self.ui.epoxyBatchInput: self.verifyEpoxyBatch(string),
+            self.ui.DP190BatchInput: self.verifyDP190Batch(string),
+        }
+
+        if verify[lineEdit]:
+            lineEdit.setText(string)
+            lineEdit.setStyleSheet("")
+            self.tab()
+
+            if lineEdit == self.ui.palletNumInput:
+                self.palletNum = string
+                self.ui.viewButton.setEnabled(True)
+
+        else:
+            lineEdit.setFocus()
+            lineEdit.selectAll()
+            lineEdit.setStyleSheet("background-color:rgb(255, 0, 0)")
+
+    def tab(self):
+        keyboard.press(Key.tab)
 
     def timeUp(self):
         self.timing = False
@@ -313,12 +507,12 @@ class CO2(QMainWindow):
                 self.Change_worker_ID(self.portals[i])
         self.sessionWorkers = []"""
 
-    ############################################################################
-    # Verification functions
-    ############################################################################
-    def verifyPalletNumber(self, pallet_num):
-        # Verifies that the given pallet id is of a valid format
-        verify = True
+    def editPallet(self):
+        rem = removeStraw(self.sessionWorkers)
+        rem.palletDirectory = self.palletDirectory
+        CPAL, lastTask, straws, passfail, CPALID = rem.getPallet(self.palletNum)
+        rem.displayPallet(CPAL, lastTask, straws, passfail)
+        rem.exec_()
 
         # check that last 4 characters of ID are integers
         if len(pallet_num) == 8:
@@ -461,24 +655,15 @@ class CO2(QMainWindow):
 
     def closeEvent(self, event):
         event.accept()
-        sys.exit(0)
+        self.DP.handleClose()
+        self.close()
+        sys.exit()
 
-    def main(self, app):
-        while True:
-            if self.timing:
-                running = time.time() - self.startTime
-                self.ui.hour_disp.display(int(running / 3600))
-                self.ui.min_disp.display(int(running / 60) % 60)
-                self.ui.sec_disp.display(int(running) % 60)
+    def getPalletID(self):
+        return self.palletID
 
-            self.lockGUI()
-            time.sleep(0.01)
-            app.processEvents()
-
-
-def except_hook(cls, exception, traceback):
-    sys.__excepthook__(cls, exception, traceback)
-    sys.exit()
+    def getPalletNumber(self):
+        return self.palletNum
 
 
 def run():
@@ -487,7 +672,6 @@ def run():
     paths = GetProjectPaths()
     ctr = CO2(paths)
     ctr.show()
-    ctr.main(app)
     app.exec_()
 
 
