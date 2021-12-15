@@ -106,7 +106,7 @@ from guis.panel.wiretensioner.wire_tension import WireTensionWindow
 from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
-from guis.common.gui_utils import generateBox
+from guis.common.gui_utils import generateBox, except_hook
 
 # from guis.panel.resistance.run_test import run_test
 # from guis.panel.leak.PlotLeakRate import RunInteractive
@@ -5672,24 +5672,6 @@ class panelGUI(QMainWindow):
 # Functions that interact with the system somehow.
 
 
-def except_hook(exctype, exception, tb):
-    """
-    except_hook(exctype, exception, traceback)
-
-    Description: Enables exception handling that is more intuitive. By default, uncaught exceptions
-                 cause PyQt GUIs to hang and then display the "Python has encountered and error and
-                 needs to close" box. By defining this function (and setting sys.excepthook = except_hook
-                 in the main function), uncaught exceptions immediately close the GUI, and display the
-                 error message on screen (like a normal python script).
-
-    Parameter: exctype - The class of the uncaught exception
-    Parameter: exception - Exception object that went uncaught.
-    Parameter: tb - The traceback of the exception that specifies where and why it happened.
-    """
-    logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
-    sys.exit()
-
-
 def checkPackages():
     # list of packages to check, each tuple has the name of the package and a
     # boolean to determine if the version is correct
@@ -5708,9 +5690,9 @@ def checkPackages():
         ("pyscreeze", pyscreeze.__version__ == "0.1.21"),
         ("pytweening", pytweening.__version__ == "1.0.3"),
         ("scipy", scipy.__version__ == "1.5.1"),
-        ("setuptools", setuptools.__version__ == "40.8.0"), # not in requirements?
+        ("setuptools", setuptools.__version__ == "40.8.0"),  # not in requirements?
         ("six", six.__version__ == "1.12.0"),
-        ("sqlalchemy", sqlalchemy.__version__ == "1.3.5"), # not in requirements?
+        ("sqlalchemy", sqlalchemy.__version__ == "1.3.5"),  # not in requirements?
     ]
     # loop through list of package tuples
     for package in packageList:

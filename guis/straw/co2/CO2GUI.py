@@ -39,6 +39,7 @@ from guis.straw.checkstraw import *
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+from guis.common.gui_utils import except_hook
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -327,9 +328,7 @@ class CO2(QMainWindow):
 
             with open(pfile, "a") as palletWrite:
                 palletWrite.write("\n")
-                palletWrite.write(
-                    datetime.now().strftime("%Y-%m-%d_%H:%M") + ","
-                )
+                palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
                 palletWrite.write(self.stationID + ",")
                 for straw in self.straws:
                     palletWrite.write(straw)

@@ -5,7 +5,7 @@
 # Read resistance data for a full panel of straws all at once from an Arduino
 # Uno and PCB. Save all the data at the very end.
 #
-# Next step:
+# Next step: CO2 endpieces
 #
 ################################################################################
 
@@ -50,7 +50,7 @@ from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
 from guis.common.dataProcessor import SQLDataProcessor as DP
-from guis.common.gui_utils import generateBox
+from guis.common.gui_utils import generateBox, except_hook
 
 from random import uniform
 from enum import Enum, auto
@@ -200,7 +200,10 @@ class StrawResistanceGUI(QDialog):
         # Data Processor
         self.pro = 3
         self.pro_index = self.pro - 1
-        self.DP = DP(gui=self, stage="straws",)
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+        )
 
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
@@ -223,7 +226,9 @@ class StrawResistanceGUI(QDialog):
                 generateBox("critical", "Login Error", "Invalid worker ID.")
             elif self.DP.workerLoggedIn(Current_worker):
                 generateBox(
-                    "critical", "Login Error", "This worker ID is already logged in.",
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
                 )
             else:
                 # Record login with data processor
@@ -553,7 +558,10 @@ class StrawResistanceGUI(QDialog):
         # ask user to turn on multimeter
         instructions = "Turn on the Multimeter. This program will crash if you do not."
         buttonReply = QMessageBox.question(
-            self, "Measure By-Hand", instructions, QMessageBox.Ok | QMessageBox.Cancel,
+            self,
+            "Measure By-Hand",
+            instructions,
+            QMessageBox.Ok | QMessageBox.Cancel,
         )
         if buttonReply != QMessageBox.Ok:
             return
@@ -990,24 +998,6 @@ class StrawResistanceGUI(QDialog):
                     temperature = float(row[1])
                     humidity = float(row[2])
         return temperature, humidity
-
-
-def except_hook(exctype, exception, tb):
-    """
-    except_hook(exctype, exception, traceback)
-
-    Description: Enables exception handling that is more intuitive. By default, uncaught exceptions
-                 cause PyQt GUIs to hang and then display the "Python has encountered and error and
-                 needs to close" box. By defining this function (and setting sys.excepthook = except_hook
-                 in the main function), uncaught exceptions immediately close the GUI, and display the
-                 error message on screen (like a normal python script).
-
-    Parameter: exctype - The class of the uncaught exception
-    Parameter: exception - Exception object that went uncaught.
-    Parameter: tb - The traceback of the exception that specifies where and why it happened.
-    """
-    logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
-    sys.exit()
 
 
 def run():

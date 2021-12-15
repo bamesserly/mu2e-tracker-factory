@@ -61,6 +61,7 @@ from guis.straw.removestraw import removeStraw
 from guis.straw.checkstraw import *
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+from guis.common.gui_utils import except_hook
 
 
 ##**GLOBAL VARIABLES**##
@@ -260,7 +261,11 @@ class cutMenu(QMainWindow):
         time.sleep(0.5)
         pyautogui.hotkey("ctrl", "o")
         time.sleep(1)
-        print("Trying to open '{}' from directory: '{}'".format(str(filename), str(directory)))
+        print(
+            "Trying to open '{}' from directory: '{}'".format(
+                str(filename), str(directory)
+            )
+        )
         pyautogui.typewrite(str(directory) + "\\" + str(filename))
         time.sleep(1)
         pyautogui.press("enter")
@@ -507,7 +512,9 @@ class cutMenu(QMainWindow):
         filename = "Cut 2 for 0,4 - RH" + humidString + ".ecp"
         print(filename)
 
-        with open(directory / str("LaserInfo0,4RH" + humidString + ".csv"), "r") as list:
+        with open(
+            directory / str("LaserInfo0,4RH" + humidString + ".csv"), "r"
+        ) as list:
             reader = csv.reader(list)
 
             for row in reader:
@@ -551,7 +558,9 @@ class cutMenu(QMainWindow):
         filename = "Cut 2 for 2,6 - RH" + humidString + ".ecp"
         print(filename)
 
-        with open(directory / str("LaserInfo2,6RH" + humidString + ".csv"), "r") as list:
+        with open(
+            directory / str("LaserInfo2,6RH" + humidString + ".csv"), "r"
+        ) as list:
             reader = csv.reader(list)
 
             for row in reader:
@@ -785,11 +794,6 @@ class cutMenu(QMainWindow):
     def closeEvent(self, event):
         event.accept()
         sys.exit(0)
-
-
-def except_hook(cls, exception, traceback):
-    sys.__excepthook__(cls, exception, traceback)
-    sys.exit()
 
 
 def run():

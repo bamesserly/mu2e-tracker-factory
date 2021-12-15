@@ -12,7 +12,9 @@ import sys
 import threading
 from datetime import datetime
 from pathlib import Path
-from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
+from PyQt5 import QtCore, QtGui
+
+# from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
     QLabel,
@@ -22,6 +24,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QCheckBox,
+    QInputDialog,
     QVBoxLayout,
     QLayout,
     QSpinBox,
@@ -38,6 +41,7 @@ from guis.straw.checkstraw import *
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
+from guis.common.gui_utils import except_hook
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -399,11 +403,6 @@ class Silver(QMainWindow):
                 self.LockGUI.emit(credentials)
                 changed = not changed
             time.sleep(0.01)
-
-
-def except_hook(cls, exception, traceback):
-    sys.__excepthook__(cls, exception, traceback)
-    sys.exit()
 
 
 def run():

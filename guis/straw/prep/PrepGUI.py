@@ -54,7 +54,7 @@ from guis.common.save_straw_workers import saveWorkers
 
 # import guis.common.dataProcessor as DP
 from guis.common.dataProcessor import SQLDataProcessor as DP
-from guis.common.gui_utils import generateBox
+from guis.common.gui_utils import generateBox, except_hook
 from guis.common.timer import QLCDTimer
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
@@ -1232,24 +1232,6 @@ class Prep(QMainWindow):
             logger.error(
                 "Could not update board due to board file being accessed concurrently"
             )
-
-
-def except_hook(exctype, exception, tb):
-    """
-    except_hook(exctype, exception, traceback)
-
-    Description: Enables exception handling that is more intuitive. By default, uncaught exceptions
-                 cause PyQt GUIs to hang and then display the "Python has encountered and error and
-                 needs to close" box. By defining this function (and setting sys.excepthook = except_hook
-                 in the main function), uncaught exceptions immediately close the GUI, and display the
-                 error message on screen (like a normal python script).
-
-    Parameter: exctype - The class of the uncaught exception
-    Parameter: exception - Exception object that went uncaught.
-    Parameter: tb - The traceback of the exception that specifies where and why it happened.
-    """
-    logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
-    sys.exit()
 
 
 def run():

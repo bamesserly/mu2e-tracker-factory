@@ -28,7 +28,6 @@ from PyQt5.QtWidgets import (
     QInputDialog,
     QListWidgetItem,
 )
-from PyQt5 import QtGui
 import serial  ## Takes this from pyserial, not serial
 import datetime
 from guis.straw.leak.least_square_linear import *  ## Contributes fit functions
@@ -45,6 +44,7 @@ from guis.straw.leak.remove import Ui_DialogBox
 from guis.common.getresources import GetProjectPaths, GetStrawLeakInoPorts
 from guis.common.save_straw_workers import saveWorkers
 from guis.straw.leak.straw_leak_utilities import *
+from guis.common.gui_utils import except_hook
 
 # Import logger from Modules (only do this once)
 from guis.common.panguilogger import SetupPANGUILogger
@@ -2348,12 +2348,6 @@ class removeStraw(QDialog):
     def selectionChange(self):
         CPAL, lastTask, straws, passfail = self.getPallet(self.ui.Menu.currentText())
         self.displayPallet(CPAL, lastTask, straws, passfail)
-
-
-def except_hook(cls, exception, traceback):
-    logger.error("Logging an uncaught exception", exc_info=(cls, exception, traceback))
-    sys.__excepthook__(cls, exception, traceback)
-    sys.exit()
 
 
 def run():
