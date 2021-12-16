@@ -95,7 +95,7 @@ class Procedure(BASE, OBJECT):
         self.new = True
 
         # Commit to database, then run other load methods
-        self.commit()
+        self.commit()  # new entry in procedure table and in details table (if it exists)
         self.init_on_load()
 
     # CREATE (or get an existing) PROCEDURE
@@ -265,6 +265,9 @@ class Procedure(BASE, OBJECT):
             ProcedureTimestamp.stop(self).commit()
 
     ## DETAILS CLASS ##
+    # Prepare a procedure_details_X class entry, but don't commit it yet.
+    # It's committed immediately after it's called, though, in init_on_load --
+    # the only place it's called.
     def _init_details(self):
         try:
             dc = self._getDetailsClass()

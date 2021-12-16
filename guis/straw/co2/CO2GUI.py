@@ -54,12 +54,12 @@ pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 keyboard = Controller()
 
 
-class CO2(QMainWindow):
+class CO2EndpieceGUI(QMainWindow):
     LockGUI = pyqtSignal(bool)
     timer_signal = pyqtSignal()
 
     def __init__(self, paths, webapp=None, parent=None):
-        super(CO2, self).__init__(parent)
+        super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.workerDirectory = paths["co2workers"]
@@ -135,7 +135,7 @@ class CO2(QMainWindow):
         # Data Processor
         # Record station and session, not yet procedure or straw location
         # Those are recorded during saveStart
-        self.pro = 3
+        self.pro = 4
         self.pro_index = self.pro - 1
         self.DP = DP(
             gui=self,
@@ -681,7 +681,7 @@ def run():
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
-    ctr = CO2(paths)
+    ctr = CO2EndpieceGUI(paths)
     ctr.show()
     app.exec_()
 
