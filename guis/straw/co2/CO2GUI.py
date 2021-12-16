@@ -283,6 +283,10 @@ class CO2EndpieceGUI(QMainWindow):
             CuttingPallet.remove_straws_from_pallet_by_id(int(self.getPalletID()[-2:]))
             self.DP.saveStart()
 
+        self.DP.procedure.setEpoxyBatch(self.epoxyBatch[-9:].replace(".", ""))
+        self.DP.procedure.setDP190(self.DP190Batch[-3:])
+        # self.DP.procedure.setEpoxyTime(duration)
+
     ############################################################################
     # Verification functions
     ############################################################################

@@ -221,7 +221,7 @@ class CO2(StrawProcedure):
         self.details.epoxy_time = duration
         self.commit()
 
-    def setDp190(self, dp190):
+    def setDP190(self, dp190):
         self.details.dp190 = dp190
         self.commit()
 
