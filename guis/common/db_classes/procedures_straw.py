@@ -186,25 +186,41 @@ class SilvProcedure(StrawProcedure):
 
 """
 class Co2Procedure(Procedure):
-    __mapper_args__ = {'polymorphic_identity': "co2"}
+    __mapper_args__ = {"polymorphic_identity": "co2"}
 
     def _setDetails(self):
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_co2"
-            procedure = Column(Integer, ForeignKey('procedure.id'), primary_key=True)
-            epoxy_batch  = Column(Integer)
+            procedure = Column(Integer, ForeignKey("procedure.id"), primary_key=True)
+            epoxy_batch = Column(Integer)
             epoxy_time = Column(REAL)
             dp190 = Column(Integer)
-        self.details = Co2Procedure.Details(procedure = self.id)
 
-    def setEpoxyBatch(self,batch):
+        self.details = Co2Procedure.Details(procedure=self.id)
+
+    def setEpoxyBatch(self, batch):
         self.details.epoxy_batch = batch
 
-    def setEpoxyTime(self,duration):
+    def setEpoxyTime(self, duration):
         self.details.epoxy_time = duration
 
-    def setDp190(self,dp190):
+    def setDp190(self, dp190):
         self.details.dp190 = dp190
+
+
+class FillLPAL(StrawProcedure):
+    __mapper_args__ = {
+        "polymorphic_identity": "load"
+    }  # foreign link to which station.id
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "load"
+        ), f"Error. Tried to construct load procedure for a station '{station.id}' not 'load'."
+        super().__init__(station, straw_location, create_key)
+
+
+"""
 
 class LasrProcedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "lasr"}

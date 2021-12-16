@@ -46,6 +46,7 @@ from guis.common.getresources import GetProjectPaths
 from guis.common.gui_utils import except_hook
 from guis.common.dataProcessor import SQLDataProcessor as DP
 from guis.common.timer import QLCDTimer
+from guis.common.db_classes.straw_location import CuttingPallet
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
@@ -81,7 +82,7 @@ class CO2(QMainWindow):
             self.ui.portal4,
         ]
         self.ui.start.clicked.connect(self.initialData)
-        self.ui.finishInsertion.clicked.connect(self.timeUp)
+        self.ui.finishInsertion.clicked.connect(self.finish_insertion)
         self.ui.finish.clicked.connect(self.finish)
         self.ui.viewButton.clicked.connect(self.editPallet)
 
@@ -272,7 +273,15 @@ class CO2(QMainWindow):
         self.startTimer()
 
         # initialize procedure and commit it to the DB
-        self.DP.saveStart()
+        try:
+            self.DP.saveStart()
+        # PalletID is not empty and it's filled with another pallet's straws.
+        # Hard to see how this will ever happen under normal circumstances.
+        # If we get here, the pallet is going to be empty...after this.
+        # I'm going to have to come back to this one.
+        except AssertionError:
+            CuttingPallet.remove_straws_from_pallet_by_id(int(self.getPalletID()[-2:]))
+            self.DP.saveStart()
 
     ############################################################################
     # Verification functions
@@ -395,8 +404,10 @@ class CO2(QMainWindow):
     def tab(self):
         keyboard.press(Key.tab)
 
-    def timeUp(self):
+    def finish_insertion(self):
         self.timing = False
+        self.stopTimer()
+        self.DP.saveFinish()
         self.ui.finishInsertion.setDisabled(True)
         self.ui.finish.setEnabled(True)
 
