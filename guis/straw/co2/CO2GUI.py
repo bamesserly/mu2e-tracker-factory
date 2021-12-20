@@ -2,6 +2,10 @@
 #
 # Attach CO2 endpieces
 #
+# Only record the epoxy batches, the process duration, and the CPAL.
+#
+# Don't save straw-by-straw info for this process.
+#
 # Next step: leak test
 #
 ################################################################################
@@ -43,7 +47,8 @@ from guis.straw.removestraw import removeStraw
 from guis.straw.checkstraw import Check, StrawFailedError
 from data.workers.credentials.credentials import Credentials
 from guis.common.getresources import GetProjectPaths
-from guis.common.gui_utils import except_hook
+from guis.common.save_straw_workers import saveWorkers
+from guis.common.gui_utils import except_hook, generateBox
 from guis.common.dataProcessor import SQLDataProcessor as DP
 from guis.common.timer import QLCDTimer
 from guis.common.db_classes.straw_location import CuttingPallet
@@ -52,6 +57,8 @@ pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 # to change hitting enter to hitting tab
 keyboard = Controller()
+
+kRESET_EXIT_CODE = 12
 
 
 class CO2EndpieceGUI(QMainWindow):
@@ -137,6 +144,9 @@ class CO2EndpieceGUI(QMainWindow):
         # Those are recorded during saveStart
         self.pro = 4
         self.pro_index = self.pro - 1
+
+        # Creating this DP object starts a session (makes a DB entry)
+        # and makes a None procedure.
         self.DP = DP(
             gui=self,
             stage="straws",
@@ -234,12 +244,12 @@ class CO2EndpieceGUI(QMainWindow):
         self.epoxyBatch = self.ui.epoxyBatchInput.text().strip().upper()
         self.DP190Batch = self.ui.DP190BatchInput.text().strip().upper()
 
-        # Verify inputs
+        # Verify inputs (and color the UI fields accordingly)
+        # Also: set the pallet number and ID, for use in creating the DP's
+        # procedure.
         valid[1] = self.verifyPalletNumber(self.palletNum)
         valid[2] = self.verifyEpoxyBatch(self.epoxyBatch)
         valid[3] = self.verifyDP190Batch(self.DP190Batch)
-
-        # Verify that pallet number corresponds to a CPALID
         valid[0] = self.find_cpal_file(self.palletNum)
 
         self.update_colors(valid)
@@ -260,7 +270,89 @@ class CO2EndpieceGUI(QMainWindow):
             self.editPallet()
             return
 
-        # enable and disable fields and buttons
+        # Record procedure in the DB
+        procedure_is_recorded = self.record_procedure()
+        if not procedure_is_recorded:
+            return
+
+        # save epoxies in the DB
+        self.DP.procedure.setEpoxyBatch(self.epoxyBatch[-9:].replace(".", ""))
+        self.DP.procedure.setDP190(self.DP190Batch[-3:])
+
+        # disable entry fields, enable finish button
+        self.update_ui_for_running()
+
+        self.timing = True
+        self.startTimer()
+
+    # initialize procedure and commit it to the DB
+    def record_procedure(self):
+        try:
+            print(self.getPalletID(), self.getPalletNumber())
+            self.DP.saveStart()
+
+        # "Can't create pallet".
+        #
+        # This pallet isn't in DB, so we try to create it, BUT the palletID
+        # we're using (which we got from the txt files) is already filled with
+        # (another pallet's) straws.
+        #
+        # Most likely way we got here? User mis-typed the CPAL.
+        except AssertionError:
+            logger.debug(
+                f"Can't create pallet error. {self.getPalletID()}-{self.getPalletNumber()}."
+            )
+            reply = QMessageBox.question(
+                self,
+                f"{self.getPalletNumber()} Not Found in DB",
+                (
+                    "Check that pallet number was entered correctly."
+                    "\n\nPress Cancel to start over."
+                    "\n\nOr press OK to proceed with this pallet, but please notify Ben."
+                ),
+                QMessageBox.Ok,
+                QMessageBox.Cancel,
+            )
+            if reply == QMessageBox.Ok:
+                logger.debug(
+                    f"Clearing old straws from {self.getPalletID()}. Creating new straw location {self.getPalletNumber()} at {self.getPalletID()}."
+                )
+                CuttingPallet.remove_straws_from_pallet_by_id(
+                    int(self.getPalletID()[-2:])
+                )
+                self.DP.saveStart()
+            else:
+                logger.debug(f"Aborting pallet creation.")
+                self.resetGUI()
+                return False
+
+        # Procedure already exists!
+        if not self.DP.procedure.isNew():
+            logger.debug(
+                f"CO2 endpieces already installed for this pallet {self.getPalletNumber()}."
+            )
+            reply = QMessageBox.question(
+                self,
+                "Endpieces Already Installed",
+                (
+                    f"According to the DB, endpieces have already been installed for {self.getPalletNumber()}. "
+                    "Do want to proceed?"
+                ),
+                QMessageBox.Yes,
+                QMessageBox.No,
+            )
+            if reply == QMessageBox.No:
+                self.resetGUI()
+                return False
+
+        # can't get isNew() to work
+        # if self.DP.procedure.getStrawLocation().isNew():
+        #    logger.warning("New pallet entered into the DB! It won't have any straws associated with it!")
+
+        return True
+
+    # Enable and disable various buttons and fields while the timer is running
+    def update_ui_for_running(self):
         self.ui.palletNumInput.setDisabled(True)
         self.ui.epoxyBatchInput.setDisabled(True)
         self.ui.DP190BatchInput.setDisabled(True)
@@ -268,26 +360,6 @@ class CO2EndpieceGUI(QMainWindow):
         self.ui.viewButton.setEnabled(True)
         self.ui.finishInsertion.setEnabled(True)
         self.ui.finish.setDisabled(True)
-
-        self.timing = True
-        self.startTimer()
-
-        # initialize procedure and commit it to the DB
-        try:
-            self.DP.saveStart()
-        # PalletID is not empty and it's filled with another pallet's straws.
-        # Hard to see how this will ever happen under normal circumstances.
-        # If we get here, the pallet is going to be empty...after this.
-        # I'm going to have to come back to this one.
-        except AssertionError:
-            # TODO prompt user to decide whether they want to continue
-            CuttingPallet.remove_straws_from_pallet_by_id(int(self.getPalletID()[-2:]))
-            self.DP.saveStart()
-
-        # TODO check whether procedure isNew and ask user if they still want to procede.
-
-        self.DP.procedure.setEpoxyBatch(self.epoxyBatch[-9:].replace(".", ""))
-        self.DP.procedure.setDP190(self.DP190Batch[-3:])
 
     ############################################################################
     # Finish insertion button
@@ -394,31 +466,13 @@ class CO2EndpieceGUI(QMainWindow):
 
     ############################################################################
     # Reset gui (called by finish)
+    # Sorry, the easiest way I can find to properly reset the DP is to
+    # completely reboot the gui
     ############################################################################
     def resetGUI(self):
-        self.palletID = ""
-        self.palletNum = ""
-        self.epoxyBatch = ""
-        self.DP190Batch = ""
-        self.straws = []
-        self.ui.palletNumInput.setEnabled(True)
-        self.ui.epoxyBatchInput.setEnabled(True)
-        self.ui.DP190BatchInput.setEnabled(True)
-        self.ui.palletNumInput.setText("")
-        self.ui.epoxyBatchInput.setText("")
-        self.ui.DP190BatchInput.setText("")
-        self.ui.commentBox.document().setPlainText("")
-        self.ui.start.setEnabled(True)
-        self.ui.hour_disp.display(0)
-        self.ui.min_disp.display(0)
-        self.ui.sec_disp.display(0)
-        self.ui.viewButton.setDisabled(True)
-        self.ui.finishInsertion.setDisabled(True)
-        self.ui.finish.setDisabled(True)
-        """for i in range(len(self.Current_workers)):
-            if self.Current_workers[i].text() != '':
-                self.Change_worker_ID(self.portals[i])
-        self.sessionWorkers = []"""
+        if self.DP:
+            self.DP.handleClose()
+        QCoreApplication.exit(kRESET_EXIT_CODE)
 
     ############################################################################
     # Verification functions
@@ -541,9 +595,9 @@ class CO2EndpieceGUI(QMainWindow):
 
     def closeEvent(self, event):
         event.accept()
-        self.DP.handleClose()
-        self.close()
-        sys.exit()
+        if self.DP:
+            self.DP.handleClose()
+        QCoreApplication.exit(0)
 
     def getPalletID(self):
         return self.palletID
@@ -556,9 +610,10 @@ def run():
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
-    ctr = CO2EndpieceGUI(paths)
-    ctr.show()
-    app.exec_()
+    while exit_code == kRESET_EXIT_CODE:
+        ctr = CO2EndpieceGUI(paths)
+        ctr.show()
+        exit_code = app.exec_()
 
 
 if __name__ == "__main__":
