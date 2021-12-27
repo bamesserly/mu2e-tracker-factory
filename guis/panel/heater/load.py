@@ -39,7 +39,7 @@ if __name__ == "__main__":
         # Send bad files to a bad list, add good entries to the dictionary
         try:
             panel_number = int(panel_number[2:]) # remove "MN", convert to int
-            assert panel_number < 200 # require panel number < 200
+            assert panel_number < 250 # require panel number < 200
             date = time.strptime(date, date_format)
             
         except: # catch invalid panel number or date format
