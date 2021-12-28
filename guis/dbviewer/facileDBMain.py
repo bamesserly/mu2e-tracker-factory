@@ -9,6 +9,9 @@ import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
 
+#importing leak rate plotter for FinalQC
+import guis.panel.leak.PlotLeakRate as plotter
+
 import logging
 from matplotlib import cm
 
@@ -537,9 +540,6 @@ class facileDBGUI(QMainWindow):
                 widget.setText("")
 
         # clear pro 8 wdgets
-        self.ui.leaksLW.clear()
-        self.ui.badStrawsLW.clear()
-        self.ui.badWiresLW.clear()
         self.ui.left_coverLE.setText("")
         self.ui.left_ringLE.setText("")
         self.ui.right_coverLE.setText("")
@@ -1480,9 +1480,6 @@ class facileDBGUI(QMainWindow):
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
 
-        self.ui.leaksLW.clear()
-        self.ui.badStrawsLW.clear()
-        self.ui.badWiresLW.clear()
         self.ui.left_coverLE.clear()
         self.ui.left_ringLE.clear()
         self.ui.right_coverLE.clear()
@@ -1616,6 +1613,15 @@ class facileDBGUI(QMainWindow):
             "Position",0,
             "Tesnion",1,
             self.ui.strawGraphLayout,
+            errorBars=True,
+            eIndex=3
+        )
+        # display leakdata under final qc tab
+        self.displayOnGraph(
+            self.data.strawData,
+            "Position",0,
+            "Tension",1,
+            self.ui.leakGraphLayout,
             errorBars=True,
             eIndex=3
         )
@@ -1797,39 +1803,6 @@ class facileDBGUI(QMainWindow):
 
             if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
                 self.getWid(f'{key}LE').setText("Unknown")
-
-        # leaks next
-        for toop in self.data.methane:
-            descStr = ""
-            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[5]))))
-            descStr += f'\nLeak at {toop[2]}\n'
-            descStr += f'Size: {toop[3]}\n'
-            descStr += "Inflated: Yes\n" if toop[1] else "Inflated: No\n"
-            descStr += "O-Rings reinstalled\n" if "O" in toop[0] else ""
-            descStr += "Left cover reinstalled\n" if "L" in toop[0] else ""
-            descStr += "Right cover reinstalled\n" if "R" in toop[0] else ""
-            descStr += "Center cover reinstalled\n" if "C" in toop[0] else ""
-            descStr += f'Resolution: {toop[4]}\n'
-
-            self.ui.leaksLW.addItem(descStr)
-
-        # lastly straws and wires
-
-        for toop in self.data.badStraws:
-            descStr = ""
-            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
-            descStr += f'\nPosition: {toop[0]}\n'
-            descStr += f'Comment: {toop[1]}\n'
-
-            self.ui.badStrawsLW.addItem(descStr)
-
-        for toop in self.data.badWires:
-            descStr = ""
-            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
-            descStr += f'\nPosition: {toop[0]}\n'
-            descStr += f'Comment: {toop[1]}\n'
-
-            self.ui.badWiresLW.addItem(descStr)
 
 
 
