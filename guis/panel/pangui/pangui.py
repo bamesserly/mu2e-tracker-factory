@@ -32,6 +32,8 @@ import sys, time, os, tkinter, traceback, serial, platform, traceback
 from pathlib import Path, PurePath
 import subprocess  ## run straw and wire tensioner GUIs as subprocesses
 
+import sqlite3
+
 # Import logger from Modules (only do this once)
 from guis.common.panguilogger import SetupPANGUILogger
 
@@ -4025,6 +4027,46 @@ class panelGUI(QMainWindow):
 
         # Save straws
         self.saveData()
+        
+        
+        
+        # remove straws from LPALs
+        
+        # save panel and LPAL data as neat variables, put into desired form
+        panel = str(self.data[0][0][2:])
+        lpal_1 = str(self.data[0][20][4:].lstrip('0'))
+        lpal_2 = str(self.data[0][21][4:].lstrip('0'))
+        
+        # establish database connection
+        con = sqlite3.connect('data/database.db') 
+        cursor = con.cursor()   
+        
+        # get id of panel
+        cursor.execute("SELECT * FROM straw_location WHERE number='"+panel+"' AND location_type='MN'")
+        panel_id = str(cursor.fetchall()[0][0])
+        print(panel_id)
+        
+        # get id of first LPAL
+        cursor.execute("SELECT * FROM straw_location WHERE number='"+lpal_1+"' AND location_type='LPAL'")
+        lpal_1_id = str(cursor.fetchall()[0][0])
+        print(lpal_1_id)
+        
+        # get id of first LPAL
+        cursor.execute("SELECT * FROM straw_location WHERE number='"+lpal_2+"' AND location_type='LPAL'")
+        lpal_2_id = str(cursor.fetchall()[0][0])
+        print(lpal_2_id)
+        
+        # update straw information in db
+        cursor.execute("UPDATE straw_position SET location='"+panel_id+"' WHERE location='"+lpal_1_id+"' OR location='"+lpal_2_id+"'")
+        
+        # commit changes and close connection
+        con.commit()
+        con.close()
+        
+        
+        
+        
+        
 
     """
     resetpro1(self)
@@ -4359,6 +4401,7 @@ class panelGUI(QMainWindow):
     """
 
     def pro3part1(self):
+    
         # Ensure that all parts have been checked off
         if not (self.checkSupplies() or DEBUG):
             return
@@ -4375,7 +4418,8 @@ class panelGUI(QMainWindow):
                 "Wire Spool Not Found",
                 "Either a wire spool was not entered, or it is not recorded in the database.",
             )
-
+    
+            
         # If all tests pass, continue
 
         # Disable start button, panel input, and don't let user input calibration factor
