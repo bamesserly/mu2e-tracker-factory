@@ -847,7 +847,8 @@ class TxtDataProcessor(DataProcessor):
                 row += f"[{data[i][0]}|{data[i][1]}],"
             else:
                 row += str(data[i])  # add it to the row
-                row += ","  # and a comma to seperate cells in CSV
+                if str(data[i]) != "[1 day":
+                    row += ","  # and a comma to seperate cells in CSV
 
         row += str(numSteps)
         row += ","
