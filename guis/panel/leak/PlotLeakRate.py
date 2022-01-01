@@ -253,22 +253,6 @@ def dbview_call(df):
 
     # get the start, end, and elapsed times over which to make the fit
     total_duration = df["TIME(DAYS)"].iat[-1]
-    """
-    fit_start_time = (
-        GetFitStartTime(total_duration)
-        if not options.fit_start_time
-        else options.fit_start_time
-    )
-    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
-    print("Total duration of leak test:", round(total_duration, 3))
-    print(
-        "Fit will be performed between",
-        round(fit_start_time, 3),
-        "and",
-        round(fit_end_time, 3),
-        "days",
-    )
-    """
     fit_start_time = 0
     fit_end_time = total_duration
 
@@ -307,9 +291,6 @@ def dbview_call(df):
     axDiffP.relim()
     axDiffP.autoscale_view()
     
-    
-    
-    
     # get bound values
     min_diff_pressure = df["PRESSURE(PSI)"].min()
     max_diff_pressure = df["PRESSURE(PSI)"].max()
@@ -317,25 +298,19 @@ def dbview_call(df):
     min_ref_pressure = df["RefPSIA"].min()
     max_ref_pressure = df["RefPSIA"].max()
     
-    # set bounds
-    
+    # set graphing bounds
     axDiffP.set_ylim(bottom=min_diff_pressure)
-
     axDiffP.set_ylim(top=max_diff_pressure)
-
+    
     axRefP.set_ylim(bottom=min_ref_pressure)
-
     axRefP.set_ylim(top=max_ref_pressure)
     
-
     # Temperature axis - limits
-    
     ymin, ymax = axTemp.get_ylim()
     axTemp.relim()
     axTemp.set_ylim(0, ymax * 1.1)
     axTemp.autoscale_view()
     
-
     plt.show()
 ################################################################################
 # main
