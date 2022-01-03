@@ -4044,17 +4044,14 @@ class panelGUI(QMainWindow):
         # get id of panel
         cursor.execute("SELECT * FROM straw_location WHERE number='"+panel+"' AND location_type='MN'")
         panel_id = str(cursor.fetchall()[0][0])
-        print(panel_id)
         
         # get id of first LPAL
         cursor.execute("SELECT * FROM straw_location WHERE number='"+lpal_1+"' AND location_type='LPAL'")
         lpal_1_id = str(cursor.fetchall()[0][0])
-        print(lpal_1_id)
         
         # get id of first LPAL
         cursor.execute("SELECT * FROM straw_location WHERE number='"+lpal_2+"' AND location_type='LPAL'")
         lpal_2_id = str(cursor.fetchall()[0][0])
-        print(lpal_2_id)
         
         # update straw information in db
         cursor.execute("UPDATE straw_position SET location='"+panel_id+"' WHERE location='"+lpal_1_id+"' OR location='"+lpal_2_id+"'")
