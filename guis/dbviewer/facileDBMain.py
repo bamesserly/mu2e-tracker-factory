@@ -418,10 +418,6 @@ class facileDBGUI(QMainWindow):
                 120
             )
         )
-<<<<<<< Updated upstream
-        
-=======
->>>>>>> Stashed changes
         self.ui.leakGraphButton.clicked.connect(
             lambda: plotter.dbview_call(
                 self.data.leak_df
@@ -885,18 +881,8 @@ class facileDBGUI(QMainWindow):
         hasData = hasData or funcRetI or funcRetII
         # find pro 8 data
         funcRet = self.findPro8()
-<<<<<<< Updated upstream
-        hasData = hasData or funcRet
-        
-        #find Leak Datedata
-        self.findLeakData()
-=======
         funcRetII = self.findLeakData()
         hasData = hasData or funcRet or funcRetII
-        
-        
-        
->>>>>>> Stashed changes
 
         return hasData
 
@@ -1496,11 +1482,6 @@ class facileDBGUI(QMainWindow):
     # parameters: int, pro is the process to find data for (3 or 6)
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
-<<<<<<< Updated upstream
-        
-=======
-
->>>>>>> Stashed changes
         self.ui.left_coverLE.clear()
         self.ui.left_ringLE.clear()
         self.ui.right_coverLE.clear()
@@ -1586,42 +1567,6 @@ class facileDBGUI(QMainWindow):
         self.data.qcParts["stage"] = rawPro8Data[0][6]
 
         return True
-<<<<<<< Updated upstream
-    
-    def findLeakData(self):
-        panelLeakDetails = sqla.Table(  # trace back to trial to retrieve latest leak data
-            "panel_leak_test_details", self.metadata, autoload=True, autoload_with=self.engine
-        )
-        query = sqla.select(
-            [
-                panelLeakDetails.columns.id
-            ]
-        ).where(panelLeakDetails.columns.procedure == self.data.proIDs['pan8'])
-        resultProxy = self.connection.execute(query)  # make proxy
-        relevant_entries = resultProxy.fetchall()  # get data from db
-        
-        trials = []
-        for i in relevant_entries:  # get a list of trials involving the pertinent panel
-            trials.append(i[0])
-        relevant_trial = str(max(trials))
-        
-        # acquire pertinent entries from measurement_panel_leak
-        query = 'SELECT * FROM measurement_panel_leak WHERE trial = '+relevant_trial+''
-        leak_df = pd.read_sql_query(query, self.engine)
-        
-        # rename pertinent columns
-        leak_df.rename(columns={"elapsed_days":"TIME(DAYS)"}, inplace=True)
-        leak_df.rename(columns={"pressure_diff":"PRESSURE(PSI)"}, inplace=True)
-        leak_df.rename(columns={"pressure_ref":"RefPSIA"}, inplace=True)
-        leak_df.rename(columns={"pressure_fill":"FillPSIA"}, inplace=True)
-        
-        self.data.leak_df = leak_df
-        
-        if self.data.leak_df.empty == False: # enable leak button if data exists in order to prevent error
-            self.ui.leakGraphButton.setDisabled(False)
-
-    # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
-=======
         
     def findLeakData(self):
         self.data.leak_df = pd.DataFrame()
@@ -1666,7 +1611,7 @@ class facileDBGUI(QMainWindow):
     
 
     # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗
->>>>>>> Stashed changes
+    # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔══██╗██║██╔════╝██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
     # ██║  ██║██║███████╗██████╔╝██║     ███████║ ╚████╔╝     ██║  ██║███████║   ██║   ███████║
     # ██║  ██║██║╚════██║██╔═══╝ ██║     ██╔══██║  ╚██╔╝      ██║  ██║██╔══██║   ██║   ██╔══██║
@@ -1895,12 +1840,6 @@ class facileDBGUI(QMainWindow):
             if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
                 self.getWid(f'{key}LE').setText("Unknown")
 
-<<<<<<< Updated upstream
-    
-
-
-=======
->>>>>>> Stashed changes
 
     # put data into QListWidgets
     # parameters:   pro, int representing which pro to check for data in
