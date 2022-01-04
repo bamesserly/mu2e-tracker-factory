@@ -844,11 +844,12 @@ class TxtDataProcessor(DataProcessor):
             if isinstance(data[i], tuple) and isinstance(
                 data[i][0], timedelta
             ):  # is a timedelta tuple
-                row += f"[{data[i][0]}|{data[i][1]}],"
+                timedata = f"[{data[i][0]}|{data[i][1]}]"
+                timedata = timedata.strip(",") + ","
+                row += timedata
             else:
                 row += str(data[i])  # add it to the row
-                if str(data[i]) != "[1 day":
-                    row += ","  # and a comma to seperate cells in CSV
+                row += ","  # and a comma to seperate cells in CSV
 
         row += str(numSteps)
         row += ","
