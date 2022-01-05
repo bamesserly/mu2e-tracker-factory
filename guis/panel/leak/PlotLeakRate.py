@@ -23,6 +23,7 @@ from pathlib import Path
 import sys
 from guis.panel.leak.panel_leak_utilities import *
 from guis.panel.leak.load_leak_csv_into_db import main as load_into_db
+import time
 
 ################################################################################
 # Constants
@@ -313,11 +314,20 @@ def main(options, panel=None, tag=None):
         title = options.infile.split("\\")[-1]
         title = title.partition(".")[0]
     else:
+        
         try:
-            time = datetime.datetime.fromtimestamp(int(df['timestamp'][0])).strftime('%y%m%d')
-            title = time + "_" + "MN" + str(panel) + " " + str(tag)
+            # determine time at which measurments commenced
+            measurement_time = datetime.datetime.fromtimestamp(int(df['timestamp'][0])).strftime('%y%m%d')
+                    
+            # determine elapsed time in terms of hours and seconds
+            elapsed_seconds = int(df['TIME(DAYS)'].iloc[-2] * 86400)
+            elapsed_time = time.strftime("%H%M", time.gmtime(elapsed_seconds))
+            
+            title = measurement_time + "_" + elapsed_time + "_" + "MN" + str(panel) + " " + str(tag)
         except:
             title = "Title Not Found"
+        
+        
     plt.title(title)
     axDiffP.set_xlabel("DAYS", fontweight="bold")
     axDiffP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
