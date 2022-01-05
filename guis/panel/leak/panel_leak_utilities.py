@@ -97,10 +97,11 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 
 ################################################################################
 # READ INPUT
-# Read raw data from the database into a dataframe, structurally equivalent to that of ReadLeakRateFile
+# Read raw data from the database into a dataframe, structurally equivalent to that of ReadLeakRateFile, but with timestamps retained
 # TIME(DAYS)    FILLPSIA    RefPSIA PRESSURE(PSI)   BOX TEMPERATURE(C)  ROOM TEMPERATURE(C) Heater%
+################################################################################
 
-def readLeakDb(panel, tag): # panel variable may either be panel number or panel id
+def readLeakDb(panel, tag):
     leak_df = pd.DataFrame()
     
     #ensure that panel is type str
@@ -135,7 +136,7 @@ def readLeakDb(panel, tag): # panel variable may either be panel number or panel
         leak_df.rename(columns={"heater_pct":"Heater%"}, inplace=True)
     
         # drop other columns
-        leak_df.drop(columns=['id', 'trial', 'timestamp'], axis=1, inplace=True)
+        leak_df.drop(columns=['id', 'trial'], axis=1, inplace=True)
         
         con.close()
         
@@ -146,8 +147,39 @@ def readLeakDb(panel, tag): # panel variable may either be panel number or panel
         return pd.DataFrame()
 
 
+################################################################################
+# returns a list of leak test tags for an inputted panel
+################################################################################
+
+def getLeakTags(panel):
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
+    
+    # acquire straw location
+    cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
+    straw_location = str(cursor.fetchall()[0][0])
+
+    # use straw location to acquire procedure
+    cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
+    procedure = str(cursor.fetchall()[0][0])
+    
+    # use procedure and tag to acquire trial
+    cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"'")
+    raw_list = cursor.fetchall()
+
+
+    tag_list = []
+    for i in raw_list: # sort out tags from raw_list and put in list to return
+        tag_list.append(str(i[2]))
+    
+    return tag_list
+        
     
     
+    
+    
+    
+
     
     
     

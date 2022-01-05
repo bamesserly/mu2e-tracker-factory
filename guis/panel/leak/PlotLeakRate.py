@@ -307,14 +307,15 @@ def main(options, panel=None, tag=None):
     legend3 = axRefP.legend(lines3, labels3, loc="lower left")
     legend3.legendHandles[0]._legmarker.set_markersize(8)
     legend3.legendHandles[1]._legmarker.set_markersize(8)
-
+    
     # axis labels
     if dbCall == False:
         title = options.infile.split("\\")[-1]
         title = title.partition(".")[0]
     else:
         try:
-            title = "MN" + str(panel) + " " + str(tag)
+            time = datetime.datetime.fromtimestamp(int(df['timestamp'][0])).strftime('%y%m%d')
+            title = time + "_" + "MN" + str(panel) + " " + str(tag)
         except:
             title = "Title Not Found"
     plt.title(title)

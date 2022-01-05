@@ -8,6 +8,7 @@ import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
+import datetime
 
 # importing leak rate plotter for FinalQC
 import guis.panel.leak.PlotLeakRate as plotter
@@ -423,9 +424,9 @@ class facileDBGUI(QMainWindow):
         )
         self.ui.leakGraphButton.clicked.connect(
             lambda: plotter.main(
-                panel_leak_utilities.readLeakDb(self.data.humanID, "test2"),
+                panel_leak_utilities.readLeakDb(self.data.humanID, self.ui.leakGraphSelect.currentText()),
                 self.data.humanID,
-                "test2"
+                self.ui.leakGraphSelect.currentText()
             )
         )
 
@@ -522,6 +523,7 @@ class facileDBGUI(QMainWindow):
         self.ui.tbPlotButton_2.setDisabled(True)
         self.ui.tbProBox.setDisabled(True)
         self.ui.tbProBox_2.setDisabled(True)
+        self.ui.leakGraphButton.setDisabled(True)
 
     # remove data from all widgets
     # parameters: no parameters
@@ -1636,6 +1638,13 @@ class facileDBGUI(QMainWindow):
             errorBars=True,
             eIndex=3
         )
+        # put data into finalqc tag combobox/ clear prexisting data in dropdown menu. Also enable plotting button if there are tags.
+        self.ui.leakGraphSelect.clear()
+        if len(panel_leak_utilities.getLeakTags(self.data.humanID)) != 0:
+            self.ui.leakGraphButton.setDisabled(False)
+        else:
+            self.ui.leakGraphButton.setDisabled(True)
+        self.ui.leakGraphSelect.addItems(panel_leak_utilities.getLeakTags(self.data.humanID))
         return
 
     # puts part IDs on the gui
