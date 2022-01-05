@@ -1,5 +1,6 @@
 import pandas as pd
 import datetime
+import sqlite3
 
 ################################################################################
 # Constants
@@ -92,3 +93,62 @@ def ReadLeakRateFile(infile, is_new_format="true"):
         # df['PSI/degC'] = df["PRESSURE(PSI)"]/df["ROOM TEMPERATURE(C)"]
 
         return df
+
+
+################################################################################
+# READ INPUT
+# Read raw data from the database into a dataframe, structurally equivalent to that of ReadLeakRateFile
+# TIME(DAYS)    FILLPSIA    RefPSIA PRESSURE(PSI)   BOX TEMPERATURE(C)  ROOM TEMPERATURE(C) Heater%
+
+def readLeakDb(panel, tag): # panel variable may either be panel number or panel id
+    leak_df = pd.DataFrame()
+    
+    #ensure that panel is type str
+    panel = str(panel)
+    
+    try:
+        con = sqlite3.connect('data/database.db')
+        cursor = con.cursor()
+
+        # acquire straw location
+        cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
+        straw_location = str(cursor.fetchall()[0][0])
+    
+        # use straw location to acquire procedure
+        cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
+        procedure = str(cursor.fetchall()[0][0])
+        
+        # use procedure and tag to acquire trial
+        cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"' AND tag='"+tag+"'")
+        trial = str(cursor.fetchall()[0][0])
+        
+        # use trial to acquire pertinent entries from measurement_panel_leak
+        leak_df = pd.read_sql_query("SELECT * FROM measurement_panel_leak WHERE trial='"+trial+"'", con)
+        
+        # rename pertinent columns
+        leak_df.rename(columns={"elapsed_days":"TIME(DAYS)"}, inplace=True)
+        leak_df.rename(columns={"pressure_diff":"PRESSURE(PSI)"}, inplace=True)
+        leak_df.rename(columns={"pressure_ref":"RefPSIA"}, inplace=True)
+        leak_df.rename(columns={"pressure_fill":"FillPSIA"}, inplace=True)
+        leak_df.rename(columns={"temp_box":"BOX TEMPERATURE(C)"}, inplace=True)
+        leak_df.rename(columns={"temp_room":"ROOM TEMPERATURE(C)"}, inplace=True)
+        leak_df.rename(columns={"heater_pct":"Heater%"}, inplace=True)
+    
+        # drop other columns
+        leak_df.drop(columns=['id', 'trial', 'timestamp'], axis=1, inplace=True)
+        
+        con.close()
+        
+        return leak_df
+    
+    except:
+        print("Error, possibility that FinalQC leakdata does not exist for this panel.")
+        return pd.DataFrame()
+
+
+    
+    
+    
+    
+    
+    

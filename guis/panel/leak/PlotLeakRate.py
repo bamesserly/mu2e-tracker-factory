@@ -24,9 +24,6 @@ import sys
 from guis.panel.leak.panel_leak_utilities import *
 from guis.panel.leak.load_leak_csv_into_db import main as load_into_db
 
-import sqlite3
-import pandas as pd
-
 ################################################################################
 # Constants
 ################################################################################
@@ -230,94 +227,19 @@ def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
     FitAndPlot_1(df, axDiffP)
     FitAndPlot_2(df, axDiffP)
 
-def dbview_call(df):
-    # prep plots
-    params = {"mathtext.default": "regular"}
-    fig, axs = plt.subplots(2, figsize=(13, 11))
-    axDiffP = axs[0]
-    axTemp = axDiffP.twinx()
-    axRefP = axs[1]
 
-    # Plot data points
-    PlotDataPoints(df, "PRESSURE(PSI)", axDiffP, color_pressure)
-    try:
-        PlotDataPoints(df, "ROOM TEMPERATURE(C)", axTemp, color_room_temp)
-    except KeyError:
-        pass
-    try:
-        PlotDataPoints(df, "BOX TEMPERATURE(C)", axTemp, color_box_temp)
-    except KeyError:
-        pass
-    PlotDataPoints(df, "RefPSIA", axRefP, color_pressure_ref, "$P_{Ref}$")
-    PlotDataPoints(df, "FillPSIA", axRefP, color_pressure_fill, "$P_{Fill}$")
-
-    # get the start, end, and elapsed times over which to make the fit
-    total_duration = df["TIME(DAYS)"].iat[-1]
-    fit_start_time = 0
-    fit_end_time = total_duration
-
-    # Do fit and plot it
-    DoFitAndPlot(df, 0, total_duration, axDiffP, axTemp)
-
-    # legends
-    lines, labels = axDiffP.get_legend_handles_labels()
-    lines2, labels2 = axTemp.get_legend_handles_labels()
-    legend = axTemp.legend(lines + lines2, labels + labels2, loc=0)
-    try:
-        legend.legendHandles[-1]._legmarker.set_markersize(8)
-    except IndexError:
-        pass
-    try:
-        legend.legendHandles[-2]._legmarker.set_markersize(8)
-    except IndexError:
-        pass
-    lines3, labels3 = axRefP.get_legend_handles_labels()
-    legend3 = axRefP.legend(lines3, labels3, loc="lower left")
-    legend3.legendHandles[0]._legmarker.set_markersize(8)
-    legend3.legendHandles[1]._legmarker.set_markersize(8)
-
-    # axis labels
-    axDiffP.set_xlabel("DAYS", fontweight="bold")
-    axDiffP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
-    axTemp.set_ylabel("TEMPERATURE (C)", fontweight="bold")
-    axDiffP.yaxis.label.set_color(color_pressure)
-    axTemp.yaxis.label.set_color("k")
-
-    axRefP.set_ylabel("PRESSURE (PSI)", fontweight="bold")
-    axRefP.yaxis.label.set_color("k")
-
-    # Pressure axis - limits
-    # Pymin,Pymax = axDiffP.get_ylim()
-    axDiffP.relim()
-    axDiffP.autoscale_view()
-    
-    # get bound values
-    min_diff_pressure = df["PRESSURE(PSI)"].min()
-    max_diff_pressure = df["PRESSURE(PSI)"].max()
-    
-    min_ref_pressure = df["RefPSIA"].min()
-    max_ref_pressure = df["RefPSIA"].max()
-    
-    # set graphing bounds
-    axDiffP.set_ylim(bottom=min_diff_pressure)
-    axDiffP.set_ylim(top=max_diff_pressure)
-    
-    axRefP.set_ylim(bottom=min_ref_pressure)
-    axRefP.set_ylim(top=max_ref_pressure)
-    
-    # Temperature axis - limits
-    ymin, ymax = axTemp.get_ylim()
-    axTemp.relim()
-    axTemp.set_ylim(0, ymax * 1.1)
-    axTemp.autoscale_view()
-    
-    plt.show()
 ################################################################################
 # main
 ################################################################################
-def main(options):
+def main(options, panel=None, tag=None):
     # read raw data files into a dataframe
-    df = ReadLeakRateFile(options.infile, options.is_new_format)
+    if isinstance(options, pd.DataFrame):
+        df = options
+        dbCall = True
+    else:
+        df = ReadLeakRateFile(options.infile, options.is_new_format)
+        dbCall = False
+    
 
     # prep plots
     params = {"mathtext.default": "regular"}
@@ -341,12 +263,20 @@ def main(options):
 
     # get the start, end, and elapsed times over which to make the fit
     total_duration = df["TIME(DAYS)"].iat[-1]
-    fit_start_time = (
-        GetFitStartTime(total_duration)
-        if not options.fit_start_time
-        else options.fit_start_time
-    )
-    fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
+    if dbCall == False:
+        fit_start_time = (
+            GetFitStartTime(total_duration)
+            if not options.fit_start_time
+            else options.fit_start_time
+        )
+    else:
+        fit_start_time = 0
+        
+    if dbCall == False:
+        fit_end_time = total_duration if not options.fit_end_time else options.fit_end_time
+    else:
+        fit_end_time = total_duration
+    
     print("Total duration of leak test:", round(total_duration, 3))
     print(
         "Fit will be performed between",
@@ -356,9 +286,10 @@ def main(options):
         "days",
     )
 
-    # Do fit and plot it
-    if options.do_fit:
-        DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp)
+    if dbCall == False:
+        # Do fit and plot it
+        if options.do_fit:
+            DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp)
 
     # legends
     lines, labels = axDiffP.get_legend_handles_labels()
@@ -378,8 +309,14 @@ def main(options):
     legend3.legendHandles[1]._legmarker.set_markersize(8)
 
     # axis labels
-    title = options.infile.split("\\")[-1]
-    title = title.partition(".")[0]
+    if dbCall == False:
+        title = options.infile.split("\\")[-1]
+        title = title.partition(".")[0]
+    else:
+        try:
+            title = "MN" + str(panel) + " " + str(tag)
+        except:
+            title = "Title Not Found"
     plt.title(title)
     axDiffP.set_xlabel("DAYS", fontweight="bold")
     axDiffP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
@@ -394,15 +331,17 @@ def main(options):
     # Pymin,Pymax = axDiffP.get_ylim()
     axDiffP.relim()
     axDiffP.autoscale_view()
-    if options.min_diff_pressure:
-        axDiffP.set_ylim(bottom=options.min_diff_pressure)
-    if options.max_diff_pressure:
-        axDiffP.set_ylim(top=options.max_diff_pressure)
+    
+    if dbCall == False:
+        if options.min_diff_pressure:
+            axDiffP.set_ylim(bottom=options.min_diff_pressure)
+        if options.max_diff_pressure:
+            axDiffP.set_ylim(top=options.max_diff_pressure)
 
-    if options.min_ref_pressure:
-        axRefP.set_ylim(bottom=options.min_ref_pressure)
-    if options.max_ref_pressure:
-        axRefP.set_ylim(top=options.max_ref_pressure)
+        if options.min_ref_pressure:
+            axRefP.set_ylim(bottom=options.min_ref_pressure)
+        if options.max_ref_pressure:
+            axRefP.set_ylim(top=options.max_ref_pressure)
 
     # Temperature axis - limits
     ymin, ymax = axTemp.get_ylim()
@@ -410,26 +349,27 @@ def main(options):
     axTemp.set_ylim(0, ymax * 1.1)
     axTemp.autoscale_view()
 
-    # Create outdir for panel pdfs
-    panel_id = GetPanelIDFromFilename(options.infile)
-    plots_dir = GetProjectPaths()["panelleak"] / panel_id
-    plots_dir.mkdir(exist_ok=True, parents=True)
+    if dbCall == False:
+        # Create outdir for panel pdfs
+        panel_id = GetPanelIDFromFilename(options.infile)
+        plots_dir = GetProjectPaths()["panelleak"] / panel_id
+        plots_dir.mkdir(exist_ok=True, parents=True)
 
-    # fit start/endtime tag
-    fit_start_tag = (
-        "_ti={0}days".format(options.fit_start_time) if options.fit_start_time else ""
-    )
-    fit_end_tag = (
-        "_tf={0}days".format(options.fit_end_time) if options.fit_end_time else ""
-    )
+        # fit start/endtime tag
+        fit_start_tag = (
+            "_ti={0}days".format(options.fit_start_time) if options.fit_start_time else ""
+        )
+        fit_end_tag = (
+            "_tf={0}days".format(options.fit_end_time) if options.fit_end_time else ""
+        )
 
-    # create plot filename
-    title = "{0}{1}{2}.pdf".format(title, fit_start_tag, fit_end_tag)
-    full_path = plots_dir / title
+        # create plot filename
+        title = "{0}{1}{2}.pdf".format(title, fit_start_tag, fit_end_tag)
+        full_path = plots_dir / title
 
-    # save plot
-    print("Saving image", full_path)
-    plt.savefig(full_path)
+        # save plot
+        print("Saving image", full_path)
+        plt.savefig(full_path)
 
     # display plot
     plt.show()

@@ -9,9 +9,12 @@ import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
 from datetime import timedelta
 
-#importing leak rate plotter for FinalQC
+# importing leak rate plotter for FinalQC
 import guis.panel.leak.PlotLeakRate as plotter
 import pandas as pd
+
+# importing panel_leak_utilities
+import guis.panel.leak.panel_leak_utilities as panel_leak_utilities
 
 import logging
 from matplotlib import cm
@@ -72,7 +75,7 @@ class TimeScaleDraw(qwt.QwtScaleDraw):
 
 
 # fmt: off
-# ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗    ██╗   ██╗██╗███████╗██╗    ██╗███████╗██████╗ 
+# ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗    ██╗   ██╗██╗███████╗██╗    ██╗███████╗██████╗
 # ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝    ██║   ██║██║██╔════╝██║    ██║██╔════╝██╔══██╗
 # ██║  ██║███████║   ██║   ███████║██████╔╝███████║███████╗█████╗      ██║   ██║██║█████╗  ██║ █╗ ██║█████╗  ██████╔╝
 # ██║  ██║██╔══██║   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══╝      ╚██╗ ██╔╝██║██╔══╝  ██║███╗██║██╔══╝  ██╔══██╗
@@ -208,7 +211,7 @@ class facileDBGUI(QMainWindow):
         # straw_location (panels)
         self.panelsTable = sqla.Table(
             "straw_location", self.metadata, autoload=True, autoload_with=self.engine
-        )  
+        )
         # procedure (each different pro for each panel pro3 for mn100, pro6 for mn050, etc)
         self.proceduresTable = sqla.Table(
             "procedure", self.metadata, autoload=True, autoload_with=self.engine
@@ -419,8 +422,10 @@ class facileDBGUI(QMainWindow):
             )
         )
         self.ui.leakGraphButton.clicked.connect(
-            lambda: plotter.dbview_call(
-                self.data.leak_df
+            lambda: plotter.main(
+                panel_leak_utilities.readLeakDb(self.data.humanID, "test2"),
+                self.data.humanID,
+                "test2"
             )
         )
 
@@ -517,7 +522,6 @@ class facileDBGUI(QMainWindow):
         self.ui.tbPlotButton_2.setDisabled(True)
         self.ui.tbProBox.setDisabled(True)
         self.ui.tbProBox_2.setDisabled(True)
-        self.ui.leakGraphButton.setDisabled(True)
 
     # remove data from all widgets
     # parameters: no parameters
@@ -547,6 +551,9 @@ class facileDBGUI(QMainWindow):
                 widget.setText("")
 
         # clear pro 8 wdgets
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
         self.ui.left_coverLE.setText("")
         self.ui.left_ringLE.setText("")
         self.ui.right_coverLE.setText("")
@@ -627,14 +634,23 @@ class facileDBGUI(QMainWindow):
 
         # local funciton to graph tubriculosis
         def graphTB(self, data):
-            fig, axS = plt.subplots()
-            axS.set_xlabel("wire/straw", fontweight = "bold")
-            axS.set_ylabel("straw tension (g)", fontweight = "bold")
-            axS.yaxis.label.set_color("b")
-            axW = axS.twinx()
-            axW.set_ylabel("wire tension (g)", fontweight = "bold")
-            axW.yaxis.label.set_color("r")
+            ##  initialize subplots
 
+            fig, (ax1, ax2) = plt.subplots(2,1)
+            ax1.set_ylabel("straw tension (g)", fontweight = "bold")
+            ax1.yaxis.label.set_color("b")
+
+            ax2.set_ylabel("wire tension (g)", fontweight = "bold")
+            ax2.yaxis.label.set_color("r")
+
+            ##   define datasets
+
+            straw_x_data = [x[0] for x in data if x[5] == "straw"]
+            straw_y_data = [x[4] for x in data if x[5] == "straw"]
+            wire_x_data = [x[0] for x in data if x[5] == "wire"]
+            wire_y_data = [x[4] for x in data if x[5] == "wire"]
+
+            ##  define plotting function
             def plot(axis, x_data, y_data, color, label):
                 axis.plot(
                     np.array(x_data),
@@ -650,14 +666,10 @@ class facileDBGUI(QMainWindow):
                 axis.relim()
                 axis.autoscale_view()
 
-            straw_x_data = [x[0] for x in data if x[5] == "straw"]
-            straw_y_data = [x[4] for x in data if x[5] == "straw"]
 
-            wire_x_data = [x[0] for x in data if x[5] == "wire"]
-            wire_y_data = [x[4] for x in data if x[5] == "wire"]
-
-            plot(axS, straw_x_data, straw_y_data, "b", "straw")
-            plot(axW, wire_x_data, wire_y_data, "r", "wire")
+            ##  plot the data
+            plot(ax1, straw_x_data, straw_y_data, "b", "straw")
+            plot(ax2, wire_x_data, wire_y_data, "r", "wire")
 
             #plt.tight_layout()
             plt.show()
@@ -680,7 +692,7 @@ class facileDBGUI(QMainWindow):
                 title="Error",
                 message=f'An error was encountered while attempting to graph {text}.',
             )
-    
+
     # called when a combo box index changes, calls functions to update relevant data
     # parameters:   type, a string either "hv" or "heat"
     #               index, the new index of the comboBox
@@ -705,7 +717,7 @@ class facileDBGUI(QMainWindow):
                 message=f'An error was encountered while fetching data for {text}.',
             )
             return
-    
+
     # called in comboBoxChanged.  Does the heavy lifting when it comes to showing the
     # correct data in the list widgets and graphs.
     # parameters:   pro, int representing the process being shown
@@ -813,7 +825,7 @@ class facileDBGUI(QMainWindow):
 
         self.setStyleSheet(self.stylesheet)
 
-    # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗ 
+    # ███████╗██╗███╗   ██╗██████╗     ██████╗  █████╗ ████████╗ █████╗
     # ██╔════╝██║████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
     # █████╗  ██║██╔██╗ ██║██║  ██║    ██║  ██║███████║   ██║   ███████║
     # ██╔══╝  ██║██║╚██╗██║██║  ██║    ██║  ██║██╔══██║   ██║   ██╔══██║
@@ -825,7 +837,7 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: bool, true if any data was found for the panel
     def findPanelData(self):
-        
+
         # find new database ID
         self.data.dbID = self.findPanelDatabaseID()
 
@@ -880,10 +892,10 @@ class facileDBGUI(QMainWindow):
         funcRetII = self.findSpecificTB(6)
         hasData = hasData or funcRetI or funcRetII
         # find pro 8 data
-        funcRet = self.findPro8()
-        funcRetII = self.findLeakData()
-        hasData = hasData or funcRet or funcRetII
-
+        funcRet = self.findPro8()    
+        hasData = hasData or funcRet
+        
+        
         return hasData
 
     # finds and returns the database id for the panel in question
@@ -904,7 +916,7 @@ class facileDBGUI(QMainWindow):
         resultProxy = self.connection.execute(panelIDQuery)
         # fetch from proxy, which gives [(<PANEL ID>,)]
         resultSet = resultProxy.fetchall()
-        
+
         # if nothing returned,
         if len(resultSet) == 0:
             # the panel doesn't exist!
@@ -1005,7 +1017,7 @@ class facileDBGUI(QMainWindow):
             )
 
         return retList is not None
-    
+
     # finds comments for each procedure and stores it in self.data.comLists
     # parameters: no parameters
     # returns: bool, true if any data found, false otherwise
@@ -1127,7 +1139,7 @@ class facileDBGUI(QMainWindow):
     # returns: nothing returned
     def findLPALs(self):
         # LPALs are found differently than regular parts
-        # straw_location(MN type) --> procedures(this panel) --> 
+        # straw_location(MN type) --> procedures(this panel) -->
         #   pan1_procedure(this panels procedure) --> straw_location(LPAL type)
 
         # procedure_details_pan1        --> pan1Pros
@@ -1157,7 +1169,7 @@ class facileDBGUI(QMainWindow):
         # if both LPALs have been found, return early
         if self.data.parts["lpal_bot_"] != [] and self.data.parts["lpal_top_"] != []:
             return
-        
+
         # otherwise repeat for pro 2
         # procedure_details_pan2        --> pan2Pros
         pan2Pros = sqla.Table(
@@ -1177,7 +1189,7 @@ class facileDBGUI(QMainWindow):
 
         resultProxy = self.connection.execute(lpal2Query)
         resultSet = resultProxy.fetchall()
-        
+
         if len(resultSet ) > 0:
             if resultSet[0][0] is not None and self.data.parts["lpal_top_"] == []:
                 self.data.parts["lpal_top_"] = resultSet[0][0]
@@ -1209,7 +1221,7 @@ class facileDBGUI(QMainWindow):
 
         if len(resultSet) != 1:
             return
-        
+
         if resultSet[0][0] is not None:
             self.data.parts["wire_spool"] = resultSet[0][0]
         if resultSet[0][1] is not None:
@@ -1286,7 +1298,7 @@ class facileDBGUI(QMainWindow):
             autoload=True,
             autoload_with=self.engine,
         )
-        
+
         wireTensionQuery = sqla.select(
             [  # select:
                 wireTensions.columns.position,  # wire position
@@ -1335,7 +1347,7 @@ class facileDBGUI(QMainWindow):
             autoload=True,
             autoload_with=self.engine,
         )
-        
+
         hvQuery = sqla.select(          # get...
             [
                 hvTable.columns.position,     # position,
@@ -1357,7 +1369,7 @@ class facileDBGUI(QMainWindow):
         # (<position>, <L amps>, <R amps>, <trip status>, <epoch timestamp>)
 
         hvList = []
-        
+
         for x in range(96):  # for x = 0 to 96
             hvList += [
                 (x, "No Data", "No Data", False, 0)
@@ -1376,7 +1388,7 @@ class facileDBGUI(QMainWindow):
                 lCount += 1
             if lst[2] is not None:
                 rCount += 1
-        
+
         if lCount > rCount:
             for i,toop in enumerate(hvList):
                 hvList[i] = (toop[0],toop[1],toop[3],"L",toop[4])
@@ -1416,7 +1428,7 @@ class facileDBGUI(QMainWindow):
         rawHeatData = resultProxy.fetchall()  # get data from db
 
         # go through the raw data and build a list with it
-        # list is list of tuples: 
+        # list is list of tuples:
         # (<human timestamp>, <epoch timestamp>, <PAAS A temp>, <PAAS B/C temp>)
         heatList = []
         for toop in rawHeatData:
@@ -1428,7 +1440,7 @@ class facileDBGUI(QMainWindow):
                     appendMe.append(thing)
             if appendMe[0] is not None and appendMe[1] is not None and appendMe[2] is not None:
                 heatList.append(appendMe)
-            
+
         # assign built list to self.data
         listPointer = getattr(self.data,f'p{pro}HeatData')
         listPointer += heatList
@@ -1482,6 +1494,10 @@ class facileDBGUI(QMainWindow):
     # parameters: int, pro is the process to find data for (3 or 6)
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
+
+        self.ui.leaksLW.clear()
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
         self.ui.left_coverLE.clear()
         self.ui.left_ringLE.clear()
         self.ui.right_coverLE.clear()
@@ -1522,7 +1538,7 @@ class facileDBGUI(QMainWindow):
                 self.data.badWires += [toop]
             else:
                 self.data.badStraws += [toop]
-        
+
         # methane leak testing data
         methaneLeakQuery = sqla.select(
             [
@@ -1557,7 +1573,7 @@ class facileDBGUI(QMainWindow):
 
         if len(rawPro8Data) > 1:
             return False
-        
+
         self.data.qcParts["left_cover"] = rawPro8Data[0][0]
         self.data.qcParts["right_cover"] = rawPro8Data[0][1]
         self.data.qcParts["center_cover"] = rawPro8Data[0][2]
@@ -1567,51 +1583,10 @@ class facileDBGUI(QMainWindow):
         self.data.qcParts["stage"] = rawPro8Data[0][6]
 
         return True
-        
-    def findLeakData(self):
-        self.data.leak_df = pd.DataFrame()
-        try:
-            panelLeakDetails = sqla.Table(  # trace back to trial to retrieve latest leak data
-                "panel_leak_test_details", self.metadata, autoload=True, autoload_with=self.engine
-            )
-            query = sqla.select(
-                [
-                    panelLeakDetails.columns.id
-                ]
-            ).where(panelLeakDetails.columns.procedure == self.data.proIDs['pan8'])
-            resultProxy = self.connection.execute(query)  # make proxy
-            relevant_entries = resultProxy.fetchall()  # get data from db
-
-            trials = []
-            for i in relevant_entries:  # get a list of trials involving the pertinent panel
-                trials.append(i[0])
-            relevant_trial = str(max(trials))
-
-            # acquire pertinent entries from measurement_panel_leak
-            query = 'SELECT * FROM measurement_panel_leak WHERE trial = '+relevant_trial+''
-            leak_df = pd.read_sql_query(query, self.engine)
-
-            # rename pertinent columns
-            leak_df.rename(columns={"elapsed_days":"TIME(DAYS)"}, inplace=True)
-            leak_df.rename(columns={"pressure_diff":"PRESSURE(PSI)"}, inplace=True)
-            leak_df.rename(columns={"pressure_ref":"RefPSIA"}, inplace=True)
-            leak_df.rename(columns={"pressure_fill":"FillPSIA"}, inplace=True)
-
-            self.data.leak_df = leak_df
-            
-            # enable button
-            self.ui.leakGraphButton.setDisabled(False)
-            
-            return True
-        except:
-            print("FinalQC leak data not present for this panel")
-            self.ui.leakGraphButton.setDisabled(True)
-            return False
-
     
 
+
     # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗
-    # ██████╗ ██╗███████╗██████╗ ██╗      █████╗ ██╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ 
     # ██╔══██╗██║██╔════╝██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
     # ██║  ██║██║███████╗██████╔╝██║     ███████║ ╚████╔╝     ██║  ██║███████║   ██║   ███████║
     # ██║  ██║██║╚════██║██╔═══╝ ██║     ██╔══██║  ╚██╔╝      ██║  ██║██╔══██║   ██║   ██╔══██║
@@ -1792,7 +1767,7 @@ class facileDBGUI(QMainWindow):
                     return self.ui.error_label
                 else:
                     return self.ui.error_label
-            
+
         # for each type of part,
         for key in self.data.parts:
             # make sure we actually have an id
@@ -1840,6 +1815,40 @@ class facileDBGUI(QMainWindow):
             if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
                 self.getWid(f'{key}LE').setText("Unknown")
 
+        # leaks next
+        for toop in self.data.methane:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[5]))))
+            descStr += f'\nLeak at {toop[2]}\n'
+            descStr += f'Size: {toop[3]}\n'
+            descStr += "Inflated: Yes\n" if toop[1] else "Inflated: No\n"
+            descStr += "O-Rings reinstalled\n" if "O" in toop[0] else ""
+            descStr += "Left cover reinstalled\n" if "L" in toop[0] else ""
+            descStr += "Right cover reinstalled\n" if "R" in toop[0] else ""
+            descStr += "Center cover reinstalled\n" if "C" in toop[0] else ""
+            descStr += f'Resolution: {toop[4]}\n'
+
+            self.ui.leaksLW.addItem(descStr)
+
+        # lastly straws and wires
+
+        for toop in self.data.badStraws:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
+            descStr += f'\nPosition: {toop[0]}\n'
+            descStr += f'Comment: {toop[1]}\n'
+
+            self.ui.badStrawsLW.addItem(descStr)
+
+        for toop in self.data.badWires:
+            descStr = ""
+            descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
+            descStr += f'\nPosition: {toop[0]}\n'
+            descStr += f'Comment: {toop[1]}\n'
+
+            self.ui.badWiresLW.addItem(descStr)
+
+
 
     # put data into QListWidgets
     # parameters:   pro, int representing which pro to check for data in
@@ -1864,7 +1873,7 @@ class facileDBGUI(QMainWindow):
 
         for button in buttons:
             button.setEnabled(True)
-        
+
         # add line to show side if using HV
         if hV:
             try:
@@ -1933,9 +1942,9 @@ class facileDBGUI(QMainWindow):
     # TODO: actually write the function lol
     def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout,errorBars=False,eIndex=0,microScale=False):
         # clear current plot
-        for i in reversed(range(targetLayout.count())): 
+        for i in reversed(range(targetLayout.count())):
             targetLayout.itemAt(i).widget().setParent(None)
-        
+
         # new plot
         plot = pg.plot()
         plot.setLabel("bottom",xAxis)
@@ -1949,7 +1958,7 @@ class facileDBGUI(QMainWindow):
         for toop in dataType:
             if toop[yIndex] != "No Data" and toop[yIndex] != None:
                 numPoints += 1
-                xs.append(float(toop[xIndex])) 
+                xs.append(float(toop[xIndex]))
                 ys.append(float(toop[yIndex]))
 
         if errorBars:
@@ -1970,7 +1979,7 @@ class facileDBGUI(QMainWindow):
         )
         points = [{'pos': [xs[z],ys[z]], 'data':1} for z in range(numPoints)]
         plotToAdd.addPoints(points, hoverable=True)
-        
+
         plot.addItem(plotToAdd)
         if errorBars:
             plot.addItem(errorPlot)
@@ -2046,7 +2055,7 @@ class facileDBGUI(QMainWindow):
                 ]
             else:
                 paasBCStats = []
-            
+
             # make a list of heat timestamps
             heatTimes = [toop[1] for toop in heatData if (toop[2] or toop[3])]
             # if we have that data
@@ -2086,7 +2095,7 @@ class facileDBGUI(QMainWindow):
     # returns: nothing returned
     def displayOnGraphHEAT(self,pro):
         # clear current plot
-        for i in reversed(range(self.ui.heatGraphLayout.count())): 
+        for i in reversed(range(self.ui.heatGraphLayout.count())):
             self.ui.plotLayout.itemAt(i).widget().setParent(None)
 
         # check if there's data to use
@@ -2163,7 +2172,7 @@ class facileDBGUI(QMainWindow):
         else:
             # add curve for paas A to legend
             theLegend27.addItem(curveA, "PAAS A")
-        
+
         # add legend to plot
         theLegend27.setParentItem(plot.getPlotItem())
         # show the grid on the plot
@@ -2173,7 +2182,7 @@ class facileDBGUI(QMainWindow):
         self.ui.heatGraphLayout.addWidget(plot)
 
 
-    #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗    ██████╗  █████╗ ████████╗ █████╗ 
+    #  ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗    ██████╗  █████╗ ████████╗ █████╗
     # ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
     # ██║  ███╗██████╔╝███████║██████╔╝███████║    ██║  ██║███████║   ██║   ███████║
     # ██║   ██║██╔══██╗██╔══██║██╔═══╝ ██╔══██║    ██║  ██║██╔══██║   ██║   ██╔══██║
@@ -2195,7 +2204,7 @@ class facileDBGUI(QMainWindow):
         sctrYDataPoints = []
         # make list for y value uncertainties
         sctrYDataUncs = []
-        # for each point, add it to 
+        # for each point, add it to
         for toop in dataType:
             if toop[1] != "No Data":
                 sctrYDataPoints += [toop[1]]
@@ -2249,6 +2258,8 @@ class facileDBGUI(QMainWindow):
     def graphSpecificHeat(self, pro):
         heatData = getattr(self.data,f'p{pro}HeatData')
 
+        #heatData[:] = [i for i in heatData if (-100. < i[2] < 150. and -100. < i[3] < 150.)]
+
         # make x data list by converting raw timesamps to matplotlib dates
         xData = [
             mpl.dates.epoch2num(toop[1])
@@ -2274,6 +2285,7 @@ class facileDBGUI(QMainWindow):
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel(f'Temperature {labelAddOn}(°C)', fontsize=20)  # set y axis label
+        plt.ylim(0.,65.)
 
         if pro > 1:
             letter = "B" if pro == 2 else "C"
@@ -2284,7 +2296,7 @@ class facileDBGUI(QMainWindow):
         plt.show()
 
 
-    # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗    ██████╗  █████╗ ████████╗ █████╗ 
+    # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗    ██████╗  █████╗ ████████╗ █████╗
     # ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
     # █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║       ██║  ██║███████║   ██║   ███████║
     # ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║       ██║  ██║██╔══██║   ██║   ██╔══██║
@@ -2313,7 +2325,7 @@ class facileDBGUI(QMainWindow):
             # if the user doesn't want to plot len(dataType) points, then don't!
             if answer == qM.No:
                 return
-        
+
         filePath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
         dataName.replace(" ","_")
         filePath += f"\MN{self.data.humanID}_{dataName}.csv"
