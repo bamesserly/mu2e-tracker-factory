@@ -845,7 +845,7 @@ class TxtDataProcessor(DataProcessor):
                 data[i][0], timedelta
             ):  # is a timedelta tuple
                 timedata = f"[{data[i][0]}|{data[i][1]}]"
-                timedata = timedata.strip(",") + ","
+                timedata = timedata.replace(",","") + ","
                 row += timedata
             else:
                 row += str(data[i])  # add it to the row
