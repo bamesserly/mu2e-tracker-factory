@@ -821,6 +821,19 @@ class panelGUI(QMainWindow):
         self.ui.submitRingsPB.clicked.connect(self.saveData)
         self.ui.submitCoversPB.setDisabled(True)
         self.ui.submitRingsPB.setDisabled(True)
+        
+        # establish proper autotabbing order and conditions
+        self.ui.left_cover_6.textChanged.connect(lambda: self.determine_autotab(self.ui.left_cover_6.text(), 7, self.ui.leftRing1LE))
+        self.ui.leftRing1LE.textChanged.connect(lambda: self.determine_autotab(self.ui.leftRing1LE.text(), 6, self.ui.leftRing2DE))
+        self.ui.leftRing4LE.textChanged.connect(lambda: self.determine_autotab(self.ui.leftRing4LE.text(), 5, self.ui.center_cover_6))
+        
+        self.ui.center_cover_6.textChanged.connect(lambda: self.determine_autotab(self.ui.center_cover_6.text(), 7, self.ui.centerRing1LE))
+        self.ui.centerRing1LE.textChanged.connect(lambda: self.determine_autotab(self.ui.centerRing1LE.text(), 6, self.ui.centerRing2DE))
+        self.ui.centerRing4LE.textChanged.connect(lambda: self.determine_autotab(self.ui.centerRing4LE.text(), 5, self.ui.right_cover_6))
+        
+        self.ui.right_cover_6.textChanged.connect(lambda: self.determine_autotab(self.ui.right_cover_6.text(), 7, self.ui.rightRing1LE))
+        self.ui.rightRing1LE.textChanged.connect(lambda: self.determine_autotab(self.ui.rightRing1LE.text(), 6, self.ui.rightRing2DE))
+        
         # connect checkboxes to pick one or the other, not both
         self.ui.wireCheck.toggled.connect(
             lambda: self.ui.strawCheck.setChecked(not (self.ui.wireCheck.isChecked()))
