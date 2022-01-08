@@ -771,6 +771,11 @@ class panelGUI(QMainWindow):
 
     def _init_pro6_setup(self):
         self.ui.panelInput6.installEventFilter(self)
+        
+        # establish proper autotabbing order and conditions
+        self.ui.panelInput6.textChanged.connect(lambda: self.determine_autotab(self.ui.panelInput6.text(), 5, self.ui.frameInput))
+        self.ui.frameInput.textChanged.connect(lambda: self.determine_autotab(self.ui.frameInput.text(), 4, self.ui.mrInput1))
+        self.ui.mrInput1.textChanged.connect(lambda: self.determine_autotab(self.ui.mrInput1.text(), 5, self.ui.mrInput2))
 
         ## Connect Triggers
         # Progression between parts
