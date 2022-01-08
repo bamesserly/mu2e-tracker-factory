@@ -205,6 +205,12 @@ class panelGUI(QMainWindow):
 
         Note: self is a required argument for all class methods, and will be omitted from all method comments
     """
+    # autotab helper function
+    def determine_autotab(self, text, desired_length, next_field):
+        if len(text) == desired_length:
+            next_field.setFocus()
+            
+    
 
     def __init__(self, paths, parent=None):
         super(panelGUI, self).__init__(parent)
@@ -349,6 +355,22 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
         self.ui.pro1PanelHeater.clicked.connect(self.panelHeaterPopup)
         self.ui.validateStraws.clicked.connect(self.checkLPALs)
+        
+        # establish proper autotabbing order and conditions
+        self.ui.panelInput1.textChanged.connect(lambda: self.determine_autotab(self.ui.panelInput1.text(), 5, self.ui.baseInput1))
+        self.ui.baseInput1.textChanged.connect(lambda: self.determine_autotab(self.ui.baseInput1.text(), 5, self.ui.mirInput))
+        self.ui.mirInput.textChanged.connect(lambda: self.determine_autotab(self.ui.mirInput.text(), 6, self.ui.birInput))
+        self.ui.birInput.textChanged.connect(lambda: self.determine_autotab(self.ui.birInput.text(), 6, self.ui.pirInputLA))
+        self.ui.pirInputLA.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputLA.text(), 7, self.ui.pirInputRA))
+        self.ui.pirInputRA.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputRA.text(), 7, self.ui.pirInputLB))
+        self.ui.pirInputLB.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputLB.text(), 7, self.ui.pirInputRB))
+        self.ui.pirInputRB.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputRB.text(), 7, self.ui.pirInputLC))
+        self.ui.pirInputLC.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputLC.text(), 7, self.ui.pirInputRC))
+        self.ui.pirInputRC.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputRC.text(), 7, self.ui.alfInput))
+        self.ui.alfInput.textChanged.connect(lambda: self.determine_autotab(self.ui.alfInput.text(), 6, self.ui.alfInput_2))
+        self.ui.alfInput_2.textChanged.connect(lambda: self.determine_autotab(self.ui.alfInput_2.text(), 6, self.ui.paasAInput))
+        self.ui.paasAInput.textChanged.connect(lambda: self.determine_autotab(self.ui.paasAInput.text(), 9, self.ui.paasCInput))
+        
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
