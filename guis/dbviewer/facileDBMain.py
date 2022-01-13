@@ -638,9 +638,6 @@ class facileDBGUI(QMainWindow):
             wire_x_data = [x[0] for x in data if x[5] == "wire"]
             wire_y_data = [x[4] for x in data if x[5] == "wire"]
             
-            for i in data:
-                print(i)
-
             ##  define plotting function
             def plot(axis, x_data, y_data, color, label):
                 axis.plot(
