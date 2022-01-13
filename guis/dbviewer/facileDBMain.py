@@ -11,6 +11,7 @@ from datetime import timedelta
 
 import logging
 from matplotlib import cm
+from matplotlib.lines import Line2D
 
 logger = logging.getLogger("root")
 
@@ -370,10 +371,12 @@ class facileDBGUI(QMainWindow):
                 ["Position", "Tension", "Epoch Timestamp", "Uncertainty"]
             )
         )
+        
         self.ui.strawPlotButton.clicked.connect(
             lambda: self.graphSimple(
                 self.data.strawData,
                 "Tension (g)",
+                "lastplaceholder",
                 1000
             )
         )
@@ -381,9 +384,11 @@ class facileDBGUI(QMainWindow):
             lambda: self.graphSimple(
                 self.data.strawData,
                 "Tension (g)",
+                "lastplaceholder",
                 1000
             )
         )
+    
 
         # wire buttons
         self.ui.wireExportButton.clicked.connect(
@@ -404,14 +409,16 @@ class facileDBGUI(QMainWindow):
             lambda: self.graphSimple(
                 self.data.wireData,
                 "Tension (g)",
-                120
+                120,
+                "wire",
             )
         )
         self.ui.wirePlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
                 "Tension (g)",
-                120
+                120,
+                "wire"
             )
         )
 
@@ -602,11 +609,14 @@ class facileDBGUI(QMainWindow):
         # local function to call function to graph hv
         def graphHV(self,dataType):
             try:
+                """
                 self.graphSimple(
                     dataType,
                     "Current (μA)",
-                    0.5,
+                    "lastplaceholder",
+                    0.5
                 )
+                """
                 return 0
             except:
                 return 1
@@ -1300,19 +1310,73 @@ class facileDBGUI(QMainWindow):
         rawWireData = resultProxy3.fetchall()
         # rawWireData = list of tuples: (<POS>, <TEN>, <TIMER>, <CALIB>, <TIME>)
 
-
-        self.data.wireData = []  # ensure wireTensionData is clear
+        
+        # initialize preliminary
+        preliminary = []  # ensure wireTensionData is clear
+        
+        for i in range(96):
+            preliminary.append([])
+        
+        # sort wire rawWireData into self.data.wireData
+        for i in rawWireData:
+            # put data into readable variables
+            index = i[0]
+            measurement = i[1]
+            timestamp = i[4]
+            # ensure that the wire measurement isn't bogus
+            if measurement >= 40 and measurement <= 100:
+                preliminary[index].append([index, measurement, timestamp, None])
+        
+    
+        
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[2])
+            # set order value for each item
+            for i in range(len(sort_list)):
+                sort_list[i][3] = i
+            preliminary.append(sort_list)
+        
+        
+            
+        # go through preliminary list and put into a 1d output list
+        self.data.wireData = []
+        for i in range(96):
+            if len(preliminary[i]) == 0:
+                self.data.wireData.append([i, "No Data", 0, None])
+            else:
+                for y in preliminary[i]:
+                    self.data.wireData.append(y)
+                
+    
+        
+        retList = self.data.wireData
+    
+        
+        """
         for x in range(96):  # for x = 0 to 96
             self.data.wireData += [
                 (x, "No Data", 0)
             ]  # assign "data" to wireTensionData
+        
+        
+        
         # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
         retList = []
+        
+        
+        
         for toop in rawWireData:
             retList.append(retList)
             if self.data.wireData[toop[0]][2] < toop[4]:
                 self.data.wireData[toop[0]] = (toop[0],toop[1],toop[4])
-
+                
+        print(self.data.wireData)
+        print("length: " + str(len(self.data.wireData)))
+        """
+    
         # return retList found or not
         return (len(retList) > 0)
 
@@ -2182,10 +2246,15 @@ class facileDBGUI(QMainWindow):
     #               yUpperBound, an int that will be the upper bound of the y axis
     #               errorBars, a bool that makes error bars if true; the third element
     #                           in each tuple from dataType is the uncertainty
+    #               type, string telling the function which type of data is being graphed
     # returns: nothing returned
     def graphSimple(self,dataType,yAxis,yUpperBound,errorBars=False):
-        # all "simple" data types will have 96 points
-        xData = list(range(96))
+    
+        # xData length will vary based on the number of duplicate/missing position measurements
+        xData = []
+        for i in range(len(dataType)): # iterate through data appending proper index values to xData
+            xData.append(dataType[i][0])
+        
         # make list for y values
         sctrYDataPoints = []
         # make list for y value uncertainties
@@ -2201,8 +2270,9 @@ class facileDBGUI(QMainWindow):
                     sctrYDataUncs += [toop[2]]
                 else:
                     sctrYDataUncs += [None]
-
-        plt.subplot(211)
+        
+        fig = plt.figure()
+        ax1 = fig.add_subplot(211)
         # plt.figure(figsize=(12,8))
         if errorBars:
             try:
@@ -2215,22 +2285,51 @@ class facileDBGUI(QMainWindow):
                     message=f"Insufficient data to plot error bars.",
                 )
         else:
-            plt.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
-
-        plt.axis([0, 100, 0, yUpperBound])  # set the bounds of the graph
+            #ax1.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
+            for i in range(len(xData)):
+                if sctrYDataPoints[i] is not None:
+                    # determine which order measurment it is and ensure proper color
+                    if dataType[i][3] == 0:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='r')
+                    elif dataType[i][3] == 1:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='g')
+                    elif dataType[i][3] == 2:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='b')
+                    else:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='k')
+                        
+        # add legend
+        dots = [
+            Line2D([0], [0], marker='o', color='r', label='1st Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='g', label='2nd Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='b', label='3rd Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='k', label='Successive Measurements', markersize=3),
+        ]
+        
+        # optional line moves legend outside of plot, but sqeezes plot
+        #ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Successive Measurements'],fontsize = 'x-small',bbox_to_anchor=(1, 1))
+        ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Successive Measurements'],fontsize = 'x-small')
+        
+        # set graph limits, first get list of y values without nones, also used for frequency histogram
+        y_WOnone = []
+        for i in sctrYDataPoints:
+            if i != None:
+                y_WOnone.append(i)
+        ax1.set_ylim([min(y_WOnone)-1.25,max(y_WOnone)+1.25])
+        
+        
         plt.xlabel("Position", fontsize=20)  # set x axis label
         plt.ylabel(yAxis, fontsize=20)  # set y axis label
-        for x, y in enumerate(sctrYDataPoints):  # go through y data, enumerate for x
-            if y is not None:  # if y exists and is too low...??? wat
-                plt.annotate(f"{x}", (x, y), fontsize=8)  # annotate that point
+        
+        for i in range(len(sctrYDataPoints)):  # go through x and y
+            if sctrYDataPoints[i] is not None:  # if y exists and is too low...??? wat
+                ax1.text(xData[i],sctrYDataPoints[i],str(xData[i]),fontsize='xx-small')
+
+        
 
         plt.subplot(212)  # make subplot 2
-        histYData = []  # make list to filter out None types
 
-        for y in sctrYDataPoints:  # go through scatter y data
-            if y != None:  # if it's not a None type
-                histYData += [y]  # add it to the new histogram y data
-        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
+        n, bins, patches = plt.hist(y_WOnone, 20)  # plot histogram
         plt.xlabel(yAxis, fontsize=20)  # set x axis label
         plt.ylabel("Frequency", fontsize=20)  # set y axis label
 
