@@ -601,12 +601,10 @@ class facileDBGUI(QMainWindow):
         # local function to call function to graph hv
         def graphHV(self,dataType):
             try:
-                """
                 self.graphSimple(
                     dataType,
                     "Current (μA)"
                 )
-                """
                 return 0
             except:
                 return 1
