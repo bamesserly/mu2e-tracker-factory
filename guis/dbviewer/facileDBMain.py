@@ -376,7 +376,6 @@ class facileDBGUI(QMainWindow):
             lambda: self.graphSimple(
                 self.data.strawData,
                 "Tension (g)",
-                "lastplaceholder",
                 1000
             )
         )
@@ -384,7 +383,6 @@ class facileDBGUI(QMainWindow):
             lambda: self.graphSimple(
                 self.data.strawData,
                 "Tension (g)",
-                "lastplaceholder",
                 1000
             )
         )
@@ -409,16 +407,14 @@ class facileDBGUI(QMainWindow):
             lambda: self.graphSimple(
                 self.data.wireData,
                 "Tension (g)",
-                120,
-                "wire",
+                120
             )
         )
         self.ui.wirePlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
                 "Tension (g)",
-                120,
-                "wire"
+                120
             )
         )
 
@@ -1255,28 +1251,57 @@ class facileDBGUI(QMainWindow):
         rawStrawData = resultProxy4.fetchall()  # fetch all and send to class member
         # list of tuples:  (<POS>, <TEN>, <UNCERTAINTY>, <TIME>)
         self.data.strawData = []  # enure strawTensionData is clear
+        
+        """
         for x in range(96):  # for x = 0 to 96
             self.data.strawData += [
                 (x, "No Data", "No Data", 0)
             ]  # assign "data" to strawTensionData
-
-        # The following for loop goes through the raw data and puts it into self.data.strawData.  It will only put data into
-        # self.data.strawData if the raw data has a timestamp newer than the existing one in self.data.strawData, in order to
-        # filter out old data.  So if a tuple from rawStrawData for position 5 is found, and self.data.strawData already
-        # has data for position 5, it will replace the existing data if the timestamp from the raw data is newer than the
-        # already existing one.
-        # self.data.strawData[toop[0]][3] gets index 3 (time) from the tuple at the index in strawTensionData equal
-        # to index 0 (position) of toop (data from rawStrawData)
-
-        retList = []
-
-        for toop in rawStrawData:
-            retList.append(toop)
-            if self.data.strawData[toop[0]][3] < toop[3]:
-                # tuple has form: (<position>, <tension>, <epoch timestamp>, <uncertainty>)
-                self.data.strawData[toop[0]] = (toop[0],toop[1],toop[3],toop[2])
-
-        # return true if any data found
+        """
+        
+        # initialize preliminary
+        preliminary = []
+        
+        for i in range(96):
+            preliminary.append([])
+        
+        
+        # sort rawStrawData into preliminary
+        for i in rawStrawData:
+            # put data into readable variables
+            index = i[0]
+            measurement = i[1]
+            timestamp = i[3]
+            uncertainty = i[2]
+            # ensure that the straw measurement isn't bogus
+            if measurement >= 200 and measurement <= 1000:
+                preliminary[index].append([index, measurement, timestamp, None, uncertainty])
+                
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[2])
+            # set order value for each item
+            for y in range(len(sort_list)):
+                sort_list[y][3] = y
+            preliminary[i] = sort_list
+        
+        # go through preliminary list and put into a 1d output list
+        self.data.strawData = []
+        for i in range(96):
+            if len(preliminary[i]) == 0:
+                self.data.strawData.append([i, "No Data", 0, None, None])
+            else:
+                for y in preliminary[i]:
+                    self.data.strawData.append(y)
+        
+        retList = self.data.strawData
+        
+        for i in retList:
+            print(i)
+        
+        # return retlist found or not
         return (len(retList) > 0)
 
     # finds wire tension data and stores it in self.data.wireData
@@ -1312,12 +1337,12 @@ class facileDBGUI(QMainWindow):
 
         
         # initialize preliminary
-        preliminary = []  # ensure wireTensionData is clear
+        preliminary = []
         
         for i in range(96):
             preliminary.append([])
         
-        # sort wire rawWireData into self.data.wireData
+        # sort wire rawWireData into preliminary
         for i in rawWireData:
             # put data into readable variables
             index = i[0]
@@ -1335,9 +1360,9 @@ class facileDBGUI(QMainWindow):
             # sort the list by timestamp
             sort_list = sorted(sort_list, key=lambda x: x[2])
             # set order value for each item
-            for i in range(len(sort_list)):
-                sort_list[i][3] = i
-            preliminary.append(sort_list)
+            for y in range(len(sort_list)):
+                sort_list[y][3] = y
+            preliminary[i] = sort_list
         
         
             
@@ -1353,29 +1378,6 @@ class facileDBGUI(QMainWindow):
     
         
         retList = self.data.wireData
-    
-        
-        """
-        for x in range(96):  # for x = 0 to 96
-            self.data.wireData += [
-                (x, "No Data", 0)
-            ]  # assign "data" to wireTensionData
-        
-        
-        
-        # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
-        retList = []
-        
-        
-        
-        for toop in rawWireData:
-            retList.append(retList)
-            if self.data.wireData[toop[0]][2] < toop[4]:
-                self.data.wireData[toop[0]] = (toop[0],toop[1],toop[4])
-                
-        print(self.data.wireData)
-        print("length: " + str(len(self.data.wireData)))
-        """
     
         # return retList found or not
         return (len(retList) > 0)
@@ -2303,19 +2305,20 @@ class facileDBGUI(QMainWindow):
             Line2D([0], [0], marker='o', color='r', label='1st Measurement', markersize=3),
             Line2D([0], [0], marker='o', color='g', label='2nd Measurement', markersize=3),
             Line2D([0], [0], marker='o', color='b', label='3rd Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='k', label='Successive Measurements', markersize=3),
+            Line2D([0], [0], marker='o', color='k', label='Subsequent Measurements', markersize=3),
         ]
         
         # optional line moves legend outside of plot, but sqeezes plot
         #ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Successive Measurements'],fontsize = 'x-small',bbox_to_anchor=(1, 1))
-        ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Successive Measurements'],fontsize = 'x-small')
+        ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Subsequent Measurements'],fontsize = 'x-small')
         
         # set graph limits, first get list of y values without nones, also used for frequency histogram
         y_WOnone = []
         for i in sctrYDataPoints:
             if i != None:
                 y_WOnone.append(i)
-        ax1.set_ylim([min(y_WOnone)-1.25,max(y_WOnone)+1.25])
+        # finds and sets ideal y bounds for the graph
+        ax1.set_ylim([min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2),max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)])
         
         
         plt.xlabel("Position", fontsize=20)  # set x axis label
