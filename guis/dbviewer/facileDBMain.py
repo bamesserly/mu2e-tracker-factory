@@ -605,14 +605,10 @@ class facileDBGUI(QMainWindow):
         # local function to call function to graph hv
         def graphHV(self,dataType):
             try:
-                """
                 self.graphSimple(
                     dataType,
-                    "Current (μA)",
-                    "lastplaceholder",
-                    0.5
+                    "Current (μA)"
                 )
-                """
                 return 0
             except:
                 return 1
@@ -641,6 +637,9 @@ class facileDBGUI(QMainWindow):
             straw_y_data = [x[4] for x in data if x[5] == "straw"]
             wire_x_data = [x[0] for x in data if x[5] == "wire"]
             wire_y_data = [x[4] for x in data if x[5] == "wire"]
+            
+            for i in data:
+                print(i)
 
             ##  define plotting function
             def plot(axis, x_data, y_data, color, label):
@@ -1392,37 +1391,42 @@ class facileDBGUI(QMainWindow):
         # rawHVData = list of tuples:
         # (<position>, <L amps>, <R amps>, <trip status>, <epoch timestamp>)
 
-        hvList = []
-
-        for x in range(96):  # for x = 0 to 96
-            hvList += [
-                (x, "No Data", "No Data", False, 0)
-            ]  # assign "data" to hvList
-        # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
+        # initialize preliminary list
+        preliminary = [[] for i in range(96)]
+        
+        # sort rawHVData into preliminary
+        for i in rawHVData:
+            # put data into readable variables
+            index, left_current, right_current, is_tripped, timestamp = i[0], i[1], i[2], i[3], i[4]
+            # ensure that the hv measurement isn't bogus
+            if right_current != None:
+                preliminary[index].append([index, right_current, timestamp, None, 'R'])
+            if left_current != None:
+                preliminary[index].append([index, left_current, timestamp, None, "L"])
+        
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
+            # set order value for each item
+            for y in range(len(sort_list)):
+                sort_list[y][3] = y
+            preliminary[i] = sort_list
+        
+        # go through preliminary list and put into a 1d output list
         retList = []
-        for toop in rawHVData:
-            retList.append(toop)
-            if hvList[toop[0]][4] < toop[4]:
-                hvList[toop[0]] = toop
-
-        lCount = 0
-        rCount = 0
-        for lst in hvList:
-            if lst[1] is not None:
-                lCount += 1
-            if lst[2] is not None:
-                rCount += 1
-
-        if lCount > rCount:
-            for i,toop in enumerate(hvList):
-                hvList[i] = (toop[0],toop[1],toop[3],"L",toop[4])
-        else:
-            for i,toop in enumerate(hvList):
-                hvList[i] = (toop[0],toop[2],toop[3],"R",toop[4])
-
+        for i in range(96):
+            if len(preliminary[i]) == 0:
+                retList.append([i, "No Data", 0, None, None])
+            else:
+                for y in preliminary[i]:
+                    retList.append(y)
+        
+        
+        # assign targetList values
         targetList = getattr(self.data, f'hv{volts}P{pro}')
-
-        targetList += hvList
+        targetList += retList
 
         # return retList found or not
         return (len(retList) > 0)
@@ -2223,7 +2227,7 @@ class facileDBGUI(QMainWindow):
     #                           in each tuple from dataType is the uncertainty
     #               type, string telling the function which type of data is being graphed
     # returns: nothing returned
-    def graphSimple(self,dataType,yAxis,yUpperBound,errorBars=False):
+    def graphSimple(self,dataType,yAxis,errorBars=False):
         # xData length will vary based on the number of duplicate/missing position measurements
         xData = []
         for i in range(len(dataType)): # iterate through data appending proper index values to xData
