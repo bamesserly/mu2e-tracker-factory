@@ -1252,27 +1252,12 @@ class facileDBGUI(QMainWindow):
         # list of tuples:  (<POS>, <TEN>, <UNCERTAINTY>, <TIME>)
         self.data.strawData = []  # enure strawTensionData is clear
         
-        """
-        for x in range(96):  # for x = 0 to 96
-            self.data.strawData += [
-                (x, "No Data", "No Data", 0)
-            ]  # assign "data" to strawTensionData
-        """
-        
-        # initialize preliminary
-        preliminary = []
-        
-        for i in range(96):
-            preliminary.append([])
-        
+        preliminary = [[] for i in range(96)] # initialize preliminary
         
         # sort rawStrawData into preliminary
         for i in rawStrawData:
             # put data into readable variables
-            index = i[0]
-            measurement = i[1]
-            timestamp = i[3]
-            uncertainty = i[2]
+            index, measurement, timestamp, uncertainty = i[0], i[1], i[3], i[2]
             # ensure that the straw measurement isn't bogus
             if measurement >= 200 and measurement <= 1000:
                 preliminary[index].append([index, measurement, timestamp, None, uncertainty])
@@ -1281,7 +1266,7 @@ class facileDBGUI(QMainWindow):
         for i in range(len(preliminary)):
             sort_list = preliminary[i]
             # sort the list by timestamp
-            sort_list = sorted(sort_list, key=lambda x: x[2])
+            sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
             # set order value for each item
             for y in range(len(sort_list)):
                 sort_list[y][3] = y
@@ -1297,9 +1282,6 @@ class facileDBGUI(QMainWindow):
                     self.data.strawData.append(y)
         
         retList = self.data.strawData
-        
-        for i in retList:
-            print(i)
         
         # return retlist found or not
         return (len(retList) > 0)
@@ -1335,30 +1317,21 @@ class facileDBGUI(QMainWindow):
         rawWireData = resultProxy3.fetchall()
         # rawWireData = list of tuples: (<POS>, <TEN>, <TIMER>, <CALIB>, <TIME>)
 
-        
-        # initialize preliminary
-        preliminary = []
-        
-        for i in range(96):
-            preliminary.append([])
+        preliminary = [[] for i in range(96)] # initialize preliminary
         
         # sort wire rawWireData into preliminary
         for i in rawWireData:
             # put data into readable variables
-            index = i[0]
-            measurement = i[1]
-            timestamp = i[4]
+            index, measurement, timestamp = i[0], i[1], i[4]
             # ensure that the wire measurement isn't bogus
             if measurement >= 40 and measurement <= 100:
                 preliminary[index].append([index, measurement, timestamp, None])
-        
-    
         
         # assign order to measurements with same positions
         for i in range(len(preliminary)):
             sort_list = preliminary[i]
             # sort the list by timestamp
-            sort_list = sorted(sort_list, key=lambda x: x[2])
+            sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
             # set order value for each item
             for y in range(len(sort_list)):
                 sort_list[y][3] = y
@@ -2251,7 +2224,6 @@ class facileDBGUI(QMainWindow):
     #               type, string telling the function which type of data is being graphed
     # returns: nothing returned
     def graphSimple(self,dataType,yAxis,yUpperBound,errorBars=False):
-    
         # xData length will vary based on the number of duplicate/missing position measurements
         xData = []
         for i in range(len(dataType)): # iterate through data appending proper index values to xData
@@ -2289,28 +2261,21 @@ class facileDBGUI(QMainWindow):
         else:
             #ax1.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
             for i in range(len(xData)):
-                if sctrYDataPoints[i] is not None:
-                    # determine which order measurment it is and ensure proper color
-                    if dataType[i][3] == 0:
-                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='r')
-                    elif dataType[i][3] == 1:
-                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='g')
-                    elif dataType[i][3] == 2:
-                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='b')
+                colors = ['r','g','b','k']
+                if sctrYDataPoints[i] is not None: # determine which order measurement it is and ensure proper color
+                    if dataType[i][3] <= 3:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color=colors[dataType[i][3]])
                     else:
-                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color='k')
-                        
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color=colors[3])
+                    
         # add legend
         dots = [
-            Line2D([0], [0], marker='o', color='r', label='1st Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='g', label='2nd Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='b', label='3rd Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='k', label='Subsequent Measurements', markersize=3),
+            Line2D([0], [0], marker='o', color='r', label='Nth Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='g', label='Nth-1 Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='b', label='Nth-2 Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='k', label='Earlier', markersize=3),
         ]
-        
-        # optional line moves legend outside of plot, but sqeezes plot
-        #ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Successive Measurements'],fontsize = 'x-small',bbox_to_anchor=(1, 1))
-        ax1.legend(dots,['1st Measurement', '2nd Measurement', '3rd Measurement', 'Subsequent Measurements'],fontsize = 'x-small')
+        ax1.legend(dots,['Nth Measurement', 'Nth-1 Measurement', 'Nth-2 Measurement', 'Earlier'],fontsize = 'x-small')
         
         # set graph limits, first get list of y values without nones, also used for frequency histogram
         y_WOnone = []
@@ -2320,15 +2285,12 @@ class facileDBGUI(QMainWindow):
         # finds and sets ideal y bounds for the graph
         ax1.set_ylim([min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2),max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)])
         
-        
         plt.xlabel("Position", fontsize=20)  # set x axis label
         plt.ylabel(yAxis, fontsize=20)  # set y axis label
         
-        for i in range(len(sctrYDataPoints)):  # go through x and y
+        for i in range(len(sctrYDataPoints)):  # go through x and y values to label all points
             if sctrYDataPoints[i] is not None:  # if y exists and is too low...??? wat
                 ax1.text(xData[i],sctrYDataPoints[i],str(xData[i]),fontsize='xx-small')
-
-        
 
         plt.subplot(212)  # make subplot 2
 
