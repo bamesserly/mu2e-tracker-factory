@@ -375,15 +375,13 @@ class facileDBGUI(QMainWindow):
         self.ui.strawPlotButton.clicked.connect(
             lambda: self.graphSimple(
                 self.data.strawData,
-                "Tension (g)",
-                1000
+                "Tension (g)"
             )
         )
         self.ui.strawPlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.strawData,
-                "Tension (g)",
-                1000
+                "Tension (g)"
             )
         )
     
@@ -406,15 +404,13 @@ class facileDBGUI(QMainWindow):
         self.ui.wirePlotButton.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
-                "Tension (g)",
-                120
+                "Tension (g)"
             )
         )
         self.ui.wirePlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
-                "Tension (g)",
-                120
+                "Tension (g)"
             )
         )
 
@@ -632,34 +628,60 @@ class facileDBGUI(QMainWindow):
             ax2.yaxis.label.set_color("r")
 
             ##   define datasets
-
             straw_x_data = [x[0] for x in data if x[5] == "straw"]
             straw_y_data = [x[4] for x in data if x[5] == "straw"]
+            straw_order = [x[7] for x in data if x[5] == "straw"]
+            
             wire_x_data = [x[0] for x in data if x[5] == "wire"]
             wire_y_data = [x[4] for x in data if x[5] == "wire"]
+            wire_order = [x[7] for x in data if x[5] == "wire"]
             
             ##  define plotting function
-            def plot(axis, x_data, y_data, color, label):
-                axis.plot(
-                    np.array(x_data),
-                    np.array(y_data),
-                    "o",
-                    color=color,
-                    #markersize=markersize,
-                    label=label,
-                )
+            def plot(axis, x_data, y_data, label, order):
                 for i in range(len(x_data)):
-                    plt.annotate(x_data[i], xy=(x_data[i], y_data[i]), fontsize=8)
+                    colors = ['r','g','b','k']
+                    if y_data[i] is not None: # determine which order measurement it is and ensure proper color
+                        try:
+                            if order[i] <= 3:
+                                axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[order[i]])
+                            else:
+                                axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[3])
+                        except:
+                            pass
+                
+                # add legend
+                dots = [
+                    Line2D([0], [0], marker='o', color='r', label='Nth Measurement', markersize=3),
+                    Line2D([0], [0], marker='o', color='g', label='Nth-1 Measurement', markersize=3),
+                    Line2D([0], [0], marker='o', color='b', label='Nth-2 Measurement', markersize=3),
+                    Line2D([0], [0], marker='o', color='k', label='Earlier', markersize=3),
+                ]
+                axis.legend(dots,['Nth Measurement', 'Nth-1 Measurement', 'Nth-2 Measurement', 'Earlier'],fontsize = 'x-small')
+                
+                
+                # set graph limits, first get list of y values without nones
+                y_WOnone = []
+                for i in y_data:
+                    if i != None:
+                        y_WOnone.append(i)
+                if len(y_WOnone) == 0:
+                    y_WOnone = [0]
+                    
+                # finds and sets ideal x and y bounds for the graph
+                lower_bound = min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2)
+                upper_bound = max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)
+                if lower_bound != upper_bound:
+                    axis.set_ylim([lower_bound,upper_bound])
+                axis.set_xlim([-5,100])
+                
+                for i in range(len(y_data)):  # go through x and y values to label all points
+                    if y_data[i] is not None:
+                        axis.text(x_data[i],y_data[i],str(x_data[i]),fontsize='xx-small')
 
-                axis.relim()
-                axis.autoscale_view()
+            # plot the data
+            plot(ax1, straw_x_data, straw_y_data, "straw", straw_order)
+            plot(ax2, wire_x_data, wire_y_data, "wire", wire_order)
 
-
-            ##  plot the data
-            plot(ax1, straw_x_data, straw_y_data, "b", "straw")
-            plot(ax2, wire_x_data, wire_y_data, "r", "wire")
-
-            #plt.tight_layout()
             plt.show()
 
         callDict = {
@@ -1332,8 +1354,6 @@ class facileDBGUI(QMainWindow):
             for y in range(len(sort_list)):
                 sort_list[y][3] = y
             preliminary[i] = sort_list
-        
-        
             
         # go through preliminary list and put into a 1d output list
         self.data.wireData = []
@@ -1501,13 +1521,57 @@ class facileDBGUI(QMainWindow):
 
         # make a pointer to the self.data.pXtbData and fill it
         tbDataPointer = getattr(self.data,f'p{pro}tbData')
+        
+        # initialize preliminary
+        preliminary = [[] for i in range(96)]
+        
+        
+        # sort rawTBData into preliminary
+        for i in rawTBData:
+            # put data into readable variables
+            index, length, frequency, pulse_width, tension, straw_wire, timestamp = i[0], i[1], i[2], i[3], i[4], i[5], i[6]
+            # ensure that the tension measurements aren't bogus
+            try: # due to potential NoneTypes in list
+                if straw_wire == 'straw' and tension >= 200 and tension <= 1000:
+                    preliminary[index].append([index, length, frequency, pulse_width, tension, straw_wire, timestamp, None])
+                elif tension >= 40 and tension <= 100:
+                    preliminary[index].append([index, length, frequency, pulse_width, tension, straw_wire, timestamp, None])
+            except:
+                pass
+                
+        # initialize preliminary_cut
+        preliminary_cut = [[] for i in range(96)]
+        
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[6], reverse=True)
+            # set order value for each item, additionally select 1 entry from each set of 3 data points
+            for y in range(len(sort_list)):
+                if (y % 3) == 0:
+                    sort_list[y][7] = len(preliminary_cut[i])
+                    preliminary_cut[i].append(sort_list[y])
+        
 
+        # go through preliminary list and put into a 1d output list
+        for i in range(96):
+            if len(preliminary_cut[i]) == 0:
+                tbDataPointer.append([i,None,None,None,None,None,None,None])
+            else:
+                for y in preliminary_cut[i]:
+                    tbDataPointer.append(y)
+        
+
+        """
         # keep only the latest data point for each straw and wire
         # 0 -> position, 5 -> is_straw, 6 -> time
         key = lambda x :(x[0], x[5])
         for position, data in itertools.groupby(sorted(rawTBData, key=key), key=key):
             tbDataPointer += [max(list(data), key = lambda x: x[6])]
-
+        """
+        
+        
         try:
             assert len(tbDataPointer) > 0
         except AssertionError:
@@ -2300,7 +2364,6 @@ class facileDBGUI(QMainWindow):
         plt.ylabel("Frequency", fontsize=20)  # set y axis label
 
         plt.tight_layout()
-        # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
         plt.show()
 
     # graph heat data in pop up window
