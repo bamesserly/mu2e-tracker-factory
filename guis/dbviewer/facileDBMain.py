@@ -1562,16 +1562,6 @@ class facileDBGUI(QMainWindow):
                 for y in preliminary_cut[i]:
                     tbDataPointer.append(y)
         
-
-        """
-        # keep only the latest data point for each straw and wire
-        # 0 -> position, 5 -> is_straw, 6 -> time
-        key = lambda x :(x[0], x[5])
-        for position, data in itertools.groupby(sorted(rawTBData, key=key), key=key):
-            tbDataPointer += [max(list(data), key = lambda x: x[6])]
-        """
-        
-        
         try:
             assert len(tbDataPointer) > 0
         except AssertionError:
@@ -2348,7 +2338,11 @@ class facileDBGUI(QMainWindow):
             if i != None:
                 y_WOnone.append(i)
         # finds and sets ideal y bounds for the graph
-        ax1.set_ylim([min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2),max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)])
+        lower_bound = min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2)
+        upper_bound = max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)
+        if lower_bound == upper_bound:
+            lower_bound,upper_bound = -0.05,0.05
+        ax1.set_ylim([lower_bound,upper_bound])
         
         plt.xlabel("Position", fontsize=20)  # set x axis label
         plt.ylabel(yAxis, fontsize=20)  # set y axis label
