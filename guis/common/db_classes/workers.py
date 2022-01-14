@@ -55,6 +55,7 @@ class WorkerCertification(BASE, OBJECT):
     station = Column(CHAR(4), ForeignKey("station.id"))
 
     def __init__(self, worker, station):
+        self.id = self.ID()
         self.worker = worker
         self.station = station
 

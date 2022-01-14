@@ -54,6 +54,7 @@ class Prep(StrawProcedure):
         timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
         def __init__(self, procedure, straw_id, paper_pull_grade, evaluation):
+            self.id = self.ID()
             self.procedure = procedure.id
             self.straw = straw_id
             self.paper_pull_grade = paper_pull_grade
@@ -102,6 +103,7 @@ class Resistance(StrawProcedure):
             oo_method=None,
             evaluation=None,
         ):
+            self.id = self.ID()
             self.procedure = procedure.id
             self.straw = straw
             self.inside_inside_resistance = ii_resistance
