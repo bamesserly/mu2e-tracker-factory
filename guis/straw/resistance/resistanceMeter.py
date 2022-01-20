@@ -11,7 +11,7 @@ import sys
 from guis.common.getresources import GetProjectPaths
 
 # os.system('mode con: cols=115 lines=50')
-com = "Com6"
+com = "Com4"
 
 calibFile = GetProjectPaths()["strawresistancecal"]
 dataFile = None
