@@ -42,6 +42,7 @@ class SupplyChecked(BASE, OBJECT):
     timestamp = Column(Integer)
 
     def checkPresent(self, boolean, worker=str()):
+        self.id = self.ID()
         self.worker = worker if boolean else None
         self.checked = boolean
         self.commit()
