@@ -3944,7 +3944,7 @@ class Ui_MainWindow(object):
         self.lr_button = QtWidgets.QPushButton(self.groupBox_27)
         self.lr_button.setObjectName("lr_button")
         self.gridLayout_87.addWidget(self.lr_button, 1, 0, 1, 1)
-        self.lr_textbox = QtWidgets.QPlainTextEdit(self.groupBox_27)
+        self.lr_textbox = QtWidgets.QLineEdit(self.groupBox_27)
         self.lr_textbox.setObjectName("lr_textbox")
         self.gridLayout_87.addWidget(self.lr_textbox, 0, 0, 1, 1)
         self.gridLayout_86.addWidget(self.groupBox_27, 6, 2, 2, 1, QtCore.Qt.AlignTop)
