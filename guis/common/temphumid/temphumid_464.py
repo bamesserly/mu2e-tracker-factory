@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-com = "COM10"
+com = "COM6"
 ser = serial.Serial(com, 9600)  # port on computer
 
 filepath = Path("X:\\Data\\temp_humid_data\\464_main\\")

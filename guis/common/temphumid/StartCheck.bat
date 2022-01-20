@@ -1,5 +1,4 @@
 @ECHO OFF
-pushd \\spa-mu2e-network\Files\
+cd C:\Users\mu2e\Desktop\Production\guis\common\temphumid
 python check.py
-popd
 EXIT
