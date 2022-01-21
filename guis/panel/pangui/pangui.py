@@ -4655,7 +4655,7 @@ class panelGUI(QMainWindow):
             return
 
         # Ensure that all input data is valid
-        if not self.validateInput(indices=range(4)):
+        if not self.validateInput(indices=range(1)):
             return
 
         # Disable start button, panel input, and part inputs
