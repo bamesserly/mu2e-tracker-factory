@@ -844,7 +844,9 @@ class TxtDataProcessor(DataProcessor):
             if isinstance(data[i], tuple) and isinstance(
                 data[i][0], timedelta
             ):  # is a timedelta tuple
-                row += f"[{data[i][0]}|{data[i][1]}],"
+                timedata = f"[{data[i][0]}|{data[i][1]}]"
+                timedata = timedata.replace(",","") + ","
+                row += timedata
             else:
                 row += str(data[i])  # add it to the row
                 row += ","  # and a comma to seperate cells in CSV
