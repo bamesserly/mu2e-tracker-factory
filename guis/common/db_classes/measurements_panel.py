@@ -39,6 +39,7 @@ class PanelTempMeasurement(BASE, OBJECT):
     temp_paas_bc = Column(REAL)
 
     def __init__(self, procedure, temp_paas_a, temp_paas_bc):
+        self.id = self.ID()
         self.procedure = procedure.id
         self.temp_paas_a = temp_paas_a
         self.temp_paas_bc = temp_paas_bc
@@ -53,6 +54,7 @@ class StrawTensionMeasurement(BASE, OBJECT):
     uncertainty = Column(REAL)
 
     def __init__(self, procedure, position, tension, uncertainty):
+        self.id = self.ID()
         self.procedure = procedure.id
         self.position = position
         self.tension = tension
@@ -69,6 +71,7 @@ class WireTensionMeasurement(BASE, OBJECT):
     calibration_factor = Column(REAL)
 
     def __init__(self, procedure, position, tension, wire_timer, calibration_factor):
+        self.id = self.ID()
         self.procedure = procedure.id
         self.position = position
         self.tension = tension
@@ -148,6 +151,7 @@ class BadWire(BASE, OBJECT):
     wire = Column(BOOLEAN)
 
     def __init__(self, position, failure, process, procedure, wire_check):
+        self.id = self.ID()
         self.position = position
         self.failure = failure
         self.process = process
@@ -181,6 +185,7 @@ class LeakFinalForm(BASE, OBJECT):
         resolution,
         next_step,
     ):
+        self.id = self.ID()
         self.procedure = procedure
         self.cover_reinstalled = cover_reinstalled
         self.inflated = inflated
