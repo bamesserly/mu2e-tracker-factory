@@ -107,44 +107,40 @@ def readLeakDb(panel, tag):
     #ensure that panel is type str
     panel = str(panel)
     
-    try:
-        con = sqlite3.connect('data/database.db')
-        cursor = con.cursor()
+    
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
 
-        # acquire straw location
-        cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
-        straw_location = str(cursor.fetchall()[0][0])
+    # acquire straw location
+    cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
+    straw_location = str(cursor.fetchall()[0][0])
     
-        # use straw location to acquire procedure
-        cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
-        procedure = str(cursor.fetchall()[0][0])
+    # use straw location to acquire procedure
+    cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
+    procedure = str(cursor.fetchall()[0][0])
         
-        # use procedure and tag to acquire trial
-        cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"' AND tag='"+tag+"'")
-        trial = str(cursor.fetchall()[0][0])
+    # use procedure and tag to acquire trial
+    cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"' AND tag='"+tag+"'")
+    trial = str(cursor.fetchall()[0][0])
         
-        # use trial to acquire pertinent entries from measurement_panel_leak
-        leak_df = pd.read_sql_query("SELECT * FROM measurement_panel_leak WHERE trial='"+trial+"'", con)
+    # use trial to acquire pertinent entries from measurement_panel_leak
+    leak_df = pd.read_sql_query("SELECT * FROM measurement_panel_leak WHERE trial='"+trial+"'", con)
         
-        # rename pertinent columns
-        leak_df.rename(columns={"elapsed_days":"TIME(DAYS)"}, inplace=True)
-        leak_df.rename(columns={"pressure_diff":"PRESSURE(PSI)"}, inplace=True)
-        leak_df.rename(columns={"pressure_ref":"RefPSIA"}, inplace=True)
-        leak_df.rename(columns={"pressure_fill":"FillPSIA"}, inplace=True)
-        leak_df.rename(columns={"temp_box":"BOX TEMPERATURE(C)"}, inplace=True)
-        leak_df.rename(columns={"temp_room":"ROOM TEMPERATURE(C)"}, inplace=True)
-        leak_df.rename(columns={"heater_pct":"Heater%"}, inplace=True)
+    # rename pertinent columns
+    leak_df.rename(columns={"elapsed_days":"TIME(DAYS)"}, inplace=True)
+    leak_df.rename(columns={"pressure_diff":"PRESSURE(PSI)"}, inplace=True)
+    leak_df.rename(columns={"pressure_ref":"RefPSIA"}, inplace=True)
+    leak_df.rename(columns={"pressure_fill":"FillPSIA"}, inplace=True)
+    leak_df.rename(columns={"temp_box":"BOX TEMPERATURE(C)"}, inplace=True)
+    leak_df.rename(columns={"temp_room":"ROOM TEMPERATURE(C)"}, inplace=True)
+    leak_df.rename(columns={"heater_pct":"Heater%"}, inplace=True)
     
-        # drop other columns
-        leak_df.drop(columns=['id', 'trial'], axis=1, inplace=True)
+    # drop other columns
+    leak_df.drop(columns=['id', 'trial'], axis=1, inplace=True)
         
-        con.close()
+    con.close()
         
-        return leak_df
-    
-    except:
-        print("Error, possibility that FinalQC leakdata does not exist for this panel.")
-        return pd.DataFrame()
+    return leak_df
 
 
 ################################################################################
@@ -152,6 +148,7 @@ def readLeakDb(panel, tag):
 ################################################################################
 
 def getLeakTags(panel):
+    tag_list = []
     con = sqlite3.connect('data/database.db')
     cursor = con.cursor()
     
@@ -161,16 +158,19 @@ def getLeakTags(panel):
 
     # use straw location to acquire procedure
     cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
-    procedure = str(cursor.fetchall()[0][0])
-    
-    # use procedure and tag to acquire trial
-    cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"'")
-    raw_list = cursor.fetchall()
+    result = cursor.fetchall()
+    if len(result) > 0:
+        procedure = str(result[0][0])
+
+        
+        # use procedure and tag to acquire trial
+        cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"'")
+        raw_list = cursor.fetchall()
 
 
-    tag_list = []
-    for i in raw_list: # sort out tags from raw_list and put in list to return
-        tag_list.append(str(i[2]))
+
+        for i in raw_list: # sort out tags from raw_list and put in list to return
+            tag_list.append(str(i[2]))
     
     return tag_list
         
