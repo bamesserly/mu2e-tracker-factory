@@ -1037,6 +1037,11 @@ class panelGUI(QMainWindow):
 
         self.ui.proSelectButtons.buttonClicked.connect(self.openGUI)
 
+        # pro8 save leak rate data as comment
+        self.ui.lr_button.clicked.connect(lambda: print("Hola"))
+        self.ui.lr_button.clicked.connect(lambda: [self.saveData(), self.saveComments("")])
+        
+
         # Save buttons
         for btn in self.ui.saveButtons.buttons():
             btn.setDisabled(True)
@@ -2570,9 +2575,10 @@ class panelGUI(QMainWindow):
             generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
+        
 
     """
-    saveComments(self, comments = '')
+    saveComments(self, comments = '', lr = '')
 
         Description: Handles the saving of comments. Takes any comments from the comment box, and moves them to the
                  previous comments box, giving them a timestamp. Ignores blank comments. Sends comments to the 
@@ -2581,6 +2587,8 @@ class panelGUI(QMainWindow):
     """
 
     def saveComments(self, comments=""):
+        # variable referring to whether or not this is a leak rate measurement
+        lr = False
 
         if comments == "":
             # Get Comment box [<boxes>][<index we want>]
@@ -2592,8 +2600,18 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox5,
                 self.ui.commentBox6,
                 self.ui.commentBox7,
-                self.ui.commentBox8_6,
+                [self.ui.commentBox8_6, self.ui.lr_textbox],
             ][self.pro_index]
+            
+            # if process 8, determine whether to save from comment box
+            # or from leak rate box
+            if self.pro_index == 7:
+                if len(str(box[1].document().toPlainText())) != 0:
+                    box = box[1]
+                    lr = True
+                else:
+                    box = box[0]
+            
             # Extract text
             comments = box.document().toPlainText()
             # Reset comment display
@@ -2604,6 +2622,16 @@ class panelGUI(QMainWindow):
         # if comments are nothing then return
         if comments == "":
             return
+            
+        # if it is a pro8 lr comment, modify
+        
+        if lr == True:
+            front = "Leak Rate Test Result:     "
+            comments = front + comments
+            print("hello")
+        
+            
+    
 
         try:
             self.DP.saveComment(
