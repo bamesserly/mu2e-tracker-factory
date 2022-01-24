@@ -7741,7 +7741,7 @@ Heater GUI</string>
                     </widget>
                    </item>
                    <item row="0" column="0">
-                    <widget class="QLineEdit" name="lr_textbox"/>
+                    <widget class="QPlainTextEdit" name="lr_textbox"/>
                    </item>
                   </layout>
                  </widget>
@@ -8171,5 +8171,6 @@ Heater GUI</string>
   <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>
