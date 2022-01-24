@@ -205,12 +205,6 @@ class panelGUI(QMainWindow):
 
         Note: self is a required argument for all class methods, and will be omitted from all method comments
     """
-    # autotab helper function
-    def determine_autotab(self, text, desired_length, next_field):
-        if len(text) == desired_length:
-            next_field.setFocus()
-            
-    
 
     def __init__(self, paths, parent=None):
         super(panelGUI, self).__init__(parent)
@@ -349,28 +343,29 @@ class panelGUI(QMainWindow):
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
 
     def _init_pro1_setup(self):
+        #set taborder
+        self.setTabOrder(self.ui.panelInput1, self.ui.baseInput1)
+        self.setTabOrder(self.ui.baseInput1, self.ui.mirInput)
+        self.setTabOrder(self.ui.mirInput, self.ui.birInput)
+        self.setTabOrder(self.ui.birInput, self.ui.pirInputLA)
+        self.setTabOrder(self.ui.pirInputLA, self.ui.pirInputRA)
+        self.setTabOrder(self.ui.pirInputRA, self.ui.pirInputLB)
+        self.setTabOrder(self.ui.pirInputLB, self.ui.pirInputRB)
+        self.setTabOrder(self.ui.pirInputRB, self.ui.pirInputLC)
+        self.setTabOrder(self.ui.pirInputLC, self.ui.pirInputRC)
+        self.setTabOrder(self.ui.pirInputRC, self.ui.alfInput)
+        self.setTabOrder(self.ui.alfInput, self.ui.alfInput_2)
+        self.setTabOrder(self.ui.alfInput_2, self.ui.paasAInput)
+        self.setTabOrder(self.ui.paasAInput, self.ui.paasCInput)
+        
+        self.setTabOrder(self.ui.pallet1code, self.ui.pallet2code)
+        
         ## Connect
         self.ui.panelInput1.installEventFilter(self)
         self.ui.epoxy_mixed1.clicked.connect(self.pro1part2)
         self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
         self.ui.pro1PanelHeater.clicked.connect(self.panelHeaterPopup)
         self.ui.validateStraws.clicked.connect(self.checkLPALs)
-        
-        # establish proper autotabbing order and conditions
-        self.ui.panelInput1.textChanged.connect(lambda: self.determine_autotab(self.ui.panelInput1.text(), 5, self.ui.baseInput1))
-        self.ui.baseInput1.textChanged.connect(lambda: self.determine_autotab(self.ui.baseInput1.text(), 5, self.ui.mirInput))
-        self.ui.mirInput.textChanged.connect(lambda: self.determine_autotab(self.ui.mirInput.text(), 6, self.ui.birInput))
-        self.ui.birInput.textChanged.connect(lambda: self.determine_autotab(self.ui.birInput.text(), 6, self.ui.pirInputLA))
-        self.ui.pirInputLA.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputLA.text(), 7, self.ui.pirInputRA))
-        self.ui.pirInputRA.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputRA.text(), 7, self.ui.pirInputLB))
-        self.ui.pirInputLB.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputLB.text(), 7, self.ui.pirInputRB))
-        self.ui.pirInputRB.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputRB.text(), 7, self.ui.pirInputLC))
-        self.ui.pirInputLC.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputLC.text(), 7, self.ui.pirInputRC))
-        self.ui.pirInputRC.textChanged.connect(lambda: self.determine_autotab(self.ui.pirInputRC.text(), 7, self.ui.alfInput))
-        self.ui.alfInput.textChanged.connect(lambda: self.determine_autotab(self.ui.alfInput.text(), 6, self.ui.alfInput_2))
-        self.ui.alfInput_2.textChanged.connect(lambda: self.determine_autotab(self.ui.alfInput_2.text(), 6, self.ui.paasAInput))
-        self.ui.paasAInput.textChanged.connect(lambda: self.determine_autotab(self.ui.paasAInput.text(), 9, self.ui.paasCInput))
-        
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
@@ -770,12 +765,12 @@ class panelGUI(QMainWindow):
             box.stateChanged.connect(lambda changed, index=i: boxSaveHV(index))
 
     def _init_pro6_setup(self):
-        self.ui.panelInput6.installEventFilter(self)
+        # set taborder
+        self.setTabOrder(self.ui.panelInput6, self.ui.mrInput1)
+        self.setTabOrder(self.ui.mrInput1, self.ui.frameInput)
+        self.setTabOrder(self.ui.frameInput, self.ui.mrInput2)
         
-        # establish proper autotabbing order and conditions
-        self.ui.panelInput6.textChanged.connect(lambda: self.determine_autotab(self.ui.panelInput6.text(), 5, self.ui.frameInput))
-        self.ui.frameInput.textChanged.connect(lambda: self.determine_autotab(self.ui.frameInput.text(), 4, self.ui.mrInput1))
-        self.ui.mrInput1.textChanged.connect(lambda: self.determine_autotab(self.ui.mrInput1.text(), 5, self.ui.mrInput2))
+        self.ui.panelInput6.installEventFilter(self)
 
         ## Connect Triggers
         # Progression between parts
@@ -818,6 +813,23 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_applied5_3.clicked.connect(self.pro7part3_2)
 
     def _init_pro8_setup(self):
+        # set taborder
+        self.setTabOrder(self.ui.left_cover_6, self.ui.leftRing1LE)
+        self.setTabOrder(self.ui.leftRing1LE, self.ui.leftRing2DE)
+        self.setTabOrder(self.ui.leftRing2DE, self.ui.leftRing3TE)
+        self.setTabOrder(self.ui.leftRing3TE, self.ui.leftRing4LE)
+        self.setTabOrder(self.ui.leftRing4LE, self.ui.center_cover_6)
+        self.setTabOrder(self.ui.center_cover_6, self.ui.centerRing1LE)
+        self.setTabOrder(self.ui.centerRing1LE, self.ui.centerRing2DE)
+        self.setTabOrder(self.ui.centerRing2DE, self.ui.centerRing3TE)
+        self.setTabOrder(self.ui.centerRing3TE, self.ui.centerRing4LE)
+        self.setTabOrder(self.ui.centerRing4LE, self.ui.right_cover_6)
+        self.setTabOrder(self.ui.right_cover_6, self.ui.rightRing1LE)
+        self.setTabOrder(self.ui.rightRing1LE, self.ui.rightRing2DE)
+        self.setTabOrder(self.ui.rightRing2DE, self.ui.rightRing3TE)
+        self.setTabOrder(self.ui.rightRing3TE, self.ui.rightRing4LE)
+        
+        
         self.ui.panelInput_8.installEventFilter(self)
         self.ui.launch_resistance_test.clicked.connect(self.run_resistance)
         self.ui.launch_leak_test.clicked.connect(self.run_plot_leak)
@@ -826,19 +838,6 @@ class panelGUI(QMainWindow):
         self.ui.submitRingsPB.clicked.connect(self.saveData)
         self.ui.submitCoversPB.setDisabled(True)
         self.ui.submitRingsPB.setDisabled(True)
-        
-        # establish proper autotabbing order and conditions
-        self.ui.left_cover_6.textChanged.connect(lambda: self.determine_autotab(self.ui.left_cover_6.text(), 7, self.ui.leftRing1LE))
-        self.ui.leftRing1LE.textChanged.connect(lambda: self.determine_autotab(self.ui.leftRing1LE.text(), 6, self.ui.leftRing2DE))
-        self.ui.leftRing4LE.textChanged.connect(lambda: self.determine_autotab(self.ui.leftRing4LE.text(), 5, self.ui.center_cover_6))
-        
-        self.ui.center_cover_6.textChanged.connect(lambda: self.determine_autotab(self.ui.center_cover_6.text(), 7, self.ui.centerRing1LE))
-        self.ui.centerRing1LE.textChanged.connect(lambda: self.determine_autotab(self.ui.centerRing1LE.text(), 6, self.ui.centerRing2DE))
-        self.ui.centerRing4LE.textChanged.connect(lambda: self.determine_autotab(self.ui.centerRing4LE.text(), 5, self.ui.right_cover_6))
-        
-        self.ui.right_cover_6.textChanged.connect(lambda: self.determine_autotab(self.ui.right_cover_6.text(), 7, self.ui.rightRing1LE))
-        self.ui.rightRing1LE.textChanged.connect(lambda: self.determine_autotab(self.ui.rightRing1LE.text(), 6, self.ui.rightRing2DE))
-        
         # connect checkboxes to pick one or the other, not both
         self.ui.wireCheck.toggled.connect(
             lambda: self.ui.strawCheck.setChecked(not (self.ui.wireCheck.isChecked()))
