@@ -1038,7 +1038,6 @@ class panelGUI(QMainWindow):
         self.ui.proSelectButtons.buttonClicked.connect(self.openGUI)
 
         # pro8 save leak rate data as comment
-        self.ui.lr_button.clicked.connect(lambda: print("Hola"))
         self.ui.lr_button.clicked.connect(lambda: [self.saveData(), self.saveComments("")])
         
 
@@ -2628,11 +2627,7 @@ class panelGUI(QMainWindow):
         if lr == True:
             front = "Leak Rate Test Result:     "
             comments = front + comments
-            print("hello")
-        
             
-    
-
         try:
             self.DP.saveComment(
                 comments, self.getCurrentPanel(), self.pro
