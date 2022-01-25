@@ -424,7 +424,7 @@ class facileDBGUI(QMainWindow):
         )
         self.ui.leakGraphButton.clicked.connect(
             lambda: plotter.main(
-                panel_leak_utilities.readLeakDb(self.data.humanID, self.ui.leakGraphSelect.currentText()),
+                panel_leak_utilities.ReadLeakDataFromDB(self.data.humanID, self.ui.leakGraphSelect.currentText()),
                 self.data.humanID,
                 self.ui.leakGraphSelect.currentText()
             )

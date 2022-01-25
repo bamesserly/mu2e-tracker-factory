@@ -101,7 +101,7 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 # TIME(DAYS)    FILLPSIA    RefPSIA PRESSURE(PSI)   BOX TEMPERATURE(C)  ROOM TEMPERATURE(C) Heater%
 ################################################################################
 
-def readLeakDb(panel, tag):
+def ReadLeakDataFromDB(panel, tag):
     leak_df = pd.DataFrame()
     
     #ensure that panel is type str
