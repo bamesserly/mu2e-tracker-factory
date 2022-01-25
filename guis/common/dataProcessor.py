@@ -2597,6 +2597,7 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getHeatTime(), self.procedure.getHeatTimeRunning()
             ),  # Heat Time
             self.getBarcode(panel.getPAAS(L_R=None, letter="B")),  # PAAS B barcode
+            self.procedure.getElapsedTime(), # get elapsed time for main timer
         ]
 
     # Wire Tensions
@@ -2660,6 +2661,7 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getSilverEpoxyRightCureDuration(),
                 self.procedure.getSilverEpoxyRightTimeIsRunning(),
             ),  # silver epoxy batch 2 cure duration
+            self.procedure.getElapsedTime(), # get elapsed time for main timer
         ]
 
     # TODO
@@ -2699,6 +2701,7 @@ class SQLDataProcessor(DataProcessor):
             self.timeDelta(
                 self.procedure.getHeatTime(), self.procedure.getHeatTimeRunning()
             ),  # Heating Time
+            self.procedure.getElapsedTime(), # get elapsed time for main timer
         ]
 
     # Flooding
@@ -2716,6 +2719,7 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getEpoxyTimeRight(),
                 self.procedure.getEpoxyTimeRightRunning(),
             ),  # Flood Epoxy Work Time (Right)
+            self.procedure.getElapsedTime(), # get elapsed time for main timer
         ]
 
     # Final QC
