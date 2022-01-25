@@ -264,7 +264,7 @@ def main(options, panel=None, tag=None):
 
     # get the start, end, and elapsed times over which to make the fit
     total_duration = df["TIME(DAYS)"].iat[-1]
-    if dbCall == False:
+    if not dbCall:
         fit_start_time = (
             GetFitStartTime(total_duration)
             if not options.fit_start_time
