@@ -22,6 +22,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QApplication, QLCDNumber
 from guis.common.db_classes.straw import Straw
 from guis.common.getresources import GetProjectPaths
+from guis.common.gui_utils import except_hook
 
 
 def getInput(prompt, checkcondition):
@@ -62,7 +63,7 @@ def getLPALFile(lpalid, lpal):
 
 def readRows(file):
     with file.open("r") as f:
-        reader = DictReader(f)
+        reader = DictReader(line for line in f if line.split(",")[0])
         rows = [row for row in reader]
     return rows, reader.fieldnames
 
@@ -87,6 +88,7 @@ def saveStrawToLPAL(file, position, straw):
 def getUnfilledPositions(file):
     # Read-in a file and return a list of the unfilled positions
     rows, _ = readRows(file)
+
     # Return the position of all rows that don't have a straw recorded
     return [int(row["Position"]) for row in rows if not row["Straw"]]
 
@@ -154,10 +156,11 @@ def addStrawToLPAL(lpal, outfile, cpals):
     # Check: is the lPAL full?
     ########################################################################
     unfilled = getUnfilledPositions(outfile)  # from text file
-    # print("filled",lpal.getFilledPositions())
-    # print("unfilled",lpal.getUnfilledPositions())
 
     if unfilled != lpal.getUnfilledPositions():
+        logger.debug(f"filled (txt file) {getUnfilledPositions(outfile)}")
+        logger.debug(f"filled (DB) {lpal.getFilledPositions()}")
+        logger.debug(f"unfilled (DB) {lpal.getUnfilledPositions()}")
         logger.warning(
             f"Text file {outfile} and database disagree on which LPAL positions are unfilled."
         )
@@ -273,6 +276,7 @@ class FillLPALGUI(QObject):
 
 
 def run():
+    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     print(
         """
     \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
