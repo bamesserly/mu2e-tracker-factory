@@ -162,19 +162,26 @@ def addStrawToLPAL(lpal, outfile, cpals):
     # When totally filled, unfilled = [], unfilled_db = None, which is why we
     # need both checks.
     if (not unfilled and not unfilled_db) or unfilled == unfilled_db:
-        pass
+        logger.debug("db and text file agree on which positions are filled.")
+        logger.debug(f"{unfilled} {unfilled_db}")
+        logger.debug(f"filled (DB) {lpal.getFilledPositions()}")
     # Txt file and DB do not agree
     else:
-        logger.debug(f"unfilled (txt file) {getUnfilledPositions(outfile)}")
-        logger.debug(f"filled (DB) {lpal.getFilledPositions()}")
-        logger.debug(f"unfilled (DB) {lpal.getUnfilledPositions()}")
         logger.warning(
             f"Text file {outfile} and database disagree on which LPAL positions are unfilled."
         )
-
+        logger.info(f"unfilled (txt file)\n{getUnfilledPositions(outfile)}")
+        logger.info(f"filled (DB)\n{lpal.getFilledPositions()}")
+        logger.info(f"unfilled (DB)\n{lpal.getUnfilledPositions()}")
+        logger.info(
+            "You can proceed to scan any and all straws to set the "
+            "record straight in the DB AND text file."
+        )
 
     if len(unfilled) == 0:
-        logger.info("All positions on this pallet have been filled.")
+        logger.info(
+            f"According to {outfile} all positions on this pallet have been filled."
+        )
         if not getYN("Continue scanning straws?"):
             if getYN("Finish?"):
                 return "finish"
@@ -230,6 +237,9 @@ def addStrawToLPAL(lpal, outfile, cpals):
     # 2. Remove straw from current CPAL (and any other pallets)
     if not removeStrawFromCurrentLocations(straw, cpals):
         return "scanning"
+
+    # 3. Remove straw currently in this position
+    lpal.removeStraw(straw=None, position=position, commit=True)
 
     # 3. Add straw to LPAL in the DB
     lpal.addStraw(straw, position)
