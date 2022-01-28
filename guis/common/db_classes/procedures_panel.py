@@ -525,9 +525,6 @@ class Pan4Procedure(PanelProcedure):
         ), f"Error. Tried to construct Pan4Procedure for a station '{station.id}' not 'pan4'."
         super().__init__(station, straw_location, create_key)
 
-        
-    
-
     # All but the timestamp columns are collected here
     def _getDetailsClass(self):
         class Details(BASE, OBJECT):
