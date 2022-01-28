@@ -22,6 +22,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QApplication, QLCDNumber
 from guis.common.db_classes.straw import Straw
 from guis.common.getresources import GetProjectPaths
+from guis.common.gui_utils import except_hook
 
 
 def getInput(prompt, checkcondition):
@@ -62,7 +63,7 @@ def getLPALFile(lpalid, lpal):
 
 def readRows(file):
     with file.open("r") as f:
-        reader = DictReader(f)
+        reader = DictReader(line for line in f if line.split(",")[0])
         rows = [row for row in reader]
     return rows, reader.fieldnames
 
@@ -87,6 +88,7 @@ def saveStrawToLPAL(file, position, straw):
 def getUnfilledPositions(file):
     # Read-in a file and return a list of the unfilled positions
     rows, _ = readRows(file)
+
     # Return the position of all rows that don't have a straw recorded
     return [int(row["Position"]) for row in rows if not row["Straw"]]
 
@@ -154,16 +156,32 @@ def addStrawToLPAL(lpal, outfile, cpals):
     # Check: is the lPAL full?
     ########################################################################
     unfilled = getUnfilledPositions(outfile)  # from text file
-    # print("filled",lpal.getFilledPositions())
-    # print("unfilled",lpal.getUnfilledPositions())
+    unfilled_db = lpal.getUnfilledPositions()  # from the DB
 
-    if unfilled != lpal.getUnfilledPositions():
+    # Txt file and DB agree.
+    # When totally filled, unfilled = [], unfilled_db = None, which is why we
+    # need both checks.
+    if (not unfilled and not unfilled_db) or unfilled == unfilled_db:
+        logger.debug("db and text file agree on which positions are filled.")
+        logger.debug(f"{unfilled} {unfilled_db}")
+        logger.debug(f"filled (DB) {lpal.getFilledPositions()}")
+    # Txt file and DB do not agree
+    else:
         logger.warning(
             f"Text file {outfile} and database disagree on which LPAL positions are unfilled."
         )
+        logger.info(f"unfilled (txt file)\n{getUnfilledPositions(outfile)}")
+        logger.info(f"filled (DB)\n{lpal.getFilledPositions()}")
+        logger.info(f"unfilled (DB)\n{lpal.getUnfilledPositions()}")
+        logger.info(
+            "You can proceed to scan any and all straws to set the "
+            "record straight in the DB AND text file."
+        )
 
     if len(unfilled) == 0:
-        logger.info("All positions on this pallet have been filled.")
+        logger.info(
+            f"According to {outfile} all positions on this pallet have been filled."
+        )
         if not getYN("Continue scanning straws?"):
             if getYN("Finish?"):
                 return "finish"
@@ -220,6 +238,9 @@ def addStrawToLPAL(lpal, outfile, cpals):
     if not removeStrawFromCurrentLocations(straw, cpals):
         return "scanning"
 
+    # 3. Remove straw currently in this position
+    lpal.removeStraw(straw=None, position=position, commit=True)
+
     # 3. Add straw to LPAL in the DB
     lpal.addStraw(straw, position)
     logger.info(
@@ -273,6 +294,7 @@ class FillLPALGUI(QObject):
 
 
 def run():
+    sys.excepthook = except_hook  # crash, don't hang when an exception is raised
     print(
         """
     \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
