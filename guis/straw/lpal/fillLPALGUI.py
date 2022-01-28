@@ -156,14 +156,22 @@ def addStrawToLPAL(lpal, outfile, cpals):
     # Check: is the lPAL full?
     ########################################################################
     unfilled = getUnfilledPositions(outfile)  # from text file
+    unfilled_db = lpal.getUnfilledPositions()  # from the DB
 
-    if unfilled != lpal.getUnfilledPositions():
-        logger.debug(f"filled (txt file) {getUnfilledPositions(outfile)}")
+    # Txt file and DB agree.
+    # When totally filled, unfilled = [], unfilled_db = None, which is why we
+    # need both checks.
+    if (not unfilled and not unfilled_db) or unfilled == unfilled_db:
+        pass
+    # Txt file and DB do not agree
+    else:
+        logger.debug(f"unfilled (txt file) {getUnfilledPositions(outfile)}")
         logger.debug(f"filled (DB) {lpal.getFilledPositions()}")
         logger.debug(f"unfilled (DB) {lpal.getUnfilledPositions()}")
         logger.warning(
             f"Text file {outfile} and database disagree on which LPAL positions are unfilled."
         )
+
 
     if len(unfilled) == 0:
         logger.info("All positions on this pallet have been filled.")

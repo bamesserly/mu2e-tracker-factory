@@ -199,6 +199,14 @@ class StrawLocation(BASE, OBJECT):
 
     # return [0, 6, 8, 14, 22, ...]
     def getUnfilledPositions(self):
+        all_positions = [i for i in range(0,95) if i%2==0] # [0,2,4,...,94]
+        filled_positions = self.getFilledPositions()
+        unfilled_positions = [i for i in all_positions if i not in filled_positions]
+        '''
+        # This one fails to capture the fact that a straw may have been removed
+        # from a position and then another straw or the same one re-added to the
+        # same position. Need to search get positions which do not have a 1.
+        # Keeping it here because notes on how to make sql queries helpful.
         unfilled_positions = (
             DM.query(StrawPosition.position_number)  # get all straw position numbers
             .outerjoin(
@@ -214,6 +222,7 @@ class StrawLocation(BASE, OBJECT):
         )
 
         return [pos for pos, *remainder in unfilled_positions]
+        '''
 
     # return [0, 6, 8, 14, 22, ...]
     def getFilledPositions(self):
