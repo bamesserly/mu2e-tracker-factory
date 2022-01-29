@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QMessageBox
 import sys
+import sqlite3
+import pandas as pd
 
 import logging
 
@@ -57,3 +59,80 @@ def except_hook(exctype, exception, tb):
     """
     logger.error("Logging an uncaught exception", exc_info=(exctype, exception, tb))
     sys.exit()
+    
+    
+# getter functions
+
+def get_straw_location_panel(panel):
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")  
+    output = str(cursor.fetchall()[0][0])
+    con.close()
+    
+    return output
+    
+def get_procedure_from_location(straw_location, procedure):
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='"+procedure+"'")
+    output = str(cursor.fetchall()[0][0])
+    con.close()
+    
+    return output
+    
+def get_trial(procedure, tag):
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"' AND tag='"+tag+"'")
+    output = str(cursor.fetchall()[0][0])
+    con.close()
+    
+    return output
+    
+# get panel leak data as pandas df
+def get_panel_leak_df(trial):
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
+    leak_df = pd.read_sql_query("SELECT * FROM measurement_panel_leak WHERE trial='"+trial+"'", con)
+    return leak_df
+    
+    
+################################################################################
+# returns a list of leak test tags for an inputted panel
+################################################################################
+
+def get_leak_tags(panel):
+    tag_list = []
+    con = sqlite3.connect('data/database.db')
+    cursor = con.cursor()
+    
+    # acquire straw location
+    cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
+    straw_location = str(cursor.fetchall()[0][0])
+
+    # use straw location to acquire procedure
+    cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
+    result = cursor.fetchall()
+    if len(result) > 0:
+        procedure = str(result[0][0])
+        
+        # use procedure and tag to acquire trial
+        cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"'")
+        raw_list = cursor.fetchall()
+
+        for i in raw_list: # sort out tags from raw_list and put in list to return
+            tag_list.append(str(i[2]))
+    
+    return tag_list
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -2,6 +2,9 @@ import pandas as pd
 import datetime
 import sqlite3
 
+# database access functions
+import guis.common.gui_utils as data_getter
+
 ################################################################################
 # Constants
 ################################################################################
@@ -102,29 +105,20 @@ def ReadLeakRateFile(infile, is_new_format="true"):
 ################################################################################
 
 def ReadLeakDataFromDB(panel, tag):
-    leak_df = pd.DataFrame()
-    
     #ensure that panel is type str
     panel = str(panel)
-    
-    
-    con = sqlite3.connect('data/database.db')
-    cursor = con.cursor()
 
     # acquire straw location
-    cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
-    straw_location = str(cursor.fetchall()[0][0])
+    straw_location = data_getter.get_straw_location_panel(panel)
     
     # use straw location to acquire procedure
-    cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
-    procedure = str(cursor.fetchall()[0][0])
+    procedure = data_getter.get_procedure_from_location(straw_location, 'pan8')
         
     # use procedure and tag to acquire trial
-    cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"' AND tag='"+tag+"'")
-    trial = str(cursor.fetchall()[0][0])
+    trial = data_getter.get_trial(procedure, tag)
         
     # use trial to acquire pertinent entries from measurement_panel_leak
-    leak_df = pd.read_sql_query("SELECT * FROM measurement_panel_leak WHERE trial='"+trial+"'", con)
+    leak_df = data_getter.get_panel_leak_df(trial)
         
     # rename pertinent columns
     leak_df.rename(columns={"elapsed_days":"TIME(DAYS)"}, inplace=True)
@@ -138,49 +132,4 @@ def ReadLeakDataFromDB(panel, tag):
     # drop other columns
     leak_df.drop(columns=['id', 'trial'], axis=1, inplace=True)
         
-    con.close()
-        
     return leak_df
-
-
-################################################################################
-# returns a list of leak test tags for an inputted panel
-################################################################################
-
-def getLeakTags(panel):
-    tag_list = []
-    con = sqlite3.connect('data/database.db')
-    cursor = con.cursor()
-    
-    # acquire straw location
-    cursor.execute("SELECT * FROM straw_location WHERE number='"+str(panel)+"' AND location_type='MN'")
-    straw_location = str(cursor.fetchall()[0][0])
-
-    # use straw location to acquire procedure
-    cursor.execute("SELECT * FROM procedure WHERE straw_location='"+straw_location+"' AND station='pan8'")
-    result = cursor.fetchall()
-    if len(result) > 0:
-        procedure = str(result[0][0])
-
-        
-        # use procedure and tag to acquire trial
-        cursor.execute("SELECT * FROM panel_leak_test_details WHERE procedure='"+procedure+"'")
-        raw_list = cursor.fetchall()
-
-
-
-        for i in raw_list: # sort out tags from raw_list and put in list to return
-            tag_list.append(str(i[2]))
-    
-    return tag_list
-        
-    
-    
-    
-    
-    
-
-    
-    
-    
-    

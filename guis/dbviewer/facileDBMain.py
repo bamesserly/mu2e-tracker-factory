@@ -16,6 +16,8 @@ import pandas as pd
 
 # importing panel_leak_utilities
 import guis.panel.leak.panel_leak_utilities as panel_leak_utilities
+# importing gui_utils
+import guis.common.gui_utils as data_getter
 
 import logging
 from matplotlib import cm
@@ -1640,11 +1642,11 @@ class facileDBGUI(QMainWindow):
         )
         # put data into finalqc tag combobox/ clear prexisting data in dropdown menu. Also enable plotting button if there are tags.
         self.ui.leakGraphSelect.clear()
-        if len(panel_leak_utilities.getLeakTags(self.data.humanID)) != 0:
+        if len(data_getter.get_leak_tags(self.data.humanID)) != 0:
             self.ui.leakGraphButton.setDisabled(False)
         else:
             self.ui.leakGraphButton.setDisabled(True)
-        self.ui.leakGraphSelect.addItems(panel_leak_utilities.getLeakTags(self.data.humanID))
+        self.ui.leakGraphSelect.addItems(data_getter.get_leak_tags(self.data.humanID))
         return
 
     # puts part IDs on the gui
