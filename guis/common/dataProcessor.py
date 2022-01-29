@@ -2247,7 +2247,7 @@ class SQLDataProcessor(DataProcessor):
             elapsed_time = timedelta(seconds=self.procedure.getElapsedTime())
 
             # Steps Completed
-            steps_completed = self.procedure.countStepsExecuted()
+            steps_completed = self.procedure.steps_executed()
 
         # Return list of lists
         return data, elapsed_time, steps_completed
