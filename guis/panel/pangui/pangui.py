@@ -1942,7 +1942,6 @@ class panelGUI(QMainWindow):
                 checkbox2.setDisabled(False)
 
             self.saveStep(step.name)  # changed
-            print("bottom saved: " + str(step.name))
 
         if self.stepsList.allStepsChecked():
             # Pro 1 needs validated straws to enable finish
