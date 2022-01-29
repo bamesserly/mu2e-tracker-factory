@@ -1892,16 +1892,36 @@ class panelGUI(QMainWindow):
 
     def checkProgress(self):
         """Constrain steps to be checked off in order"""
-        step = self.stepsList.getCurrentStep()  # Latest unchecked step
-        checkbox1 = step.getCheckbox()
-        checkbox1.setDisabled(True)
-        self.stepsList.getNextStep()
+        print("----- hola -----")
+        print(self.stepsList.steps[0].name)
+        
+        
+        group_list = ["Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"]
+        
+        if (str(self.stepsList.getCurrentStep().getName()) in group_list or str(self.stepsList.getCurrentStep().getNext().getName()) in group_list):
+            current = self.stepsList.getCurrentStep()
+            while (current.name in group_list or current.getNext().name in group_list):
+                if current.getCheckbox().isChecked():
+                    self.saveStep(current.name)
+                    current.getCheckbox().setDisabled(True)
+                else:
+                    current.getCheckbox().setDisabled(False)
+                current = current.getNext()
+            self.stepsList.getNextStep()
+            self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+            
+        
+        else:
+            step = self.stepsList.getCurrentStep()  # Latest unchecked step
+            checkbox1 = step.getCheckbox()
+            checkbox1.setDisabled(True)
+            self.stepsList.getNextStep()
 
-        if self.stepsList.getCurrentStep() is not None:
-            checkbox2 = self.stepsList.getCurrentStep().getCheckbox()
-            checkbox2.setDisabled(False)
+            if self.stepsList.getCurrentStep() is not None:
+                checkbox2 = self.stepsList.getCurrentStep().getCheckbox()
+                checkbox2.setDisabled(False)
 
-        self.saveStep(step.name)  # changed
+            self.saveStep(step.name)  # changed
 
         if self.stepsList.allStepsChecked():
             # Pro 1 needs validated straws to enable finish
