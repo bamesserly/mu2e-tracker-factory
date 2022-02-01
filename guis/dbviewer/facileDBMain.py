@@ -1559,13 +1559,16 @@ class facileDBGUI(QMainWindow):
         if len(rawPro8Data) > 1:
             return False
 
-        self.data.qcParts["left_cover"] = rawPro8Data[0][0]
-        self.data.qcParts["right_cover"] = rawPro8Data[0][1]
-        self.data.qcParts["center_cover"] = rawPro8Data[0][2]
-        self.data.qcParts["left_ring"] = rawPro8Data[0][3]
-        self.data.qcParts["right_ring"] = rawPro8Data[0][4]
-        self.data.qcParts["center_ring"] = rawPro8Data[0][5]
-        self.data.qcParts["stage"] = rawPro8Data[0][6]
+        try:
+            self.data.qcParts["left_cover"] = rawPro8Data[0][0]
+            self.data.qcParts["right_cover"] = rawPro8Data[0][1]
+            self.data.qcParts["center_cover"] = rawPro8Data[0][2]
+            self.data.qcParts["left_ring"] = rawPro8Data[0][3]
+            self.data.qcParts["right_ring"] = rawPro8Data[0][4]
+            self.data.qcParts["center_ring"] = rawPro8Data[0][5]
+            self.data.qcParts["stage"] = rawPro8Data[0][6]
+        except IndexError as e:
+            logger.warning("No pro8 parts data. This shouldn't be throwing an error. TODO for Ben.")
 
         return True
 
