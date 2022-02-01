@@ -1,3 +1,4 @@
+
 """
 #
 #  .oooooo.    ooooo     ooo ooooo      ooo        ooooo       .o.       ooooo ooooo      ooo 
@@ -1906,7 +1907,6 @@ class panelGUI(QMainWindow):
                 if (str(self.stepsList.getCurrentStep().getName()) in sub_list or str(self.stepsList.getCurrentStep().getNext().getName()) in sub_list):
                     into_list = True
                     current = self.stepsList.getCurrentStep()
-                    
                     while (current.name in sub_list or current.getNext().name in sub_list):
                         if current.getCheckbox().isChecked():
                             self.saveStep(current.name)
@@ -2871,6 +2871,8 @@ class panelGUI(QMainWindow):
         ]
         # Call method giving 'data' as input.
         parse_pro[self.pro_index](data)
+        
+        print(self.parsepro6Data)
 
         ## Process 3 continuity data
         if self.pro == 3:
