@@ -1891,27 +1891,33 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        """Constrain steps to be checked off in order"""
-        print("----- hola -----")
-        print(self.stepsList.steps[0].name)
+        """Constrain steps to be checked off in order unless specified in group_list"""
         
+        group_list = [["Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],   # process 8
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
-        group_list = ["Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"]
+        # variable to store whether or not a sublist was accessed
+        into_list = False
         
-        if (str(self.stepsList.getCurrentStep().getName()) in group_list or str(self.stepsList.getCurrentStep().getNext().getName()) in group_list):
-            current = self.stepsList.getCurrentStep()
-            while (current.name in group_list or current.getNext().name in group_list):
-                if current.getCheckbox().isChecked():
-                    self.saveStep(current.name)
-                    current.getCheckbox().setDisabled(True)
-                else:
-                    current.getCheckbox().setDisabled(False)
-                current = current.getNext()
-            self.stepsList.getNextStep()
-            self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+        #print("hola hola hola: " + str(self.stepsList.getCurrentStep().getName()))
+        #print("hola hola hola 2: " + str(self.stepsList.getCurrentStep().getNext().getName()))
+        if self.stepsList.getCurrentStep().getNext() != None:
+            for sub_list in group_list:
+                if (str(self.stepsList.getCurrentStep().getName()) in sub_list or str(self.stepsList.getCurrentStep().getNext().getName()) in sub_list):
+                    into_list = True
+                    current = self.stepsList.getCurrentStep()
+                    while (current.name in sub_list or current.getNext().name in sub_list):
+                        if current.getCheckbox().isChecked():
+                            self.saveStep(current.name)
+                            current.getCheckbox().setDisabled(True)
+                        else:
+                            current.getCheckbox().setDisabled(False)
+                        current = current.getNext()
+                    self.stepsList.getNextStep()
+                    self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+                
             
-        
-        else:
+        if not into_list:
             step = self.stepsList.getCurrentStep()  # Latest unchecked step
             checkbox1 = step.getCheckbox()
             checkbox1.setDisabled(True)
@@ -2851,6 +2857,8 @@ class panelGUI(QMainWindow):
         ]
         # Call method giving 'data' as input.
         parse_pro[self.pro_index](data)
+        
+        print(self.parsepro6Data)
 
         ## Process 3 continuity data
         if self.pro == 3:
@@ -2938,6 +2946,10 @@ class panelGUI(QMainWindow):
     """
 
     def parseSteps(self, steps_completed):
+        # nested list of nonsequential steps
+        group_list = [["Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],   # process 8
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
+        
 
         # This method doesn't look at the names of the steps. It checks of
         # as many checkboxes as specified by the input integer.
@@ -2948,6 +2960,13 @@ class panelGUI(QMainWindow):
             box = step.getCheckbox()
             if box is not None:
                 box.setEnabled(True)
+            # enable all checkboxes in group
+            for sub_list in group_list:
+                while step.getNext() != None and step.getName() in sub_list:
+                        box.setEnabled(True)
+                        step = step.getNext()
+                        box = step.getCheckbox()
+                        print("hi: " + str(step.checkbox))
 
         for _ in range(steps_completed):
             if self.stepsList.getCurrentStep():
