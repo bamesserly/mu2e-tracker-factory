@@ -1902,7 +1902,6 @@ class panelGUI(QMainWindow):
         
         
         if self.stepsList.getCurrentStep().getNext() != None:
-            print("current name: " + str(self.stepsList.getCurrentStep().getName()))
             for sub_list in group_list:
                 if (str(self.stepsList.getCurrentStep().getName()) in sub_list or str(self.stepsList.getCurrentStep().getNext().getName()) in sub_list):
                     into_list = True
@@ -1918,17 +1917,21 @@ class panelGUI(QMainWindow):
                         current = current.getNext()
                             
                     if all_checked == True:
-                        while current.name != sub_list[-1]:
+                        while self.stepsList.getCurrentStep().getName() in sub_list:
                             self.stepsList.getNextStep()
                             current = self.stepsList.getCurrentStep()
+                            print("current name: " + str(current.getName()))
+                        self.saveStep(self.stepsList.getCurrentStep().getName())
                         if current.getNext() != None:
-                            self.stepsList.getNextStep()
+                            while self.stepsList.getCurrentStep().getName() in sub_list:
+                                self.stepsList.getNextStep()
                             # enable next checkbox
                             box = self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
                         
                 
         
         if not into_list:
+            print("lower step: " + str(self.stepsList.getCurrentStep().getName()))
             step = self.stepsList.getCurrentStep()  # Latest unchecked step
             checkbox1 = step.getCheckbox()
             checkbox1.setDisabled(True)
@@ -1939,6 +1942,7 @@ class panelGUI(QMainWindow):
                 checkbox2.setDisabled(False)
 
             self.saveStep(step.name)  # changed
+            print("bottom saved: " + str(step.name))
 
         if self.stepsList.allStepsChecked():
             # Pro 1 needs validated straws to enable finish
@@ -2962,9 +2966,17 @@ class panelGUI(QMainWindow):
 
         # This method doesn't look at the names of the steps. It checks of
         # as many checkboxes as specified by the input integer.
+        
+        # figure out first unchecked step
+        first_unchecked = self.stepsList.getCurrentStep()
+        while first_unchecked.getName() in steps_completed and first_unchecked.getNext() != None:
+            first_unchecked = first_unchecked.getNext()
+        
+        
 
         # No matter what, start by enabling the first step
         step = self.stepsList.getCurrentStep()
+        print("current step: " + str(step.getName()))
         if step is not None:
             box = step.getCheckbox()
             if box is not None:
@@ -2976,18 +2988,44 @@ class panelGUI(QMainWindow):
                     box = step.getCheckbox()
                     box.setEnabled(True)
                     step = step.getNext()
-
-        for _ in range(steps_completed):
-            if self.stepsList.getCurrentStep():
-                checkbox = self.stepsList.getCurrentStep().getCheckbox()
-                checkbox.setChecked(True)
-                checkbox.setDisabled(True)
-
-                nextCheckbox = self.stepsList.getNextCheckbox()
-                self.stepsList.getNextStep()
-
-                if nextCheckbox is not None:
-                    nextCheckbox.setDisabled(False)
+        
+            
+        # get first step in process
+        current_first = self.stepsList.getCurrentStep()
+        while current_first.getPrevious() != None:
+            current_first = current_first.getPrevious()
+        
+        # check off steps that have been completed
+        if self.stepsList.getCurrentStep():
+            
+            # set current step to first step in process
+            current_step = current_first
+            while current_step.getNext() != None:
+                checkbox = current_step.getCheckbox()
+                
+                # if step is checked off in db, check it off in gui
+                if current_step.getName() in steps_completed:
+                    checkbox.setChecked(True)
+                    checkbox.setDisabled(True)
+                    
+                current_step = current_step.getNext()
+        
+        # ensure that first unchecked checkbox isn't disabled
+        checkbox = first_unchecked.getCheckbox()
+        checkbox.setDisabled(False)
+        in_group = False
+        # if first unchecked is in group, set current as first in group, otherwise set current as first unchecked
+        for sub_group in group_list:
+            if first_unchecked in sub_group:
+                in_group = True
+                while first_unchecked.getName() != sub_group[0]:
+                    first_unchecked = first_unchecked.getPrevious()
+                self.stepsList.setNextStep(first_unchecked)
+        if not in_group:
+            self.stepsList.setNextStep(first_unchecked)
+                
+            
+    
 
         # If all steps have been completed, change text of finish button
         if self.stepsList.allStepsChecked():

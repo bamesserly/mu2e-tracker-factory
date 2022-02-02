@@ -399,15 +399,19 @@ class PanelProcedure(Procedure):
         # Record execution
         PanelStepExecution(panel_step=step.id, procedure=self.id).commit()
 
-    def countStepsExecuted(self):
-        from guis.common.db_classes.steps import PanelStepExecution
-
-        return len(
-            PanelStepExecution.query()
-            .filter(PanelStepExecution.procedure == self.id)
-            .group_by(PanelStepExecution.panel_step)
-            .all()
-        )
+    def steps_executed(self):
+        from guis.common.db_classes.steps import PanelStepExecution, PanelStep
+        
+        panel_execution_list = PanelStepExecution.query().filter(PanelStepExecution.procedure == self.id).group_by(PanelStepExecution.panel_step).all()
+        step_list = []
+        
+        # interate through panel_execution_list to get list of step names
+        for i in panel_execution_list:
+            id = i.get_id()
+            step_name = str(PanelStep.id_to_step(id).getName())
+            step_list.append(step_name)
+        
+        return step_list
 
     """
     recordPanelTempMeasurement
