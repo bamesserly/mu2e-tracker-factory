@@ -1903,7 +1903,6 @@ class panelGUI(QMainWindow):
         
         
         if self.stepsList.getCurrentStep().getNext() != None:
-            print("current name: " + str(self.stepsList.getCurrentStep().getName()))
             for sub_list in group_list:
                 if (str(self.stepsList.getCurrentStep().getName()) in sub_list or str(self.stepsList.getCurrentStep().getNext().getName()) in sub_list):
                     into_list = True
@@ -1944,6 +1943,7 @@ class panelGUI(QMainWindow):
                 checkbox2.setDisabled(False)
 
             self.saveStep(step.name)  # changed
+            print("bottom saved: " + str(step.name))
 
         if self.stepsList.allStepsChecked():
             # Pro 1 needs validated straws to enable finish
