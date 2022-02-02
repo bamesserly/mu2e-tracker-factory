@@ -1891,32 +1891,43 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        """Constrain steps to be checked off in order unless specified in group_list"""
-        
         group_list = [["Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],   # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
         # variable to store whether or not a sublist was accessed
         into_list = False
+        all_checked = True
         
-        #print("hola hola hola: " + str(self.stepsList.getCurrentStep().getName()))
-        #print("hola hola hola 2: " + str(self.stepsList.getCurrentStep().getNext().getName()))
+        """Constrain steps to be checked off in order"""
+        
+        
         if self.stepsList.getCurrentStep().getNext() != None:
+            print("current name: " + str(self.stepsList.getCurrentStep().getName()))
             for sub_list in group_list:
                 if (str(self.stepsList.getCurrentStep().getName()) in sub_list or str(self.stepsList.getCurrentStep().getNext().getName()) in sub_list):
                     into_list = True
                     current = self.stepsList.getCurrentStep()
+                    
                     while (current.name in sub_list or current.getNext().name in sub_list):
                         if current.getCheckbox().isChecked():
                             self.saveStep(current.name)
                             current.getCheckbox().setDisabled(True)
                         else:
+                            all_checked = False
                             current.getCheckbox().setDisabled(False)
                         current = current.getNext()
-                    self.stepsList.getNextStep()
-                    self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+                            
+                    if all_checked == True:
+                        while current.name != sub_list[-1]:
+                            self.stepsList.getNextStep()
+                            current = self.stepsList.getCurrentStep()
+                        if current.getNext() != None:
+                            self.stepsList.getNextStep()
+                            # enable next checkbox
+                            box = self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+                        
                 
-            
+        
         if not into_list:
             step = self.stepsList.getCurrentStep()  # Latest unchecked step
             checkbox1 = step.getCheckbox()
@@ -2857,8 +2868,6 @@ class panelGUI(QMainWindow):
         ]
         # Call method giving 'data' as input.
         parse_pro[self.pro_index](data)
-        
-        print(self.parsepro6Data)
 
         ## Process 3 continuity data
         if self.pro == 3:
@@ -2960,13 +2969,13 @@ class panelGUI(QMainWindow):
             box = step.getCheckbox()
             if box is not None:
                 box.setEnabled(True)
-            # enable all checkboxes in group
-            for sub_list in group_list:
+        # if current step is in group_list, enable all checkboxes in nonsequential group
+        for sub_list in group_list:
+            if step.getName() in sub_list:
                 while step.getNext() != None and step.getName() in sub_list:
-                        box.setEnabled(True)
-                        step = step.getNext()
-                        box = step.getCheckbox()
-                        print("hi: " + str(step.checkbox))
+                    box = step.getCheckbox()
+                    box.setEnabled(True)
+                    step = step.getNext()
 
         for _ in range(steps_completed):
             if self.stepsList.getCurrentStep():
