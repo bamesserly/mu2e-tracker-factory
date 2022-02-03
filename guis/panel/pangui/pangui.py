@@ -1940,6 +1940,7 @@ class panelGUI(QMainWindow):
                         if current.getNext() != None:
                             while self.stepsList.getCurrentStep().getName() in sub_list or self.stepsList.getCurrentStep().getNext().getName() in sub_list:
                                 self.stepsList.getNextStep()
+                            self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
                         
         # code for if a nonsequential subgroup isn't involved
         if not into_list:
