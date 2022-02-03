@@ -1902,7 +1902,9 @@ class panelGUI(QMainWindow):
         all_checked = True
         current_valid = True
         
+        # enables all checkboxex in the same subgroup as inputted step
         def enable_subgroup_checkboxes(current):
+            current.getCheckbox().setDisabled(False)
             for sub_list in group_list:
                 if current.getName() in sub_list:
                     while current.getName() in sub_list and current.getNext() != None:
@@ -1951,10 +1953,14 @@ class panelGUI(QMainWindow):
                             current = self.stepsList.getCurrentStep()
                         self.saveStep(self.stepsList.getCurrentStep().getName())
                         if current.getNext() != None:
+                            enable_subgroup_checkboxes(self.stepsList.getCurrentStep())
+                            
+                            
+                            
+                            # iterate through group list to set current step
                             while self.stepsList.getCurrentStep().getName() in sub_list or self.stepsList.getCurrentStep().getNext().getName() in sub_list:
                                 self.stepsList.getNextStep()
-                            self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
-                            
+                        
                             # if current step is the start of a new list, enable all checkboxes in list
                             current = self.stepsList.getCurrentStep()
                             enable_subgroup_checkboxes(current)
