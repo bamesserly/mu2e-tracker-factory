@@ -404,9 +404,6 @@ class PanelProcedure(Procedure):
         
         panel_execution_list = PanelStepExecution.query().filter(PanelStepExecution.procedure == self.id).group_by(PanelStepExecution.panel_step).all()
         step_list = []
-        
-        print("length of panel_execution_list: " + str(len(panel_execution_list)))
-        
 
         # iterate through panel_execution_list to get list of step names
         for i in panel_execution_list:
@@ -414,8 +411,6 @@ class PanelProcedure(Procedure):
             step_name = str(PanelStep.id_to_step(id).getName())
             step_list.append(step_name)
     
-        print("step list: " + str(step_list))
-        print("length of step list: " + str(len(step_list)))
         return step_list
 
     """
