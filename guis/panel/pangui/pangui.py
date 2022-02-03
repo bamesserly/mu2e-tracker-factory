@@ -1893,7 +1893,7 @@ class panelGUI(QMainWindow):
 
     def checkProgress(self):
         group_list = [["Seal_Electronics_Slot", "Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],     # process 8
-        ["Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean", "Inspect_For_Scratches"],    # process 8
+        ["Inspect_For_Scratches", "Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean"],    # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
         # variable to store whether or not a sublist was accessed
@@ -1904,12 +1904,13 @@ class panelGUI(QMainWindow):
         current = self.stepsList.getCurrentStep()
         
         if self.stepsList.getCurrentStep().getNext() != None:
+            current = self.stepsList.getCurrentStep()
+            previous_current = self.stepsList.getCurrentStep()
             for sub_list in group_list:
-                # reset current
-                current = self.stepsList.getCurrentStep()
+                
                 
                 # case for subgroup, go into it if current step is the first item in subgroup
-                if (current.getName() in sub_list or current.getNext().getName() in sub_list):
+                if (previous_current.getName() in sub_list or previous_current.getNext().getName() in sub_list):
                     # stores whether or not a subroup was delved into
                     into_list = True
                     
@@ -1927,12 +1928,13 @@ class panelGUI(QMainWindow):
                         # check for breaking conditions
                         if current.getNext() is None or current.getNext().getName() not in sub_list:
                             current_valid = False
+                            
                         if current.getNext() != None:
                             current = current.getNext()
                                 
                     # if all items in sub_list are checked off, update current step
                     if all_checked == True:
-                        # iterate through sub_list to 
+                        # iterate through sub_list to update current step
                         while self.stepsList.getCurrentStep().getName() in sub_list:
                             self.stepsList.getNextStep()
                             current = self.stepsList.getCurrentStep()
@@ -2974,7 +2976,7 @@ class panelGUI(QMainWindow):
     def parseSteps(self, steps_completed):
         # nested list of nonsequential steps
         group_list = [["Seal_Electronics_Slot", "Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],     # process 8
-        ["Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean", "Inspect_For_Scratches"],   # process 8
+        ["Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean"],   # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
 
