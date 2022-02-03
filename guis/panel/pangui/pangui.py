@@ -1916,7 +1916,7 @@ class panelGUI(QMainWindow):
         # initialize current step
         current = self.stepsList.getCurrentStep()
         
-        if self.stepsList.getCurrentStep().getNext() != None:
+        if self.stepsList.getCurrentStep().getNext() is not None:
             current = self.stepsList.getCurrentStep()
             previous_current = self.stepsList.getCurrentStep()
             for sub_list in group_list:
@@ -1942,7 +1942,7 @@ class panelGUI(QMainWindow):
                         if current.getNext() is None or current.getNext().getName() not in sub_list:
                             current_valid = False
                             
-                        if current.getNext() != None:
+                        if current.getNext() is not None:
                             current = current.getNext()
                                 
                     # if all items in sub_list are checked off, update current step
@@ -1952,10 +1952,10 @@ class panelGUI(QMainWindow):
                             self.stepsList.getNextStep()
                             current = self.stepsList.getCurrentStep()
                         self.saveStep(self.stepsList.getCurrentStep().getName())
-                        if current.getNext() != None:
+                        
+                        # if it's not the end of the steps list, call a function to enable the following checkbox(es)
+                        if current.getNext() is not None:
                             enable_subgroup_checkboxes(self.stepsList.getCurrentStep())
-                            
-                            
                             
                             # iterate through group list to set current step
                             while self.stepsList.getCurrentStep().getName() in sub_list or self.stepsList.getCurrentStep().getNext().getName() in sub_list:
@@ -3017,7 +3017,7 @@ class panelGUI(QMainWindow):
         # if current step is in a sub_list of group_list, enable all checkboxes in nonsequential group
         for sub_list in group_list:
             if step.getName() in sub_list:
-                while step.getNext() != None and step.getName() in sub_list:
+                while step.getNext() is not None and step.getName() in sub_list:
                     box = step.getCheckbox()
                     box.setEnabled(True)
                     step = step.getNext()
@@ -3029,7 +3029,7 @@ class panelGUI(QMainWindow):
             current_step = self.stepsList.getCurrentStep()
             
             # iterate through linkedlist of steps, checking off executed steps found in db
-            while current_step != None:
+            while current_step is not None:
                 checkbox = current_step.getCheckbox()
                 
                 # if step is checked off in db, check it off in gui
@@ -3049,7 +3049,7 @@ class panelGUI(QMainWindow):
         for sub_group in group_list:
             if first_unchecked in sub_group:
                 in_group = True
-                while first_unchecked.getName() != sub_group[0]:
+                while first_unchecked.getName() is not sub_group[0]:
                     first_unchecked = first_unchecked.getPrevious()
                 self.stepsList.setNextStep(first_unchecked)
         if not in_group:
