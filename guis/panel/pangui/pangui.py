@@ -1881,11 +1881,10 @@ class panelGUI(QMainWindow):
 
     """
     checkProgress(self, pro, x)
-
-        Description: This function is called whenever a checkbox is checked. It disables the clicked checkbox, and enables
-                    the next one (as all checkboxes start disabled). This is done in order of steps, to ensure steps are 
-                    checked off in order. Also emits signal to save data when checkbox clicked, and enables the finish
-                    button when all steps are checked.
+            
+        Description:    This function is called whenever a checkbox is checked. It disables all clicked checkboxes and
+                        enables the next one (or all in the pertinent nonsequential subgroup). This also emits a signal
+                        to save all pertinent data, and enables teh finish button when all steps are checked.
 
         Parameter: pro - The panel pro that is currently being run
         Parameter: x - The index of the checkbox that emitted the signal to call this method
@@ -1916,6 +1915,7 @@ class panelGUI(QMainWindow):
         # initialize current step
         current = self.stepsList.getCurrentStep()
         
+        # ensure that the next step isn't null, as a multitude of errors would ensue
         if self.stepsList.getCurrentStep().getNext() is not None:
             current = self.stepsList.getCurrentStep()
             previous_current = self.stepsList.getCurrentStep()
@@ -1938,11 +1938,11 @@ class panelGUI(QMainWindow):
                         else:
                             all_checked = False
                             current.getCheckbox().setDisabled(False)
+                            
                         # check for breaking conditions
                         if current.getNext() is None or current.getNext().getName() not in sub_list:
                             current_valid = False
-                            
-                        if current.getNext() is not None:
+                        elif current.getNext() is not None:
                             current = current.getNext()
                                 
                     # if all items in sub_list are checked off, update current step
