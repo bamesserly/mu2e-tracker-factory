@@ -1892,13 +1892,24 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        group_list = [["Seal_Electronics_Slot", "Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],     # process 8
+        group_list = [["Seal_Electronics_Slot", "Tap_and_Clean_Holes"],     # process 8
+        ["Clean_Surfaces", "Clean_O_Rings"],    # process 8
         ["Inspect_For_Scratches", "Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean"],    # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
-        # variable to store whether or not a sublist was accessed
+        # define function variables
         into_list = False
         all_checked = True
+        current_valid = True
+        
+        def enable_subgroup_checkboxes(current):
+            for sub_list in group_list:
+                if current.getName() in sub_list:
+                    while current.getName() in sub_list and current.getNext() != None:
+                        current.getCheckbox().setDisabled(False)
+                        current = current.getNext()
+        
+        
         
         # initialize current step
         current = self.stepsList.getCurrentStep()
@@ -1943,6 +1954,10 @@ class panelGUI(QMainWindow):
                             while self.stepsList.getCurrentStep().getName() in sub_list or self.stepsList.getCurrentStep().getNext().getName() in sub_list:
                                 self.stepsList.getNextStep()
                             self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+                            
+                            # if current step is the start of a new list, enable all checkboxes in list
+                            current = self.stepsList.getCurrentStep()
+                            enable_subgroup_checkboxes(current)
                         
         # code for if a nonsequential subgroup isn't involved
         if not into_list:
