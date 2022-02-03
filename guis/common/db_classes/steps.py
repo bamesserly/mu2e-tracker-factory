@@ -97,6 +97,6 @@ class PanelStepExecution(BASE, OBJECT):
         self.panel_step = panel_step
         self.procedure = procedure
         
-    def get_id(self):
+    def get_panel_step(self):
         # return id from pertinent step
         return self.panel_step

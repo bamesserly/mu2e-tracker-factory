@@ -2977,7 +2977,6 @@ class panelGUI(QMainWindow):
 
         # No matter what, start by enabling the first step
         step = self.stepsList.getCurrentStep()
-        print("current step: " + str(step.getName()))
         if step is not None:
             box = step.getCheckbox()
             if box is not None:
@@ -3001,14 +3000,14 @@ class panelGUI(QMainWindow):
             
             # set current step to first step in process
             current_step = current_first
-            while current_step.getNext() != None:
+            while current_step != None:
                 checkbox = current_step.getCheckbox()
                 
                 # if step is checked off in db, check it off in gui
                 if current_step.getName() in steps_completed:
                     checkbox.setChecked(True)
                     checkbox.setDisabled(True)
-                    
+
                 current_step = current_step.getNext()
         
         # ensure that first unchecked checkbox isn't disabled
