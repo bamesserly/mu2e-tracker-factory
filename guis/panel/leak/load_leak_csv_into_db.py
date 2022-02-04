@@ -74,19 +74,12 @@ class ParseException(Exception):
 # Some validation on the results.
 # "211012_1749_MN169 test 1.txt"
 def parse_filename(filename):
-    logger.debug("Getting test info from input file.")
     filename = Path(filename).stem  # remove txt suffix
     timestamp = filename[0:11]
     panel_number = re.search(r"MN\d\d\d", filename).group(0)[2:]
     # tag = format_tag(filename[17:])
     tag_start_idx = filename.find(panel_number) + len(panel_number)
     tag = format_tag(filename[tag_start_idx:])
-    try:
-        time.strptime(timestamp, kFILENAME_DATE_FORMAT)
-        panel_number = int(panel_number)
-        assert len(tag)
-    except:
-        raise ParseException
     return timestamp, panel_number, tag
 
 
@@ -113,78 +106,34 @@ def execute_query(connection, query, entries):
 ################################################################################
 # Validate inputs
 ################################################################################
-# is test timestamp valid? if not prompt user
-def validate_timestamp(timestamp):
-    # is the timestamp extracted from the filename correct?
-    temp_timestamp = input(
-        f"Found timestamp {timestamp}.\n"
-        "If correct, press <return>, else enter timestamp in format YYMMDD_HHMM> "
-    )
-    timestamp = timestamp if temp_timestamp == "" else temp_timestamp
-
-    # is the timestamp valid?
-    while True:
-        try:
-            epoch_time = int(convert_to_epoch(timestamp))
-            assert 1451628001 < epoch_time < 1672552801  # between 2016 and 2023
-            return timestamp, epoch_time
-        except ValueError:
-            logger.error(
-                f"The timestamp found/provided {timestamp} must be in the format YYMMDD_HHMM."
-            )
-            timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
-            continue
-        except AssertionError:
-            logger.error(
-                f"The timestamp found/provided {timestamp} doesn't make sense."
-            )
-            timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
-            continue
+def timestamp_is_valid(timestamp):
+    try:
+        time.strptime(timestamp, kFILENAME_DATE_FORMAT)
+        epoch_time = int(convert_to_epoch(timestamp))
+        assert 1451628001 < epoch_time < 1672552801  # between 2016 and 2023
+        return True
+    except Exception as e:
+        return False
 
 
-# is panel valid? if not prompt user
-def validate_panel_number(panel_number):
-    temp_panel_number = input(
-        f"Found panel_number {panel_number}. If correct, press <return>, else enter panel_number XXX> "
-    )
-    panel_number = panel_number if temp_panel_number == "" else temp_panel_number
-    while True:
-        try:
-            assert 0 < int(panel_number) < 999
-            return panel_number
-        except ValueError:
-            logger.error(
-                f"The panel_number found/provided {panel_number} isn't an integer."
-            )
-            panel_number = input("enter panel_number XXX> ")
-            continue
-        except AssertionError:
-            logger.error(
-                f"The panel_number found/provided {panel_number} doesn't make sense."
-            )
-            panel_number = input("enter panel_number XXX> ")
-            continue
-        break
+def panel_number_is_valid(panel_number):
+    try:
+        assert 0 < int(panel_number) < 999
+        return True
+    except Exception as e:
+        return False
 
 
-# user confirm tag (e.g. "test1") associated with this test
-def validate_tag(tag):
-    while True:
-        temp_tag = input(
-            f"Using tag {tag}.\n"
-            f"If correct, press <return>,\n"
-            f'else enter a tag like "test1" (whitespace and nonalphanum characters will be removed)> '
-        )
-        if temp_tag == "":
-            return tag
-        else:
-            tag = temp_tag
+def tag_is_valid(tag):
+    try:
+        assert (4 < len(tag) < 7) and ("test" in tag)
+        return True
+    except Exception as e:
+        return False
 
 
 # does file exist
 def validate_data_file(data_file):
-    logger.debug(f"Leak test datafile provided: {data_file}")
-
     # check infile exists
     try:
         assert Path(data_file).is_file()
@@ -236,31 +185,51 @@ def load_test_data(connection, df, test_id):
 ################################################################################
 # main
 ################################################################################
+DRY_RUN = False
+
+
 def main(data_file):
     print(
         f"\nLOADING LEAK TEST DATA INTO THE LOCAL DATABASE FROM FILE\n\n{data_file}\n"
     )
 
-    # check input file, panel number, test timestamp, test tag
+    ############################################################################
+    # Extract panel number, tag, and timestamp from filename
+    ############################################################################
     validate_data_file(data_file)
 
-    try:
-        timestamp, panel_number, tag = parse_filename(data_file)
-    except ParseException:
-        timestamp, epoch_time = validate_timestamp(timestamp)
-        panel_number = validate_panel_number(panel_number)
-        tag = validate_tag(tag)
+    timestamp, panel_number, tag = parse_filename(data_file)
 
-    logger.debug(f"{timestamp},{panel_number},{tag} extracted from filename.")
+    while not timestamp_is_valid(timestamp):
+        timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
+    while not panel_number_is_valid(panel_number):
+        panel_number = input("enter panel_number XXX> ")
+    while not tag_is_valid(tag):
+        tag = input("enter tag like `test1`> ")
+
+    epoch_time = convert_to_epoch(timestamp)
+
+    logger.debug(f"{Path(data_file).name}, {timestamp}, {panel_number}, {tag}")
     print(
         f"Test info:\n\ttimestamp: {timestamp}\n\tpanel: MN{panel_number}\n\ttag: {tag}"
     )
-    epoch_time = convert_to_epoch(timestamp)
 
-    # set up database
+    ############################################################################
+    # Read leak csv data into data frame
+    ############################################################################
+    is_new_format = True
+    df = ReadLeakRateFile(data_file, is_new_format)
+
+    ############################################################################
+    # Quit if this is a dry run
+    ############################################################################
+    if DRY_RUN:
+        return
+
+    ############################################################################
+    # Set up DB  connection
+    ############################################################################
     database = GetLocalDatabasePath()
-
-    logger.debug(f"Saving leak test data into the local database {database}")
 
     # db_check = input(f"PRESS <ENTER> TO CONFIRM THIS DATABASE\n{database}\nELSE PRESS CTRL-C\n")
     # if db_check:
@@ -268,11 +237,10 @@ def main(data_file):
 
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
 
-    # Read leak csv data into data frame
-    is_new_format = True
-    df = ReadLeakRateFile(data_file, is_new_format)
-
-    # load up all the data within a database connection
+    ############################################################################
+    # Save test meta info in panel_leak_test_details
+    # Save raw data in measurement_panel_leak
+    ############################################################################
     with engine.connect() as connection:
         # is record of this test already in the db? if so, do nothing
         procedure_id = get_procedure_id(connection, panel_number, 8)
