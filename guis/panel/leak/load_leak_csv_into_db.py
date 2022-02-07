@@ -21,6 +21,7 @@ logger = logging.getLogger("root")
 
 kFILENAME_DATE_FORMAT = "%y%m%d_%H%M"
 
+DRY_RUN = False
 
 ################################################################################
 # Misc Utilities
@@ -34,14 +35,14 @@ def convert_to_epoch(date_time):
 
 
 # Given a panel and process, access the DB to get the procedure ID
-def get_procedure_id(connection, panel, process):
-    assert isinstance(panel, int) and panel <= 999
+def get_procedure_id(connection, panel_number, process):
+    assert isinstance(panel_number, int) and 131 <= panel_number <= 999
     assert process in kPROCESSES
     query = f"""
     SELECT procedure.id from procedure
     INNER JOIN straw_location on procedure.straw_location = straw_location.id
     WHERE straw_location.location_type = "MN"
-    AND straw_location.number = {panel}
+    AND straw_location.number = {panel_number}
     AND procedure.station = "pan{process}"
     """
     result = connection.execute(query)
@@ -76,9 +77,12 @@ class ParseException(Exception):
 def parse_filename(filename):
     filename = Path(filename).stem  # remove txt suffix
     timestamp = filename[0:11]
-    panel_number = re.search(r"MN\d\d\d", filename).group(0)[2:]
+    try:
+        panel_number = re.search(r"MN\d\d\d", filename).group(0)[2:]
+    except:
+        panel_number = re.search(r"MN\d\d", filename).group(0)[2:]
     # tag = format_tag(filename[17:])
-    tag_start_idx = filename.find(panel_number) + len(panel_number)
+    tag_start_idx = filename.rfind(panel_number) + len(panel_number)
     tag = format_tag(filename[tag_start_idx:])
     return timestamp, panel_number, tag
 
@@ -99,8 +103,8 @@ def execute_query(connection, query, entries):
             "    At least one datapoint in these entries already exists in the DB."
         )
     else:
-        logger.debug(f"Loaded {r_set.rowcount} data points into local DB.")
-        print(f"\nLOADED {r_set.rowcount} DATA POINTS INTO THE LOCAL DB.")
+        logger.info(f"Loaded {r_set.rowcount} data points into local DB.")
+        # print(f"\nLOADED {r_set.rowcount} DATA POINTS INTO THE LOCAL DB.")
 
 
 ################################################################################
@@ -126,7 +130,7 @@ def panel_number_is_valid(panel_number):
 
 def tag_is_valid(tag):
     try:
-        assert (4 < len(tag) < 7) and ("test" in tag)
+        assert (3 < len(tag) < 13) and ("test" in tag)
         return True
     except Exception as e:
         return False
@@ -185,13 +189,12 @@ def load_test_data(connection, df, test_id):
 ################################################################################
 # main
 ################################################################################
-DRY_RUN = False
 
 
 def main(data_file):
-    print(
-        f"\nLOADING LEAK TEST DATA INTO THE LOCAL DATABASE FROM FILE\n\n{data_file}\n"
-    )
+    # print(
+    #    f"\nLOADING LEAK TEST DATA INTO THE LOCAL DATABASE FROM FILE\n\n{data_file}\n"
+    # )
 
     ############################################################################
     # Extract panel number, tag, and timestamp from filename
@@ -200,6 +203,10 @@ def main(data_file):
 
     timestamp, panel_number, tag = parse_filename(data_file)
 
+    logger.info(
+        f"{Path(data_file).parent.name}/{Path(data_file).name}, {timestamp}, {panel_number}, {tag}"
+    )
+
     while not timestamp_is_valid(timestamp):
         timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
     while not panel_number_is_valid(panel_number):
@@ -207,12 +214,12 @@ def main(data_file):
     while not tag_is_valid(tag):
         tag = input("enter tag like `test1`> ")
 
+    panel_number = int(panel_number)
     epoch_time = convert_to_epoch(timestamp)
 
-    logger.debug(f"{Path(data_file).name}, {timestamp}, {panel_number}, {tag}")
-    print(
-        f"Test info:\n\ttimestamp: {timestamp}\n\tpanel: MN{panel_number}\n\ttag: {tag}"
-    )
+    # print(
+    #    f"Test info:\n\ttimestamp: {timestamp}\n\tpanel: MN{panel_number}\n\ttag: {tag}"
+    # )
 
     ############################################################################
     # Read leak csv data into data frame
@@ -247,16 +254,16 @@ def main(data_file):
         test_id = get_panel_leak_test_id(connection, procedure_id, epoch_time)
         if test_id:
             test_id = test_id[0]
-            print(
-                f"\nRECORD OF THIS TEST ALREADY EXISTS IN THE DB. WILL ONLY LOAD NEW POINTS."
-            )
-            logger.debug(
+            # print(
+            #    f"\nRECORD OF THIS TEST ALREADY EXISTS IN THE DB. WILL ONLY LOAD NEW POINTS."
+            # )
+            logger.info(
                 f"Found pre-existing leak test ID for MN{panel_number} {timestamp}: {test_id}."
             )
         else:
             # Get the elapsed time of the test
             elapsed_days = df["TIME(DAYS)"].max()
-            assert elapsed_days < 4  # test shouldn't have gone over 4 days, right?
+            assert elapsed_days < 6  # test shouldn't have gone over 4 days, right?
 
             # Load record of this test into the panel_leak_test_details table
             load_test_details(connection, procedure_id, epoch_time, tag, elapsed_days)
