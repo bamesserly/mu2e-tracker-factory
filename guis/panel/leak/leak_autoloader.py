@@ -20,6 +20,9 @@ if __name__ == "__main__":
         try:
             load.main(f)
         except KeyboardInterrupt:
-            logger.error(f"load interrupted for {f}")
-        except Exception as e:
-            logger.error(f"load failed for {f}, {e}")
+            logger.error(f"load interrupted for {f.parent.name}/{f.name}")
+        except ValueError as e:
+            logger.error(f"load failed for {f.parent.name}/{f.name}\n\t{e}")
+
+        # except Exception as e:
+        #    logger.error(f"load failed for {f.parent.name}/{f.name}\n\t{e}")
