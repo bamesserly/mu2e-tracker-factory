@@ -23,6 +23,5 @@ if __name__ == "__main__":
             logger.error(f"load interrupted for {f.parent.name}/{f.name}")
         except ValueError as e:
             logger.error(f"load failed for {f.parent.name}/{f.name}\n\t{e}")
-
-        # except Exception as e:
-        #    logger.error(f"load failed for {f.parent.name}/{f.name}\n\t{e}")
+        except Exception as e:
+            logger.error(f"load failed for {f.parent.name}/{f.name}\n\t{e}")

@@ -14,6 +14,7 @@ from guis.common.panguilogger import SetupPANGUILogger
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.panel.leak.panel_leak_utilities import *
 from random import randint
+from guis.common.db_classes.procedure import Procedure
 
 import logging
 
@@ -36,7 +37,8 @@ def convert_to_epoch(date_time):
 
 # Given a panel and process, access the DB to get the procedure ID
 def get_procedure_id(connection, panel_number, process):
-    assert isinstance(panel_number, int) and 131 <= panel_number <= 999
+    assert isinstance(panel_number, int) and panel_number <= 999
+    # assert 131 <= panel_number
     assert process in kPROCESSES
     query = f"""
     SELECT procedure.id from procedure
@@ -46,7 +48,18 @@ def get_procedure_id(connection, panel_number, process):
     AND procedure.station = "pan{process}"
     """
     result = connection.execute(query)
-    result = result.first()[0]
+    result = result.first()
+    try:
+        assert result
+    # procedure doesn't exist
+    except AssertionError:
+        input(
+            f"Process 8 doesn't exist yet for MN{panel_number}. Press any key to create it or <ctrl-C> to quit> "
+        )
+        p = Procedure.PanelProcedure(process=process, panel_number=panel_number)
+        result = p.id
+    else:
+        result = result[0]
     return result
 
 
