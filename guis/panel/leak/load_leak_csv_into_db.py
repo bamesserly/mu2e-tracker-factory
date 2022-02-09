@@ -80,10 +80,6 @@ def format_tag(tag):
     return "".join(filter(str.isalnum, tag)).lower()
 
 
-class ParseException(Exception):
-    pass
-
-
 # Extract date, panel, and tag from filename.
 # Some validation on the results.
 # "211012_1749_MN169 test 1.txt"
