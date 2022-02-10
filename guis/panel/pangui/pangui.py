@@ -2625,6 +2625,10 @@ class panelGUI(QMainWindow):
         # if it is a pro8 lr comment, modify
         
         if lr == True:
+            # commit new lr to database
+            self.DP.record_leak_rate(int(comments))
+            
+            
             front = "Leak Rate Test Result:     "
             comments = front + comments
             
@@ -3010,6 +3014,10 @@ class panelGUI(QMainWindow):
     #
     # Functions that put data into the UI widgets.
     # fmt: on
+    
+    # gets leak rate ddta to display
+    def get_leak_rate(self):
+        return self.DP.get_leak_rate()
 
     # Puts comments into the comment display box
     def displayComments(self):
@@ -4045,6 +4053,10 @@ class panelGUI(QMainWindow):
 
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
+        
+        self.get_leak_rate()
+        print("leak rate data: " + str(self.get_leak_rate()))
+        
 
         self.displayComments()
         self.pro8LoadBadWiresStraws()

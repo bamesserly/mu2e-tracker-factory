@@ -204,6 +204,8 @@ class DataProcessor(ABC):
     @abstractmethod
     def checkCredentials(self):
         pass
+        
+    
 
     ## SAVE COMMENTS ##
 
@@ -602,6 +604,10 @@ class MultipleDataProcessor(DataProcessor):
         for dp in self.processors:
             dp.saveLogout(worker)
 
+    def record_leak_rate(self,lr):
+        for dp in self.processors:
+            dp.record_leak_rate(lr)
+
     def saveComment(self, text, panNum, proNum):
         for dp in self.processors:
             dp.saveComment(text, panNum, proNum)
@@ -694,6 +700,9 @@ class MultipleDataProcessor(DataProcessor):
 
     def getCommentText(self):
         return self.primaryDP.getCommentText()
+    
+    def get_leak_rate(self):
+        return self.primaryDP.get_leak_rate()
 
     def wireQCd(self, wire):
         return self.primaryDP.wireQCd(wire)
@@ -1016,6 +1025,12 @@ class TxtDataProcessor(DataProcessor):
             )
         except:
             self.saveWorkers(worker_id, login=False)
+            
+    def record_leak_rate(self,lr):
+        pass
+    
+    def get_leak_rate(self):
+        pass
 
     # add a comment to panel's comment file
     def saveComment(self, text, panNum, proNum):
@@ -1983,6 +1998,16 @@ class SQLDataProcessor(DataProcessor):
 
     def checkCredentials(self):
         return self.session.checkCredentials()
+    
+    ## SAVE LEAK RATE ##
+    
+    def record_leak_rate(self,lr):
+        if not self.ensureProcedure():
+            return
+        self.procedure.record_leak_rate(lr)
+    
+    def get_leak_rate(self):
+        return self.procedure.get_leak_rate()
 
     ## SAVE COMMENTS ##
 
