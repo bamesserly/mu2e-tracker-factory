@@ -8180,6 +8180,5 @@ Heater GUI</string>
   <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
-  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>

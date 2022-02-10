@@ -2626,7 +2626,10 @@ class panelGUI(QMainWindow):
         
         if lr == True:
             # commit new lr to database
-            self.DP.record_leak_rate(int(comments))
+            self.DP.record_leak_rate(float(comments))
+            
+            #update display
+            self.ui.lr_display.display(float(comments))
             
             
             front = "Leak Rate Test Result:     "
@@ -2874,6 +2877,8 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][13] = self.ui.centerRing2DE.date().toString("ddMMMyy")
         self.data[self.pro_index][14] = self.ui.centerRing3TE.time().toString("HHmm")
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
+        
+        
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -4053,9 +4058,10 @@ class panelGUI(QMainWindow):
 
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
-        
-        self.get_leak_rate()
-        print("leak rate data: " + str(self.get_leak_rate()))
+    
+        # display current leak rate data
+        if self.get_leak_rate() is not None:
+            self.ui.lr_display.display(self.get_leak_rate())
         
 
         self.displayComments()
@@ -5341,6 +5347,7 @@ class panelGUI(QMainWindow):
             self.ui.centerRing2DE,
             self.ui.centerRing3TE,
             self.ui.centerRing4LE,
+            self.ui.lr_display,
         ]:
             wid.setToolTip("Enter all digits as '0' to mark as unknown")
             wid.editingFinished.connect(self.pro8TrySave)
@@ -5536,6 +5543,7 @@ class panelGUI(QMainWindow):
         self.ui.centerRing4LE.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_number.setText("")
+        self.ui.lr_display.display(0)
 
         self.pro8EnableParts(False, False)
 
