@@ -5347,7 +5347,6 @@ class panelGUI(QMainWindow):
             self.ui.centerRing2DE,
             self.ui.centerRing3TE,
             self.ui.centerRing4LE,
-            self.ui.lr_display,
         ]:
             wid.setToolTip("Enter all digits as '0' to mark as unknown")
             wid.editingFinished.connect(self.pro8TrySave)
