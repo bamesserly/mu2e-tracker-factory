@@ -1891,8 +1891,8 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        group_list = [["Seal_Electronics_Slot", "Tap_and_Clean_Holes"],     # process 8
-        ["Clean_Surfaces", "Clean_O_Rings"],    # process 8
+        group_list = [["Check_Epoxy_Seals","Seal_Electronics_Slot", "Tap_and_Clean_Holes"],     # process 8
+        ["Clean_Surfaces", "Clean_O_Rings","Install_Bolts_and_Standoffs"],    # process 8
         ["Inspect_For_Scratches", "Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean"],    # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
@@ -2885,6 +2885,7 @@ class panelGUI(QMainWindow):
             el is not None for el in data[1:]
         ):  # Everything in data list except for panel
             if not self.pro == 5:
+                self.parseSteps(steps_completed)
                 return
 
         ### Save data to corresponding data-storing instance variable
@@ -2996,13 +2997,15 @@ class panelGUI(QMainWindow):
 
     def parseSteps(self, steps_completed):
         # nested list of nonsequential steps
-        group_list = [["Seal_Electronics_Slot", "Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"],     # process 8
-        ["Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean"],   # process 8
+        group_list = [["Check_Epoxy_Seals","Seal_Electronics_Slot", "Tap_and_Clean_Holes"],     # process 8
+        ["Clean_Surfaces", "Clean_O_Rings","Install_Bolts_and_Standoffs"],    # process 8
+        ["Inspect_For_Scratches", "Wipe_Surfaces", "Inspect_and_Grease", "Inspect_and_Clean"],    # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
         
 
         # figure out first unchecked step
         first_unchecked = self.stepsList.getCurrentStep()
+        print("steps completed: " + str(steps_completed))
         while first_unchecked.getName() in steps_completed and first_unchecked.getNext() != None:
             first_unchecked = first_unchecked.getNext()
         
@@ -3021,6 +3024,7 @@ class panelGUI(QMainWindow):
                     box = step.getCheckbox()
                     box.setEnabled(True)
                     step = step.getNext()
+            step=self.stepsList.getCurrentStep()
         
         # check off steps that have been completed
         if self.stepsList.getCurrentStep():
