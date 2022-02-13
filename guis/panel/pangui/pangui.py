@@ -1,4 +1,3 @@
-
 """
 #
 #  .oooooo.    ooooo     ooo ooooo      ooo        ooooo       .o.       ooooo ooooo      ooo 
@@ -1881,10 +1880,11 @@ class panelGUI(QMainWindow):
 
     """
     checkProgress(self, pro, x)
-            
-        Description:    This function is called whenever a checkbox is checked. It disables all clicked checkboxes and
-                        enables the next one (or all in the pertinent nonsequential subgroup). This also emits a signal
-                        to save all pertinent data, and enables teh finish button when all steps are checked.
+
+        Description: This function is called whenever a checkbox is checked. It disables the clicked checkbox, and enables
+                    the next one (as all checkboxes start disabled). This is done in order of steps, to ensure steps are 
+                    checked off in order. Also emits signal to save data when checkbox clicked, and enables the finish
+                    button when all steps are checked.
 
         Parameter: pro - The panel pro that is currently being run
         Parameter: x - The index of the checkbox that emitted the signal to call this method

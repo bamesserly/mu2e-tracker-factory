@@ -438,7 +438,7 @@ class StepList:
                     for substep in substeps:
                         self.addStep(substep, widget, layout, row)
                         row += 1
-            
+
             # verticalSpacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
             # self.layout.addItem(verticalSpacer, 6, 0, QtCore.Qt.AlignTop)
         except Exception as e:

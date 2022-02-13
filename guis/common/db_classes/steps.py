@@ -52,7 +52,7 @@ class PanelStep(BASE, OBJECT):
     def previousStep(self):
         # Query the step who's id is 'self.previous'
         return PanelStep.queryWithId(self.previous)
-    
+        
     def id_to_step(id):
         # Query the step whose id is inputted
         return PanelStep.queryWithId(id)
@@ -96,7 +96,7 @@ class PanelStepExecution(BASE, OBJECT):
         self.id = self.IncrementID()
         self.panel_step = panel_step
         self.procedure = procedure
-        
+    
     def get_panel_step(self):
         # return id from pertinent step
         return self.panel_step
