@@ -1891,15 +1891,14 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        """
-        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy","check_epoxy_joints",     # process 8
-        "check_pcb_connectors","check_omega_clips"],    # process 8
-        ["seal_electronics_slot","install_seal_bolts","glue_standoffs","punch_screw_holes"],    # process 8
-        ["remove_epoxy_frame","remove_epoxy_grooves","alcohol_clean","dustoff_grooves","vacuum_manifold"],  # process 8
-        ["inspect_screw_holes","inspect_orings","inspect_covers","install_covers"], # process 8
+        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
+        "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
+        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","punch_screw_holes"],    # process 8
+        ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
+        ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
-        """
-        group_list=[]
+            
+            
         
         
         # define function variables
