@@ -1913,7 +1913,7 @@ class panelGUI(QMainWindow):
                 inner_current=current
                 if inner_current.getName() in sub_list:
                     while inner_current.getName() in sub_list and inner_current.getNext() != None:
-                        inner_current.getCheckbox().setDisabled(False)x
+                        inner_current.getCheckbox().setDisabled(False)
                         inner_current = inner_current.getNext()
                     if inner_current.getNext() is None and inner_current.getName() in sub_list:
                         inner_current.getCheckbox().setDisabled(False)
