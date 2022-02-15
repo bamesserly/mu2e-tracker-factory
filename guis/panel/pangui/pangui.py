@@ -1891,17 +1891,102 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        """Constrain steps to be checked off in order"""
-        step = self.stepsList.getCurrentStep()  # Latest unchecked step
-        checkbox1 = step.getCheckbox()
-        checkbox1.setDisabled(True)
-        self.stepsList.getNextStep()
+        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
+        "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
+        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
+        ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
+        ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
+            
+            
+        
+        
+        # define function variables
+        into_list = False
+        all_checked = True
+        current_valid = True
+        
+        # enables all checkboxex in the same subgroup as inputted step
+        def enable_subgroup_checkboxes(current):
+            current.getCheckbox().setDisabled(False)
+            for sub_list in group_list:
+                inner_current=current
+                if inner_current.getName() in sub_list:
+                    while inner_current.getName() in sub_list and inner_current.getNext() != None:
+                        inner_current.getCheckbox().setDisabled(False)
+                        inner_current = inner_current.getNext()
+                    if inner_current.getNext() is None and inner_current.getName() in sub_list:
+                        inner_current.getCheckbox().setDisabled(False)
+                        
+        
+        
+        # initialize current step
+        current = self.stepsList.getCurrentStep()
+        
+        # ensure that the next step isn't null, as a multitude of errors would ensue
+        if self.stepsList.getCurrentStep().getNext() is not None:
+            current = self.stepsList.getCurrentStep()
+            previous_current = self.stepsList.getCurrentStep()
+            for sub_list in group_list:
+                
+                
+                # case for subgroup, go into it if current step is the first item in subgroup
+                if (previous_current.getName() in sub_list or previous_current.getNext().getName() in sub_list):
+                    # stores whether or not a subroup was delved into
+                    into_list = True
+                    
+                    current_valid = True
+                    while current_valid:
+                        # if a checkbox in the subgroup is clicked, save it and disable the checkbox
+                        if current.getCheckbox().isChecked():
+                            self.saveStep(current.getName())
+                            current.getCheckbox().setDisabled(True)
+                        # otherwise set a variable to show that not all items in the subgroup are checkd
+                        # also enable the checkbox
+                        else:
+                            all_checked = False
+                            current.getCheckbox().setDisabled(False)
+                            
+                        # check for breaking conditions
+                        if current.getNext() is None or current.getNext().getName() not in sub_list:
+                            current_valid = False
+                        elif current.getNext() is not None:
+                            current = current.getNext()
+                                
+                    # if all items in sub_list are checked off, update current step
+                    if all_checked == True:
+                        # iterate through sub_list to update current step
+                        while self.stepsList.getCurrentStep().getName() in sub_list and self.stepsList.getCurrentStep().getNext() != None:
+                            self.stepsList.getNextStep()
+                            current = self.stepsList.getCurrentStep()
+                        self.saveStep(self.stepsList.getCurrentStep().getName())
+                        
+                        # if it's not the end of the steps list, call a function to enable the following checkbox(es)
+                        if current.getNext() is not None:
+                            enable_subgroup_checkboxes(self.stepsList.getCurrentStep())
+                            
+                            # iterate through group list to set current step
+                            while self.stepsList.getCurrentStep().getName() in sub_list or self.stepsList.getCurrentStep().getNext().getName() in sub_list:
+                                self.stepsList.getNextStep()
+                        
+                            # if current step is the start of a new list, enable all checkboxes in list
+                            current = self.stepsList.getCurrentStep()
+                            enable_subgroup_checkboxes(current)
+                        
+        # code for if a nonsequential subgroup isn't involved
+        if not into_list:
+            step = self.stepsList.getCurrentStep()  # Latest unchecked step
+            checkbox1 = step.getCheckbox()
+            checkbox1.setDisabled(True)
+            self.stepsList.getNextStep()
 
-        if self.stepsList.getCurrentStep() is not None:
-            checkbox2 = self.stepsList.getCurrentStep().getCheckbox()
-            checkbox2.setDisabled(False)
+            # if it has iterated to a valid step, then enable its checkbox
+            if self.stepsList.getCurrentStep() is not None:
+                checkbox2 = self.stepsList.getCurrentStep().getCheckbox()
+                checkbox2.setDisabled(False)
 
-        self.saveStep(step.name)  # changed
+            # ensure that the step just checked off gets saved
+            self.saveStep(step.getName())  # changed
 
         if self.stepsList.allStepsChecked():
             # Pro 1 needs validated straws to enable finish
@@ -2808,6 +2893,7 @@ class panelGUI(QMainWindow):
             el is not None for el in data[1:]
         ):  # Everything in data list except for panel
             if not self.pro == 5:
+                self.parseSteps(steps_completed)
                 return
 
         ### Save data to corresponding data-storing instance variable
@@ -2918,28 +3004,85 @@ class panelGUI(QMainWindow):
     """
 
     def parseSteps(self, steps_completed):
+        # nested list of nonsequential steps
+        
+        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
+        "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
+        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
+        ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
+        ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tension"]]    # process 6
+        
+        
 
-        # This method doesn't look at the names of the steps. It checks of
-        # as many checkboxes as specified by the input integer.
+        # figure out first unchecked step
+        first_unchecked = self.stepsList.getCurrentStep()
+        while first_unchecked.getName() in steps_completed and first_unchecked.getNext() != None:
+            first_unchecked = first_unchecked.getNext()
+        
+        
 
         # No matter what, start by enabling the first step
         step = self.stepsList.getCurrentStep()
+        box = step.getCheckbox()
         if step is not None:
-            box = step.getCheckbox()
-            if box is not None:
                 box.setEnabled(True)
+                
+        # if current step is in a sub_list of group_list, enable all checkboxes in nonsequential group
+        for sub_list in group_list:
+            if step.getName() in sub_list:
+                while step.getName() in sub_list:
+                    box = step.getCheckbox()
+                    box.setEnabled(True)
+                    if step.getNext() != None:
+                        step = step.getNext()
+            step=self.stepsList.getCurrentStep()
+        
+        # check off steps that have been completed
+        if self.stepsList.getCurrentStep():
+            
+            # set current step to first step in process
+            current_step = self.stepsList.getCurrentStep()
+            
+            # iterate through linkedlist of steps, checking off executed steps found in db
+            while current_step is not None:
+                checkbox = current_step.getCheckbox()
+                
+                # if step is checked off in db, check it off in gui
+                if current_step.getName() in steps_completed:
+                    checkbox.setChecked(True)
+                    checkbox.setDisabled(True)
 
-        for _ in range(steps_completed):
-            if self.stepsList.getCurrentStep():
-                checkbox = self.stepsList.getCurrentStep().getCheckbox()
-                checkbox.setChecked(True)
-                checkbox.setDisabled(True)
-
-                nextCheckbox = self.stepsList.getNextCheckbox()
-                self.stepsList.getNextStep()
-
-                if nextCheckbox is not None:
-                    nextCheckbox.setDisabled(False)
+                current_step = current_step.getNext()
+        
+        # ensure that first unchecked checkbox isn't disabled
+        if first_unchecked.getName() not in steps_completed:
+            checkbox = first_unchecked.getCheckbox()
+            checkbox.setDisabled(False)
+            
+        in_group = False    # variable to keep track of whether or not current step is in a group
+        # if first unchecked is in group, set current as first in group, otherwise set current as first unchecked
+        for sub_group in group_list:
+            if first_unchecked in sub_group:
+                in_group = True
+                while first_unchecked.getName() is not sub_group[0]:
+                    first_unchecked = first_unchecked.getPrevious()
+                self.stepsList.setNextStep(first_unchecked)
+        
+        if not in_group:
+            self.stepsList.setNextStep(first_unchecked)
+            
+            
+        # account for edge case where only the last one is unchecked (only pertinent due to transition, won't be an issue after this is used from the beginning of qc) 
+        any_unchecked=False
+        current=self.stepsList.getCurrentStep()
+        while current.getNext() is not None:
+            if current.getName() not in steps_completed:
+                any_unchecked=True
+            current=current.getNext()   
+        if any_unchecked is True:
+            current.getCheckbox().setDisabled(False)
+        
 
         # If all steps have been completed, change text of finish button
         if self.stepsList.allStepsChecked():

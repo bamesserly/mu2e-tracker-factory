@@ -512,6 +512,10 @@ class StepList:
                 nextStep = nextStep.getNext()
 
         self.currentStep = None
+    
+    def setNextStep(self, step):
+        self.currentStep = step
+        return self.currentStep
 
     """
     allStepsChecked(self)
