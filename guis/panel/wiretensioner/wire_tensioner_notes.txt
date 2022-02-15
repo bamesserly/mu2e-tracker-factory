@@ -1,0 +1,14 @@
+Notes on wire tensioner versions
+
+EXPERIMENTAL now contains version wiretensioner0326
+-work hardens wire at 120g then tensions to 82g for installation
+-runs with arduino code motor_loadcell_0326.ino
+03/26/2019. option to tare load cell at 0g if reading drifts between wires
+03/26/2019. maximum tension during work hardening printed to shell
+03/11/2019. calibration has been integrated
+03/11/2019. tare load cell with 50g, set calibration factor with 100g
+03/11/2019. load cell with 1/4" clamp platform offset: expect calibration factor O(9600)
+03/11/2019. load cell with no clamp platform offset: expect calibration factor O(12000)
+
+If 0326 fails, use wiretensioner0311 located on desktop of day 3 computer
+-will need to upload arduino code motor_loadcell_0311b.ino before running
