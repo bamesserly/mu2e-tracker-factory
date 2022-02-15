@@ -47,6 +47,7 @@ class PanelStep(BASE, OBJECT):
 
     def nextStep(self):
         # Query the step who's id is 'self.next'
+        print("labeled next: " + str(self.next))
         return PanelStep.queryWithId(self.next)
 
     def previousStep(self):

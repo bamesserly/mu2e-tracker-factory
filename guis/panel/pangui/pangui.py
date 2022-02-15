@@ -1893,7 +1893,7 @@ class panelGUI(QMainWindow):
     def checkProgress(self):
         group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
         "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
-        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","punch_screw_holes"],    # process 8
+        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
         ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
@@ -1910,11 +1910,14 @@ class panelGUI(QMainWindow):
         def enable_subgroup_checkboxes(current):
             current.getCheckbox().setDisabled(False)
             for sub_list in group_list:
-                if current.getName() in sub_list:
-                    while current.getName() in sub_list and current.getNext() != None:
-                        current.getCheckbox().setDisabled(False)
-                        current = current.getNext()
-        
+                inner_current=current
+                if inner_current.getName() in sub_list:
+                    while inner_current.getName() in sub_list and inner_current.getNext() != None:
+                        inner_current.getCheckbox().setDisabled(False)x
+                        inner_current = inner_current.getNext()
+                    if inner_current.getNext() is None and inner_current.getName() in sub_list:
+                        inner_current.getCheckbox().setDisabled(False)
+                        
         
         
         # initialize current step
@@ -1953,7 +1956,7 @@ class panelGUI(QMainWindow):
                     # if all items in sub_list are checked off, update current step
                     if all_checked == True:
                         # iterate through sub_list to update current step
-                        while self.stepsList.getCurrentStep().getName() in sub_list:
+                        while self.stepsList.getCurrentStep().getName() in sub_list and self.stepsList.getCurrentStep().getNext() != None:
                             self.stepsList.getNextStep()
                             current = self.stepsList.getCurrentStep()
                         self.saveStep(self.stepsList.getCurrentStep().getName())
@@ -3005,10 +3008,10 @@ class panelGUI(QMainWindow):
         
         group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
         "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
-        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","punch_screw_holes"],    # process 8
+        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tension"]]    # process 6
         
         
 
@@ -3028,12 +3031,12 @@ class panelGUI(QMainWindow):
         # if current step is in a sub_list of group_list, enable all checkboxes in nonsequential group
         for sub_list in group_list:
             if step.getName() in sub_list:
-                while step.getNext() is not None and step.getName() in sub_list:
+                while step.getName() in sub_list:
                     box = step.getCheckbox()
                     box.setEnabled(True)
-                    step = step.getNext()
+                    if step.getNext() != None:
+                        step = step.getNext()
             step=self.stepsList.getCurrentStep()
-            print("current step: " + str(step))
         
         # check off steps that have been completed
         if self.stepsList.getCurrentStep():
