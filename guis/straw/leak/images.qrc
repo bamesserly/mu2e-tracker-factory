@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="bkg">
+    <file>images.qrc</file>
+  </qresource>
+</RCC>
