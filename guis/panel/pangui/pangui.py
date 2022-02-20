@@ -3017,8 +3017,9 @@ class panelGUI(QMainWindow):
 
         # figure out first unchecked step
         first_unchecked = self.stepsList.getCurrentStep()
-        while first_unchecked.getName() in steps_completed and first_unchecked.getNext() != None:
-            first_unchecked = first_unchecked.getNext()
+        while first_unchecked.getName() in steps_completed and first_unchecked.getNextCheckbox() != None:
+            first_unchecked = first_unchecked.getNextCheckbox()
+        print("first unchecked: " + str(first_unchecked.getName()))
         
         
 
@@ -3034,8 +3035,8 @@ class panelGUI(QMainWindow):
                 while step.getName() in sub_list:
                     box = step.getCheckbox()
                     box.setEnabled(True)
-                    if step.getNext() != None:
-                        step = step.getNext()
+                    if step.getNextCheckbox() != None:
+                        step = step.getNextCheckbox()
             step=self.stepsList.getCurrentStep()
         
         # check off steps that have been completed
@@ -3053,7 +3054,7 @@ class panelGUI(QMainWindow):
                     checkbox.setChecked(True)
                     checkbox.setDisabled(True)
 
-                current_step = current_step.getNext()
+                current_step = current_step.getNextCheckbox()
         
         # ensure that first unchecked checkbox isn't disabled
         if first_unchecked.getName() not in steps_completed:
@@ -3076,10 +3077,10 @@ class panelGUI(QMainWindow):
         # account for edge case where only the last one is unchecked (only pertinent due to transition, won't be an issue after this is used from the beginning of qc) 
         any_unchecked=False
         current=self.stepsList.getCurrentStep()
-        while current.getNext() is not None:
+        while current.getNextCheckbox() is not None:
             if current.getName() not in steps_completed:
                 any_unchecked=True
-            current=current.getNext()   
+            current=current.getNextCheckbox()   
         if any_unchecked is True:
             current.getCheckbox().setDisabled(False)
         
