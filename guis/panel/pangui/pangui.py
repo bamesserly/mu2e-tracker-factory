@@ -3070,19 +3070,7 @@ class panelGUI(QMainWindow):
                 self.stepsList.setNextStep(first_unchecked)
         
         if not in_group:
-            self.stepsList.setNextStep(first_unchecked)
-            
-            
-        # account for edge case where only the last one is unchecked (only pertinent due to transition, won't be an issue after this is used from the beginning of qc) 
-        any_unchecked=False
-        current=self.stepsList.getCurrentStep()
-        while current.getNextCheckbox() is not None:
-            if current.getName() not in steps_completed:
-                any_unchecked=True
-            current=current.getNextCheckbox()   
-        if any_unchecked is True:
-            current.getCheckbox().setDisabled(False)
-        
+            self.stepsList.setNextStep(first_unchecked)    
 
         # If all steps have been completed, change text of finish button
         if self.stepsList.allStepsChecked():
