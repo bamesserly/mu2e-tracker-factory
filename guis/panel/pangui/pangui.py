@@ -3019,7 +3019,6 @@ class panelGUI(QMainWindow):
         first_unchecked = self.stepsList.getCurrentStep()
         while first_unchecked.getName() in steps_completed and first_unchecked.getNextCheckbox() != None:
             first_unchecked = first_unchecked.getNextCheckbox()
-        print("first unchecked: " + str(first_unchecked.getName()))
         
         
 

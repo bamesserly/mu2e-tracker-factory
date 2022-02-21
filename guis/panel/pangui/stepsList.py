@@ -127,7 +127,6 @@ class Step:
         if self.next is None:
             return None
         next=self.next
-        print("checkbox: " + str(next.hasCheckbox))
         while next.hasCheckbox is False and next.next is not None:
             next=next.next
         return next
