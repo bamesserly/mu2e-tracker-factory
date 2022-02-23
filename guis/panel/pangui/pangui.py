@@ -3011,14 +3011,16 @@ class panelGUI(QMainWindow):
         ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tension"]]    # process 6
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
+
         
         
 
         # figure out first unchecked step
         first_unchecked = self.stepsList.getCurrentStep()
-        while first_unchecked.getName() in steps_completed and first_unchecked.getNext() != None:
-            first_unchecked = first_unchecked.getNext()
+        while first_unchecked.getName() in steps_completed and first_unchecked.getNextCheckbox() != None:
+            first_unchecked = first_unchecked.getNextCheckbox()
+
         
         
 
@@ -3034,8 +3036,8 @@ class panelGUI(QMainWindow):
                 while step.getName() in sub_list:
                     box = step.getCheckbox()
                     box.setEnabled(True)
-                    if step.getNext() != None:
-                        step = step.getNext()
+                    if step.getNextCheckbox() != None:
+                        step = step.getNextCheckbox()
             step=self.stepsList.getCurrentStep()
         
         # check off steps that have been completed
@@ -3053,7 +3055,7 @@ class panelGUI(QMainWindow):
                     checkbox.setChecked(True)
                     checkbox.setDisabled(True)
 
-                current_step = current_step.getNext()
+                current_step = current_step.getNextCheckbox()
         
         # ensure that first unchecked checkbox isn't disabled
         if first_unchecked.getName() not in steps_completed:
@@ -3070,19 +3072,7 @@ class panelGUI(QMainWindow):
                 self.stepsList.setNextStep(first_unchecked)
         
         if not in_group:
-            self.stepsList.setNextStep(first_unchecked)
-            
-            
-        # account for edge case where only the last one is unchecked (only pertinent due to transition, won't be an issue after this is used from the beginning of qc) 
-        any_unchecked=False
-        current=self.stepsList.getCurrentStep()
-        while current.getNext() is not None:
-            if current.getName() not in steps_completed:
-                any_unchecked=True
-            current=current.getNext()   
-        if any_unchecked is True:
-            current.getCheckbox().setDisabled(False)
-        
+            self.stepsList.setNextStep(first_unchecked)    
 
         # If all steps have been completed, change text of finish button
         if self.stepsList.allStepsChecked():
