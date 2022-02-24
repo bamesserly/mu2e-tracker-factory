@@ -336,7 +336,15 @@ def run():
     lpalgui.setPalletNumber(lpal_number)
     lpalgui.startTimer()
     DP = SQLDP(gui=lpalgui, stage="straws")
-    DP.saveStart()
+    try:
+        DP.saveStart()
+    except AssertionError as e:
+        logger.error(
+            f"According to the DB, there are still straws on {lpalgui.getPalletID()}."
+        )
+        logger.error(f"Please mergedown!")
+        logger.error("If this message is still appearing after MD, contact Ben.")
+        sys.exit()
     DP.saveResume()
 
     # Retrieve the LoadingPallet(StrawLocation) object that the DP just made
