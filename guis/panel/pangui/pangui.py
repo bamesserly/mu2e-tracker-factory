@@ -1900,7 +1900,9 @@ class panelGUI(QMainWindow):
         ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
+        ["heat_34", "Comb_Adjustment"], # process 2
+        ["check_comb_shims", "load_straws", "heat"]]    # process 1
             
             
         
@@ -3047,7 +3049,9 @@ class panelGUI(QMainWindow):
         ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
+        ["heat_34", "Comb_Adjustment"], # process 2
+        ["check_comb_shims", "load_straws", "heat"]]    # process 1
 
         
         
