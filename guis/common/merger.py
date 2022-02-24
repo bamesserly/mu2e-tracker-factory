@@ -43,6 +43,7 @@ class Merger:
                 "select name from sqlite_master where type = 'table' AND name not like 'sqlite?_%' escape '?'",
                 fetchall=True,
             )
+            if tpl[0] is not "measurement_panel_leak"
         ]
 
     """
@@ -183,7 +184,7 @@ class Merger:
 
 
 class AutoMerger(Merger, LoopingReusableThread):
-    def __init__(self, src_db, dst_db, name=None, daemon=True, merge_frequency=600):
+    def __init__(self, src_db, dst_db, name=None, daemon=True, merge_frequency=1800):
 
         ## Initialize Merger
         Merger.__init__(self, src_db, dst_db)

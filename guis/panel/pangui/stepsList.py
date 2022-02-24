@@ -122,7 +122,15 @@ class Step:
 
     def getNext(self):
         return self.next
-
+    
+    def getNextCheckbox(self):
+        if self.next is None:
+            return None
+        next=self.next
+        while next.hasCheckbox is False and next.next is not None:
+            next=next.next
+        return next
+        
     def getPrevious(self):
         return self.previous
 
