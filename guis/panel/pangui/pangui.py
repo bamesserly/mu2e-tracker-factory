@@ -2628,10 +2628,11 @@ class panelGUI(QMainWindow):
         
         if lr == True:
             # commit new lr to database
-            self.DP.record_leak_rate(float(comments))
+            self.DP.record_leak_rate(str(comments))
             
             #update display
-            self.ui.lr_display.display(str(comments))
+            self.ui.lr_display.setText(str(comments))
+            print("da string: " + str(comments))
             
             
             front = "Leak Rate Test Result:     "
@@ -4056,7 +4057,7 @@ class panelGUI(QMainWindow):
     
         # display current leak rate data
         if self.get_leak_rate() is not None:
-            self.ui.lr_display.display(str(self.get_leak_rate()))
+            self.ui.lr_display.setText(str(self.get_leak_rate()))
         
 
         self.displayComments()
