@@ -2631,7 +2631,7 @@ class panelGUI(QMainWindow):
             self.DP.record_leak_rate(float(comments))
             
             #update display
-            self.ui.lr_display.display(float(comments))
+            self.ui.lr_display.display(str(comments))
             
             
             front = "Leak Rate Test Result:     "
@@ -4056,7 +4056,7 @@ class panelGUI(QMainWindow):
     
         # display current leak rate data
         if self.get_leak_rate() is not None:
-            self.ui.lr_display.display(self.get_leak_rate())
+            self.ui.lr_display.display(str(self.get_leak_rate()))
         
 
         self.displayComments()
