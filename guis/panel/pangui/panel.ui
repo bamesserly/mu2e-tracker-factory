@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1818</width>
-    <height>863</height>
+    <height>868</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,6 +15,11 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+   </font>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -38,6 +43,7 @@
          <widget class="QTabWidget" name="tabWidget">
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>11</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -63,7 +69,10 @@
                <widget class="QLabel" name="label_10">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -75,7 +84,10 @@
                <widget class="QLabel" name="Current_worker1">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -102,6 +114,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -126,7 +139,10 @@
                <widget class="QLabel" name="label_11">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -138,7 +154,10 @@
                <widget class="QLabel" name="Current_worker2">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -165,6 +184,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -189,7 +209,10 @@
                <widget class="QLabel" name="label_16">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -201,7 +224,10 @@
                <widget class="QLabel" name="Current_worker3">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -228,6 +254,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -252,7 +279,10 @@
                <widget class="QLabel" name="label_19">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -264,7 +294,10 @@
                <widget class="QLabel" name="Current_worker4">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -291,6 +324,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>14</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -327,7 +361,10 @@
                  <widget class="QGroupBox" name="Parts">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -339,7 +376,10 @@
                  <widget class="QGroupBox" name="Tools">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -351,7 +391,10 @@
                  <widget class="QGroupBox" name="Supplies">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -371,6 +414,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -391,6 +435,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -418,7 +463,10 @@
                  <widget class="QGroupBox" name="MoldRelease">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -438,6 +486,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -458,6 +507,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -513,7 +563,10 @@
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <pointsize>12</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
                </font>
               </property>
               <property name="title">
@@ -529,6 +582,7 @@
                  <widget class="QGroupBox" name="groupBox_7">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -585,6 +639,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>14</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -605,6 +660,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>14</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -621,6 +677,7 @@
                <widget class="QGroupBox" name="groupBox">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -642,6 +699,8 @@
                       <widget class="QComboBox" name="anchorFail">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
+                         <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -701,6 +760,7 @@
                       <widget class="QComboBox" name="tapFail">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -731,6 +791,7 @@
                       <widget class="QComboBox" name="strawFail">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -766,6 +827,7 @@
                       <widget class="QComboBox" name="screwFail">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -840,7 +902,10 @@
                    </property>
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <pointsize>12</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="insertPolicy">
@@ -887,7 +952,10 @@
                   <widget class="QStackedWidget" name="positionSelectTab">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <pointsize>12</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="currentIndex">
@@ -900,7 +968,10 @@
                       <widget class="QComboBox" name="positionSelect">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <item>
@@ -1407,6 +1478,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <pointsize>14</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -1440,7 +1512,10 @@
                    </property>
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <pointsize>12</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="placeholderText">
@@ -1461,6 +1536,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -1480,7 +1556,10 @@
                    </property>
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <pointsize>8</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="readOnly">
@@ -1502,7 +1581,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>7</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -1523,6 +1602,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>12</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -1549,6 +1629,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -2031,6 +2112,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -2054,6 +2136,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -2511,6 +2594,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -2623,6 +2707,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -2695,6 +2780,7 @@
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -2780,6 +2866,7 @@
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -2804,6 +2891,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -2830,7 +2918,10 @@
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -2854,6 +2945,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -2888,6 +2980,7 @@ Heater GUI</string>
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -3054,6 +3147,7 @@ Heater GUI</string>
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>12</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -3070,6 +3164,7 @@ Heater GUI</string>
                    <widget class="QLabel" name="label_33">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3103,6 +3198,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3142,6 +3238,7 @@ Heater GUI</string>
                    <widget class="QLabel" name="label_612">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3166,6 +3263,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>11</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3185,7 +3283,10 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -3209,6 +3310,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3229,6 +3331,8 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3261,6 +3365,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3318,6 +3423,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>11</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3337,6 +3443,8 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3356,7 +3464,10 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -3380,6 +3491,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3413,6 +3525,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3470,6 +3583,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>11</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3489,6 +3603,8 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3508,6 +3624,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3528,6 +3645,8 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3547,6 +3666,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
@@ -3570,6 +3690,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
@@ -3627,6 +3748,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3648,6 +3770,7 @@ Heater GUI</string>
                    <widget class="QGroupBox" name="groupBox_19">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3661,6 +3784,7 @@ Heater GUI</string>
                       <widget class="QPushButton" name="timer_instructions">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3675,6 +3799,7 @@ Heater GUI</string>
                       <widget class="QPushButton" name="picone2_2">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3689,6 +3814,7 @@ Heater GUI</string>
                       <widget class="QPushButton" name="paas_attach_2">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3706,6 +3832,7 @@ Heater GUI</string>
                    <widget class="QGroupBox" name="groupBox_20">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3719,6 +3846,7 @@ Heater GUI</string>
                       <widget class="QPushButton" name="pro2PanelHeater">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3733,6 +3861,7 @@ Heater GUI</string>
                       <widget class="QPushButton" name="launch_straw_tensioner">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>11</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3750,6 +3879,7 @@ Heater GUI</string>
                    <widget class="QGroupBox" name="groupBox_54">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -3763,7 +3893,10 @@ Heater GUI</string>
                       <widget class="QPlainTextEdit" name="commentBox2">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="focusPolicy">
@@ -3781,6 +3914,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>14</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -3807,6 +3941,7 @@ Heater GUI</string>
                  <widget class="QLabel" name="label_6">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>12</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -3858,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>18</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -3980,6 +4115,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4013,6 +4149,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4042,7 +4179,10 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
                     </property>
                     <property name="text">
@@ -4069,6 +4209,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4084,6 +4225,7 @@ Tensioner</string>
                    <widget class="QPushButton" name="launch_tension_box">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4105,6 +4247,7 @@ Tension Box</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4120,6 +4263,7 @@ GUI</string>
                    <widget class="QGroupBox" name="groupBox_8">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4133,7 +4277,10 @@ GUI</string>
                       <widget class="QPlainTextEdit" name="commentBox3">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -4148,6 +4295,7 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>14</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -4180,6 +4328,7 @@ GUI</string>
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -4199,7 +4348,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -4217,7 +4369,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -4235,7 +4390,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -4254,7 +4412,10 @@ GUI</string>
                      <widget class="QLabel" name="label_144">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -4305,6 +4466,7 @@ GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -4327,6 +4489,7 @@ GUI</string>
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>12</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -4353,6 +4516,7 @@ GUI</string>
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -4366,7 +4530,10 @@ GUI</string>
                     <widget class="QPlainTextEdit" name="commentBox4">
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                     </widget>
@@ -4387,6 +4554,7 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>14</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
@@ -4411,6 +4579,7 @@ GUI</string>
                      <widget class="QGroupBox" name="rightPinProtector">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
                         <weight>75</weight>
                         <bold>true</bold>
@@ -4490,6 +4659,8 @@ GUI</string>
                         <widget class="QLabel" name="label_622">
                          <property name="font">
                           <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
                            <weight>50</weight>
                            <bold>false</bold>
                           </font>
@@ -4509,6 +4680,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4529,6 +4701,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4549,6 +4722,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4566,6 +4740,7 @@ GUI</string>
                      <widget class="QGroupBox" name="leftPinProtector">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
                         <weight>75</weight>
                         <bold>true</bold>
@@ -4582,6 +4757,8 @@ GUI</string>
                         <widget class="QLabel" name="label_620">
                          <property name="font">
                           <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
                            <weight>50</weight>
                            <bold>false</bold>
                           </font>
@@ -4627,6 +4804,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4684,6 +4862,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4704,6 +4883,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4725,6 +4905,7 @@ GUI</string>
                      <widget class="QGroupBox" name="leftOmegaPiece">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
                         <weight>75</weight>
                         <bold>true</bold>
@@ -4740,6 +4921,8 @@ GUI</string>
                           <widget class="QLabel" name="label_624">
                            <property name="font">
                             <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
                             </font>
@@ -4787,6 +4970,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4844,6 +5028,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4864,6 +5049,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -4881,6 +5067,7 @@ GUI</string>
                      <widget class="QGroupBox" name="rightOmegaPiece">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
                         <weight>75</weight>
                         <bold>true</bold>
@@ -4896,6 +5083,8 @@ GUI</string>
                           <widget class="QLabel" name="label_626">
                            <property name="font">
                             <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
                             </font>
@@ -4943,6 +5132,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -5000,6 +5190,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -5020,6 +5211,7 @@ GUI</string>
                          </property>
                          <property name="font">
                           <font>
+                           <family>Arial</family>
                            <pointsize>10</pointsize>
                            <weight>75</weight>
                            <bold>true</bold>
@@ -5053,6 +5245,7 @@ GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5067,7 +5260,10 @@ GUI</string>
                    <widget class="QLabel" name="label_145">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
                     </property>
                     <property name="text">
@@ -5104,6 +5300,7 @@ GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5124,7 +5321,10 @@ GUI</string>
                      <widget class="QLabel" name="label_37">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5136,7 +5336,10 @@ GUI</string>
                      <widget class="QLabel" name="label_38">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5148,7 +5351,10 @@ GUI</string>
                      <widget class="QLabel" name="label_39">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5160,7 +5366,10 @@ GUI</string>
                      <widget class="QLabel" name="label_40">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5183,7 +5392,10 @@ GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
                     </property>
                     <property name="layoutDirection">
@@ -5207,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -5221,6 +5433,7 @@ GUI</string>
                    <widget class="QGroupBox" name="commentBoxLayout_4">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5234,7 +5447,10 @@ GUI</string>
                       <widget class="QPlainTextEdit" name="commentBox5">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -5249,6 +5465,7 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>14</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -5269,6 +5486,7 @@ GUI</string>
                    <widget class="QGroupBox" name="images">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5288,7 +5506,10 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -5306,7 +5527,10 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -5324,7 +5548,10 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -5345,6 +5572,7 @@ GUI</string>
                  <widget class="QGroupBox" name="groupBox_21">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -5368,6 +5596,8 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -5387,6 +5617,8 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -5421,6 +5653,7 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -5444,6 +5677,7 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -5485,6 +5719,7 @@ GUI</string>
                    <widget class="QGroupBox" name="groupBox_22">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5498,7 +5733,10 @@ GUI</string>
                       <widget class="QPlainTextEdit" name="commentBox6">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -5516,6 +5754,7 @@ GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5535,6 +5774,7 @@ GUI</string>
                  <widget class="QGroupBox" name="groupBox_14">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -5554,7 +5794,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5573,7 +5816,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5591,7 +5837,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5609,7 +5858,10 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5626,6 +5878,7 @@ GUI</string>
                    <widget class="QLabel" name="label_25">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>12</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5653,6 +5906,7 @@ GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -5927,6 +6181,7 @@ GUI</string>
                  <widget class="QGroupBox" name="groupBox_16">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -6010,6 +6265,7 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -6033,6 +6289,7 @@ GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -6052,6 +6309,7 @@ GUI</string>
                  <widget class="QGroupBox" name="groupBox_15">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -6068,6 +6326,7 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>10</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
@@ -6108,6 +6367,7 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>10</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
@@ -6159,6 +6419,7 @@ GUI</string>
                  <widget class="QGroupBox" name="gridGroupBox">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -6172,6 +6433,7 @@ GUI</string>
                     <widget class="QPushButton" name="pro6TensionBox">
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
@@ -6187,6 +6449,7 @@ Tension Box</string>
                     <widget class="QPushButton" name="pro6PanelHeater">
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
@@ -6208,6 +6471,7 @@ Heater GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>Arial</family>
                        <pointsize>12</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
@@ -6234,6 +6498,7 @@ Heater GUI</string>
                  <widget class="QLabel" name="label_31">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>12</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -6286,6 +6551,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -6304,6 +6570,7 @@ Heater GUI</string>
                    <widget class="QGroupBox" name="groupBox_13">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -6336,6 +6603,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -6373,6 +6641,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -6390,6 +6659,7 @@ Heater GUI</string>
                    <widget class="QGroupBox" name="groupBox_18">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -6406,6 +6676,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -6423,6 +6694,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
@@ -6480,6 +6752,7 @@ Heater GUI</string>
                    <widget class="QGroupBox" name="groupBox_23">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>10</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -6493,7 +6766,10 @@ Heater GUI</string>
                       <widget class="QPlainTextEdit" name="commentBox7">
                        <property name="font">
                         <font>
+                         <family>Arial</family>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -6511,6 +6787,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -6530,6 +6807,7 @@ Heater GUI</string>
                  <widget class="QGroupBox" name="groupBox_17">
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
@@ -6553,8 +6831,559 @@ Heater GUI</string>
               </widget>
               <widget class="QWidget" name="p8FinalQC">
                <layout class="QGridLayout" name="gridLayout_86">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_35">
+                <item row="4" column="1">
+                 <widget class="QGroupBox" name="badSWGroupBox">
+                  <property name="title">
+                   <string>Bad Straw/Wire</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_444">
+                   <item row="6" column="0">
+                    <widget class="QLabel" name="label_499">
+                     <property name="text">
+                      <string>Failure</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QLineEdit" name="bad_number"/>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QPushButton" name="bad_wire_form">
+                     <property name="text">
+                      <string>Submit</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_498">
+                     <property name="text">
+                      <string>Number</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QLineEdit" name="bad_failure"/>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QCheckBox" name="wireCheck">
+                     <property name="text">
+                      <string>Wire</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QCheckBox" name="strawCheck">
+                     <property name="text">
+                      <string>Straw</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="3" column="2" rowspan="3">
+                 <widget class="QGroupBox" name="commentGroupBox8">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Comments</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_442">
+                   <item row="0" column="0">
+                    <widget class="QPlainTextEdit" name="commentBox8_6">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="saveButton8_6">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>14</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">saveButtons</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="5" column="1" rowspan="2">
+                 <widget class="QGroupBox" name="groupBox_25">
+                  <property name="title">
+                   <string>Previous Failures</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_83">
+                   <item row="0" column="0">
+                    <widget class="QPlainTextEdit" name="previousBadPTE">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>8</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="readOnly">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="4" column="0" rowspan="2">
+                 <widget class="QStackedWidget" name="stackedWidget">
+                  <property name="currentIndex">
+                   <number>0</number>
+                  </property>
+                  <widget class="QWidget" name="page_17">
+                   <layout class="QGridLayout" name="gridLayout_80">
+                    <item row="1" column="0">
+                     <widget class="QGroupBox" name="groupBox_6">
+                      <property name="title">
+                       <string>Preperation</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_79">
+                       <item row="0" column="0" alignment="Qt::AlignVCenter">
+                        <widget class="QPushButton" name="prepCompletePB">
+                         <property name="text">
+                          <string>Preperation Complete</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="page_16">
+                   <layout class="QGridLayout" name="gridLayout_78">
+                    <item row="0" column="0">
+                     <widget class="QGroupBox" name="groupBox_5">
+                      <property name="title">
+                       <string>Test Options</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_77">
+                       <item row="0" column="0">
+                        <widget class="QPushButton" name="methReTestPB">
+                         <property name="text">
+                          <string>Begin Methane Test</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="QPushButton" name="leakReTestPB">
+                         <property name="text">
+                          <string>Begin Leak Test</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="page_11">
+                   <layout class="QGridLayout" name="gridLayout_76">
+                    <item row="0" column="0">
+                     <widget class="QGroupBox" name="groupBox_4">
+                      <property name="title">
+                       <string>Leak Test</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_75">
+                       <item row="3" column="0">
+                        <layout class="QHBoxLayout" name="horizontalLayout_14">
+                         <item>
+                          <widget class="QPushButton" name="realLeakPassPB">
+                           <property name="text">
+                            <string>Pass</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="realLeakFailPB">
+                           <property name="text">
+                            <string>Fail</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="QPushButton" name="launch_leak_test_2">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>11</pointsize>
+                           <weight>75</weight>
+                           <bold>true</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Launch Leak Test</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="0">
+                        <spacer name="verticalSpacer_3">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeType">
+                          <enum>QSizePolicy::Maximum</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item row="4" column="0">
+                        <spacer name="verticalSpacer">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item row="0" column="0">
+                        <spacer name="verticalSpacer_4">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="page_5">
+                   <layout class="QGridLayout" name="gridLayout_66">
+                    <item row="0" column="0">
+                     <widget class="QGroupBox" name="groupBox_2">
+                      <property name="title">
+                       <string>Methane Test</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_73">
+                       <item row="8" column="0" colspan="3">
+                        <layout class="QHBoxLayout" name="horizontalLayout_10">
+                         <item>
+                          <widget class="QPushButton" name="leakPassPB">
+                           <property name="text">
+                            <string>Pass</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="leakFailPB">
+                           <property name="text">
+                            <string>Fail</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QCheckBox" name="reLeftCB">
+                         <property name="text">
+                          <string>Re-Installed Left Cover</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="0" colspan="3">
+                        <widget class="QCheckBox" name="reRightCB">
+                         <property name="text">
+                          <string>Re-Installed Right Cover</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="3" column="0" colspan="3">
+                        <widget class="QCheckBox" name="reCenterCB">
+                         <property name="text">
+                          <string>Re-Installed Center Cover</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="0">
+                        <widget class="QLabel" name="label_504">
+                         <property name="text">
+                          <string>Methane Inflated</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="2">
+                        <widget class="QCheckBox" name="inflated_yes">
+                         <property name="text">
+                          <string>Yes</string>
+                         </property>
+                         <property name="checked">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="5" column="0">
+                        <widget class="QLabel" name="label_505">
+                         <property name="text">
+                          <string>Leak Location</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="3">
+                        <widget class="QCheckBox" name="inflated_no">
+                         <property name="text">
+                          <string>No</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="5" column="1" colspan="3">
+                        <widget class="QLineEdit" name="leak_location"/>
+                       </item>
+                       <item row="6" column="0">
+                        <widget class="QLabel" name="label_507">
+                         <property name="text">
+                          <string>Leak Size</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0" colspan="2">
+                        <widget class="QCheckBox" name="reORingsCB">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="text">
+                          <string>Re-Installed O-Rings</string>
+                         </property>
+                         <property name="checked">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="7" column="0">
+                        <widget class="QLabel" name="label_506">
+                         <property name="text">
+                          <string>Next</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="6" column="1" colspan="3">
+                        <widget class="QLineEdit" name="leak_size"/>
+                       </item>
+                       <item row="7" column="1" colspan="2">
+                        <widget class="QComboBox" name="leak_next">
+                         <item>
+                          <property name="text">
+                           <string>Reflood</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Patch</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Remove Cover</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Inspect</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Remove</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Success</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                       <item row="9" column="0">
+                        <spacer name="verticalSpacer_2">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="page_6">
+                   <layout class="QGridLayout" name="gridLayout_71">
+                    <item row="0" column="0">
+                     <widget class="QGroupBox" name="groupBox_3">
+                      <property name="title">
+                       <string>Resolution</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_72">
+                       <item row="1" column="1">
+                        <widget class="QPushButton" name="submitResoPB">
+                         <property name="text">
+                          <string>Submit</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="QPushButton" name="resoBackPB">
+                         <property name="text">
+                          <string>Back</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0" colspan="2">
+                        <widget class="QPlainTextEdit" name="resolutionPTE">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>9</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="placeholderText">
+                          <string>What was done to resolve the leak?</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="page_18">
+                   <layout class="QGridLayout" name="gridLayout_74">
+                    <item row="0" column="0">
+                     <widget class="QGroupBox" name="groupBox_10">
+                      <property name="title">
+                       <string>Shipping</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_82">
+                       <item row="0" column="0">
+                        <widget class="QPushButton" name="shippingPB">
+                         <property name="text">
+                          <string>Move to Shipping (Finish Final QC)</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="QPushButton" name="shipBackPB">
+                         <property name="text">
+                          <string>Back to Test Options</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QGroupBox" name="groupBox_189">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>11</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Launch GUIs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_494">
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="launch_resistance_test">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Resistance Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="launch_leak_test">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Leak Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="pro8StageLabel">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                     <horstretch>0</horstretch>
@@ -6563,12 +7392,113 @@ Heater GUI</string>
                   </property>
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Process 8 - Final QC</string>
+                   <string>Current Stage: Limbo</string>
                   </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="3">
+                 <widget class="Line" name="line_2">
+                  <property name="lineWidth">
+                   <number>3</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0" rowspan="2">
+                 <widget class="QGroupBox" name="groupBox_26">
+                  <property name="title">
+                   <string>Stage Selection Mode</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_84">
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="stageModeCB">
+                     <item>
+                      <property name="text">
+                       <string>Auto</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Manual</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" rowspan="2" colspan="2">
+                    <widget class="QLabel" name="label_45">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QStackedWidget" name="stackedWidget_2">
+                     <property name="currentIndex">
+                      <number>0</number>
+                     </property>
+                     <widget class="QWidget" name="page_19">
+                      <layout class="QGridLayout" name="gridLayout_81"/>
+                     </widget>
+                     <widget class="QWidget" name="page_20">
+                      <layout class="QGridLayout" name="gridLayout_85">
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="label_44">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>Select Stage</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QComboBox" name="stageSelectCB">
+                         <item>
+                          <property name="text">
+                           <string>Preperation</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Leak Test</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Methane Test</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Shipping</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QPushButton" name="goToStagePB">
+                         <property name="text">
+                          <string>Go To Preperation</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
@@ -6946,6 +7876,7 @@ Heater GUI</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <pointsize>14</pointsize>
                       <weight>75</weight>
                       <bold>true</bold>
@@ -6958,18 +7889,8 @@ Heater GUI</string>
                   </item>
                  </layout>
                 </item>
-                <item row="2" column="0" colspan="3">
-                 <widget class="Line" name="line_2">
-                  <property name="lineWidth">
-                   <number>3</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="pro8StageLabel">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_35">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                     <horstretch>0</horstretch>
@@ -6978,636 +7899,59 @@ Heater GUI</string>
                   </property>
                   <property name="font">
                    <font>
-                    <pointsize>16</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Current Stage: Limbo</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="2" rowspan="3">
-                 <widget class="QGroupBox" name="commentGroupBox8">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
+                    <family>Arial</family>
+                    <pointsize>12</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
-                  <property name="title">
-                   <string>Comments</string>
+                  <property name="text">
+                   <string>Process 8 - Final QC</string>
                   </property>
-                  <layout class="QGridLayout" name="gridLayout_442">
+                 </widget>
+                </item>
+                <item row="6" column="2" rowspan="2">
+                 <widget class="QGroupBox" name="groupBox_27">
+                  <property name="maximumSize">
+                   <size>
+                    <width>326</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="title">
+                   <string>Leak Rate</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_87">
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="lr_button">
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QPlainTextEdit" name="lr_textbox"/>
+                   </item>
                    <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="commentBox8_6">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                      </font>
+                    <widget class="QLabel" name="label_43">
+                     <property name="text">
+                      <string>Latest Leak Rate:</string>
                      </property>
                     </widget>
                    </item>
                    <item row="1" column="0">
-                    <widget class="QPushButton" name="saveButton8_6">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
+                    <widget class="QLabel" name="lr_display">
                      <property name="font">
                       <font>
-                       <pointsize>14</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Save</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">saveButtons</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="4" column="0" rowspan="2">
-                 <widget class="QStackedWidget" name="stackedWidget">
-                  <property name="currentIndex">
-                   <number>0</number>
-                  </property>
-                  <widget class="QWidget" name="page_17">
-                   <layout class="QGridLayout" name="gridLayout_80">
-                    <item row="1" column="0">
-                     <widget class="QGroupBox" name="groupBox_6">
-                      <property name="title">
-                       <string>Preperation</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_79">
-                       <item row="0" column="0" alignment="Qt::AlignVCenter">
-                        <widget class="QPushButton" name="prepCompletePB">
-                         <property name="text">
-                          <string>Preperation Complete</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="page_16">
-                   <layout class="QGridLayout" name="gridLayout_78">
-                    <item row="0" column="0">
-                     <widget class="QGroupBox" name="groupBox_5">
-                      <property name="title">
-                       <string>Test Options</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_77">
-                       <item row="0" column="0">
-                        <widget class="QPushButton" name="methReTestPB">
-                         <property name="text">
-                          <string>Begin Methane Test</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QPushButton" name="leakReTestPB">
-                         <property name="text">
-                          <string>Begin Leak Test</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="page_11">
-                   <layout class="QGridLayout" name="gridLayout_76">
-                    <item row="0" column="0">
-                     <widget class="QGroupBox" name="groupBox_4">
-                      <property name="title">
-                       <string>Leak Test</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_75">
-                       <item row="3" column="0">
-                        <layout class="QHBoxLayout" name="horizontalLayout_14">
-                         <item>
-                          <widget class="QPushButton" name="realLeakPassPB">
-                           <property name="text">
-                            <string>Pass</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="realLeakFailPB">
-                           <property name="text">
-                            <string>Fail</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QPushButton" name="launch_leak_test_2">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>75</weight>
-                           <bold>true</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Launch Leak Test</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="0">
-                        <spacer name="verticalSpacer_3">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
-                         <property name="sizeType">
-                          <enum>QSizePolicy::Maximum</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item row="4" column="0">
-                        <spacer name="verticalSpacer">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item row="0" column="0">
-                        <spacer name="verticalSpacer_4">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="page_5">
-                   <layout class="QGridLayout" name="gridLayout_66">
-                    <item row="0" column="0">
-                     <widget class="QGroupBox" name="groupBox_2">
-                      <property name="title">
-                       <string>Methane Test</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_73">
-                       <item row="8" column="0" colspan="3">
-                        <layout class="QHBoxLayout" name="horizontalLayout_10">
-                         <item>
-                          <widget class="QPushButton" name="leakPassPB">
-                           <property name="text">
-                            <string>Pass</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="leakFailPB">
-                           <property name="text">
-                            <string>Fail</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </item>
-                       <item row="1" column="0" colspan="2">
-                        <widget class="QCheckBox" name="reLeftCB">
-                         <property name="text">
-                          <string>Re-Installed Left Cover</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="0" colspan="3">
-                        <widget class="QCheckBox" name="reRightCB">
-                         <property name="text">
-                          <string>Re-Installed Right Cover</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="3" column="0" colspan="3">
-                        <widget class="QCheckBox" name="reCenterCB">
-                         <property name="text">
-                          <string>Re-Installed Center Cover</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="4" column="0">
-                        <widget class="QLabel" name="label_504">
-                         <property name="text">
-                          <string>Methane Inflated</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="4" column="2">
-                        <widget class="QCheckBox" name="inflated_yes">
-                         <property name="text">
-                          <string>Yes</string>
-                         </property>
-                         <property name="checked">
-                          <bool>true</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="5" column="0">
-                        <widget class="QLabel" name="label_505">
-                         <property name="text">
-                          <string>Leak Location</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="4" column="3">
-                        <widget class="QCheckBox" name="inflated_no">
-                         <property name="text">
-                          <string>No</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="5" column="1" colspan="3">
-                        <widget class="QLineEdit" name="leak_location"/>
-                       </item>
-                       <item row="6" column="0">
-                        <widget class="QLabel" name="label_507">
-                         <property name="text">
-                          <string>Leak Size</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="0" colspan="2">
-                        <widget class="QCheckBox" name="reORingsCB">
-                         <property name="enabled">
-                          <bool>true</bool>
-                         </property>
-                         <property name="text">
-                          <string>Re-Installed O-Rings</string>
-                         </property>
-                         <property name="checked">
-                          <bool>true</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="7" column="0">
-                        <widget class="QLabel" name="label_506">
-                         <property name="text">
-                          <string>Next</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="6" column="1" colspan="3">
-                        <widget class="QLineEdit" name="leak_size"/>
-                       </item>
-                       <item row="7" column="1" colspan="2">
-                        <widget class="QComboBox" name="leak_next">
-                         <item>
-                          <property name="text">
-                           <string>Reflood</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Patch</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Remove Cover</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Inspect</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Remove</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Success</string>
-                          </property>
-                         </item>
-                        </widget>
-                       </item>
-                       <item row="9" column="0">
-                        <spacer name="verticalSpacer_2">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="page_6">
-                   <layout class="QGridLayout" name="gridLayout_71">
-                    <item row="0" column="0">
-                     <widget class="QGroupBox" name="groupBox_3">
-                      <property name="title">
-                       <string>Resolution</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_72">
-                       <item row="1" column="1">
-                        <widget class="QPushButton" name="submitResoPB">
-                         <property name="text">
-                          <string>Submit</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QPushButton" name="resoBackPB">
-                         <property name="text">
-                          <string>Back</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="0" colspan="2">
-                        <widget class="QPlainTextEdit" name="resolutionPTE">
-                         <property name="font">
-                          <font>
-                           <pointsize>9</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="placeholderText">
-                          <string>What was done to resolve the leak?</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="page_18">
-                   <layout class="QGridLayout" name="gridLayout_74">
-                    <item row="0" column="0">
-                     <widget class="QGroupBox" name="groupBox_10">
-                      <property name="title">
-                       <string>Shipping</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_82">
-                       <item row="0" column="0">
-                        <widget class="QPushButton" name="shippingPB">
-                         <property name="text">
-                          <string>Move to Shipping (Finish Final QC)</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QPushButton" name="shipBackPB">
-                         <property name="text">
-                          <string>Back to Test Options</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QGroupBox" name="badSWGroupBox">
-                  <property name="title">
-                   <string>Bad Straw/Wire</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_444">
-                   <item row="6" column="0">
-                    <widget class="QLabel" name="label_499">
-                     <property name="text">
-                      <string>Failure</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
-                    <widget class="QLineEdit" name="bad_number"/>
-                   </item>
-                   <item row="7" column="1">
-                    <widget class="QPushButton" name="bad_wire_form">
-                     <property name="text">
-                      <string>Submit</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QLabel" name="label_498">
-                     <property name="text">
-                      <string>Number</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QLineEdit" name="bad_failure"/>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="wireCheck">
-                     <property name="text">
-                      <string>Wire</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="strawCheck">
-                     <property name="text">
-                      <string>Straw</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="5" column="1" rowspan="2">
-                 <widget class="QGroupBox" name="groupBox_25">
-                  <property name="title">
-                   <string>Previous Failures</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_83">
-                   <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="previousBadPTE">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
+                       <family>Arial</family>
+                       <pointsize>11</pointsize>
                        <weight>50</weight>
+                       <italic>true</italic>
                        <bold>false</bold>
                       </font>
                      </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="6" column="0" rowspan="2">
-                 <widget class="QGroupBox" name="groupBox_26">
-                  <property name="title">
-                   <string>Stage Selection Mode</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_84">
-                   <item row="0" column="1">
-                    <widget class="QComboBox" name="stageModeCB">
-                     <item>
-                      <property name="text">
-                       <string>Auto</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Manual</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="0" rowspan="2" colspan="2">
-                    <widget class="QLabel" name="label_45">
                      <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QStackedWidget" name="stackedWidget_2">
-                     <property name="currentIndex">
-                      <number>0</number>
-                     </property>
-                     <widget class="QWidget" name="page_19">
-                      <layout class="QGridLayout" name="gridLayout_81"/>
-                     </widget>
-                     <widget class="QWidget" name="page_20">
-                      <layout class="QGridLayout" name="gridLayout_85">
-                       <item row="0" column="0">
-                        <widget class="QLabel" name="label_44">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="text">
-                          <string>Select Stage</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QComboBox" name="stageSelectCB">
-                         <item>
-                          <property name="text">
-                           <string>Preperation</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Leak Test</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Methane Test</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Shipping</string>
-                          </property>
-                         </item>
-                        </widget>
-                       </item>
-                       <item row="1" column="0" colspan="2">
-                        <widget class="QPushButton" name="goToStagePB">
-                         <property name="text">
-                          <string>Go To Preperation</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="7" column="1">
-                 <widget class="QGroupBox" name="groupBox_189">
-                  <property name="font">
-                   <font>
-                    <pointsize>11</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Launch GUIs</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_494">
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="launch_resistance_test">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Resistance Test</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="launch_leak_test">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Leak Test</string>
+                      <string>Leak Rate</string>
                      </property>
                     </widget>
                    </item>
@@ -7637,6 +7981,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7660,6 +8005,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7683,6 +8029,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7706,6 +8053,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7729,6 +8077,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7752,6 +8101,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7775,6 +8125,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7798,6 +8149,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -7821,6 +8173,7 @@ Heater GUI</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <pointsize>36</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -8035,8 +8388,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
+  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>

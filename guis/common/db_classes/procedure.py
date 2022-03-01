@@ -302,6 +302,8 @@ class Procedure(BASE, OBJECT):
             entries.append(self.details)
         # Commit to database
         DM.commitEntries(entries)
+        
+
 
     ## COMMENTS ##
 

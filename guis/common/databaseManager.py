@@ -47,7 +47,7 @@ class DatabaseManager:
                 dst_db=GetNetworkDatabasePath(),
                 name="AutoMerger",
                 daemon=True,
-                merge_frequency=1800,
+                merge_frequency=600,
             )
             self.__merger.start()
 
