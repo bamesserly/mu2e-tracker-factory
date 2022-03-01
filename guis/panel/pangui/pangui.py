@@ -5538,7 +5538,7 @@ class panelGUI(QMainWindow):
         self.ui.centerRing4LE.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_number.setText("")
-        self.ui.lr_display.display(0)
+        self.ui.lr_display.setText(0)
 
         self.pro8EnableParts(False, False)
 
