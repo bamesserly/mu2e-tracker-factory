@@ -290,6 +290,7 @@ class StepList:
     """
 
     def associateSteps(self):
+        
         for index1, step1 in enumerate(self.steps):
             nSubsteps = len(step1.getSubsteps())
 
@@ -419,6 +420,7 @@ class StepList:
     """
 
     def setupList(self):
+
         try:
             self.associateSteps()
 

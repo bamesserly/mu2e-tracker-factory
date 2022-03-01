@@ -990,8 +990,6 @@ class Pan8Procedure(PanelProcedure):
             left_ring = Column(String)
             center_ring = Column(String)
             right_ring = Column(String)
-            
-            leak_rate = Column(Integer)
 
             stage = Column(String)
 
@@ -1038,14 +1036,7 @@ class Pan8Procedure(PanelProcedure):
     def recordCenterRing(self, center_ring):
         self.details.center_ring = center_ring
         self.commit()
-        
-    def record_leak_rate(self, lr):
-        self.details.leak_rate = lr
-        self.commit()
-    
-    def get_leak_rate(self):
-        return self.details.leak_rate
-        
+
     def recordStage(self, stage):
         self.details.stage = stage
         self.commit()

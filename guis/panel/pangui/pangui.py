@@ -1037,10 +1037,6 @@ class panelGUI(QMainWindow):
 
         self.ui.proSelectButtons.buttonClicked.connect(self.openGUI)
 
-        # pro8 save leak rate data as comment
-        self.ui.lr_button.clicked.connect(lambda: [self.saveData(), self.saveComments("")])
-        
-
         # Save buttons
         for btn in self.ui.saveButtons.buttons():
             btn.setDisabled(True)
@@ -1895,14 +1891,13 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
+<<<<<<< HEAD
         group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
         "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
         ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
-        ["heat_34", "Comb_Adjustment"], # process 2
-        ["check_comb_shims", "load_straws", "heat"]]    # process 1
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
             
             
         
@@ -1981,18 +1976,48 @@ class panelGUI(QMainWindow):
                         
         # code for if a nonsequential subgroup isn't involved
         if not into_list:
+=======
+        """Constrain steps to be checked off in order"""
+        print("----- hola -----")
+        print(self.stepsList.steps[0].name)
+        
+        
+        group_list = ["Tap_and_Clean_Holes", "Clean_Surfaces", "Clean_O_Rings"]
+        
+        if (str(self.stepsList.getCurrentStep().getName()) in group_list or str(self.stepsList.getCurrentStep().getNext().getName()) in group_list):
+            current = self.stepsList.getCurrentStep()
+            while (current.name in group_list or current.getNext().name in group_list):
+                if current.getCheckbox().isChecked():
+                    self.saveStep(current.name)
+                    current.getCheckbox().setDisabled(True)
+                else:
+                    current.getCheckbox().setDisabled(False)
+                current = current.getNext()
+            self.stepsList.getNextStep()
+            self.stepsList.getCurrentStep().getCheckbox().setDisabled(False)
+            
+        
+        else:
+>>>>>>> b7fa7c7... Added Preliminary Nonsequential Funcitonality
             step = self.stepsList.getCurrentStep()  # Latest unchecked step
             checkbox1 = step.getCheckbox()
             checkbox1.setDisabled(True)
             self.stepsList.getNextStep()
 
+<<<<<<< HEAD
             # if it has iterated to a valid step, then enable its checkbox
+=======
+>>>>>>> b7fa7c7... Added Preliminary Nonsequential Funcitonality
             if self.stepsList.getCurrentStep() is not None:
                 checkbox2 = self.stepsList.getCurrentStep().getCheckbox()
                 checkbox2.setDisabled(False)
 
+<<<<<<< HEAD
             # ensure that the step just checked off gets saved
             self.saveStep(step.getName())  # changed
+=======
+            self.saveStep(step.name)  # changed
+>>>>>>> b7fa7c7... Added Preliminary Nonsequential Funcitonality
 
         if self.stepsList.allStepsChecked():
             # Pro 1 needs validated straws to enable finish
@@ -2576,10 +2601,9 @@ class panelGUI(QMainWindow):
             generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
-        
 
     """
-    saveComments(self, comments = '', lr = '')
+    saveComments(self, comments = '')
 
         Description: Handles the saving of comments. Takes any comments from the comment box, and moves them to the
                  previous comments box, giving them a timestamp. Ignores blank comments. Sends comments to the 
@@ -2588,8 +2612,6 @@ class panelGUI(QMainWindow):
     """
 
     def saveComments(self, comments=""):
-        # variable referring to whether or not this is a leak rate measurement
-        lr = False
 
         if comments == "":
             # Get Comment box [<boxes>][<index we want>]
@@ -2601,18 +2623,8 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox5,
                 self.ui.commentBox6,
                 self.ui.commentBox7,
-                [self.ui.commentBox8_6, self.ui.lr_textbox],
+                self.ui.commentBox8_6,
             ][self.pro_index]
-            
-            # if process 8, determine whether to save from comment box
-            # or from leak rate box
-            if self.pro_index == 7:
-                if len(str(box[1].document().toPlainText())) != 0:
-                    box = box[1]
-                    lr = True
-                else:
-                    box = box[0]
-            
             # Extract text
             comments = box.document().toPlainText()
             # Reset comment display
@@ -2623,21 +2635,7 @@ class panelGUI(QMainWindow):
         # if comments are nothing then return
         if comments == "":
             return
-            
-        # if it is a pro8 lr comment, modify
-        
-        if lr == True:
-            # commit new lr to database
-            self.DP.record_leak_rate(str(comments))
-            
-            #update display
-            self.ui.lr_display.setText(str(comments))
-            print("da string: " + str(comments))
-            
-            
-            front = "Leak Rate Test Result:     "
-            comments = front + comments
-            
+
         try:
             self.DP.saveComment(
                 comments, self.getCurrentPanel(), self.pro
@@ -2880,8 +2878,6 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][13] = self.ui.centerRing2DE.date().toString("ddMMMyy")
         self.data[self.pro_index][14] = self.ui.centerRing3TE.time().toString("HHmm")
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
-        
-        
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -3022,10 +3018,6 @@ class panelGUI(QMainWindow):
     #
     # Functions that put data into the UI widgets.
     # fmt: on
-    
-    # gets leak rate ddta to display
-    def get_leak_rate(self):
-        return self.DP.get_leak_rate()
 
     # Puts comments into the comment display box
     def displayComments(self):
@@ -3050,9 +3042,7 @@ class panelGUI(QMainWindow):
         ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
         ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
         ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
-        ["heat_34", "Comb_Adjustment"], # process 2
-        ["check_comb_shims", "load_straws", "heat"]]    # process 1
+        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"]]    # process 6
 
         
         
@@ -3097,7 +3087,6 @@ class panelGUI(QMainWindow):
                     checkbox.setDisabled(True)
 
                 current_step = current_step.getNextCheckbox()
-
         
         # ensure that first unchecked checkbox isn't disabled
         if first_unchecked.getName() not in steps_completed:
@@ -4054,11 +4043,6 @@ class panelGUI(QMainWindow):
 
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
-    
-        # display current leak rate data
-        if self.get_leak_rate() is not None:
-            self.ui.lr_display.setText(str(self.get_leak_rate()))
-        
 
         self.displayComments()
         self.pro8LoadBadWiresStraws()
@@ -5538,7 +5522,6 @@ class panelGUI(QMainWindow):
         self.ui.centerRing4LE.setText("")
         self.ui.bad_failure.setText("")
         self.ui.bad_number.setText("")
-        self.ui.lr_display.display(0)
 
         self.pro8EnableParts(False, False)
 

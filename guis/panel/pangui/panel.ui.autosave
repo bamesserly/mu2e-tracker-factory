@@ -64,6 +64,8 @@
                 <property name="font">
                  <font>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -76,6 +78,8 @@
                 <property name="font">
                  <font>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -127,6 +131,8 @@
                 <property name="font">
                  <font>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -139,6 +145,8 @@
                 <property name="font">
                  <font>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -190,6 +198,8 @@
                 <property name="font">
                  <font>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -202,6 +212,8 @@
                 <property name="font">
                  <font>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -253,6 +265,8 @@
                 <property name="font">
                  <font>
                   <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -265,6 +279,8 @@
                 <property name="font">
                  <font>
                   <pointsize>20</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="frameShape">
@@ -328,6 +344,8 @@
                   <property name="font">
                    <font>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -340,6 +358,8 @@
                   <property name="font">
                    <font>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -352,6 +372,8 @@
                   <property name="font">
                    <font>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -419,6 +441,8 @@
                   <property name="font">
                    <font>
                     <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="title">
@@ -514,6 +538,8 @@
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
                </font>
               </property>
               <property name="title">
@@ -642,6 +668,7 @@
                       <widget class="QComboBox" name="anchorFail">
                        <property name="font">
                         <font>
+                         <pointsize>10</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -841,6 +868,8 @@
                    <property name="font">
                     <font>
                      <pointsize>12</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="insertPolicy">
@@ -888,6 +917,8 @@
                    <property name="font">
                     <font>
                      <pointsize>12</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="currentIndex">
@@ -901,6 +932,8 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <item>
@@ -1441,6 +1474,8 @@
                    <property name="font">
                     <font>
                      <pointsize>12</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="placeholderText">
@@ -1481,6 +1516,8 @@
                    <property name="font">
                     <font>
                      <pointsize>8</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="readOnly">
@@ -1502,7 +1539,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>7</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -2831,6 +2868,8 @@
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -3186,6 +3225,8 @@ Heater GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -3229,6 +3270,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3337,6 +3379,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3357,6 +3400,8 @@ Heater GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -3489,6 +3534,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3528,6 +3574,7 @@ Heater GUI</string>
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>11</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
                         </font>
@@ -3764,6 +3811,8 @@ Heater GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="focusPolicy">
@@ -3858,7 +3907,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>18</height>
+                       <height>712</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4043,6 +4092,8 @@ Heater GUI</string>
                     <property name="font">
                      <font>
                       <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
                     </property>
                     <property name="text">
@@ -4134,6 +4185,8 @@ GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -4200,6 +4253,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -4218,6 +4273,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -4236,6 +4293,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -4255,6 +4314,8 @@ GUI</string>
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -4367,6 +4428,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                     </widget>
@@ -4490,6 +4553,7 @@ GUI</string>
                         <widget class="QLabel" name="label_622">
                          <property name="font">
                           <font>
+                           <pointsize>10</pointsize>
                            <weight>50</weight>
                            <bold>false</bold>
                           </font>
@@ -4582,6 +4646,7 @@ GUI</string>
                         <widget class="QLabel" name="label_620">
                          <property name="font">
                           <font>
+                           <pointsize>10</pointsize>
                            <weight>50</weight>
                            <bold>false</bold>
                           </font>
@@ -4740,6 +4805,7 @@ GUI</string>
                           <widget class="QLabel" name="label_624">
                            <property name="font">
                             <font>
+                             <pointsize>10</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
                             </font>
@@ -4896,6 +4962,7 @@ GUI</string>
                           <widget class="QLabel" name="label_626">
                            <property name="font">
                             <font>
+                             <pointsize>10</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
                             </font>
@@ -5068,6 +5135,8 @@ GUI</string>
                     <property name="font">
                      <font>
                       <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
                     </property>
                     <property name="text">
@@ -5125,6 +5194,8 @@ GUI</string>
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5137,6 +5208,8 @@ GUI</string>
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5149,6 +5222,8 @@ GUI</string>
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5161,6 +5236,8 @@ GUI</string>
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -5184,6 +5261,8 @@ GUI</string>
                     <property name="font">
                      <font>
                       <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
                     </property>
                     <property name="layoutDirection">
@@ -5206,8 +5285,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>16</height>
+                       <width>486</width>
+                       <height>648</height>
                       </rect>
                      </property>
                     </widget>
@@ -5235,6 +5314,8 @@ GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -5289,6 +5370,8 @@ GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -5307,6 +5390,8 @@ GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -5325,6 +5410,8 @@ GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
@@ -5368,6 +5455,7 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>10</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -5387,6 +5475,7 @@ GUI</string>
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>10</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -5499,6 +5588,8 @@ GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -5555,6 +5646,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5574,6 +5667,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5592,6 +5687,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -5610,6 +5707,8 @@ GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -6494,6 +6593,8 @@ Heater GUI</string>
                        <property name="font">
                         <font>
                          <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                       </widget>
@@ -6564,6 +6665,8 @@ Heater GUI</string>
                   <property name="font">
                    <font>
                     <pointsize>12</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="text">
@@ -6979,6 +7082,8 @@ Heater GUI</string>
                   <property name="font">
                    <font>
                     <pointsize>16</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
                    </font>
                   </property>
                   <property name="text">
@@ -7004,6 +7109,8 @@ Heater GUI</string>
                      <property name="font">
                       <font>
                        <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
                       </font>
                      </property>
                     </widget>
