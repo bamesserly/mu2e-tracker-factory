@@ -43,7 +43,7 @@ class Merger:
                 "select name from sqlite_master where type = 'table' AND name not like 'sqlite?_%' escape '?'",
                 fetchall=True,
             )
-            if tpl[0] is not "measurement_panel_leak"
+            if tpl[0] not in ["measurement_panel_leak", "supply_checked"]
         ]
 
     """
