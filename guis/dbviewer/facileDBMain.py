@@ -636,11 +636,18 @@ class facileDBGUI(QMainWindow):
             wire_y_data = [x[4] for x in data if x[5] == "wire"]
             wire_order = [x[7] for x in data if x[5] == "wire"]
             
+            print(data)
+            
+        
+            
             ##  define plotting function
             def plot(axis, x_data, y_data, label, order):
                 for i in range(len(x_data)):
                     colors = ['r','g','b','k']
                     if y_data[i] is not None: # determine which order measurement it is and ensure proper color
+                        if x_data[i]==7:
+                            print("wire: " + str(x_data[i]))
+                            print("order: " + str(wire_order[i]))
                         try:
                             if order[i] <= 3:
                                 axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[order[i]])
@@ -652,9 +659,9 @@ class facileDBGUI(QMainWindow):
                 # add legend
                 dots = [
                     Line2D([0], [0], marker='o', color='r', label='Nth Measurement', markersize=3),
-                    Line2D([0], [0], marker='o', color='g', label='Nth-1 Measurement', markersize=3),
-                    Line2D([0], [0], marker='o', color='b', label='Nth-2 Measurement', markersize=3),
-                    Line2D([0], [0], marker='o', color='k', label='Earlier', markersize=3),
+                    Line2D([0], [0], marker='o', color='g'),
+                    Line2D([0], [0], marker='o', color='b'),
+                    Line2D([0], [0], marker='o', color='k'),
                 ]
                 axis.legend(dots,['Nth Measurement', 'Nth-1 Measurement', 'Nth-2 Measurement', 'Earlier'],fontsize = 'x-small')
                 
@@ -1289,6 +1296,7 @@ class facileDBGUI(QMainWindow):
             for y in range(len(sort_list)):
                 sort_list[y][3] = y
             preliminary[i] = sort_list
+            
         
         # go through preliminary list and put into a 1d output list
         self.data.strawData = []
@@ -1300,6 +1308,9 @@ class facileDBGUI(QMainWindow):
                     self.data.strawData.append(y)
         
         retList = self.data.strawData
+        
+        
+        
         
         # return retlist found or not
         return (len(retList) > 0)
@@ -1333,6 +1344,7 @@ class facileDBGUI(QMainWindow):
 
         resultProxy3 = self.connection.execute(wireTensionQuery)  # make proxy
         rawWireData = resultProxy3.fetchall()
+    
         # rawWireData = list of tuples: (<POS>, <TEN>, <TIMER>, <CALIB>, <TIME>)
 
         preliminary = [[] for i in range(96)] # initialize preliminary
@@ -1350,10 +1362,13 @@ class facileDBGUI(QMainWindow):
             sort_list = preliminary[i]
             # sort the list by timestamp
             sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
+            
+        
             # set order value for each item
             for y in range(len(sort_list)):
                 sort_list[y][3] = y
             preliminary[i] = sort_list
+            
             
         # go through preliminary list and put into a 1d output list
         self.data.wireData = []
@@ -1367,6 +1382,9 @@ class facileDBGUI(QMainWindow):
     
         
         retList = self.data.wireData
+        
+        print("wire retlist: " + str(retList))
+        print("length wire retlis: " + str(len(retList)))
     
         # return retList found or not
         return (len(retList) > 0)
@@ -1521,7 +1539,6 @@ class facileDBGUI(QMainWindow):
 
         # make a pointer to the self.data.pXtbData and fill it
         tbDataPointer = getattr(self.data,f'p{pro}tbData')
-        
         # initialize preliminary
         preliminary = [[] for i in range(96)]
         
@@ -1547,12 +1564,30 @@ class facileDBGUI(QMainWindow):
             sort_list = preliminary[i]
             # sort the list by timestamp
             sort_list = sorted(sort_list, key=lambda x: x[6], reverse=True)
-            # set order value for each item, additionally select 1 entry from each set of 3 data points
+            
+            num_straw=0
+            num_wire=0
             for y in range(len(sort_list)):
                 if (y % 3) == 0:
-                    sort_list[y][7] = len(preliminary_cut[i])
+                    if sort_list[y][5] == "straw":
+                        sort_list[y][7]=num_straw
+                        num_straw+=1
+                    elif sort_list[y][5] == "wire":
+                        sort_list[y][7]=num_wire
+                        num_wire+=1
+                    sort_list[y][7]
                     preliminary_cut[i].append(sort_list[y])
+                    
+                    
+                    
+                    
+        # set order value for each item, additionally select 1 entry from each set of 3 data points
+        #sort_list[y][7] = len(preliminary_cut[i])
         
+                
+            
+        
+                    
 
         # go through preliminary list and put into a 1d output list
         for i in range(96):
@@ -1561,6 +1596,8 @@ class facileDBGUI(QMainWindow):
             else:
                 for y in preliminary_cut[i]:
                     tbDataPointer.append(y)
+        
+        print("process 6 tbdata: " + str(self.data.p6tbData))
         
         try:
             assert len(tbDataPointer) > 0
