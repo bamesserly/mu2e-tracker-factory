@@ -635,21 +635,16 @@ class facileDBGUI(QMainWindow):
             wire_x_data = [x[0] for x in data if x[5] == "wire"]
             wire_y_data = [x[4] for x in data if x[5] == "wire"]
             wire_order = [x[7] for x in data if x[5] == "wire"]
-            
-            print(data)
-            
-        
-            
+
             ##  define plotting function
             def plot(axis, x_data, y_data, label, order):
                 for i in range(len(x_data)):
                     colors = ['r','g','b','k']
                     if y_data[i] is not None: # determine which order measurement it is and ensure proper color
-                        if x_data[i]==7:
-                            print("wire: " + str(x_data[i]))
-                            print("order: " + str(wire_order[i]))
                         try:
-                            if order[i] <= 3:
+                            if order[i] == 0:
+                                axis.plot(x_data[i],y_data[i],marker='o',markersize=4,color=colors[order[i]])
+                            elif order[i] <= 3:
                                 axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[order[i]])
                             else:
                                 axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[3])
@@ -682,7 +677,7 @@ class facileDBGUI(QMainWindow):
                 axis.set_xlim([-5,100])
                 
                 for i in range(len(y_data)):  # go through x and y values to label all points
-                    if y_data[i] is not None:
+                    if y_data[i] is not None and order[i]==0:
                         axis.text(x_data[i],y_data[i],str(x_data[i]),fontsize='xx-small')
 
             # plot the data
@@ -1379,13 +1374,8 @@ class facileDBGUI(QMainWindow):
                 for y in preliminary[i]:
                     self.data.wireData.append(y)
                 
-    
-        
         retList = self.data.wireData
-        
-        print("wire retlist: " + str(retList))
-        print("length wire retlis: " + str(len(retList)))
-    
+
         # return retList found or not
         return (len(retList) > 0)
 
@@ -1596,8 +1586,6 @@ class facileDBGUI(QMainWindow):
             else:
                 for y in preliminary_cut[i]:
                     tbDataPointer.append(y)
-        
-        print("process 6 tbdata: " + str(self.data.p6tbData))
         
         try:
             assert len(tbDataPointer) > 0
@@ -2355,7 +2343,9 @@ class facileDBGUI(QMainWindow):
             for i in range(len(xData)):
                 colors = ['r','g','b','k']
                 if sctrYDataPoints[i] is not None: # determine which order measurement it is and ensure proper color
-                    if dataType[i][3] <= 3:
+                    if dataType[i][3] == 0:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=4,color=colors[dataType[i][3]])
+                    elif dataType[i][3] <= 3:
                         ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color=colors[dataType[i][3]])
                     else:
                         ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color=colors[3])
@@ -2385,7 +2375,7 @@ class facileDBGUI(QMainWindow):
         plt.ylabel(yAxis, fontsize=20)  # set y axis label
         
         for i in range(len(sctrYDataPoints)):  # go through x and y values to label all points
-            if sctrYDataPoints[i] is not None:  # if y exists and is too low...??? wat
+            if sctrYDataPoints[i] is not None and dataType[i][3]==0:  # if y exists and is too low...??? wat
                 ax1.text(xData[i],sctrYDataPoints[i],str(xData[i]),fontsize='xx-small')
 
         plt.subplot(212)  # make subplot 2
