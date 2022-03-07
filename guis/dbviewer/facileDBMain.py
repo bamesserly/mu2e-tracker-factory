@@ -11,6 +11,7 @@ from datetime import timedelta
 
 import logging
 from matplotlib import cm
+from matplotlib.lines import Line2D
 
 logger = logging.getLogger("root")
 
@@ -370,20 +371,20 @@ class facileDBGUI(QMainWindow):
                 ["Position", "Tension", "Epoch Timestamp", "Uncertainty"]
             )
         )
+        
         self.ui.strawPlotButton.clicked.connect(
             lambda: self.graphSimple(
                 self.data.strawData,
-                "Tension (g)",
-                1000
+                "Tension (g)"
             )
         )
         self.ui.strawPlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.strawData,
-                "Tension (g)",
-                1000
+                "Tension (g)"
             )
         )
+    
 
         # wire buttons
         self.ui.wireExportButton.clicked.connect(
@@ -403,15 +404,13 @@ class facileDBGUI(QMainWindow):
         self.ui.wirePlotButton.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
-                "Tension (g)",
-                120
+                "Tension (g)"
             )
         )
         self.ui.wirePlotButton_2.clicked.connect(
             lambda: self.graphSimple(
                 self.data.wireData,
-                "Tension (g)",
-                120
+                "Tension (g)"
             )
         )
 
@@ -604,8 +603,7 @@ class facileDBGUI(QMainWindow):
             try:
                 self.graphSimple(
                     dataType,
-                    "Current (μA)",
-                    0.5,
+                    "Current (μA)"
                 )
                 return 0
             except:
@@ -630,34 +628,62 @@ class facileDBGUI(QMainWindow):
             ax2.yaxis.label.set_color("r")
 
             ##   define datasets
-
             straw_x_data = [x[0] for x in data if x[5] == "straw"]
             straw_y_data = [x[4] for x in data if x[5] == "straw"]
+            straw_order = [x[7] for x in data if x[5] == "straw"]
+            
             wire_x_data = [x[0] for x in data if x[5] == "wire"]
             wire_y_data = [x[4] for x in data if x[5] == "wire"]
+            wire_order = [x[7] for x in data if x[5] == "wire"]
 
             ##  define plotting function
-            def plot(axis, x_data, y_data, color, label):
-                axis.plot(
-                    np.array(x_data),
-                    np.array(y_data),
-                    "o",
-                    color=color,
-                    #markersize=markersize,
-                    label=label,
-                )
+            def plot(axis, x_data, y_data, label, order):
                 for i in range(len(x_data)):
-                    plt.annotate(x_data[i], xy=(x_data[i], y_data[i]), fontsize=8)
+                    colors = ['r','g','b','k']
+                    if y_data[i] is not None: # determine which order measurement it is and ensure proper color
+                        try:
+                            if order[i] == 0:
+                                axis.plot(x_data[i],y_data[i],marker='o',markersize=4,color=colors[order[i]])
+                            elif order[i] <= 3:
+                                axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[order[i]])
+                            else:
+                                axis.plot(x_data[i],y_data[i],marker='o',markersize=3,color=colors[3])
+                        except:
+                            pass
+                
+                # add legend
+                dots = [
+                    Line2D([0], [0], marker='o', color='r', label='Nth Measurement', markersize=3),
+                    Line2D([0], [0], marker='o', color='g'),
+                    Line2D([0], [0], marker='o', color='b'),
+                    Line2D([0], [0], marker='o', color='k'),
+                ]
+                axis.legend(dots,['Nth Measurement', 'Nth-1 Measurement', 'Nth-2 Measurement', 'Earlier'],fontsize = 'x-small')
+                
+                
+                # set graph limits, first get list of y values without nones
+                y_WOnone = []
+                for i in y_data:
+                    if i != None:
+                        y_WOnone.append(i)
+                if len(y_WOnone) == 0:
+                    y_WOnone = [0]
+                    
+                # finds and sets ideal x and y bounds for the graph
+                lower_bound = min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2)
+                upper_bound = max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)
+                if lower_bound != upper_bound:
+                    axis.set_ylim([lower_bound,upper_bound])
+                axis.set_xlim([-5,100])
+                
+                for i in range(len(y_data)):  # go through x and y values to label all points
+                    if y_data[i] is not None and order[i]==0:
+                        axis.text(x_data[i],y_data[i],str(x_data[i]),fontsize='xx-small')
 
-                axis.relim()
-                axis.autoscale_view()
+            # plot the data
+            plot(ax1, straw_x_data, straw_y_data, "straw", straw_order)
+            plot(ax2, wire_x_data, wire_y_data, "wire", wire_order)
 
-
-            ##  plot the data
-            plot(ax1, straw_x_data, straw_y_data, "b", "straw")
-            plot(ax2, wire_x_data, wire_y_data, "r", "wire")
-
-            #plt.tight_layout()
             plt.show()
 
         callDict = {
@@ -1245,28 +1271,43 @@ class facileDBGUI(QMainWindow):
         rawStrawData = resultProxy4.fetchall()  # fetch all and send to class member
         # list of tuples:  (<POS>, <TEN>, <UNCERTAINTY>, <TIME>)
         self.data.strawData = []  # enure strawTensionData is clear
-        for x in range(96):  # for x = 0 to 96
-            self.data.strawData += [
-                (x, "No Data", "No Data", 0)
-            ]  # assign "data" to strawTensionData
-
-        # The following for loop goes through the raw data and puts it into self.data.strawData.  It will only put data into
-        # self.data.strawData if the raw data has a timestamp newer than the existing one in self.data.strawData, in order to
-        # filter out old data.  So if a tuple from rawStrawData for position 5 is found, and self.data.strawData already
-        # has data for position 5, it will replace the existing data if the timestamp from the raw data is newer than the
-        # already existing one.
-        # self.data.strawData[toop[0]][3] gets index 3 (time) from the tuple at the index in strawTensionData equal
-        # to index 0 (position) of toop (data from rawStrawData)
-
-        retList = []
-
-        for toop in rawStrawData:
-            retList.append(toop)
-            if self.data.strawData[toop[0]][3] < toop[3]:
-                # tuple has form: (<position>, <tension>, <epoch timestamp>, <uncertainty>)
-                self.data.strawData[toop[0]] = (toop[0],toop[1],toop[3],toop[2])
-
-        # return true if any data found
+        
+        preliminary = [[] for i in range(96)] # initialize preliminary
+        
+        # sort rawStrawData into preliminary
+        for i in rawStrawData:
+            # put data into readable variables
+            index, measurement, timestamp, uncertainty = i[0], i[1], i[3], i[2]
+            # ensure that the straw measurement isn't bogus
+            if measurement >= 200 and measurement <= 1000:
+                preliminary[index].append([index, measurement, timestamp, None, uncertainty])
+                
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
+            # set order value for each item
+            for y in range(len(sort_list)):
+                sort_list[y][3] = y
+            preliminary[i] = sort_list
+            
+        
+        # go through preliminary list and put into a 1d output list
+        self.data.strawData = []
+        for i in range(96):
+            if len(preliminary[i]) == 0:
+                self.data.strawData.append([i, "No Data", 0, None, None])
+            else:
+                for y in preliminary[i]:
+                    self.data.strawData.append(y)
+        
+        retList = self.data.strawData
+        
+        
+        
+        
+        # return retlist found or not
         return (len(retList) > 0)
 
     # finds wire tension data and stores it in self.data.wireData
@@ -1298,20 +1339,42 @@ class facileDBGUI(QMainWindow):
 
         resultProxy3 = self.connection.execute(wireTensionQuery)  # make proxy
         rawWireData = resultProxy3.fetchall()
+    
         # rawWireData = list of tuples: (<POS>, <TEN>, <TIMER>, <CALIB>, <TIME>)
 
-
-        self.data.wireData = []  # ensure wireTensionData is clear
-        for x in range(96):  # for x = 0 to 96
-            self.data.wireData += [
-                (x, "No Data", 0)
-            ]  # assign "data" to wireTensionData
-        # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
-        retList = []
-        for toop in rawWireData:
-            retList.append(retList)
-            if self.data.wireData[toop[0]][2] < toop[4]:
-                self.data.wireData[toop[0]] = (toop[0],toop[1],toop[4])
+        preliminary = [[] for i in range(96)] # initialize preliminary
+        
+        # sort wire rawWireData into preliminary
+        for i in rawWireData:
+            # put data into readable variables
+            index, measurement, timestamp = i[0], i[1], i[4]
+            # ensure that the wire measurement isn't bogus
+            if measurement >= 40 and measurement <= 100:
+                preliminary[index].append([index, measurement, timestamp, None])
+        
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
+            
+        
+            # set order value for each item
+            for y in range(len(sort_list)):
+                sort_list[y][3] = y
+            preliminary[i] = sort_list
+            
+            
+        # go through preliminary list and put into a 1d output list
+        self.data.wireData = []
+        for i in range(96):
+            if len(preliminary[i]) == 0:
+                self.data.wireData.append([i, "No Data", 0, None])
+            else:
+                for y in preliminary[i]:
+                    self.data.wireData.append(y)
+                
+        retList = self.data.wireData
 
         # return retList found or not
         return (len(retList) > 0)
@@ -1353,37 +1416,42 @@ class facileDBGUI(QMainWindow):
         # rawHVData = list of tuples:
         # (<position>, <L amps>, <R amps>, <trip status>, <epoch timestamp>)
 
-        hvList = []
-
-        for x in range(96):  # for x = 0 to 96
-            hvList += [
-                (x, "No Data", "No Data", False, 0)
-            ]  # assign "data" to hvList
-        # this loop filters out old data, there's a better explaination for the analagous loop for strawTensionData
+        # initialize preliminary list
+        preliminary = [[] for i in range(96)]
+        
+        # sort rawHVData into preliminary
+        for i in rawHVData:
+            # put data into readable variables
+            index, left_current, right_current, is_tripped, timestamp = i[0], i[1], i[2], i[3], i[4]
+            # ensure that the hv measurement isn't bogus
+            if right_current != None:
+                preliminary[index].append([index, right_current, timestamp, None, 'R'])
+            if left_current != None:
+                preliminary[index].append([index, left_current, timestamp, None, "L"])
+        
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[2], reverse=True)
+            # set order value for each item
+            for y in range(len(sort_list)):
+                sort_list[y][3] = y
+            preliminary[i] = sort_list
+        
+        # go through preliminary list and put into a 1d output list
         retList = []
-        for toop in rawHVData:
-            retList.append(toop)
-            if hvList[toop[0]][4] < toop[4]:
-                hvList[toop[0]] = toop
-
-        lCount = 0
-        rCount = 0
-        for lst in hvList:
-            if lst[1] is not None:
-                lCount += 1
-            if lst[2] is not None:
-                rCount += 1
-
-        if lCount > rCount:
-            for i,toop in enumerate(hvList):
-                hvList[i] = (toop[0],toop[1],toop[3],"L",toop[4])
-        else:
-            for i,toop in enumerate(hvList):
-                hvList[i] = (toop[0],toop[2],toop[3],"R",toop[4])
-
+        for i in range(96):
+            if len(preliminary[i]) == 0:
+                retList.append([i, "No Data", 0, None, None])
+            else:
+                for y in preliminary[i]:
+                    retList.append(y)
+        
+        
+        # assign targetList values
         targetList = getattr(self.data, f'hv{volts}P{pro}')
-
-        targetList += hvList
+        targetList += retList
 
         # return retList found or not
         return (len(retList) > 0)
@@ -1461,13 +1529,64 @@ class facileDBGUI(QMainWindow):
 
         # make a pointer to the self.data.pXtbData and fill it
         tbDataPointer = getattr(self.data,f'p{pro}tbData')
+        # initialize preliminary
+        preliminary = [[] for i in range(96)]
+        
+        
+        # sort rawTBData into preliminary
+        for i in rawTBData:
+            # put data into readable variables
+            index, length, frequency, pulse_width, tension, straw_wire, timestamp = i[0], i[1], i[2], i[3], i[4], i[5], i[6]
+            # ensure that the tension measurements aren't bogus
+            try: # due to potential NoneTypes in list
+                if straw_wire == 'straw' and tension >= 200 and tension <= 1000:
+                    preliminary[index].append([index, length, frequency, pulse_width, tension, straw_wire, timestamp, None])
+                elif tension >= 40 and tension <= 100:
+                    preliminary[index].append([index, length, frequency, pulse_width, tension, straw_wire, timestamp, None])
+            except:
+                pass
+                
+        # initialize preliminary_cut
+        preliminary_cut = [[] for i in range(96)]
+        
+        # assign order to measurements with same positions
+        for i in range(len(preliminary)):
+            sort_list = preliminary[i]
+            # sort the list by timestamp
+            sort_list = sorted(sort_list, key=lambda x: x[6], reverse=True)
+            
+            num_straw=0
+            num_wire=0
+            for y in range(len(sort_list)):
+                if (y % 3) == 0:
+                    if sort_list[y][5] == "straw":
+                        sort_list[y][7]=num_straw
+                        num_straw+=1
+                    elif sort_list[y][5] == "wire":
+                        sort_list[y][7]=num_wire
+                        num_wire+=1
+                    sort_list[y][7]
+                    preliminary_cut[i].append(sort_list[y])
+                    
+                    
+                    
+                    
+        # set order value for each item, additionally select 1 entry from each set of 3 data points
+        #sort_list[y][7] = len(preliminary_cut[i])
+        
+                
+            
+        
+                    
 
-        # keep only the latest data point for each straw and wire
-        # 0 -> position, 5 -> is_straw, 6 -> time
-        key = lambda x :(x[0], x[5])
-        for position, data in itertools.groupby(sorted(rawTBData, key=key), key=key):
-            tbDataPointer += [max(list(data), key = lambda x: x[6])]
-
+        # go through preliminary list and put into a 1d output list
+        for i in range(96):
+            if len(preliminary_cut[i]) == 0:
+                tbDataPointer.append([i,None,None,None,None,None,None,None])
+            else:
+                for y in preliminary_cut[i]:
+                    tbDataPointer.append(y)
+        
         try:
             assert len(tbDataPointer) > 0
         except AssertionError:
@@ -2182,10 +2301,14 @@ class facileDBGUI(QMainWindow):
     #               yUpperBound, an int that will be the upper bound of the y axis
     #               errorBars, a bool that makes error bars if true; the third element
     #                           in each tuple from dataType is the uncertainty
+    #               type, string telling the function which type of data is being graphed
     # returns: nothing returned
-    def graphSimple(self,dataType,yAxis,yUpperBound,errorBars=False):
-        # all "simple" data types will have 96 points
-        xData = list(range(96))
+    def graphSimple(self,dataType,yAxis,errorBars=False):
+        # xData length will vary based on the number of duplicate/missing position measurements
+        xData = []
+        for i in range(len(dataType)): # iterate through data appending proper index values to xData
+            xData.append(dataType[i][0])
+        
         # make list for y values
         sctrYDataPoints = []
         # make list for y value uncertainties
@@ -2201,8 +2324,9 @@ class facileDBGUI(QMainWindow):
                     sctrYDataUncs += [toop[2]]
                 else:
                     sctrYDataUncs += [None]
-
-        plt.subplot(211)
+        
+        fig = plt.figure()
+        ax1 = fig.add_subplot(211)
         # plt.figure(figsize=(12,8))
         if errorBars:
             try:
@@ -2215,27 +2339,52 @@ class facileDBGUI(QMainWindow):
                     message=f"Insufficient data to plot error bars.",
                 )
         else:
-            plt.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
-
-        plt.axis([0, 100, 0, yUpperBound])  # set the bounds of the graph
+            #ax1.scatter(xData, sctrYDataPoints)  # make a scatterplot out of the x and y data
+            for i in range(len(xData)):
+                colors = ['r','g','b','k']
+                if sctrYDataPoints[i] is not None: # determine which order measurement it is and ensure proper color
+                    if dataType[i][3] == 0:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=4,color=colors[dataType[i][3]])
+                    elif dataType[i][3] <= 3:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color=colors[dataType[i][3]])
+                    else:
+                        ax1.plot(xData[i],sctrYDataPoints[i],marker='o',markersize=3,color=colors[3])
+                    
+        # add legend
+        dots = [
+            Line2D([0], [0], marker='o', color='r', label='Nth Measurement', markersize=3),
+            Line2D([0], [0], marker='o', color='g'),
+            Line2D([0], [0], marker='o', color='b'),
+            Line2D([0], [0], marker='o', color='k'),
+        ]
+        ax1.legend(dots,['Nth Measurement', 'Nth-1 Measurement', 'Nth-2 Measurement', 'Earlier'],fontsize = 'x-small')
+        
+        # set graph limits, first get list of y values without nones, also used for frequency histogram
+        y_WOnone = []
+        for i in sctrYDataPoints:
+            if i != None:
+                y_WOnone.append(i)
+        # finds and sets ideal y bounds for the graph
+        lower_bound = min(y_WOnone)-((max(y_WOnone) - min(y_WOnone)) * 0.2)
+        upper_bound = max(y_WOnone)+((max(y_WOnone) - min(y_WOnone)) * 0.2)
+        if lower_bound == upper_bound:
+            lower_bound,upper_bound = -0.05,0.05
+        ax1.set_ylim([lower_bound,upper_bound])
+        
         plt.xlabel("Position", fontsize=20)  # set x axis label
         plt.ylabel(yAxis, fontsize=20)  # set y axis label
-        for x, y in enumerate(sctrYDataPoints):  # go through y data, enumerate for x
-            if y is not None:  # if y exists and is too low...??? wat
-                plt.annotate(f"{x}", (x, y), fontsize=8)  # annotate that point
+        
+        for i in range(len(sctrYDataPoints)):  # go through x and y values to label all points
+            if sctrYDataPoints[i] is not None and dataType[i][3]==0:  # if y exists and is too low...??? wat
+                ax1.text(xData[i],sctrYDataPoints[i],str(xData[i]),fontsize='xx-small')
 
         plt.subplot(212)  # make subplot 2
-        histYData = []  # make list to filter out None types
 
-        for y in sctrYDataPoints:  # go through scatter y data
-            if y != None:  # if it's not a None type
-                histYData += [y]  # add it to the new histogram y data
-        n, bins, patches = plt.hist(histYData, 20)  # plot histogram
+        n, bins, patches = plt.hist(y_WOnone, 20)  # plot histogram
         plt.xlabel(yAxis, fontsize=20)  # set x axis label
         plt.ylabel("Frequency", fontsize=20)  # set y axis label
 
         plt.tight_layout()
-        # mpl.rcParams['figure.dpi'] = 600        # make the graph itself bigger (deault is super smol)
         plt.show()
 
     # graph heat data in pop up window
