@@ -2353,9 +2353,9 @@ class facileDBGUI(QMainWindow):
         # add legend
         dots = [
             Line2D([0], [0], marker='o', color='r', label='Nth Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='g', label='Nth-1 Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='b', label='Nth-2 Measurement', markersize=3),
-            Line2D([0], [0], marker='o', color='k', label='Earlier', markersize=3),
+            Line2D([0], [0], marker='o', color='g'),
+            Line2D([0], [0], marker='o', color='b'),
+            Line2D([0], [0], marker='o', color='k'),
         ]
         ax1.legend(dots,['Nth Measurement', 'Nth-1 Measurement', 'Nth-2 Measurement', 'Earlier'],fontsize = 'x-small')
         
