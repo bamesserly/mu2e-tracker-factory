@@ -226,6 +226,7 @@ class facileDBGUI(QMainWindow):
             (self.ui.pan5ComList, self.ui.pan5TimeList),
             (self.ui.pan6ComList, self.ui.pan6TimeList),
             (self.ui.pan7ComList, self.ui.pan7TimeList),
+            (self.ui.pan8ComList, self.ui.pan8TimeList),
         )
 
         # tuple of tuples of procedure timing/session QLineEdit widgets
@@ -239,6 +240,7 @@ class facileDBGUI(QMainWindow):
             (self.ui.pan5STimeLE, self.ui.pan5ETimeLE, self.ui.pan5TTimeLE),
             (self.ui.pan6STimeLE, self.ui.pan6ETimeLE, self.ui.pan6TTimeLE),
             (self.ui.pan7STimeLE, self.ui.pan7ETimeLE, self.ui.pan7TTimeLE),
+            (self.ui.pan8STimeLE, self.ui.pan8ETimeLE, self.ui.pan8TTimeLE),
         )
 
         # tuple of QLineEdit widgets for parts
