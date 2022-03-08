@@ -774,8 +774,6 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch41,
             self.ui.epoxy_batch42,
             self.ui.epoxy_batch42_2,
-            self.ui.temp4_4,
-            self.ui.temp4_5,
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
             self.ui.heat_start,
@@ -1146,8 +1144,6 @@ class panelGUI(QMainWindow):
         valid_temp = QDoubleValidator(bottom=50.0, top=99.9, decimals=1)
         self.ui.temp4.setValidator(valid_temp)
         self.ui.temp4_2.setValidator(valid_temp)
-        self.ui.temp4_4.setValidator(valid_temp)
-        self.ui.temp4_5.setValidator(valid_temp)
 
         set_validator(self.ui.wireInput, "(WIRE\.)\d{6}")
 
@@ -1281,8 +1277,6 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch42,
                 self.ui.epoxy_batch42_2,
                 self.ui.epoxy_applied42,
-                self.ui.temp4_4,
-                self.ui.temp4_5,
                 self.ui.heat_finished4,
             ],
             # pro 7 Widgets
@@ -2845,12 +2839,6 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][8] = self.ui.epoxy_batch42.text()
         self.data[self.pro_index][9] = self.ui.epoxy_batch42_2.text()
         self.data[self.pro_index][10] = self.timerTuple(self.timers[7])
-        self.data[self.pro_index][11] = (
-            float(self.ui.temp4_4.text()) if self.ui.temp4_4.text() else None
-        )
-        self.data[self.pro_index][12] = (
-            float(self.ui.temp4_5.text()) if self.ui.temp4_5.text() else None
-        )
         self.data[self.pro_index][13] = self.timerTuple(self.timers[8])
 
     def updateDataProcess7(self):
@@ -3834,15 +3822,9 @@ class panelGUI(QMainWindow):
             else:
                 self.ui.epoxy_applied42.setDisabled(True)
                 self.ui.heat_start4.setDisabled(False)
-        if data[11] is not None:
-            self.ui.temp4_4.setText(str(data[11]))
-        if data[12] is not None:
-            self.ui.temp4_5.setText(str(data[12]))
         if data[13] is not None:
             self.ui.heat_start4.setDisabled(True)
             self.ui.heat_finished4.setDisabled(False)
-            self.ui.temp4_4.setDisabled(False)
-            self.ui.temp4_5.setDisabled(False)
 
             # Process timer
             try:
@@ -3863,8 +3845,6 @@ class panelGUI(QMainWindow):
                 self.startTimer(8)
             else:
                 self.ui.heat_finished4.setDisabled(True)
-                self.ui.temp4_4.setDisabled(True)
-                self.ui.temp4_5.setDisabled(True)
 
         self.ui.pro6TensionBox.setEnabled(True)
 
@@ -4995,7 +4975,7 @@ class panelGUI(QMainWindow):
 
         # Enable heat widgets
         self.setWidgetsEnabled(
-            [self.ui.heat_finished4, self.ui.temp4_4, self.ui.temp4_5]
+            [self.ui.heat_finished4]
         )
 
         # Start timer
@@ -5015,7 +4995,7 @@ class panelGUI(QMainWindow):
 
         # Disable widgets
         self.setWidgetsDisabled(
-            [self.ui.temp4_4, self.ui.temp4_5, self.ui.heat_finished4]
+            [self.ui.heat_finished4]
         )
 
         # Save data
@@ -5056,8 +5036,6 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch41.setText("")
         self.ui.epoxy_batch42.setText("")
         self.ui.epoxy_batch42_2.setText("")
-        self.ui.temp4_4.setText("")
-        self.ui.temp4_5.setText("")
         self.ui.frameInput.setText("")
         self.ui.mrInput1.setText("")
         self.ui.mrInput2.setText("")
