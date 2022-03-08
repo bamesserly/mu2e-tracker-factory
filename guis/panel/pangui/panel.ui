@@ -1581,7 +1581,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>7</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -5582,7 +5582,63 @@ GUI</string>
                    <string>Heating</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_39">
-                   <item row="0" column="0" colspan="2">
+                   <item row="3" column="0" colspan="2">
+                    <widget class="QLabel" name="label_2">
+                     <property name="text">
+                      <string>PAAS-A</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2" colspan="2">
+                    <widget class="QLineEdit" name="temp4_5">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>3</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="2" colspan="2">
+                    <widget class="QLineEdit" name="temp4_4">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>3</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0" colspan="4">
+                    <widget class="QLabel" name="label">
+                     <property name="text">
+                      <string>Maximum Temperature [C]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0" colspan="4">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
                      <item>
                       <widget class="QPushButton" name="heat_start4">
@@ -5634,7 +5690,14 @@ GUI</string>
                      </item>
                     </layout>
                    </item>
-                   <item row="1" column="0" colspan="2">
+                   <item row="4" column="0" colspan="2">
+                    <widget class="QLabel" name="label_8">
+                     <property name="text">
+                      <string>PAAS-C</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="4">
                     <layout class="QHBoxLayout" name="horizontalLayout_23">
                      <item>
                       <widget class="QLCDNumber" name="hour_disp_16"/>
@@ -8212,6 +8275,8 @@ Heater GUI</string>
   <tabstop>epoxy_applied42</tabstop>
   <tabstop>heat_start4</tabstop>
   <tabstop>heat_finished4</tabstop>
+  <tabstop>temp4_4</tabstop>
+  <tabstop>temp4_5</tabstop>
   <tabstop>panelInput7</tabstop>
   <tabstop>startButton7</tabstop>
   <tabstop>epoxy_batch5_2</tabstop>
