@@ -3822,8 +3822,6 @@ class panelGUI(QMainWindow):
             else:
                 self.ui.epoxy_applied42.setDisabled(True)
                 self.ui.heat_start4.setDisabled(False)
-        if data[12] is not None:
-            self.ui.temp4_5.setText(str(data[12]))
         if data[13] is not None:
             self.ui.heat_start4.setDisabled(True)
             self.ui.heat_finished4.setDisabled(False)
