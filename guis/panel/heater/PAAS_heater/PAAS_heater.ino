@@ -129,7 +129,8 @@ void loop() {
       display_status();
       if (do_increase_temperature == 1) {  // increase temperature
         tempA = maxamp.temperature(RNOMINAL_PTCO, RREF);
-        if (tempA > setpointA) {  // start hold phase
+        // start hold phase - protect against unphysical temps
+        if (tempA > setpointA && tempA < 100) {
           holdstart = millis();
           do_increase_temperature = 0;  // hold temperature
         }
