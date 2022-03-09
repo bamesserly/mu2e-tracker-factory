@@ -345,6 +345,16 @@ class Prep(QMainWindow):
         c = 0  # Loop counter
         while not self.verifyStrawID() and c <= 3:
             new_id = self.askForInfo("Straw ID")
+            bottom_id = self.askForInfo("Bottom Straw ID")
+
+            if int(bottom_id[2:]) - int(new_id[2:]) != self.strawCount - 1:
+                QMessageBox.question(
+                    self,
+                    "Error! Barcodes Sheets Swapped",
+                    "First and last barcodes scanned don't make sense! Check the barcode placement order and retry. Exiting now.",
+                    QMessageBox.Ok,
+                )
+                sys.exit()
 
             if new_id == "":
                 return
@@ -1187,6 +1197,7 @@ class Prep(QMainWindow):
                 "Pallet Number": "pallet number (CPAL####)",
                 "Batch Barcode": "batch barcode (MMDDYY.B#)",
                 "Straw ID": "top straw ID (st#####)",
+                "Bottom Straw ID": "bottom straw ID (st#####)",
             }
 
         if identifier not in message.keys():
