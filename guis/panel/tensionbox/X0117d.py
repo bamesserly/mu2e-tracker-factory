@@ -70,6 +70,7 @@ class DataCanvas(FigureCanvas):
         self.fig.canvas.flush_events()
 
 
+
 class PlottingWindow(QDialog):
     """Main app: select plotting parameters and display data"""
 

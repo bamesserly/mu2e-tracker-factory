@@ -28,6 +28,8 @@ import csv
 from scipy.signal import blackmanharris, fftconvolve
 from guis.panel.tensionbox.parabolic import parabolic
 
+import guis.common.data_acquisition as data_acquisition
+
 from datetime import datetime as dt
 from guis.panel.tensionbox.X0117d import DataCanvas  ## control window for plots
 
@@ -58,6 +60,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.setupUi(self)
         self.connectActions()
         self.process = pro
+        self.panel = panel
 
         # Save input variables
         if panel:
@@ -68,6 +71,8 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.portloc = self.getPortLocation()  ## Arduino COM port
         self.openSerial()
         self.setupCanvas()
+        
+        self.plot_initial_tensions()
 
     def openSerial(self):
         """Open the serial connection with the Arduino"""
@@ -82,13 +87,65 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         """Connect the user interface controls to the logic"""
         self.runButton.clicked.connect(self.run)
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
+        
+    def acquire_tbdata(self):
+        
+        # acquire and process straw tb data
+        straw_prelim=data_acquisition.get_straw_tb(self.panel)
+        min_straws=[]
+        for i in range(96):
+            
+            # iterate through the list of
+            min_entry=None
+            for j in range(len(straw_prelim)):
+                if straw_prelim[j][4]==i:
+                    if min_entry == None or straw_prelim[j][9] > min_entry[9]:
+                        min_entry=straw_prelim[j]
+            min_straws.append(min_entry)
+            
+        
+        # acquire and process wire tb data
+        wire_prelim=data_acquisition.get_wire_tb(self.panel)
+        min_wires=[]
+        for i in range(96):
+            
+            # iterate through the list of
+            min_entry=None
+            for j in range(len(wire_prelim)):
+                if wire_prelim[j][4]==i:
+                    if min_entry == None or wire_prelim[j][9] > min_entry[9]:
+                        min_entry=wire_prelim[j]
+            min_wires.append(min_entry)
+        
+
+        
+        # put wires into np format
+        self.wire_tensions = np.empty(shape=(0, 2))
+        self.straw_tensions = np.empty(shape=(0, 2))
+        for i in range(len(min_wires)):
+            if min_wires[i] != None:
+                self.wire_tensions = np.append(
+                    self.wire_tensions,
+                    np.array([[min_wires[i][4], min_wires[i][8]]]),
+                    axis=0,
+                )
+            
+        # put straws into np format
+        for i in range(len(min_straws)):
+            if min_straws[i] != None:
+                self.straw_tensions = np.append(
+                    self.straw_tensions,
+                    np.array([[min_straws[i][4], min_straws[i][8]]]),
+                    axis=0,
+                )
+        
+        
 
     def setupCanvas(self):
         """Set up canvas for plotting wire number vs. tension"""
         self.data_widget = QWidget(self.graphicsView)
         layout = QHBoxLayout(self.graphicsView)
-        self.wire_tensions = np.empty(shape=(0, 2))
-        self.straw_tensions = np.empty(shape=(0, 2))
+        self.acquire_tbdata()
         self.canvas = DataCanvas(
             self.data_widget,
             data=None,
@@ -101,22 +158,43 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         )
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
+    
+    def plot_initial_tensions(self):
+        self.acquire_tbdata()
+        
+        print("length wire: " + str(len(self.wire_tensions)))
+        print("length straw: " + str(len(self.straw_tensions)))
+        
+        self.canvas.read_data(self.wire_tensions, 0)
+        self.canvas.read_data(self.straw_tensions, 1)
+        
+        self.data_widget.repaint()
+
 
     def plot_tensions(self, tension, is_straw):
+        self.acquire_tbdata()
+        
+        print("length wire: " + str(len(self.wire_tensions)))
+        print("length straw: " + str(len(self.straw_tensions)))
+        
+        """
         if is_straw:
             self.straw_tensions = np.append(
                 self.straw_tensions,
                 np.array([[self.spinBox.value(), tension]]),
                 axis=0,
             )
-            self.canvas.read_data(self.straw_tensions, is_straw)
+        """
+        self.canvas.read_data(self.straw_tensions, is_straw)
+        """
         else:
             self.wire_tensions = np.append(
                 self.wire_tensions,
                 np.array([[self.spinBox.value(), tension]]),
                 axis=0,
             )
-            self.canvas.read_data(self.wire_tensions, is_straw)
+        """
+        self.canvas.read_data(self.wire_tensions, is_straw)
         self.data_widget.repaint()
 
     def run(self, nextstraw=False):
@@ -233,7 +311,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 tension=tension,
             )
 
-            self.plot_tensions(tension, is_straw)
+            self.plot_initial_tensions()
 
             # Given the frequency, calculate the desired pulse width in microseconds for the next run
             pulse_width = (1.0 / (2 * freq)) * 10 ** 6
