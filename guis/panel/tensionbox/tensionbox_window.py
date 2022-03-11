@@ -138,10 +138,63 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                     np.array([[min_straws[i][4], min_straws[i][8]]]),
                     axis=0,
                 )
+                
+    def _init_Scroll(self,initial):
+        self.acquire_tbdata()
+        
+        if initial==True:
+            self.tbGrid = QGridLayout()
+        else:
+            for i in range(self.tbGrid.count()):
+                self.tbGrid.itemAt(i).widget().close()
         
         
 
+        for i in range(96):  # loop to fill scroll area
+
+            tbLabel = QLabel(f"{i}")  # start with straw position labels
+            tbLabel.setStyleSheet('color: black')
+            tbLabel.setObjectName(
+                f"tbLabel_{i}"
+            )  # they can't (shouldn't) all have the same name
+            
+            # acquire proper wire tension
+            current_wire_tension="None"
+            for j in range(len(self.wire_tensions)):
+                if self.wire_tensions[j][0]==i and self.wire_tensions[j][1] != None:
+                    current_wire_tension=round(self.wire_tensions[j][1],3)
+            
+            tb_wire_label = QLabel(f"{current_wire_tension}")  # create qlabels for the wires
+            tb_wire_label.setStyleSheet('color: black')
+            tb_wire_label.setObjectName(
+                f"tbLabel_{current_wire_tension}"
+            )  # they can't (shouldn't) all have the same name
+        
+            # set proper data
+            self.tbGrid.addWidget(tbLabel, i, 0)  # add them to grid, 0th column
+            self.tbGrid.addWidget(tb_wire_label, i, 1, Qt.AlignHCenter)  # add them to grid, 1st column
+            
+            # acquire proper straw tension
+            current_straw_tension="None"
+            for j in range(len(self.straw_tensions)):
+                if self.straw_tensions[j][0]==i and self.wire_tensions[j][1] != None:
+                    current_straw_tension=round(self.straw_tensions[j][1],3)
+                
+            tb_straw_label = QLabel(f"{current_straw_tension}")  # create qlabels for the straws
+            tb_straw_label.setStyleSheet('color: black')
+            tb_straw_label.setObjectName(
+                f"tbLabel_{current_straw_tension}"
+            )  # they can't (shouldn't) all have the same name
+            
+            self.tbGrid.addWidget(tb_straw_label, i, 2, Qt.AlignHCenter)  # add them to grid, 2n column
+
+        # add the newly created grid layout to the GUI
+        self.scrollContents.setLayout(self.tbGrid)
+        # scrollontents is made in the .ui file, and hvGrid is made in this file by the stuff above in this function
+        
+    
     def setupCanvas(self):
+        self._init_Scroll(True)
         """Set up canvas for plotting wire number vs. tension"""
         self.data_widget = QWidget(self.graphicsView)
         layout = QHBoxLayout(self.graphicsView)
@@ -169,6 +222,16 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.canvas.read_data(self.straw_tensions, 1)
         
         self.data_widget.repaint()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
 
     def plot_tensions(self, tension, is_straw):
@@ -209,6 +272,9 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             frequency, pulse width used, and tension to the output file.
             ***
         """
+        # update table containing tension dat
+        
+        
         ## increment straw number if "measure next" button clicked
         if nextstraw:
             self.spinBox.setValue(self.spinBox.value() + 1)
@@ -312,6 +378,8 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )
 
             self.plot_initial_tensions()
+            self._init_Scroll(False)
+            
 
             # Given the frequency, calculate the desired pulse width in microseconds for the next run
             pulse_width = (1.0 / (2 * freq)) * 10 ** 6
