@@ -53,21 +53,37 @@ class DataCanvas(FigureCanvas):
             self.axes.set_position(
                 [box.x0, box.y0 + box.height * 0.03, box.width * 1.1, box.height * 1.1]
             )
+    
+    def reset(self,to_clear_1,to_clear_2):
+        print("made it to the reset function")
+        if to_clear_1[0] is not None:
+            to_clear_1[0].remove()
+        if to_clear_2[0] is not None:
+            to_clear_2[0].remove()
+    
 
     def read_data(self, data, is_rhs=False):
+        plotted_rhs=None
+        plotted_lhs=None
         if is_rhs:
             if self.rhs_axes:
-                self.rhs_axes.plot(data[:, 0], data[:, 1], "g.", color="r")
+                plotted_rhs=self.rhs_axes.plot(data[:, 0], data[:, 1], "g.", color="r")
+                print("inner rhs: " + str(plotted_rhs))
                 # data_range = np.ptp(data[:,1])
                 # self.rhs_axes.set_ylim(bottom=min(min(data[:,1])-data_range*0.9,0), top=max(data[:,1])*1.1)
                 # self.rhs_axes.relim()
         else:
-            self.axes.plot(data[:, 0], data[:, 1], "g.", color="k")
+            plotted_lhs=self.axes.plot(data[:, 0], data[:, 1], "g.", color="k")
+            print("inner lhs: " + str(plotted_lhs))
             # data_range = np.ptp(data[:,1])
             # self.axes.set_ylim(bottom=min(data[:,1])*0.9, top=max(data[:,1])+data_range*1.1)
             # self.axes.relim()
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+        print("outer rhs: " + str(plotted_rhs))
+        print("outer lhs: " + str(plotted_lhs))
+        
+        return [plotted_rhs,plotted_lhs]
 
 
 

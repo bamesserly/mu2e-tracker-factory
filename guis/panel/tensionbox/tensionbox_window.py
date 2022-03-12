@@ -72,7 +72,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.openSerial()
         self.setupCanvas()
         
-        self.plot_initial_tensions()
+        self.plot_initial_tensions(True)
 
     def openSerial(self):
         """Open the serial connection with the Arduino"""
@@ -212,14 +212,23 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
     
-    def plot_initial_tensions(self):
+    def plot_initial_tensions(self,initial):
         self.acquire_tbdata()
+        
+        if not initial:
+            self.canvas.reset(self.plotted1,self.plotted2)
+        
         
         print("length wire: " + str(len(self.wire_tensions)))
         print("length straw: " + str(len(self.straw_tensions)))
         
-        self.canvas.read_data(self.wire_tensions, 0)
-        self.canvas.read_data(self.straw_tensions, 1)
+        self.plotted1=self.canvas.read_data(self.wire_tensions, 0)[1]
+        self.plotted2=self.canvas.read_data(self.straw_tensions, 1)[0]
+        print("plotted1: " + str(self.plotted1))
+        print("plotted2: " + str(self.plotted2))
+        
+        
+        
         
         self.data_widget.repaint()
         
@@ -377,7 +386,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 tension=tension,
             )
 
-            self.plot_initial_tensions()
+            self.plot_initial_tensions(False)
             self._init_Scroll(False)
             
 
