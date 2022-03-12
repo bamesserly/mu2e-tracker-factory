@@ -68,20 +68,10 @@ class DataCanvas(FigureCanvas):
         if is_rhs:
             if self.rhs_axes:
                 plotted_rhs=self.rhs_axes.plot(data[:, 0], data[:, 1], "g.", color="r")
-                print("inner rhs: " + str(plotted_rhs))
-                # data_range = np.ptp(data[:,1])
-                # self.rhs_axes.set_ylim(bottom=min(min(data[:,1])-data_range*0.9,0), top=max(data[:,1])*1.1)
-                # self.rhs_axes.relim()
         else:
             plotted_lhs=self.axes.plot(data[:, 0], data[:, 1], "g.", color="k")
-            print("inner lhs: " + str(plotted_lhs))
-            # data_range = np.ptp(data[:,1])
-            # self.axes.set_ylim(bottom=min(data[:,1])*0.9, top=max(data[:,1])+data_range*1.1)
-            # self.axes.relim()
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
-        print("outer rhs: " + str(plotted_rhs))
-        print("outer lhs: " + str(plotted_lhs))
         
         return [plotted_rhs,plotted_lhs]
 
