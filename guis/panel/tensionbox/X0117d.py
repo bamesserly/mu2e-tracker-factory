@@ -57,9 +57,15 @@ class DataCanvas(FigureCanvas):
     def reset(self,to_clear_1,to_clear_2):
         print("made it to the reset function")
         if to_clear_1[0] is not None:
-            to_clear_1[0].remove()
+            try:
+                to_clear_1[0].remove()
+            except ValueError:
+                print("Complication regarding datapoint refresh.")
         if to_clear_2[0] is not None:
-            to_clear_2[0].remove()
+            try:
+                to_clear_2[0].remove()
+            except ValueError:
+                print("Complication regarding datapoint refresh.")
     
 
     def read_data(self, data, is_rhs=False):
