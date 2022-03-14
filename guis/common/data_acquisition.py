@@ -4,8 +4,7 @@ def get_straw_tb(panel):
     # initialize connection with database
     con=sqlite3.connect('data/database.db')
     cursor=con.cursor()
-    
-    
+
     # acquire panel id
     cursor.execute("SELECT * FROM straw_location WHERE location_type='MN' AND number='"+str(panel[2:])+"'")
     panel_id=str(cursor.fetchall()[0][0])
@@ -21,7 +20,6 @@ def get_wire_tb(panel):
     # initialize connection with database
     con=sqlite3.connect('data/database.db')
     cursor=con.cursor()
-    
     
     # acquire panel id
     cursor.execute("SELECT * FROM straw_location WHERE location_type='MN' AND number='"+str(panel[2:])+"'")
