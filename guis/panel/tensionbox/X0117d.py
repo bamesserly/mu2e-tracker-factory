@@ -25,6 +25,7 @@ class DataCanvas(FigureCanvas):
         xlabel="xlabel",
         ylabel="ylabel",
         ylabel2=None,
+        type=None,
     ):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
@@ -37,7 +38,10 @@ class DataCanvas(FigureCanvas):
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
         self.axes.set_xlim(-2, 96)
-        self.axes.set_ylim(bottom=-2, top=200)
+        if type is 'tension':
+            self.axes.set_ylim(bottom=50, top=100)
+        else:
+            self.axes.set_ylim(bottom=-2, top=200)
         # self.axes.autoscale(enable=True, axis='y')
         box = self.axes.get_position()
         if ylabel2:

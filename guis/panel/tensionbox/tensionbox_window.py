@@ -208,6 +208,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             xlabel="Wire Number",
             ylabel="Wire Tension [g]",
             ylabel2="Straw Tension [g]",
+            type='tension',
         )
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
