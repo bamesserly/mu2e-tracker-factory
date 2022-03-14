@@ -11,7 +11,6 @@ def get_straw_tb(panel):
     panel_id=str(cursor.fetchall()[0][0])
     
     # acquire data
-    print("panel_id: " + str(panel_id))
     cursor.execute("SELECT * FROM measurement_tensionbox WHERE panel='"+str(panel_id)+"' AND straw_wire='straw'")
     straw_tb=cursor.fetchall()
     
@@ -29,7 +28,6 @@ def get_wire_tb(panel):
     panel_id=str(cursor.fetchall()[0][0])
     
     # acquire data
-    print("panel_id: " + str(panel_id))
     cursor.execute("SELECT * FROM measurement_tensionbox WHERE panel='"+str(panel_id)+"' AND straw_wire='wire'")
     wire_tb=cursor.fetchall()
     

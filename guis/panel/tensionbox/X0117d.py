@@ -55,7 +55,6 @@ class DataCanvas(FigureCanvas):
             )
     
     def reset(self,to_clear_1,to_clear_2):
-        print("made it to the reset function")
         if to_clear_1[0] is not None:
             try:
                 to_clear_1[0].remove()
