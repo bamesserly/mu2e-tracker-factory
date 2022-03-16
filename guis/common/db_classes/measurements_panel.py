@@ -147,10 +147,10 @@ class TensionboxMeasurement(BASE, OBJECT):
         )
 
         # list of instances of TensionboxMeasurements
-        straw_tb_all_data = straw_tb.all()
+        straw_tb_all_data = straw_tb_query_result.all()
 
         # list of lists of all TB entries for this panel
-        return [i.get_tensionbox_data() for i in straw_tb_all_data[i]]
+        return [i.get_tensionbox_data() for i in straw_tb_all_data]
 
 
 # High voltage current measurement.
