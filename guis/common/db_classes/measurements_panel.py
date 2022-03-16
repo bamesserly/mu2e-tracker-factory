@@ -12,7 +12,8 @@
 # Each table has a procedure id, linking it to a panel and process, though a
 # procedure id shouldn't strictly be required.
 ################################################################################
-from guis.common.db_classes.bases import BASE, OBJECT
+from guis.common.db_classes.bases import BASE, OBJECT, DM
+from guis.common.db_classes.straw_location import StrawLocation
 from sqlalchemy import (
     Column,
     Integer,
@@ -91,7 +92,6 @@ class TensionboxMeasurement(BASE, OBJECT):
     pulse_width = Column(REAL)
     tension = Column(REAL)
     timestamp = Column(Integer)
-    
 
     def __init__(
         self,
@@ -114,10 +114,43 @@ class TensionboxMeasurement(BASE, OBJECT):
         self.pulse_width = pulse_width
         self.tension = tension
         self.timestamp = int(datetime.now().timestamp())
-        
-    def get_tensionbox_data(self):
-        return[self.id,self.procedure,self.panel,self.straw_wire,self.position,self.length,self.frequency,self.pulse_width,self.tension,self.timestamp]
 
+    def get_tensionbox_data(self):
+        return [
+            self.id,
+            self.procedure,
+            self.panel,
+            self.straw_wire,
+            self.position,
+            self.length,
+            self.frequency,
+            self.pulse_width,
+            self.tension,
+            self.timestamp,
+        ]
+
+    # get a list of lists of tensionbox measurements given a panel
+    @classmethod
+    def get_tb_measurements(cls, panel, straw_wire):
+        assert straw_wire in ["straw", "wire"]
+        panel_id = (
+            DM.query(StrawLocation)
+            .filter(StrawLocation.location_type == "MN")
+            .filter(StrawLocation.number == str(panel[2:]))
+        )
+        panel_id = panel_id[0].id
+
+        straw_tb_query_result = (
+            DM.query(cls)
+            .filter(cls.panel == str(panel_id))
+            .filter(cls.straw_wire == straw_wire)
+        )
+
+        # list of instances of TensionboxMeasurements
+        straw_tb_all_data = straw_tb.all()
+
+        # list of lists of all TB entries for this panel
+        return [i.get_tensionbox_data() for i in straw_tb_all_data[i]]
 
 
 # High voltage current measurement.
