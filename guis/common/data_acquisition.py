@@ -1,32 +1,46 @@
 import sqlite3
+from guis.common.databaseManager import DatabaseManager as DM
+
+from guis.common.db_classes.bases import BASE, OBJECT, DM, logger
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    REAL,
+    VARCHAR,
+    ForeignKey,
+    CHAR,
+    BOOLEAN,
+    and_,
+    DATETIME,
+    Table,
+    TEXT,
+    func,
+)
+from datetime import datetime
+
+from guis.common.db_classes.straw_location import StrawLocation
+from guis.common.db_classes.measurements_panel import TensionboxMeasurement
 
 def get_straw_tb(panel):
-    # initialize connection with database
-    con=sqlite3.connect('data/database.db')
-    cursor=con.cursor()
+    panel_id=DM.query(StrawLocation).filter(StrawLocation.location_type == 'MN').filter(StrawLocation.number == str(panel[2:]))
+    panel_id=panel_id[0].id
 
-    # acquire panel id
-    cursor.execute("SELECT * FROM straw_location WHERE location_type='MN' AND number='"+str(panel[2:])+"'")
-    panel_id=str(cursor.fetchall()[0][0])
-    
-    # acquire data
-    cursor.execute("SELECT * FROM measurement_tensionbox WHERE panel='"+str(panel_id)+"' AND straw_wire='straw'")
-    straw_tb=cursor.fetchall()
+    straw_tb=DM.query(TensionboxMeasurement).filter(TensionboxMeasurement.panel == str(panel_id)).filter(TensionboxMeasurement.straw_wire == 'straw')
+    straw_tb=straw_tb.all()
+    for i in range(len(straw_tb)):
+        straw_tb[i]=straw_tb[i].get_tensionbox_data()
     
     return straw_tb
     
     
 def get_wire_tb(panel):
-    # initialize connection with database
-    con=sqlite3.connect('data/database.db')
-    cursor=con.cursor()
-    
-    # acquire panel id
-    cursor.execute("SELECT * FROM straw_location WHERE location_type='MN' AND number='"+str(panel[2:])+"'")
-    panel_id=str(cursor.fetchall()[0][0])
-    
-    # acquire data
-    cursor.execute("SELECT * FROM measurement_tensionbox WHERE panel='"+str(panel_id)+"' AND straw_wire='wire'")
-    wire_tb=cursor.fetchall()
-    
+    panel_id=DM.query(StrawLocation).filter(StrawLocation.location_type == 'MN').filter(StrawLocation.number == str(panel[2:]))
+    panel_id=panel_id[0].id
+
+    wire_tb=DM.query(TensionboxMeasurement).filter(TensionboxMeasurement.panel == str(panel_id)).filter(TensionboxMeasurement.straw_wire == 'wire')
+    wire_tb=wire_tb.all()
+    for i in range(len(wire_tb)):
+        wire_tb[i]=wire_tb[i].get_tensionbox_data()
+
     return wire_tb

@@ -90,6 +90,8 @@ class TensionboxMeasurement(BASE, OBJECT):
     frequency = Column(REAL)
     pulse_width = Column(REAL)
     tension = Column(REAL)
+    timestamp = Column(Integer)
+    
 
     def __init__(
         self,
@@ -111,6 +113,11 @@ class TensionboxMeasurement(BASE, OBJECT):
         self.frequency = frequency
         self.pulse_width = pulse_width
         self.tension = tension
+        self.timestamp = int(datetime.now().timestamp())
+        
+    def get_tensionbox_data(self):
+        return[self.id,self.procedure,self.panel,self.straw_wire,self.position,self.length,self.frequency,self.pulse_width,self.tension,self.timestamp]
+
 
 
 # High voltage current measurement.
