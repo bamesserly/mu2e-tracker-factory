@@ -40,6 +40,8 @@ logger = SetupPANGUILogger("root")
 from guis.common.getresources import GetProjectPaths, pkg_resources
 import resources
 
+from guis.common.db_classes.straw_location import StrawLocation
+
 import inspect
 import pyautogui
 from PIL import Image
@@ -80,6 +82,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QVBoxLayout,
     QGridLayout,
+    QMessageBox,
 )
 
 try:
@@ -107,6 +110,7 @@ from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.common.gui_utils import generateBox, except_hook
+from guis.common.db_classes.straw_location import StrawLocation
 
 # from guis.panel.resistance.run_test import run_test
 # from guis.panel.leak.PlotLeakRate import RunInteractive
@@ -1036,8 +1040,9 @@ class panelGUI(QMainWindow):
         self.ui.proSelectButtons.buttonClicked.connect(self.openGUI)
 
         # pro8 save leak rate data as comment
-        self.ui.lr_button.clicked.connect(lambda: [self.saveData(), self.saveComments("")])
-        
+        self.ui.lr_button.clicked.connect(
+            lambda: [self.saveData(), self.saveComments("")]
+        )
 
         # Save buttons
         for btn in self.ui.saveButtons.buttons():
@@ -1546,9 +1551,7 @@ class panelGUI(QMainWindow):
             if btn.text() == "Process 8 - Final QC":
                 logger.warning("Process 8 is under construction")
                 generateBox(
-                    "warning",
-                    "Process 8 Not Ready",
-                    "Please select another process.",
+                    "warning", "Process 8 Not Ready", "Please select another process.",
                 )
             return
 
@@ -1889,52 +1892,85 @@ class panelGUI(QMainWindow):
     """
 
     def checkProgress(self):
-        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
-        "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
-        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
-        ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
-        ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
-        ["heat_34", "Comb_Adjustment"], # process 2
-        ["check_comb_shims", "load_straws", "heat"]]    # process 1
-            
-            
-        
-        
+        group_list = [
+            [
+                "complete_resistance_test",
+                "check_panel_back",
+                "check_back_epoxy",
+                "check_epoxy_joints",
+                "check_pcb_connectors",
+                "check_omega_clips",
+            ],  # process 8
+            [
+                "Seal_Electronics_Slot",
+                "install_seal_bolts",
+                "glue_standoffs",
+                "Tap_and_Clean_Holes",
+            ],  # process 8
+            [
+                "remove_epoxy_frame",
+                "Clean_O_Rings",
+                "Wipe_Surfaces",
+                "dustoff_grooves",
+                "vacuum_manifold",
+            ],  # process 8
+            [
+                "inspect_screw_holes",
+                "Inspect_and_Grease",
+                "Inspect_and_Clean",
+                "install_covers",
+            ],  # process 8
+            [
+                "wire_straw_inspect",
+                "light_check",
+                "continuity_check",
+                "hv_check_1500",
+                "measure_wire_tensions",
+            ],  # process 6
+            ["heat_34", "Comb_Adjustment"],  # process 2
+            ["check_comb_shims", "load_straws", "heat"],
+        ]  # process 1
+
         # define function variables
         into_list = False
         all_checked = True
         current_valid = True
-        
+
         # enables all checkboxex in the same subgroup as inputted step
         def enable_subgroup_checkboxes(current):
             current.getCheckbox().setDisabled(False)
             for sub_list in group_list:
-                inner_current=current
+                inner_current = current
                 if inner_current.getName() in sub_list:
-                    while inner_current.getName() in sub_list and inner_current.getNext() != None:
+                    while (
+                        inner_current.getName() in sub_list
+                        and inner_current.getNext() != None
+                    ):
                         inner_current.getCheckbox().setDisabled(False)
                         inner_current = inner_current.getNext()
-                    if inner_current.getNext() is None and inner_current.getName() in sub_list:
+                    if (
+                        inner_current.getNext() is None
+                        and inner_current.getName() in sub_list
+                    ):
                         inner_current.getCheckbox().setDisabled(False)
-                        
-        
-        
+
         # initialize current step
         current = self.stepsList.getCurrentStep()
-        
+
         # ensure that the next step isn't null, as a multitude of errors would ensue
         if self.stepsList.getCurrentStep().getNext() is not None:
             current = self.stepsList.getCurrentStep()
             previous_current = self.stepsList.getCurrentStep()
             for sub_list in group_list:
-                
-                
+
                 # case for subgroup, go into it if current step is the first item in subgroup
-                if (previous_current.getName() in sub_list or previous_current.getNext().getName() in sub_list):
+                if (
+                    previous_current.getName() in sub_list
+                    or previous_current.getNext().getName() in sub_list
+                ):
                     # stores whether or not a subroup was delved into
                     into_list = True
-                    
+
                     current_valid = True
                     while current_valid:
                         # if a checkbox in the subgroup is clicked, save it and disable the checkbox
@@ -1946,33 +1982,43 @@ class panelGUI(QMainWindow):
                         else:
                             all_checked = False
                             current.getCheckbox().setDisabled(False)
-                            
+
                         # check for breaking conditions
-                        if current.getNext() is None or current.getNext().getName() not in sub_list:
+                        if (
+                            current.getNext() is None
+                            or current.getNext().getName() not in sub_list
+                        ):
                             current_valid = False
                         elif current.getNext() is not None:
                             current = current.getNext()
-                                
+
                     # if all items in sub_list are checked off, update current step
                     if all_checked == True:
                         # iterate through sub_list to update current step
-                        while self.stepsList.getCurrentStep().getName() in sub_list and self.stepsList.getCurrentStep().getNext() != None:
+                        while (
+                            self.stepsList.getCurrentStep().getName() in sub_list
+                            and self.stepsList.getCurrentStep().getNext() != None
+                        ):
                             self.stepsList.getNextStep()
                             current = self.stepsList.getCurrentStep()
                         self.saveStep(self.stepsList.getCurrentStep().getName())
-                        
+
                         # if it's not the end of the steps list, call a function to enable the following checkbox(es)
                         if current.getNext() is not None:
                             enable_subgroup_checkboxes(self.stepsList.getCurrentStep())
-                            
+
                             # iterate through group list to set current step
-                            while self.stepsList.getCurrentStep().getName() in sub_list or self.stepsList.getCurrentStep().getNext().getName() in sub_list:
+                            while (
+                                self.stepsList.getCurrentStep().getName() in sub_list
+                                or self.stepsList.getCurrentStep().getNext().getName()
+                                in sub_list
+                            ):
                                 self.stepsList.getNextStep()
-                        
+
                             # if current step is the start of a new list, enable all checkboxes in list
                             current = self.stepsList.getCurrentStep()
                             enable_subgroup_checkboxes(current)
-                        
+
         # code for if a nonsequential subgroup isn't involved
         if not into_list:
             step = self.stepsList.getCurrentStep()  # Latest unchecked step
@@ -2570,7 +2616,6 @@ class panelGUI(QMainWindow):
             generateBox(
                 "critical", "Save Error", "Error encountered trying to save data"
             )
-        
 
     """
     saveComments(self, comments = '', lr = '')
@@ -2597,7 +2642,7 @@ class panelGUI(QMainWindow):
                 self.ui.commentBox7,
                 [self.ui.commentBox8_6, self.ui.lr_textbox],
             ][self.pro_index]
-            
+
             # if process 8, determine whether to save from comment box
             # or from leak rate box
             if self.pro_index == 7:
@@ -2606,7 +2651,7 @@ class panelGUI(QMainWindow):
                     lr = True
                 else:
                     box = box[0]
-            
+
             # Extract text
             comments = box.document().toPlainText()
             # Reset comment display
@@ -2617,21 +2662,20 @@ class panelGUI(QMainWindow):
         # if comments are nothing then return
         if comments == "":
             return
-            
+
         # if it is a pro8 lr comment, modify
-        
+
         if lr == True:
             # commit new lr to database
             self.DP.record_leak_rate(str(comments))
-            
-            #update display
+
+            # update display
             self.ui.lr_display.setText(str(comments))
             print("da string: " + str(comments))
-            
-            
+
             front = "Leak Rate Test Result:     "
             comments = front + comments
-            
+
         try:
             self.DP.saveComment(
                 comments, self.getCurrentPanel(), self.pro
@@ -2741,6 +2785,7 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][20] = (
             str(self.ui.pallet1code.text()) if self.ui.pallet1code.text() else None
         )
+        # print("logic: " + StrawLocation._queryStrawPositions(self.ui.pallet1code.text()))
         self.data[self.pro_index][21] = (
             str(self.ui.pallet2code.text()) if self.ui.pallet2code.text() else None
         )
@@ -2868,8 +2913,6 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][13] = self.ui.centerRing2DE.date().toString("ddMMMyy")
         self.data[self.pro_index][14] = self.ui.centerRing3TE.time().toString("HHmm")
         self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
-        
-        
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
@@ -3010,7 +3053,7 @@ class panelGUI(QMainWindow):
     #
     # Functions that put data into the UI widgets.
     # fmt: on
-    
+
     # gets leak rate ddta to display
     def get_leak_rate(self):
         return self.DP.get_leak_rate()
@@ -3032,33 +3075,60 @@ class panelGUI(QMainWindow):
 
     def parseSteps(self, steps_completed):
         # nested list of nonsequential steps
-        
-        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
-        "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
-        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
-        ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
-        ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
-        ["heat_34", "Comb_Adjustment"], # process 2
-        ["check_comb_shims", "load_straws", "heat"]]    # process 1
 
-        
-        
+        group_list = [
+            [
+                "complete_resistance_test",
+                "check_panel_back",
+                "check_back_epoxy",
+                "check_epoxy_joints",
+                "check_pcb_connectors",
+                "check_omega_clips",
+            ],  # process 8
+            [
+                "Seal_Electronics_Slot",
+                "install_seal_bolts",
+                "glue_standoffs",
+                "Tap_and_Clean_Holes",
+            ],  # process 8
+            [
+                "remove_epoxy_frame",
+                "Clean_O_Rings",
+                "Wipe_Surfaces",
+                "dustoff_grooves",
+                "vacuum_manifold",
+            ],  # process 8
+            [
+                "inspect_screw_holes",
+                "Inspect_and_Grease",
+                "Inspect_and_Clean",
+                "install_covers",
+            ],  # process 8
+            [
+                "wire_straw_inspect",
+                "light_check",
+                "continuity_check",
+                "hv_check_1500",
+                "measure_wire_tensions",
+            ],  # process 6
+            ["heat_34", "Comb_Adjustment"],  # process 2
+            ["check_comb_shims", "load_straws", "heat"],
+        ]  # process 1
 
         # figure out first unchecked step
         first_unchecked = self.stepsList.getCurrentStep()
-        while first_unchecked.getName() in steps_completed and first_unchecked.getNextCheckbox() != None:
+        while (
+            first_unchecked.getName() in steps_completed
+            and first_unchecked.getNextCheckbox() != None
+        ):
             first_unchecked = first_unchecked.getNextCheckbox()
-
-        
-        
 
         # No matter what, start by enabling the first step
         step = self.stepsList.getCurrentStep()
         box = step.getCheckbox()
         if step is not None:
-                box.setEnabled(True)
-                
+            box.setEnabled(True)
+
         # if current step is in a sub_list of group_list, enable all checkboxes in nonsequential group
         for sub_list in group_list:
             if step.getName() in sub_list:
@@ -3067,18 +3137,18 @@ class panelGUI(QMainWindow):
                     box.setEnabled(True)
                     if step.getNextCheckbox() != None:
                         step = step.getNextCheckbox()
-            step=self.stepsList.getCurrentStep()
-        
+            step = self.stepsList.getCurrentStep()
+
         # check off steps that have been completed
         if self.stepsList.getCurrentStep():
-            
+
             # set current step to first step in process
             current_step = self.stepsList.getCurrentStep()
-            
+
             # iterate through linkedlist of steps, checking off executed steps found in db
             while current_step is not None:
                 checkbox = current_step.getCheckbox()
-                
+
                 # if step is checked off in db, check it off in gui
                 if current_step.getName() in steps_completed:
                     checkbox.setChecked(True)
@@ -3086,13 +3156,14 @@ class panelGUI(QMainWindow):
 
                 current_step = current_step.getNextCheckbox()
 
-        
         # ensure that first unchecked checkbox isn't disabled
         if first_unchecked.getName() not in steps_completed:
             checkbox = first_unchecked.getCheckbox()
             checkbox.setDisabled(False)
-            
-        in_group = False    # variable to keep track of whether or not current step is in a group
+
+        in_group = (
+            False  # variable to keep track of whether or not current step is in a group
+        )
         # if first unchecked is in group, set current as first in group, otherwise set current as first unchecked
         for sub_group in group_list:
             if first_unchecked in sub_group:
@@ -3100,9 +3171,9 @@ class panelGUI(QMainWindow):
                 while first_unchecked.getName() is not sub_group[0]:
                     first_unchecked = first_unchecked.getPrevious()
                 self.stepsList.setNextStep(first_unchecked)
-        
+
         if not in_group:
-            self.stepsList.setNextStep(first_unchecked)    
+            self.stepsList.setNextStep(first_unchecked)
 
         # If all steps have been completed, change text of finish button
         if self.stepsList.allStepsChecked():
@@ -4034,11 +4105,10 @@ class panelGUI(QMainWindow):
 
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
-    
+
         # display current leak rate data
         if self.get_leak_rate() is not None:
             self.ui.lr_display.setText(str(self.get_leak_rate()))
-        
 
         self.displayComments()
         self.pro8LoadBadWiresStraws()
@@ -4170,21 +4240,39 @@ class panelGUI(QMainWindow):
         if len(self.data[0]) < 23:
             self.data[0].append(False)
 
-        # Validate input, need LPAL**** in each field, where * is a digit 0-9
-        if not self.validateInput(indices=[19, 20]):
+        # Utilize the _queryStrawLocation
+        lpal1 = StrawLocation._queryStrawLocation(self.ui.pallet1code.text()[4::])
+        lpal2 = StrawLocation._queryStrawLocation(self.ui.pallet2code.text()[4::])
+
+        if (
+            (lpal1 is None)
+            or (lpal2 is None)
+            or not self.validateInput(indices=[19, 20])
+        ):
             # Failed, don't set as validated
-            return
+            # Clear the lpal entry boxes to ensure they're not saved
 
-        # Pass, let user know and set as validated in self.data
-        self.ui.lpalLabel.setText("Straws Validated.")
-        self.data[0][22] = True
+            if lpal1 is None:
+                self.ui.pallet1code.clear()
+            elif lpal2 is None:
+                self.ui.pallet2code.clear()
+            QMessageBox.question(
+                self,
+                "LPAL does not exist, you probably just need to mergedown.",
+                "Please close the gui, mergedown, and retry. If a mergedown does not solve the problem, contact Ben.",
+                QMessageBox.Ok,
+            )
+        else:
+            # Pass, let user know and set as validated in self.data
+            self.ui.lpalLabel.setText("Straws Validated.")
+            self.data[0][22] = True
 
-        # Enable finish button
-        if self.stepsList.allStepsChecked():
-            self.finishButton.setText("Finish")
+            # Enable finish button
+            if self.stepsList.allStepsChecked():
+                self.finishButton.setText("Finish")
 
-        # Save straws
-        self.saveData()
+            # Save straws
+            self.saveData()
 
     """
     resetpro1(self)
@@ -4974,9 +5062,7 @@ class panelGUI(QMainWindow):
         self.ui.heat_start4.setDisabled(True)
 
         # Enable heat widgets
-        self.setWidgetsEnabled(
-            [self.ui.heat_finished4]
-        )
+        self.setWidgetsEnabled([self.ui.heat_finished4])
 
         # Start timer
         self.startTimer(8)
@@ -4994,9 +5080,7 @@ class panelGUI(QMainWindow):
     def pro6part4_2(self):
 
         # Disable widgets
-        self.setWidgetsDisabled(
-            [self.ui.heat_finished4]
-        )
+        self.setWidgetsDisabled([self.ui.heat_finished4])
 
         # Save data
         self.saveData()
@@ -5720,9 +5804,7 @@ class panelGUI(QMainWindow):
     def run_resistance(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start python -m guis.panel.resistance",
-            shell=True,
-            cwd=root_dir,
+            "start python -m guis.panel.resistance", shell=True, cwd=root_dir,
         )
 
     # record broken tap from the broken tap form in pro8
@@ -5816,9 +5898,7 @@ class panelGUI(QMainWindow):
     def run_plot_leak(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start /wait python -m guis.panel.leak",
-            shell=True,
-            cwd=root_dir,
+            "start /wait python -m guis.panel.leak", shell=True, cwd=root_dir,
         )
 
 
