@@ -4252,8 +4252,10 @@ class panelGUI(QMainWindow):
             # Failed, don't set as validated
             # Clear the lpal entry boxes to ensure they're not saved
 
-            self.ui.pallet1code.clear()
-            self.ui.pallet2code.clear()
+            if lpal1 is None:
+                self.ui.pallet1code.clear()
+            elif lpal2 is None:
+                self.ui.pallet2code.clear()
             QMessageBox.question(
                 self,
                 "LPAL does not exist, you probably just need to mergedown.",
