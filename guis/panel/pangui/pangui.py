@@ -1928,7 +1928,7 @@ class panelGUI(QMainWindow):
                 "measure_wire_tensions",
             ],  # process 6
             ["heat_34", "Comb_Adjustment"],  # process 2
-            ["check_comb_shims", "load_straws", "heat"],
+            ["pull_heat", "load_straws", "heat"],
         ]  # process 1
 
         # define function variables
@@ -1973,15 +1973,16 @@ class panelGUI(QMainWindow):
 
                     current_valid = True
                     while current_valid:
-                        # if a checkbox in the subgroup is clicked, save it and disable the checkbox
-                        if current.getCheckbox().isChecked():
-                            self.saveStep(current.getName())
-                            current.getCheckbox().setDisabled(True)
-                        # otherwise set a variable to show that not all items in the subgroup are checkd
-                        # also enable the checkbox
-                        else:
-                            all_checked = False
-                            current.getCheckbox().setDisabled(False)
+                        if current.getCheckbox() is not None:
+                            # if a checkbox in the subgroup is clicked, save it and disable the checkbox
+                            if current.getCheckbox().isChecked():
+                                self.saveStep(current.getName())
+                                current.getCheckbox().setDisabled(True)
+                            # otherwise set a variable to show that not all items in the subgroup are checkd
+                            # also enable the checkbox
+                            else:
+                                all_checked = False
+                                current.getCheckbox().setDisabled(False)
 
                         # check for breaking conditions
                         if (
@@ -3112,7 +3113,7 @@ class panelGUI(QMainWindow):
                 "measure_wire_tensions",
             ],  # process 6
             ["heat_34", "Comb_Adjustment"],  # process 2
-            ["check_comb_shims", "load_straws", "heat"],
+            ["pull_heat", "load_straws", "heat"],
         ]  # process 1
 
         # figure out first unchecked step
