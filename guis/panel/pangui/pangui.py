@@ -1878,6 +1878,20 @@ class panelGUI(QMainWindow):
     # The best button: check all tools, parts, supplies!
     def checkEmAll(self):
         self.suppliesList.checkEmAll()
+        
+    def enable_checkbox(self, step):
+        # check to see if the attempted checkbox enabling is allowed based on
+        # checkoff requirements
+        
+        # process 1 steps 9.1 and 9.2
+        one=self.ui.pallet1code.text()
+        two=self.ui.pallet2code.text()
+        if step.getName() in ["pull_heat", "load_straws", "heat"] and not (one is None or two is None):
+            return False
+        else:
+            step.getCheckbox().setEnabled(True)
+            return True
+        
 
     """
     checkProgress(self, pro, x)
@@ -1936,9 +1950,9 @@ class panelGUI(QMainWindow):
         all_checked = True
         current_valid = True
 
-        # enables all checkboxex in the same subgroup as inputted step
+        # enables all checkboxes in the same subgroup as inputted step
         def enable_subgroup_checkboxes(current):
-            current.getCheckbox().setDisabled(False)
+            self.enable_checkbox(current)
             for sub_list in group_list:
                 inner_current = current
                 if inner_current.getName() in sub_list:
@@ -1946,13 +1960,13 @@ class panelGUI(QMainWindow):
                         inner_current.getName() in sub_list
                         and inner_current.getNext() != None
                     ):
-                        inner_current.getCheckbox().setDisabled(False)
+                        self.enable_checkbox(inner_current)
                         inner_current = inner_current.getNext()
                     if (
                         inner_current.getNext() is None
                         and inner_current.getName() in sub_list
                     ):
-                        inner_current.getCheckbox().setDisabled(False)
+                        self.enable_checkbox(inner_current)
 
         # initialize current step
         current = self.stepsList.getCurrentStep()
@@ -1982,7 +1996,7 @@ class panelGUI(QMainWindow):
                             # also enable the checkbox
                             else:
                                 all_checked = False
-                                current.getCheckbox().setDisabled(False)
+                                self.enable_checkbox(current)
 
                         # check for breaking conditions
                         if (
@@ -2030,7 +2044,7 @@ class panelGUI(QMainWindow):
             # if it has iterated to a valid step, then enable its checkbox
             if self.stepsList.getCurrentStep() is not None:
                 checkbox2 = self.stepsList.getCurrentStep().getCheckbox()
-                checkbox2.setDisabled(False)
+                self.enable_checkbox(self.stepsList.getCurrentStep())
 
             # ensure that the step just checked off gets saved
             self.saveStep(step.getName())  # changed
@@ -3066,6 +3080,7 @@ class panelGUI(QMainWindow):
         # Display modified string
         self.ui.previousComments.setPlainText(s)
 
+
     """
     parseSteps(self, steps_completed)
 
@@ -3128,14 +3143,14 @@ class panelGUI(QMainWindow):
         step = self.stepsList.getCurrentStep()
         box = step.getCheckbox()
         if step is not None:
-            box.setEnabled(True)
-
+            self.enable_checkbox(step)
         # if current step is in a sub_list of group_list, enable all checkboxes in nonsequential group
         for sub_list in group_list:
             if step.getName() in sub_list:
                 while step.getName() in sub_list:
                     box = step.getCheckbox()
-                    box.setEnabled(True)
+                    self.enable_checkbox(step)
+                    
                     if step.getNextCheckbox() != None:
                         step = step.getNextCheckbox()
             step = self.stepsList.getCurrentStep()
@@ -3160,7 +3175,7 @@ class panelGUI(QMainWindow):
         # ensure that first unchecked checkbox isn't disabled
         if first_unchecked.getName() not in steps_completed:
             checkbox = first_unchecked.getCheckbox()
-            checkbox.setDisabled(False)
+            self.enable_checkbox(first_unchecked)
 
         in_group = (
             False  # variable to keep track of whether or not current step is in a group
@@ -4248,7 +4263,6 @@ class panelGUI(QMainWindow):
         if (
             (lpal1 is None)
             or (lpal2 is None)
-            or not self.validateInput(indices=[19, 20])
         ):
             # Failed, don't set as validated
             # Clear the lpal entry boxes to ensure they're not saved
@@ -4259,12 +4273,14 @@ class panelGUI(QMainWindow):
                 self.ui.pallet2code.clear()
             QMessageBox.question(
                 self,
-                "LPAL does not exist, you probably just need to mergedown.",
-                "Please close the gui, mergedown, and retry. If a mergedown does not solve the problem, contact Ben.",
+                'Error: LPAL not found.',
+                'Please finish the LPAL loader program, mergedown on this computer, and then restart.',
                 QMessageBox.Ok,
             )
         else:
             # Pass, let user know and set as validated in self.data
+            print('the data: ' + str(self.data[0]))
+            print(self.data[0][22])
             self.ui.lpalLabel.setText("Straws Validated.")
             self.data[0][22] = True
 
