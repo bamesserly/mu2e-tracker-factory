@@ -4259,7 +4259,6 @@ class panelGUI(QMainWindow):
         # Utilize the _queryStrawLocation
         lpal1 = StrawLocation._queryStrawLocation(self.ui.pallet1code.text()[4::])
         lpal2 = StrawLocation._queryStrawLocation(self.ui.pallet2code.text()[4::])
-
         if (
             (lpal1 is None)
             or (lpal2 is None)
@@ -4279,8 +4278,6 @@ class panelGUI(QMainWindow):
             )
         else:
             # Pass, let user know and set as validated in self.data
-            print('the data: ' + str(self.data[0]))
-            print(self.data[0][22])
             self.ui.lpalLabel.setText("Straws Validated.")
             self.data[0][22] = True
 
