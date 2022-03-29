@@ -14,3 +14,4 @@ guis/straw/Prep GUI/date.txt
 logfiles/
 *.patch
 cache.*
+*.autosave
