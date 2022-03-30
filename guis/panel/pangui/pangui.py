@@ -40,7 +40,7 @@ logger = SetupPANGUILogger("root")
 from guis.common.getresources import GetProjectPaths, pkg_resources
 import resources
 
-from guis.common.db_classes.straw_location import StrawLocation
+from guis.common.db_classes.straw_location import LoadingPallet
 
 import inspect
 import pyautogui
@@ -1878,20 +1878,21 @@ class panelGUI(QMainWindow):
     # The best button: check all tools, parts, supplies!
     def checkEmAll(self):
         self.suppliesList.checkEmAll()
-        
+
     def enable_checkbox(self, step):
         # check to see if the attempted checkbox enabling is allowed based on
         # checkoff requirements
-        
+
         # process 1 steps 9.1 and 9.2
-        one=self.ui.pallet1code.text()
-        two=self.ui.pallet2code.text()
-        if step.getName() in ["pull_heat", "load_straws", "heat"] and not (one is None or two is None):
+        one = self.ui.pallet1code.text()
+        two = self.ui.pallet2code.text()
+        if step.getName() in ["pull_heat", "load_straws", "heat"] and (
+            one is "" or two is ""
+        ):
             return False
         else:
             step.getCheckbox().setEnabled(True)
             return True
-        
 
     """
     checkProgress(self, pro, x)
@@ -3080,7 +3081,6 @@ class panelGUI(QMainWindow):
         # Display modified string
         self.ui.previousComments.setPlainText(s)
 
-
     """
     parseSteps(self, steps_completed)
 
@@ -3150,7 +3150,7 @@ class panelGUI(QMainWindow):
                 while step.getName() in sub_list:
                     box = step.getCheckbox()
                     self.enable_checkbox(step)
-                    
+
                     if step.getNextCheckbox() != None:
                         step = step.getNextCheckbox()
             step = self.stepsList.getCurrentStep()
@@ -4257,25 +4257,36 @@ class panelGUI(QMainWindow):
             self.data[0].append(False)
 
         # Utilize the _queryStrawLocation
-        lpal1 = StrawLocation._queryStrawLocation(self.ui.pallet1code.text()[4::])
-        lpal2 = StrawLocation._queryStrawLocation(self.ui.pallet2code.text()[4::])
-        if (
-            (lpal1 is None)
-            or (lpal2 is None)
-        ):
-            # Failed, don't set as validated
-            # Clear the lpal entry boxes to ensure they're not saved
+        lpal1 = LoadingPallet._queryStrawLocation(self.ui.pallet1code.text()[4::])
+        lpal2 = LoadingPallet._queryStrawLocation(self.ui.pallet2code.text()[4::])
+        if (lpal1 is None) or (lpal2 is None):
+            if (
+                self.ui.pallet1code.text() is "" or self.ui.pallet2code.text() is ""
+            ) and ((lpal1 is None) ^ (lpal2 is None)):
+                # If one of the textboxes is just empty, notify the user to fill out both
+                QMessageBox.question(
+                    self,
+                    "Two LPALs required.",
+                    "Please fill out both LPALs.",
+                    QMessageBox.Ok,
+                )
+                return False
+            else:
+                # Failed, don't set as validated
+                # Clear the lpal entry boxes to ensure they're not saved
 
-            if lpal1 is None:
-                self.ui.pallet1code.clear()
-            elif lpal2 is None:
-                self.ui.pallet2code.clear()
-            QMessageBox.question(
-                self,
-                'Error: LPAL not found.',
-                'Please finish the LPAL loader program, mergedown on this computer, and then restart.',
-                QMessageBox.Ok,
-            )
+                if lpal1 is None:
+                    self.ui.pallet1code.clear()
+                elif lpal2 is None:
+                    self.ui.pallet2code.clear()
+
+                QMessageBox.question(
+                    self,
+                    "Error: LPAL not found.",
+                    "Please finish the LPAL loader program, mergedown on this computer, and then restart.",
+                    QMessageBox.Ok,
+                )
+                return False
         else:
             # Pass, let user know and set as validated in self.data
             self.ui.lpalLabel.setText("Straws Validated.")
@@ -4287,6 +4298,7 @@ class panelGUI(QMainWindow):
 
             # Save straws
             self.saveData()
+            return True
 
     """
     resetpro1(self)
