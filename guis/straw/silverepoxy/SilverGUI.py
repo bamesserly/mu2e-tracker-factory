@@ -1,8 +1,17 @@
-6  # Update 10/24/18 - Ben Hiltbrand
-# Implemented new credentials system
-# Properly checks validity of pallets
-# Uploads to Mu2e Hardware database
+################################################################################
+#
+# Silver Epoxy Application GUI
+#
+# After laser cutting, we attach endpieces with silver epoxy.
+#
+# Just record CPAL number, epoxy batch, and timer
+#
+# Next step: Load onto LPALs
+#
+################################################################################
+from guis.common.panguilogger import SetupPANGUILogger
 
+logger = SetupPANGUILogger("root", "Silver")
 
 import pyautogui
 import time
@@ -12,7 +21,8 @@ import sys
 import threading
 from datetime import datetime
 from pathlib import Path
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSignal
 
 # from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
@@ -34,30 +44,40 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QMessageBox,
 )
-from guis.straw.silverepoxy.silver import Ui_MainWindow  ## edit via Qt Designer
-from guis.straw.remove import Ui_Dialogw
-from guis.straw.removestraw import removeStraw
-from guis.straw.checkstraw import *
 from data.workers.credentials.credentials import Credentials
+from guis.common.db_classes.straw import Straw
+from guis.common.db_classes.straw_location import StrawPosition, CuttingPallet
 from guis.common.getresources import GetProjectPaths
 from guis.common.save_straw_workers import saveWorkers
-from guis.common.gui_utils import except_hook
+from guis.straw.checkstraw import *
+from guis.straw.remove import Ui_Dialogw
+from guis.straw.removestraw import removeStraw
+from guis.straw.silverepoxy.silver import Ui_MainWindow  ## edit via Qt Designer
+
+# import guis.common.dataProcessor as DP
+from guis.common.dataProcessor import SQLDataProcessor as DP
+from guis.common.gui_utils import generateBox, except_hook
+from guis.common.timer import QLCDTimer
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
 
 class Silver(QMainWindow):
-    LockGUI = QtCore.pyqtSignal(bool)
+
+    LockGUI = pyqtSignal(bool)
+    timer_signal = pyqtSignal()
 
     def __init__(self, paths, webapp=None, parent=None):
         super(Silver, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.stationID = "silv"
         self.palletDirectory = paths["pallets"]
         self.workerDirectory = paths["silverworkers"]
         self.silverDirectory = paths["silverdata"]
         self.boardPath = paths["board"]
         self.ui.PortalButtons.buttonClicked.connect(self.Change_worker_ID)
+        # self.ui.tab_widget.setCurrentIndex(0)
         self.Current_workers = [
             self.ui.Current_worker1,
             self.ui.Current_worker2,
@@ -70,65 +90,115 @@ class Silver(QMainWindow):
             self.ui.portal3,
             self.ui.portal4,
         ]
-        self.ui.start.clicked.connect(self.initialData)
+
+        self.ui.start.clicked.connect(self.collectInitialData)
         self.ui.finishInsertion.clicked.connect(self.timeUp)
         self.ui.finish.clicked.connect(self.saveData)
         self.ui.viewButton.clicked.connect(self.editPallet)
+
+        self.ui.epoxyBatchInput.setText("N/A")
+
+        # Data to be saved
         self.palletID = ""
         self.palletNum = ""
         self.epoxyBatch = ""
         self.sessionWorkers = []
         self.straws = []
         self.temp = True
+        self.dataSaved = False
+
+        self.LockGUI.connect(self.lockGUI)
+        self.credentialChecker = Credentials(self.stationID)
+        self.justLogOut = ""
+        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
+
+        # Timing info
         self.ui.sec_disp.setNumDigits(2)
         self.ui.sec_disp.setSegmentStyle(2)
         self.ui.min_disp.setNumDigits(2)
         self.ui.min_disp.setSegmentStyle(2)
         self.ui.hour_disp.setNumDigits(2)
         self.ui.hour_disp.setSegmentStyle(2)
-        self.justLogOut = ""
-        saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
 
-        self.LockGUI.connect(self.lockGUI)
+        self.timer = QLCDTimer(
+            self.ui.hour_disp,
+            self.ui.min_disp,
+            self.ui.sec_disp,
+            lambda: self.timer_signal.emit(),
+            max_time=28800,
+        )  # 0 - Main Timer: Turns red after 8 hours
+        self.timer_signal.connect(self.timer.display)
 
-        self.stationID = "silv"
-        self.credentialChecker = Credentials(self.stationID)
+        self.startTimer = lambda: self.timer.start()
+        self.stopTimer = lambda: self.timer.stop()
+        self.resetTimer = lambda: self.timer.reset()
+        self.mainTimer = self.timer  # data processor wants it
+        self.running = lambda: self.timer.isRunning()
 
-        self.lockGUI(False)
+        self.timing = False
 
-        thread = threading.Thread(target=self.main, args=())
-        thread.daemon = True
-        thread.start()
+        # Data Processor
+        # Record station and session, not yet procedure or straw location
+        # Those are recorded during saveStart
+        self.pro = 9
+        self.pro_index = self.pro - 1
+        self.DP = DP(
+            gui=self,
+            stage="straws",
+        )
+
+        # Start it off with the prep tab frozen
+        self.LockGUI.emit(False)
+
+    def getPalletID(self):
+        return self.palletID
+
+    def getPalletNumber(self):
+        return self.palletNum
 
     def Change_worker_ID(self, btn):
         label = btn.text()
-        portalNum = 0
+        portalNum = self.portals.index(btn)
+
         if label == "Log In":
-            portalNum = int(btn.objectName().strip("portal")) - 1
             Current_worker, ok = QInputDialog.getText(
                 self, "Worker Log In", "Scan your worker ID:"
             )
+            Current_worker = Current_worker.upper().strip()
             if not ok:
                 return
-            self.sessionWorkers.append(Current_worker)
-            self.Current_workers[portalNum].setText(Current_worker)
-            print("Welcome " + self.Current_workers[portalNum].text() + " :)")
-            btn.setText("Log Out")
-            # self.ui.tabWidget.setCurrentIndex(1)
+            if not self.DP.validateWorkerID(Current_worker):
+                generateBox("critical", "Login Error", "Invalid worker ID.")
+            elif self.DP.workerLoggedIn(Current_worker):
+                generateBox(
+                    "critical",
+                    "Login Error",
+                    "This worker ID is already logged in.",
+                )
+            else:
+                # Record login with data processor
+                logger.info(f"{Current_worker} logged in")
+                self.DP.saveLogin(Current_worker)
+                self.sessionWorkers.append(Current_worker)
+                self.Current_workers[portalNum].setText(Current_worker)
+                logger.info("Welcome " + self.Current_workers[portalNum].text() + " :)")
+                btn.setText("Log Out")
+                # self.ui.tab_widget.setCurrentIndex(1)
+
         elif label == "Log Out":
-            portalNum = int(btn.objectName().strip("portal")) - 1
-            Current_worker = self.Current_workers[portalNum].text()
+            worker = self.Current_workers[portalNum].text()
             self.justLogOut = self.Current_workers[portalNum].text()
-            print("Goodbye " + self.Current_workers[portalNum].text() + " :(")
-            self.sessionWorkers.remove(Current_worker)
-            Current_worker = ""
-            self.Current_workers[portalNum].setText(Current_worker)
+            self.sessionWorkers.remove(worker)
+            self.DP.saveLogout(worker)
+            logger.info("Goodbye " + worker + " :(")
+            self.Current_workers[portalNum].setText("")
             btn.setText("Log In")
+
+        # Recheck credentials
+        self.LockGUI.emit(self.DP.checkCredentials())
+
         saveWorkers(self.workerDirectory, self.Current_workers, self.justLogOut)
         self.justLogOut = ""
-
-    def checkCredentials(self):
-        return self.credentialChecker.checkCredentials(self.sessionWorkers)
 
     def lockGUI(self, credentials):
         if credentials:
@@ -159,19 +229,16 @@ class Silver(QMainWindow):
                 "Could not update board due to board file being accessed concurrently"
             )
 
-    def initialData(self):
+    # Start Button
+    def collectInitialData(self):
         self.palletNum = self.ui.palletNumInput.text()
         self.epoxyBatch = self.ui.epoxyBatchInput.text()
 
         valid = [True, True, True]
 
-        if (
-            not len(self.palletNum) == 8
-            or not self.palletNum.startswith("CPAL")
-            or not self.palletNum[4:].isnumeric()
-        ):
+        # cpal entry has valid format
+        if not self.verifyPalletNumber():
             valid[1] = False
-
             if self.palletNum == "":
                 self.ui.palletNumInput.setStyleSheet(
                     "background-color:rgb(149, 186, 255)"
@@ -179,36 +246,31 @@ class Silver(QMainWindow):
             else:
                 self.ui.palletNumInput.setStyleSheet("background-color:rgb(255, 0, 0)")
 
+        # look for cpal file and associated cpalID
         for palletid in os.listdir(self.palletDirectory):
             for pallet in os.listdir(self.palletDirectory / palletid):
                 if self.palletNum + ".csv" == pallet:
                     self.palletID = palletid
                     valid[0] = True
 
-        if (
-            not len(self.epoxyBatch) == 12
-            or not self.epoxyBatch.startswith("SE.")
-            or not int(self.epoxyBatch[3:5]) in range(1, 13)
-            or not int(self.epoxyBatch[5:7]) in range(1, 32)
-            or not int(self.epoxyBatch[7:9])
-            in range(17, (datetime.now().year - 2000) + 1)
-            or not self.epoxyBatch[-2:].isnumeric()
-        ):
+        """
+        # epoxy batch has valid format
+        if not self.verifyEpoxyBatch():
             valid[2] = False
-
             if self.epoxyBatch == "":
                 self.ui.epoxyBatchInput.setStyleSheet(
                     "background-color:rgb(149, 186, 255)"
                 )
             else:
                 self.ui.epoxyBatchInput.setStyleSheet("background-color:rgb(255, 0, 0)")
+        """
 
         if valid[1]:
             self.ui.palletNumInput.setStyleSheet("")
         if valid[2]:
             self.ui.epoxyBatchInput.setStyleSheet("")
 
-        previousSteps = ["prep", "ohms", "C-O2", "leak", "lasr", "leng"]
+        previousSteps = ["prep", "ohms", "C-O2", "leak", "leng", "lasr"]
         check = Check()
 
         passed = False
@@ -218,6 +280,12 @@ class Silver(QMainWindow):
                 check.check(self.palletNum, previousSteps)
                 passed = True
             except StrawFailedError as error:
+                pfiles = "\n".join(check.findPalletFiles(self.palletNum))
+                logger.error(f"{self.palletNum} found in {pfiles}")
+                logger.error(
+                    "None of these files had the correct previous steps for this process."
+                )
+
                 reply = QMessageBox.critical(
                     self,
                     "Testing Error",
@@ -242,31 +310,118 @@ class Silver(QMainWindow):
                     )
                     break
 
-        if all(valid) and passed:
+        # Make sure old cpal ID is empty
+        cpalid_is_empty = False
+        old_cpals = CuttingPallet._queryPalletsByID(int(self.getPalletID()[-2:])).all()
+        if not old_cpals:
+            cpalid_is_empty = True
+        else:
+            logger.debug(f"clearing straws from old cpals\n{old_cpals}")
+            for cpal in old_cpals:
+                filled_positions = cpal.getFilledPositions()
+                if len(filled_positions):
+                    logger.debug(
+                        f"Clearing {len(filled_positions)} straws from this CPALID."
+                    )
+                    cpal.removeAllStraws()
+                if cpal.isEmpty():
+                    logger.debug(
+                        f"CPALID is cleared of old straw and ready to be filled with new ones."
+                    )
+                    cpalid_is_empty = True
+
+        if all(valid) and passed and cpalid_is_empty:
             self.ui.palletNumInput.setDisabled(True)
             self.ui.epoxyBatchInput.setDisabled(True)
             self.ui.start.setDisabled(True)
             self.ui.viewButton.setEnabled(True)
             self.ui.finishInsertion.setEnabled(True)
+
+            # initialize procedure and commit it to the DB
+            self.DP.saveStart()
             self.stopWatch()
 
+    # set self.palletNum
+    def verifyPalletNumber(self, pallet_number=None):
+        if not pallet_number:
+            pallet_number = self.ui.palletNumInput.text().upper()
+
+        pallet_number = pallet_number.strip().upper()
+
+        if len(pallet_number) != 8:
+            return False
+        if not pallet_number.startswith("CPAL"):
+            return False
+        if not pallet_number[4:].isnumeric():
+            return False
+
+        """
+        for id in range(1, 24):
+            file = pallet_number + ".csv"
+            path = self.palletDirectory / str("CPALID" + str(id).zfill(2)) / file
+            if os.path.exists(path):
+                logger.info(f"{pallet_number} has been prepped.")
+                QMessageBox.question(
+                    self,
+                    "Duplicate CPAL Number",
+                    "This pallet has been prepped!",
+                    QMessageBox.Ok,
+                )
+                return False
+        """
+
+        # verified -- set self.palletNumber
+        self.palletNumber = pallet_number
+        return True
+
+    # set self.epoxyBatch
+    # SE.010122000
+    def verifyEpoxyBatch(self, epoxy_batch=None):
+        if (
+            not len(self.epoxyBatch) == 12
+            or not self.epoxyBatch.startswith("SE.")
+            or not int(self.epoxyBatch[3:5]) in range(1, 13)
+            or not int(self.epoxyBatch[5:7]) in range(1, 32)
+            or not int(self.epoxyBatch[7:9])
+            in range(17, (datetime.now().year - 2000) + 1)
+            or not self.epoxyBatch[-2:].isnumeric()
+        ):
+            return False
+        else:
+            return True
+
+    # start timer
     def stopWatch(self):
-        begin = time.time()
-        while self.temp:
-            running = time.time() - begin
-            self.ui.hour_disp.display(int(running / 3600))
-            self.ui.min_disp.display(int(running / 60) % 60)
-            self.ui.sec_disp.display(int(running) % 60)
-            app.processEvents()
-            time.sleep(0.1)
+        self.timing = True
+        self.startTimer()
+        self.temp = False
+        # begin = time.time()
+        # while self.temp:
+        #    running = time.time() - begin
+        #    self.ui.hour_disp.display(int(running / 3600))
+        #    self.ui.min_disp.display(int(running / 60) % 60)
+        #    self.ui.sec_disp.display(int(running) % 60)
+        #    app.processEvents()
+        #    time.sleep(0.1)
+        # self.temp = True
+        # self.ui.finishInsertion.setDisabled(True)
+        # self.ui.finish.setEnabled(True)
+
+    # stop timer
+    def timeUp(self):
+        self.timing = False
+        self.stopTimer()
+        self.DP.saveFinish()
         self.temp = True
         self.ui.finishInsertion.setDisabled(True)
         self.ui.finish.setEnabled(True)
 
-    def timeUp(self):
-        self.temp = False
-
     def saveData(self):
+        # save to DB
+        # self.DP.procedure.setEpoxyBatch(self.epoxyBatch)
+        self.DP.procedure.setEpoxyTime(self.timer.getElapsedTime().total_seconds())
+
+        # update epoxy file
         pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
         if pfile.is_file():
             with open(pfile, "r") as palletFile:
@@ -282,7 +437,6 @@ class Silver(QMainWindow):
                                     self.straws.append(pallet[row][entry])
 
             with open(pfile, "a") as palletWrite:
-                palletWrite.write("\n")
                 palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",silv,")
                 for straw in self.straws:
                     palletWrite.write(straw)
@@ -294,9 +448,10 @@ class Silver(QMainWindow):
 
                 palletWrite.write(",".join(self.sessionWorkers))
 
+        # save to epoxy file
         sfile = self.silverDirectory / str(self.palletNum + ".csv")
         with open(sfile, "w+") as file:
-            header = "Timestamp, Pallet ID, Epoxy Batch #, Endpiece Insertion time (H:M:S), Workers ***NEWLINE***: Comments (optional)\n"
+            header = "Timestamp, Pallet ID, Epoxy Batch #, Endpiece Insertion time (H:M:S), Workers, Comments (optional)\n"
             file.write(header)
             file.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
             file.write(self.palletID + "," + self.epoxyBatch + ",")
@@ -315,7 +470,7 @@ class Silver(QMainWindow):
                     file.write(",")
                 i = i + 1
             if self.ui.commentBox.document().toPlainText() != "":
-                file.write("\n" + self.ui.commentBox.document().toPlainText())
+                file.write(self.ui.commentBox.document().toPlainText())
 
         reply = QMessageBox.question(
             self,
@@ -325,10 +480,7 @@ class Silver(QMainWindow):
             QMessageBox.No,
         )
 
-        if reply == QMessageBox.Yes:
-            self.uploadData()
-            self.resetGUI()
-        else:
+        if reply != QMessageBox.Yes:
             QMessageBox.question(
                 self,
                 "Pallet cleaned?",
@@ -336,13 +488,10 @@ class Silver(QMainWindow):
                 QMessageBox.Ok,
             )
             self.editPallet()
-            self.uploadData()
-            self.resetGUI()
 
-    ##        reply = QMessageBox.question(self, "Logout", "Do you want to logout?", QMessageBox.Yes, QMessageBox.No)
-    ##
-    ##        if reply == QMessageBox.Yes:
-    ##            self.logOut()
+        # closing
+        reply = QMessageBox.critical(self, "All Done", "Goodbye")
+        sys.exit(0)
 
     def getStraws(self):
         pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
@@ -394,21 +543,11 @@ class Silver(QMainWindow):
         event.accept()
         sys.exit(0)
 
-    def main(self):
-        changed = False
-        while True:
-            credentials = self.checkCredentials()
-
-            if (credentials and not changed) or (not credentials and changed):
-                self.LockGUI.emit(credentials)
-                changed = not changed
-            time.sleep(0.01)
-
 
 def run():
-    paths = GetProjectPaths()
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
+    paths = GetProjectPaths()
     ctr = Silver(paths)
     ctr.show()
     app.exec_()

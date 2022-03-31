@@ -5,6 +5,7 @@ import csv
 import sys
 from guis.common.getresources import GetProjectPaths
 
+
 class StrawFailedError(Exception):
     # Raised when attempting to test a straw that has failed a previous step, but was not removed
     def __init__(self, message):
@@ -16,40 +17,40 @@ class Check:
     def __init__(self):
         self.palletDirectory = GetProjectPaths()["pallets"]
 
-    def strawPass(self, CPAL, straw, step):
-        PASS = False
+    def findPalletFiles(self, CPAL):
+        pfiles = []
         for palletid in os.listdir(self.palletDirectory):
             for pallet in os.listdir(self.palletDirectory / palletid):
                 if CPAL + ".csv" == pallet:
-                    pfile =  self.palletDirectory / palletid / pallet
-                    with open(pfile, "r") as file:
-                        dummy = csv.reader(file)
-                        history = []
-                        for line in dummy:
-                            if line != []:
-                                history.append(line)
-                        for line in history:
-                            if line[1] == step:
-                                for index in range(len(line)):
-                                    if line[index] == straw and line[index + 1] == "P":
-                                        PASS = True
-                            if line[1] == "adds":
-                                for index in range(len(line)):
-                                    if line[index] == straw and line[
-                                        index + 1
-                                    ].startswith("CPAL"):
-                                        PASS = self.strawPass(
-                                            line[index + 1], straw, step
-                                        )
-                                    if line[index] == straw and line[
-                                        index + 1
-                                    ].startswith("ST"):
-                                        PASS = self.strawPass(
-                                            CPAL, line[index + 1], step
-                                        )
+                    pfiles.append(self.palletDirectory / palletid / pallet)
+        return pfiles
+
+    def strawPass(self, CPAL, straw, step):
+        PASS = False
+        for pfile in self.findPalletFiles(CPAL):
+            with open(pfile, "r") as file:
+                dummy = csv.reader(file)
+                history = []
+                for line in dummy:
+                    if line != []:
+                        history.append(line)
+                for line in history:
+                    if line[1] == step:
+                        for index in range(len(line)):
+                            if line[index] == straw and line[index + 1] == "P":
+                                PASS = True
+                    if line[1] == "adds":
+                        for index in range(len(line)):
+                            if line[index] == straw and line[index + 1].startswith(
+                                "CPAL"
+                            ):
+                                PASS = self.strawPass(line[index + 1], straw, step)
+                            if line[index] == straw and line[index + 1].startswith(
+                                "ST"
+                            ):
+                                PASS = self.strawPass(CPAL, line[index + 1], step)
 
         return PASS
-
 
     def strawPassAll(self, CPAL, straw):
         PASS = False
@@ -65,21 +66,18 @@ class Check:
         PASS = False
         results = []
         straws = []
-        for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory / palletid):
-                if CPAL + ".csv" == pallet:
-                    pfile =  self.palletDirectory / palletid / pallet
-                    with open(pfile, "r") as file:
-                        dummy = csv.reader(file)
-                        history = []
-                        for line in dummy:
-                            if line != []:
-                                history.append(line)
-                        for entry in history[len(history) - 1]:
-                            if entry.startswith("ST"):
-                                straws.append(entry)
-        if not straws:
-            print(f"ERROR: no straws/cpals found for {CPAL}")
+
+        for pfile in self.findPalletFiles(CPAL):
+            with open(pfile, "r") as file:
+                dummy = csv.reader(file)
+                history = []
+                for line in dummy:
+                    if line != []:
+                        history.append(line)
+                for entry in history[len(history) - 1]:
+                    if entry.startswith("ST"):
+                        straws.append(entry)
+
         for straw in straws:
             results.append(self.strawPass(CPAL, straw, step))
         if results == []:

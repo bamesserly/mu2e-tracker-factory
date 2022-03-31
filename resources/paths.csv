@@ -28,7 +28,7 @@ prepdata,data/Straw Prep Data
 prepworkers,data/workers/straw workers/straw prep
 qc_leak_resolution,data/Panel Data/FinalQC/leak_resolution
 resistanceworkers,data/workers/straw workers/resistance
-silverdata,data/Silver epoxy data
+silverdata,data/silver_epoxy
 silverworkers,data/workers/straw workers/silver epoxy
 stepsDirectory,data/Panel Data/Steps/
 straw_tensioner_data,data/Panel Data/straw_tensioner_data
