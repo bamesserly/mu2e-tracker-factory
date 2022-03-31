@@ -547,7 +547,7 @@
             <string>Panel</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_14">
-            <item row="0" column="2">
+            <item row="0" column="3">
              <widget class="QGroupBox" name="stepsBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -574,7 +574,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="3">
+            <item row="0" column="4">
              <layout class="QVBoxLayout" name="verticalLayout_8">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -1581,10 +1581,740 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
+                <item row="2" column="2">
+                 <widget class="QGroupBox" name="groupBox_50">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Straw Loading Pallets</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_19">
+                   <item row="0" column="0">
+                    <widget class="QLineEdit" name="pallet1code">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>8</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string>LPAL****</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>Lower Layer Straws</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLineEdit" name="pallet2code">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>8</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string>LPAL****</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>Upper Layer Straws</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QPushButton" name="validateStraws">
+                     <property name="text">
+                      <string>Validate Straws</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="lpalLabel">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="4" column="1" colspan="2">
+                 <widget class="QGroupBox" name="groupBox_12">
+                  <property name="palette">
+                   <palette>
+                    <active/>
+                    <inactive/>
+                    <disabled/>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Informative Images/Gifs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_9">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="barcode">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Barcode Placement</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1" colspan="2">
+                    <widget class="QPushButton" name="picone1">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>PAAS A/C, ALF, Conducton Ring</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QPushButton" name="picone2">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Epoxy Mixing</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="4">
+                    <widget class="QPushButton" name="picone3">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>BIR Groove</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="picone4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>BIR Hole Positions</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="picone5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Alf Placement</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="2" colspan="2">
+                    <widget class="QPushButton" name="paas_attach">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Attaching PAAS Plates</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QGroupBox" name="bir_box">
+                  <property name="palette">
+                   <palette>
+                    <active/>
+                    <inactive/>
+                    <disabled/>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>BIR Installation</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_3">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_23">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Left gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="leftgap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="currentText">
+                      <string>Select</string>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_30">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Min BP/BIR gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QComboBox" name="mingap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_27">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Right gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="rightgap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_29">
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="text">
+                      <string>Max BP/BIR gap (mils):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QComboBox" name="maxgap">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Select</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>11</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>12</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>13</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>14</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>15</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="sizePolicy">
@@ -2125,572 +2855,6 @@
                   </item>
                  </layout>
                 </item>
-                <item row="2" column="0" colspan="2">
-                 <widget class="QGroupBox" name="bir_box">
-                  <property name="palette">
-                   <palette>
-                    <active/>
-                    <inactive/>
-                    <disabled/>
-                   </palette>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>BIR Installation</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_23">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Left gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QComboBox" name="leftgap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="currentText">
-                      <string>Select</string>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QLabel" name="label_30">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Min BP/BIR gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="3">
-                    <widget class="QComboBox" name="mingap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_27">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Right gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QComboBox" name="rightgap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="2">
-                    <widget class="QLabel" name="label_29">
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Max BP/BIR gap (mils):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="3">
-                    <widget class="QComboBox" name="maxgap">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>Select</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>9</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>10</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>11</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>12</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>13</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>14</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>15</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QGroupBox" name="groupBox_50">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Straw Loading Pallets</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_19">
-                   <item row="0" column="0">
-                    <widget class="QLineEdit" name="pallet1code">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>8</number>
-                     </property>
-                     <property name="placeholderText">
-                      <string>LPAL****</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QLabel" name="label_4">
-                     <property name="text">
-                      <string>Lower Layer Straws</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLineEdit" name="pallet2code">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>8</number>
-                     </property>
-                     <property name="placeholderText">
-                      <string>LPAL****</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QLabel" name="label_3">
-                     <property name="text">
-                      <string>Upper Layer Straws</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QPushButton" name="validateStraws">
-                     <property name="text">
-                      <string>Validate Straws</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QLabel" name="lpalLabel">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
                 <item row="3" column="0" colspan="3">
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
                   <property name="sizeConstraint">
@@ -2969,168 +3133,11 @@ Heater GUI</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1" colspan="2">
-                 <widget class="QGroupBox" name="groupBox_12">
-                  <property name="palette">
-                   <palette>
-                    <active/>
-                    <inactive/>
-                    <disabled/>
-                   </palette>
+                <item row="5" column="0" colspan="3">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner1/banner1.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Informative Images/Gifs</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_9">
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="barcode">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Barcode Placement</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1" colspan="2">
-                    <widget class="QPushButton" name="picone1">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>PAAS A/C, ALF, Conducton Ring</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="3">
-                    <widget class="QPushButton" name="picone2">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Epoxy Mixing</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="4">
-                    <widget class="QPushButton" name="picone3">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>BIR Groove</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="picone4">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>BIR Hole Positions</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="picone5">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Alf Placement</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="2" colspan="2">
-                    <widget class="QPushButton" name="paas_attach">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="text">
-                      <string>Attaching PAAS Plates</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                </layout>
@@ -3933,93 +3940,17 @@ Heater GUI</string>
                   </item>
                  </layout>
                 </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner2/banner2.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
               <widget class="QWidget" name="p3Wire">
                <layout class="QGridLayout" name="gridLayout_30">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_6">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Process 3 - Sense Wire Installation and Soldering</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1" rowspan="2">
-                 <layout class="QGridLayout" name="gridLayout_31">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_22">
-                    <property name="text">
-                     <string>Straw</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0" colspan="4">
-                   <widget class="QScrollArea" name="scrollArea">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>550</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                    <property name="lineWidth">
-                     <number>1</number>
-                    </property>
-                    <property name="verticalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAlwaysOn</enum>
-                    </property>
-                    <property name="sizeAdjustPolicy">
-                     <enum>QAbstractScrollArea::AdjustToContents</enum>
-                    </property>
-                    <property name="widgetResizable">
-                     <bool>true</bool>
-                    </property>
-                    <widget class="QWidget" name="scrollAreaWidgetContents">
-                     <property name="geometry">
-                      <rect>
-                       <x>0</x>
-                       <y>0</y>
-                       <width>531</width>
-                       <height>28</height>
-                      </rect>
-                     </property>
-                     <layout class="QGridLayout" name="gridLayout">
-                      <property name="horizontalSpacing">
-                       <number>3</number>
-                      </property>
-                     </layout>
-                    </widget>
-                   </widget>
-                  </item>
-                  <item row="0" column="1" alignment="Qt::AlignLeft">
-                   <widget class="QLabel" name="label_34">
-                    <property name="text">
-                     <string>Continuity Checks</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="3">
-                   <widget class="QLabel" name="label_32">
-                    <property name="text">
-                     <string>Position in Pins</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
                 <item row="1" column="0">
                  <layout class="QGridLayout" name="gridLayout_64">
                   <item row="2" column="0">
@@ -4314,6 +4245,96 @@ GUI</string>
                   </item>
                  </layout>
                 </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_6">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>12</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Process 3 - Sense Wire Installation and Soldering</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" rowspan="2">
+                 <layout class="QGridLayout" name="gridLayout_31">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_22">
+                    <property name="text">
+                     <string>Straw</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0" colspan="4">
+                   <widget class="QScrollArea" name="scrollArea">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>550</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
+                    </property>
+                    <property name="verticalScrollBarPolicy">
+                     <enum>Qt::ScrollBarAlwaysOn</enum>
+                    </property>
+                    <property name="sizeAdjustPolicy">
+                     <enum>QAbstractScrollArea::AdjustToContents</enum>
+                    </property>
+                    <property name="widgetResizable">
+                     <bool>true</bool>
+                    </property>
+                    <widget class="QWidget" name="scrollAreaWidgetContents">
+                     <property name="geometry">
+                      <rect>
+                       <x>0</x>
+                       <y>0</y>
+                       <width>531</width>
+                       <height>606</height>
+                      </rect>
+                     </property>
+                     <layout class="QGridLayout" name="gridLayout">
+                      <property name="horizontalSpacing">
+                       <number>3</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" alignment="Qt::AlignLeft">
+                   <widget class="QLabel" name="label_34">
+                    <property name="text">
+                     <string>Continuity Checks</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <widget class="QLabel" name="label_32">
+                    <property name="text">
+                     <string>Position in Pins</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QLabel" name="label_8">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner3/banner3.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
               <widget class="QWidget" name="p4PP">
@@ -4404,6 +4425,98 @@ GUI</string>
                   </layout>
                  </widget>
                 </item>
+                <item row="3" column="0" colspan="2">
+                 <widget class="QGroupBox" name="commentBox">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>180</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>400</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Comments</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_51">
+                   <item row="0" column="0">
+                    <widget class="QPlainTextEdit" name="commentBox4">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="saveButton">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>80</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>14</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">saveButtons</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="mainLabel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>12</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Process 4 - Pin Protectors</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="1" column="0">
                  <layout class="QHBoxLayout" name="panelAndStart">
                   <item>
@@ -4478,98 +4591,6 @@ GUI</string>
                    </widget>
                   </item>
                  </layout>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="mainLabel">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Process 4 - Pin Protectors</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0" colspan="2">
-                 <widget class="QGroupBox" name="commentBox">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>180</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>400</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Comments</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_51">
-                   <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="commentBox4">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="saveButton">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>14</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Save</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">saveButtons</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
                 </item>
                 <item row="2" column="0">
                  <layout class="QGridLayout" name="pinsAndOmegaLayout">
@@ -5229,6 +5250,13 @@ GUI</string>
                   </item>
                  </layout>
                 </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="QLabel" name="label_46">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner4/banner4.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
               <widget class="QWidget" name="p5HV">
@@ -5418,8 +5446,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>28</height>
+                       <width>481</width>
+                       <height>654</height>
                       </rect>
                      </property>
                     </widget>
@@ -5568,6 +5596,416 @@ GUI</string>
               </widget>
               <widget class="QWidget" name="p6Manifold">
                <layout class="QGridLayout" name="gridLayout_40">
+                <item row="1" column="2">
+                 <widget class="QGroupBox" name="groupBox_16">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Frame Epoxy</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_38">
+                   <item row="1" column="0" colspan="2">
+                    <widget class="QLabel" name="label_137">
+                     <property name="text">
+                      <string>Epoxy Batch (Bead):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLineEdit" name="epoxy_batch42">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>6</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string>EP****</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLineEdit" name="epoxy_batch42_2">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>6</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string>EP****</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0" colspan="3">
+                    <layout class="QHBoxLayout" name="horizontalLayout_22">
+                     <item>
+                      <widget class="QLCDNumber" name="hour_disp_9"/>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="min_disp_9"/>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="sec_disp_9"/>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="0" column="0" colspan="2">
+                    <widget class="QLabel" name="label_132">
+                     <property name="text">
+                      <string>Epoxy Batch (Paint):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0" colspan="3">
+                    <layout class="QHBoxLayout" name="horizontalLayout_30">
+                     <item>
+                      <widget class="QPushButton" name="epoxy_mixed42">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Arial</family>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Mixed</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="epoxy_applied42">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Arial</family>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Applied</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="2">
+                 <widget class="QGroupBox" name="gridGroupBox">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>External GUIs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_65">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="pro6TensionBox">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Panel 
+Tension Box</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QPushButton" name="pro6PanelHeater">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Panel 
+Heater GUI</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QPushButton" name="launchHVpro6">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch HV GUI</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="5" column="2" colspan="2">
+                 <widget class="QGroupBox" name="groupBox_14">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Informative Images</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_33">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="picfour1">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>PAAS A/C, ALF,
+ Conducton Ring</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="paas_attach_3">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Attaching PAAS Plates</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="picfour3">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Heating</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QPushButton" name="picfour2">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Epoxy Mixing</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QGroupBox" name="groupBox_15">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Baseplate/IR Epoxy</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_37">
+                   <item row="1" column="0" colspan="2">
+                    <widget class="QPushButton" name="epoxy_mixed41">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Epoxy Mixed</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLineEdit" name="epoxy_batch41">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>6</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string>EP****</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_131">
+                     <property name="text">
+                      <string>Epoxy Batch:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0" colspan="2">
+                    <widget class="QPushButton" name="epoxy_applied41">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Epoxy Applied</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0" colspan="2">
+                    <layout class="QHBoxLayout" name="horizontalLayout_21">
+                     <item>
+                      <widget class="QLCDNumber" name="hour_disp_8">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="min_disp_8">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="sec_disp_8">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
                 <item row="1" column="3">
                  <widget class="QGroupBox" name="groupBox_21">
                   <property name="font">
@@ -5706,108 +6144,6 @@ GUI</string>
                    </widget>
                   </item>
                  </layout>
-                </item>
-                <item row="5" column="2" colspan="2">
-                 <widget class="QGroupBox" name="groupBox_14">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Informative Images</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_33">
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="picfour1">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>PAAS A/C, ALF,
- Conducton Ring</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="paas_attach_3">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Attaching PAAS Plates</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="picfour3">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Heating</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QPushButton" name="picfour2">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Epoxy Mixing</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
                 </item>
                 <item row="0" column="0" colspan="4">
                  <layout class="QGridLayout" name="gridLayout_36">
@@ -6114,312 +6450,11 @@ GUI</string>
                   </item>
                  </layout>
                 </item>
-                <item row="1" column="2">
-                 <widget class="QGroupBox" name="groupBox_16">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
+                <item row="6" column="0" colspan="4">
+                 <widget class="QLabel" name="label_47">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner6/banner6.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
-                  <property name="title">
-                   <string>Frame Epoxy</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_38">
-                   <item row="1" column="0" colspan="2">
-                    <widget class="QLabel" name="label_137">
-                     <property name="text">
-                      <string>Epoxy Batch (Bead):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QLineEdit" name="epoxy_batch42">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>6</number>
-                     </property>
-                     <property name="placeholderText">
-                      <string>EP****</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="2">
-                    <widget class="QLineEdit" name="epoxy_batch42_2">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>6</number>
-                     </property>
-                     <property name="placeholderText">
-                      <string>EP****</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0" colspan="3">
-                    <layout class="QHBoxLayout" name="horizontalLayout_22">
-                     <item>
-                      <widget class="QLCDNumber" name="hour_disp_9"/>
-                     </item>
-                     <item>
-                      <widget class="QLCDNumber" name="min_disp_9"/>
-                     </item>
-                     <item>
-                      <widget class="QLCDNumber" name="sec_disp_9"/>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="0" column="0" colspan="2">
-                    <widget class="QLabel" name="label_132">
-                     <property name="text">
-                      <string>Epoxy Batch (Paint):</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0" colspan="3">
-                    <layout class="QHBoxLayout" name="horizontalLayout_30">
-                     <item>
-                      <widget class="QPushButton" name="epoxy_mixed42">
-                       <property name="enabled">
-                        <bool>false</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Mixed</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="epoxy_applied42">
-                       <property name="enabled">
-                        <bool>false</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Applied</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="QGroupBox" name="groupBox_15">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Baseplate/IR Epoxy</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_37">
-                   <item row="1" column="0" colspan="2">
-                    <widget class="QPushButton" name="epoxy_mixed41">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>10</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Epoxy Mixed</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QLineEdit" name="epoxy_batch41">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="maxLength">
-                      <number>6</number>
-                     </property>
-                     <property name="placeholderText">
-                      <string>EP****</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_131">
-                     <property name="text">
-                      <string>Epoxy Batch:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0" colspan="2">
-                    <widget class="QPushButton" name="epoxy_applied41">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>10</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Epoxy Applied</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0" colspan="2">
-                    <layout class="QHBoxLayout" name="horizontalLayout_21">
-                     <item>
-                      <widget class="QLCDNumber" name="hour_disp_8">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLCDNumber" name="min_disp_8">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLCDNumber" name="sec_disp_8">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="5" column="0" colspan="2">
-                 <widget class="QGroupBox" name="gridGroupBox">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>External GUIs</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_65">
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="pro6TensionBox">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Panel 
-Tension Box</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QPushButton" name="pro6PanelHeater">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Panel 
-Heater GUI</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QPushButton" name="launchHVpro6">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch HV GUI</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                </layout>
@@ -6428,22 +6463,32 @@ Heater GUI</string>
                <zorder>groupBox_16</zorder>
                <zorder>groupBox_14</zorder>
                <zorder>gridGroupBox</zorder>
+               <zorder>label_47</zorder>
               </widget>
               <widget class="QWidget" name="p7Flooding">
                <layout class="QGridLayout" name="gridLayout_45">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_31">
+                <item row="4" column="0">
+                 <widget class="QGroupBox" name="groupBox_17">
                   <property name="font">
                    <font>
                     <family>Arial</family>
-                    <pointsize>12</pointsize>
+                    <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
-                  <property name="text">
-                   <string>Process 7 - Flooding</string>
+                  <property name="title">
+                   <string>Informative Images</string>
                   </property>
+                  <layout class="QGridLayout" name="gridLayout_44">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="picfive1">
+                     <property name="text">
+                      <string>Epoxy Mixing</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item row="1" column="0">
@@ -6500,6 +6545,21 @@ Heater GUI</string>
                    </widget>
                   </item>
                  </layout>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_31">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>12</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Process 7 - Flooding</string>
+                  </property>
+                 </widget>
                 </item>
                 <item row="2" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_28">
@@ -6740,81 +6800,59 @@ Heater GUI</string>
                   </item>
                  </layout>
                 </item>
-                <item row="4" column="0">
-                 <widget class="QGroupBox" name="groupBox_17">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_48">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner7/banner7.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
-                  <property name="title">
-                   <string>Informative Images</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_44">
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="picfive1">
-                     <property name="text">
-                      <string>Epoxy Mixing</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                </layout>
               </widget>
               <widget class="QWidget" name="p8FinalQC">
                <layout class="QGridLayout" name="gridLayout_86">
-                <item row="4" column="1">
-                 <widget class="QGroupBox" name="badSWGroupBox">
-                  <property name="title">
-                   <string>Bad Straw/Wire</string>
+                <item row="6" column="2" rowspan="2">
+                 <widget class="QGroupBox" name="groupBox_27">
+                  <property name="maximumSize">
+                   <size>
+                    <width>326</width>
+                    <height>16777215</height>
+                   </size>
                   </property>
-                  <layout class="QGridLayout" name="gridLayout_444">
-                   <item row="6" column="0">
-                    <widget class="QLabel" name="label_499">
+                  <property name="title">
+                   <string>Leak Rate</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_87">
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="lr_button">
                      <property name="text">
-                      <string>Failure</string>
+                      <string>Save</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="1">
-                    <widget class="QLineEdit" name="bad_number"/>
-                   </item>
-                   <item row="7" column="1">
-                    <widget class="QPushButton" name="bad_wire_form">
-                     <property name="text">
-                      <string>Submit</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QLabel" name="label_498">
-                     <property name="text">
-                      <string>Number</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QLineEdit" name="bad_failure"/>
+                   <item row="3" column="0">
+                    <widget class="QPlainTextEdit" name="lr_textbox"/>
                    </item>
                    <item row="0" column="0">
-                    <widget class="QCheckBox" name="wireCheck">
+                    <widget class="QLabel" name="label_43">
                      <property name="text">
-                      <string>Wire</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
+                      <string>Latest Leak Rate:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="strawCheck">
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="lr_display">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <italic>true</italic>
+                       <bold>false</bold>
+                      </font>
+                     </property>
                      <property name="text">
-                      <string>Straw</string>
+                      <string>Leak Rate</string>
                      </property>
                     </widget>
                    </item>
@@ -6893,6 +6931,194 @@ Heater GUI</string>
                      <property name="readOnly">
                       <bool>true</bool>
                      </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QGroupBox" name="badSWGroupBox">
+                  <property name="title">
+                   <string>Bad Straw/Wire</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_444">
+                   <item row="6" column="0">
+                    <widget class="QLabel" name="label_499">
+                     <property name="text">
+                      <string>Failure</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QLineEdit" name="bad_number"/>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QPushButton" name="bad_wire_form">
+                     <property name="text">
+                      <string>Submit</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_498">
+                     <property name="text">
+                      <string>Number</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QLineEdit" name="bad_failure"/>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QCheckBox" name="wireCheck">
+                     <property name="text">
+                      <string>Wire</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QCheckBox" name="strawCheck">
+                     <property name="text">
+                      <string>Straw</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QGroupBox" name="groupBox_189">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>11</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Launch GUIs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_494">
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="launch_resistance_test">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Resistance Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="launch_leak_test">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>11</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Launch Leak Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="6" column="0" rowspan="2">
+                 <widget class="QGroupBox" name="groupBox_26">
+                  <property name="title">
+                   <string>Stage Selection Mode</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_84">
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="stageModeCB">
+                     <item>
+                      <property name="text">
+                       <string>Auto</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Manual</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" rowspan="2" colspan="2">
+                    <widget class="QLabel" name="label_45">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QStackedWidget" name="stackedWidget_2">
+                     <property name="currentIndex">
+                      <number>0</number>
+                     </property>
+                     <widget class="QWidget" name="page_19">
+                      <layout class="QGridLayout" name="gridLayout_81"/>
+                     </widget>
+                     <widget class="QWidget" name="page_20">
+                      <layout class="QGridLayout" name="gridLayout_85">
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="label_44">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>Select Stage</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QComboBox" name="stageSelectCB">
+                         <item>
+                          <property name="text">
+                           <string>Preperation</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Leak Test</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Methane Test</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Shipping</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QPushButton" name="goToStagePB">
+                         <property name="text">
+                          <string>Go To Preperation</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                     </widget>
                    </item>
                   </layout>
@@ -7272,51 +7498,14 @@ Heater GUI</string>
                   </widget>
                  </widget>
                 </item>
-                <item row="7" column="1">
-                 <widget class="QGroupBox" name="groupBox_189">
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>11</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
+                <item row="2" column="0" colspan="3">
+                 <widget class="Line" name="line_2">
+                  <property name="lineWidth">
+                   <number>3</number>
                   </property>
-                  <property name="title">
-                   <string>Launch GUIs</string>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
                   </property>
-                  <layout class="QGridLayout" name="gridLayout_494">
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="launch_resistance_test">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Resistance Test</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="launch_leak_test">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Launch Leak Test</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                 <item row="3" column="0">
@@ -7338,104 +7527,6 @@ Heater GUI</string>
                   <property name="text">
                    <string>Current Stage: Limbo</string>
                   </property>
-                 </widget>
-                </item>
-                <item row="2" column="0" colspan="3">
-                 <widget class="Line" name="line_2">
-                  <property name="lineWidth">
-                   <number>3</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="0" rowspan="2">
-                 <widget class="QGroupBox" name="groupBox_26">
-                  <property name="title">
-                   <string>Stage Selection Mode</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_84">
-                   <item row="0" column="1">
-                    <widget class="QComboBox" name="stageModeCB">
-                     <item>
-                      <property name="text">
-                       <string>Auto</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Manual</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="0" rowspan="2" colspan="2">
-                    <widget class="QLabel" name="label_45">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QStackedWidget" name="stackedWidget_2">
-                     <property name="currentIndex">
-                      <number>0</number>
-                     </property>
-                     <widget class="QWidget" name="page_19">
-                      <layout class="QGridLayout" name="gridLayout_81"/>
-                     </widget>
-                     <widget class="QWidget" name="page_20">
-                      <layout class="QGridLayout" name="gridLayout_85">
-                       <item row="0" column="0">
-                        <widget class="QLabel" name="label_44">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="text">
-                          <string>Select Stage</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QComboBox" name="stageSelectCB">
-                         <item>
-                          <property name="text">
-                           <string>Preperation</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Leak Test</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Methane Test</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Shipping</string>
-                          </property>
-                         </item>
-                        </widget>
-                       </item>
-                       <item row="1" column="0" colspan="2">
-                        <widget class="QPushButton" name="goToStagePB">
-                         <property name="text">
-                          <string>Go To Preperation</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
@@ -7847,52 +7938,11 @@ Heater GUI</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="2" rowspan="2">
-                 <widget class="QGroupBox" name="groupBox_27">
-                  <property name="maximumSize">
-                   <size>
-                    <width>326</width>
-                    <height>16777215</height>
-                   </size>
+                <item row="8" column="0" colspan="3">
+                 <widget class="QLabel" name="label_49">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/banner8/banner8.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
-                  <property name="title">
-                   <string>Leak Rate</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_87">
-                   <item row="4" column="0">
-                    <widget class="QPushButton" name="lr_button">
-                     <property name="text">
-                      <string>Save</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QPlainTextEdit" name="lr_textbox"/>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_43">
-                     <property name="text">
-                      <string>Latest Leak Rate:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="lr_display">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <italic>true</italic>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Leak Rate</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
                </layout>
@@ -8320,11 +8370,19 @@ Heater GUI</string>
   <tabstop>commentBox8_6</tabstop>
   <tabstop>saveButton8_6</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="banner1.qrc"/>
+  <include location="banner8.qrc"/>
+  <include location="banner6.qrc"/>
+  <include location="banner7.qrc"/>
+  <include location="banner4.qrc"/>
+  <include location="banner3.qrc"/>
+  <include location="banner2.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="saveButtons"/>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="proSelectButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
