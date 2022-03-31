@@ -1551,7 +1551,9 @@ class panelGUI(QMainWindow):
             if btn.text() == "Process 8 - Final QC":
                 logger.warning("Process 8 is under construction")
                 generateBox(
-                    "warning", "Process 8 Not Ready", "Please select another process.",
+                    "warning",
+                    "Process 8 Not Ready",
+                    "Please select another process.",
                 )
             return
 
@@ -2411,12 +2413,32 @@ class panelGUI(QMainWindow):
                 or Current_worker == "WK-AARNETT01"
                 or Current_worker == "WK-KBOEDIGH01"
                 or Current_worker == "WK-NDOMAH01"
+                or Current_worker == "WK-ZCARPENT01"
+                or Current_worker == "WK-GSANER01"
             ):  # enter dark mode to change to dark mode, Adam and Kaitlin like it too
                 self.changeColor(
                     (26, 26, 26), (255, 255, 255)
                 )  # 26/26/26 = 10% brightness, 255/255/255 = white
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(26, 26, 26);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(26, 26, 26);")
+            elif Current_worker == "WK-BMESS01":
+                self.changeColor((29, 66, 137), (255, 255, 255))  # blue background
+                self.ui.scrollArea.setStyleSheet("background-color: rgb(29,66,137);")
+                self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(29,66,137);")
+            elif (
+                Current_worker == "BURN MY CORNEAS"
+            ):  # enter burn my corneas to get back to normal colors
+                self.changeColor(
+                    (255, 255, 255), (0, 0, 0)
+                )  # 255/255/255 = white back, 0/0/0 = black text
+                self.ui.scrollArea.setStyleSheet(
+                    "background-color: rgb(255, 255, 255);"
+                )
+                self.ui.scrollAreaHV.setStyleSheet(
+                    "background-color: rgb(255, 255, 255);"
+                )
+
+            """
             elif (
                 Current_worker == "SURPRISE ME"
             ):  # enter surprise me to get a random color
@@ -2441,18 +2463,7 @@ class panelGUI(QMainWindow):
                 self.ui.scrollAreaHV.setStyleSheet(
                     f"background-color: rgb({backR}, {backG}, {backB});"
                 )
-            elif (
-                Current_worker == "BURN MY CORNEAS"
-            ):  # enter burn my corneas to get back to normal colors
-                self.changeColor(
-                    (255, 255, 255), (0, 0, 0)
-                )  # 255/255/255 = white back, 0/0/0 = black text
-                self.ui.scrollArea.setStyleSheet(
-                    "background-color: rgb(255, 255, 255);"
-                )
-                self.ui.scrollAreaHV.setStyleSheet(
-                    "background-color: rgb(255, 255, 255);"
-                )
+            """
 
             if ok and Current_worker != "":
                 if not self.DP.validateWorkerID(Current_worker):
@@ -5830,7 +5841,9 @@ class panelGUI(QMainWindow):
     def run_resistance(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start python -m guis.panel.resistance", shell=True, cwd=root_dir,
+            "start python -m guis.panel.resistance",
+            shell=True,
+            cwd=root_dir,
         )
 
     # record broken tap from the broken tap form in pro8
@@ -5924,7 +5937,9 @@ class panelGUI(QMainWindow):
     def run_plot_leak(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start /wait python -m guis.panel.leak", shell=True, cwd=root_dir,
+            "start /wait python -m guis.panel.leak",
+            shell=True,
+            cwd=root_dir,
         )
 
 
