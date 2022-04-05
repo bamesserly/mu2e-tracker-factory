@@ -269,7 +269,10 @@ class DataThread(threading.Thread):
             # Read nmax (60) arduino lines until we get legit temp vals
             temp1, temp2 = "", ""
             while not (temp1 and temp2) and n < nmax:
-                ino_line = self.micro.readline().decode("utf8")
+                try:
+                    ino_line = self.micro.readline().decode("utf8")
+                except UnicodeDecodeError as e:
+                    logger.error(e)
                 # logger.debug(f"{repr(ino_line)} {n}")
                 if ino_line == "":
                     n += 1
