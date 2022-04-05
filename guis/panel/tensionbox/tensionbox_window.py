@@ -79,7 +79,6 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.portloc = self.getPortLocation()  ## Arduino COM port
         self.openSerial()
         self.setupCanvas()
-        
 
         self.plot_tensions(initial=True)
 
@@ -97,28 +96,26 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.runButton.clicked.connect(self.run)
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
 
-    def acquire_tbdata(self, initial):     
-        if initial is True and self.process==6:
-            print('one')
-            self.wire_tensions = np.full(shape=(96, 2),fill_value=None)
-            self.straw_tensions = np.full(shape=(96, 2),fill_value=None)   
+    def acquire_tbdata(self, initial):
+        if initial is True and self.process == 6:
+            self.wire_tensions = np.full(shape=(96, 2), fill_value=None)
+            self.straw_tensions = np.full(shape=(96, 2), fill_value=None)
         elif initial is False:
-            print('two')
-            if str(self.comboBox.currentText()) == 'Wire':
-                print('inner one')
-                print(TensionBox.latest_tension)
-                self.wire_tensions[self.spinBox.value()]=[self.spinBox.value(), TensionBox.latest_tension]
-                '''
-                print('this do be tha wire tension array: ' + str(self.wire_tensions))
-                '''
+            if str(self.comboBox.currentText()) == "Wire":
+                self.wire_tensions[self.spinBox.value()] = [
+                    self.spinBox.value(),
+                    TensionBox.latest_tension,
+                ]
             else:
-                print('inner two')
-                print(TensionBox.latest_tension)
-                self.straw_tensions[self.spinBox.value()]=[self.spinBox.value(), TensionBox.latest_tension]
-        elif initial is True and self.process==3:
-            print('three')
+                self.straw_tensions[self.spinBox.value()] = [
+                    self.spinBox.value(),
+                    TensionBox.latest_tension,
+                ]
+        elif initial is True and self.process == 3:
             # acquire and process straw tb data
-            straw_prelim = TensionboxMeasurement.get_tb_measurements(self.panel, "straw")
+            straw_prelim = TensionboxMeasurement.get_tb_measurements(
+                self.panel, "straw"
+            )
             min_straws = []
             for i in range(96):
 
@@ -203,7 +200,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             # acquire proper straw tension
             current_straw_tension = "None"
             for j in range(len(self.straw_tensions)):
-                if self.straw_tensions[j][0] == i and self.wire_tensions[j][1] != None:
+                if self.straw_tensions[j][0] == i and self.straw_tensions[j][1] != None:
                     current_straw_tension = round(self.straw_tensions[j][1], 3)
 
             tb_straw_label = QLabel(
@@ -239,10 +236,9 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             ylabel2="Straw Tension [g]",
             type="tension",
         )
-        
+
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
-    
 
     def plot_tensions(self, initial):
         self.acquire_tbdata(initial)
@@ -350,12 +346,10 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             # Set the tension in the UI
             tension_display = "%.3f" % tension
             self.tensionEdit.setText(tension_display)
-            
+
             # return the latest tension measurement
-            TensionBox.latest_tension=tension
-            self.latest_tension=tension
-            print('THIS IS THE LATEST TENSION: ' + str(tension))
-            
+            TensionBox.latest_tension = tension
+            self.latest_tension = tension
 
             """
             # Write a summary of the results to the output file
@@ -636,8 +630,7 @@ def clean(item):
 def run():
     app = QApplication(sys.argv)
     hwl1 = TensionBox(
-        saveMethod=lambda *args: print(f"\nMeasurement: {args}"),
-        panel="MN999",
+        saveMethod=lambda *args: print(f"\nMeasurement: {args}"), panel="MN999",
     )
     hwl1.main()
     app.aboutToQuit.connect(hwl1.cleanUp)
