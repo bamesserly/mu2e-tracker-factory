@@ -3068,15 +3068,6 @@ class panelGUI(QMainWindow):
     def parseSteps(self, steps_completed):
         # nested list of nonsequential steps
         
-        group_list=[["complete_resistance_test","check_panel_back","check_back_epoxy",
-        "check_epoxy_joints","check_pcb_connectors","check_omega_clips"],    # process 8
-        ["Seal_Electronics_Slot","install_seal_bolts","glue_standoffs","Tap_and_Clean_Holes"],    # process 8
-        ["remove_epoxy_frame","Clean_O_Rings","Wipe_Surfaces","dustoff_grooves","vacuum_manifold"],  # process 8
-        ["inspect_screw_holes","Inspect_and_Grease","Inspect_and_Clean","install_covers"], # process 8
-        ["wire_straw_inspect", "light_check", "continuity_check", "hv_check_1500", "measure_wire_tensions"],    # process 6
-        ["heat_34", "Comb_Adjustment"], # process 2
-        ["check_comb_shims", "load_straws", "heat"]]    # process 1
-
         group_list = [
             [
                 "complete_resistance_test",
