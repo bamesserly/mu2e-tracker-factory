@@ -97,6 +97,11 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
 
     def acquire_tbdata(self, initial):
+        self.straw_valid=0
+        self.wire_valid=0
+        self.straw_indices=[False for i in range(96)]
+        self.wire_indices=[False for i in range(96)]
+        
         if initial is True and self.process == 6:
             self.wire_tensions = np.full(shape=(96, 2), fill_value=None)
             self.straw_tensions = np.full(shape=(96, 2), fill_value=None)
@@ -113,10 +118,6 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 ]
         elif initial is True and self.process == 3:
             # acquire and process straw tb data
-            self.straw_valid=0
-            self.wire_valid=0
-            self.straw_indices=[False for i in range(96)]
-            self.wire_indices=[False for i in range(96)]
             straw_prelim = TensionboxMeasurement.get_tb_measurements(
                 self.panel, "straw"
             )
@@ -164,7 +165,11 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
 
     def _init_Scroll(self, initial):
         self.acquire_tbdata(initial)
-        wire_data,straw_data=self.clear_data()
+        if self.process == 3:
+            wire_data,straw_data=self.clear_data()
+        else:
+            wire_data=self.wire_tensions
+            straw_data=self.straw_tensions
 
         if initial == True:
             self.tbGrid = QGridLayout()
@@ -251,10 +256,13 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         if not initial:
             self.canvas.reset(self.plotted1, self.plotted2)
 
-        plot_wire,plot_straw=self.clear_data()
-            
-        self.plotted1 = self.canvas.read_data(plot_wire, 0)[1]
-        self.plotted2 = self.canvas.read_data(plot_straw, 1)[0]
+        if self.process == 3:
+            plot_wire,plot_straw=self.clear_data()
+            self.plotted1 = self.canvas.read_data(plot_wire, 0)[1]
+            self.plotted2 = self.canvas.read_data(plot_straw, 1)[0]
+        else:
+            self.plotted1 = self.canvas.read_data(self.wire_tensions, 0)[1]
+            self.plotted2 = self.canvas.read_data(self.straw_tensions, 1)[0]
         self.data_widget.repaint()
     
     def clear_data(self):
