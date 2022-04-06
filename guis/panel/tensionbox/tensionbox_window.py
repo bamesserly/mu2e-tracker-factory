@@ -145,20 +145,12 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             self.straw_tensions = np.empty(shape=(96, 2))
             for i in range(len(min_wires)):
                 if min_wires[i] != None:
-                    self.wire_tensions = np.append(
-                        self.wire_tensions,
-                        np.array([[min_wires[i][4], min_wires[i][8]]]),
-                        axis=0,
-                    )
+                    self.straw_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
 
             # put straws into np format
             for i in range(len(min_straws)):
                 if min_straws[i] != None:
-                    self.straw_tensions = np.append(
-                        self.straw_tensions,
-                        np.array([[min_straws[i][4], min_straws[i][8]]]),
-                        axis=0,
-                    )
+                    self.straw_tensions[min_straws[i][4]]=[min_straws[i][4],min_straws[i][8]]
 
     def _init_Scroll(self, initial):
         self.acquire_tbdata(initial)
@@ -202,6 +194,8 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             for j in range(len(self.straw_tensions)):
                 if self.straw_tensions[j][0] == i and self.straw_tensions[j][1] != None:
                     current_straw_tension = round(self.straw_tensions[j][1], 3)
+            #if self.straw_tensions[i][1] != None:
+            #    current_straw_tension = round(self.straw_tensions[i][1], 3)
 
             tb_straw_label = QLabel(
                 f"{current_straw_tension}"
