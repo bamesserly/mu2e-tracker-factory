@@ -121,6 +121,8 @@ def get_data_from_file(raw_data_fullpath):
         # example line: <timestamp> <chamber> <reading> <human timestmap>
         for line in readfile:
             line = line.split()
+            if not line:
+                continue
             timestamp = float(line[0])
             ppm = float(line[2])
 

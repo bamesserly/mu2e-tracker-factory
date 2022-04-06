@@ -5,7 +5,6 @@ import numpy as np
 import collections
 import pandas as pd
 
-"""
 # straw leak raw data location
 indir = GetProjectPaths()["strawleakdata"] / "raw_data"
 print(indir)
@@ -44,7 +43,7 @@ for straw in straws_list:
 print("raw data found for", len(leak_raw_data_by_straw), "straws")
 
 # open file for writing, "w" is writing
-with open('dict.csv', 'w') as csv_file:  
+with open('dict.csv', 'w') as csv_file:
     writer = csv.writer(csv_file, delimiter=";")
     for key, value in leak_raw_data_by_straw.items():
         v = list(map(str,value))
@@ -130,7 +129,6 @@ with open('rates.csv', 'w') as csv_file:
 #for straw, rates in leak_rates_by_straw.items():
 #    parsed_rates = ','.join(rates)
 #    print(f"{straw}, {parsed_rates}")
-"""
 
 leak_rates_by_straw_df = pd.read_csv("rates.csv", sep=",")
 leak_rates_by_straw = dict(leak_rates_by_straw.values)
