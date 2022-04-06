@@ -145,7 +145,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             self.straw_tensions = np.empty(shape=(96, 2))
             for i in range(len(min_wires)):
                 if min_wires[i] != None:
-                    self.straw_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
+                    self.wire_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
 
             # put straws into np format
             for i in range(len(min_straws)):
