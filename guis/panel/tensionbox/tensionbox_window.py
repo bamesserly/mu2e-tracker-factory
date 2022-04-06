@@ -113,6 +113,10 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 ]
         elif initial is True and self.process == 3:
             # acquire and process straw tb data
+            self.straw_valid=0
+            self.wire_valid=0
+            self.straw_indices=[False for i in range(96)]
+            self.wire_indices=[False for i in range(96)]
             straw_prelim = TensionboxMeasurement.get_tb_measurements(
                 self.panel, "straw"
             )
@@ -146,14 +150,21 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             for i in range(len(min_wires)):
                 if min_wires[i] != None:
                     self.wire_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
+                    self.wire_valid+=1
+                    self.wire_indices[i]=True
 
             # put straws into np format
             for i in range(len(min_straws)):
                 if min_straws[i] != None:
-                    self.straw_tensions[min_straws[i][4]]=[min_straws[i][4],min_straws[i][8]]
+                    self.straw_tensions[min_straws[i][4]]=[int(min_straws[i][4]),min_straws[i][8]]
+                    self.straw_valid+=1
+                    self.straw_indices[i]=True
+            
+                
 
     def _init_Scroll(self, initial):
         self.acquire_tbdata(initial)
+        wire_data,straw_data=self.clear_data()
 
         if initial == True:
             self.tbGrid = QGridLayout()
@@ -171,9 +182,9 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
 
             # acquire proper wire tension
             current_wire_tension = "None"
-            for j in range(len(self.wire_tensions)):
-                if self.wire_tensions[j][0] == i and self.wire_tensions[j][1] != None:
-                    current_wire_tension = round(self.wire_tensions[j][1], 3)
+            for j in range(len(wire_data)):
+                if wire_data[j][0] == i and wire_data[j][1] != None:
+                    current_wire_tension = round(wire_data[j][1], 3)
 
             tb_wire_label = QLabel(
                 f"{current_wire_tension}"
@@ -191,9 +202,9 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
 
             # acquire proper straw tension
             current_straw_tension = "None"
-            for j in range(len(self.straw_tensions)):
-                if self.straw_tensions[j][0] == i and self.straw_tensions[j][1] != None:
-                    current_straw_tension = round(self.straw_tensions[j][1], 3)
+            for j in range(len(straw_data)):
+                if straw_data[j][0] == i and straw_data[j][1] != None:
+                    current_straw_tension = round(straw_data[j][1], 3)
             #if self.straw_tensions[i][1] != None:
             #    current_straw_tension = round(self.straw_tensions[i][1], 3)
 
@@ -240,10 +251,26 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         if not initial:
             self.canvas.reset(self.plotted1, self.plotted2)
 
-        self.plotted1 = self.canvas.read_data(self.wire_tensions, 0)[1]
-        self.plotted2 = self.canvas.read_data(self.straw_tensions, 1)[0]
-
+        plot_wire,plot_straw=self.clear_data()
+            
+        self.plotted1 = self.canvas.read_data(plot_wire, 0)[1]
+        self.plotted2 = self.canvas.read_data(plot_straw, 1)[0]
         self.data_widget.repaint()
+    
+    def clear_data(self):
+        plot_wire=np.empty(shape=(self.wire_valid,2))
+        plot_straw=np.empty(shape=(self.straw_valid,2))
+        free_wire=0
+        free_straw=0
+        for i in range(96):
+            if self.wire_indices[i] is True:
+                plot_wire[free_wire]=self.wire_tensions[i]
+                free_wire+=1
+            
+            if self.straw_indices[i] is True:
+                plot_straw[free_straw]=self.straw_tensions[i]
+                free_straw+=1
+        return plot_wire,plot_straw
 
     def run(self, nextstraw=False):
         """
