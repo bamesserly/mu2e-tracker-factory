@@ -97,69 +97,70 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
 
     def acquire_tbdata(self, initial):
-        self.straw_valid=0
-        self.wire_valid=0
-        self.straw_indices=[False for i in range(96)]
-        self.wire_indices=[False for i in range(96)]
-        
         if initial is True and self.process == 6:
             self.wire_tensions = np.full(shape=(96, 2), fill_value=None)
             self.straw_tensions = np.full(shape=(96, 2), fill_value=None)
+            return
         elif initial is False:
             if str(self.comboBox.currentText()) == "Wire":
                 self.wire_tensions[self.spinBox.value()] = [
                     self.spinBox.value(),
                     TensionBox.latest_tension,
                 ]
+                return
             else:
                 self.straw_tensions[self.spinBox.value()] = [
                     self.spinBox.value(),
                     TensionBox.latest_tension,
                 ]
-        elif initial is True and self.process == 3:
-            # acquire and process straw tb data
-            straw_prelim = TensionboxMeasurement.get_tb_measurements(
-                self.panel, "straw"
-            )
-            min_straws = []
-            for i in range(96):
+                return
 
-                # iterate through the list of
-                min_entry = None
-                for j in range(len(straw_prelim)):
-                    if straw_prelim[j][4] == i:
-                        if min_entry == None or straw_prelim[j][9] > min_entry[9]:
-                            min_entry = straw_prelim[j]
-                min_straws.append(min_entry)
+        self.straw_valid=0
+        self.wire_valid=0
+        self.straw_indices=[False for i in range(96)]
+        self.wire_indices=[False for i in range(96)]
+        
+        # acquire and process straw tb data
+        straw_prelim = TensionboxMeasurement.get_tb_measurements(
+            self.panel, "straw"
+        )
+        min_straws = []
+        for i in range(96):
+            # iterate through the list of
+            min_entry = None
+            for j in range(len(straw_prelim)):
+                if straw_prelim[j][4] == i:
+                    if min_entry == None or straw_prelim[j][9] > min_entry[9]:
+                        min_entry = straw_prelim[j]
+            min_straws.append(min_entry)
 
-            # acquire and process wire tb data
-            wire_prelim = TensionboxMeasurement.get_tb_measurements(self.panel, "wire")
-            min_wires = []
-            for i in range(96):
+        # acquire and process wire tb data
+        wire_prelim = TensionboxMeasurement.get_tb_measurements(self.panel, "wire")
+        min_wires = []
+        for i in range(96):
+            # iterate through the list of
+            min_entry = None
+            for j in range(len(wire_prelim)):
+                if wire_prelim[j][4] == i:
+                    if min_entry == None or wire_prelim[j][9] > min_entry[9]:
+                        min_entry = wire_prelim[j]
+            min_wires.append(min_entry)
 
-                # iterate through the list of
-                min_entry = None
-                for j in range(len(wire_prelim)):
-                    if wire_prelim[j][4] == i:
-                        if min_entry == None or wire_prelim[j][9] > min_entry[9]:
-                            min_entry = wire_prelim[j]
-                min_wires.append(min_entry)
+        # put wires into np format
+        self.wire_tensions = np.empty(shape=(96, 2))
+        self.straw_tensions = np.empty(shape=(96, 2))
+        for i in range(len(min_wires)):
+            if min_wires[i] != None:
+                self.wire_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
+                self.wire_valid+=1
+                self.wire_indices[i]=True
 
-            # put wires into np format
-            self.wire_tensions = np.empty(shape=(96, 2))
-            self.straw_tensions = np.empty(shape=(96, 2))
-            for i in range(len(min_wires)):
-                if min_wires[i] != None:
-                    self.wire_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
-                    self.wire_valid+=1
-                    self.wire_indices[i]=True
-
-            # put straws into np format
-            for i in range(len(min_straws)):
-                if min_straws[i] != None:
-                    self.straw_tensions[min_straws[i][4]]=[int(min_straws[i][4]),min_straws[i][8]]
-                    self.straw_valid+=1
-                    self.straw_indices[i]=True
+        # put straws into np format
+        for i in range(len(min_straws)):
+            if min_straws[i] != None:
+                self.straw_tensions[min_straws[i][4]]=[int(min_straws[i][4]),min_straws[i][8]]
+                self.straw_valid+=1
+                self.straw_indices[i]=True
             
                 
 
