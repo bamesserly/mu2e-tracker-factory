@@ -1,9 +1,11 @@
 from datetime import datetime
-#from guis.common.getresources import GetProjectPaths
+
+# from guis.common.getresources import GetProjectPaths
 from guis.common.gui_utils import except_hook
 from guis.common.panguilogger import SetupPANGUILogger
 import sys
 from time import sleep
+
 
 def run():
     sys.excepthook = except_hook  # crash, don't hang when an exception is raised
@@ -22,22 +24,28 @@ def run():
     cpal_num = input("Scan or type CPAL Number: ")
     cpal_num = cpal_num[-4:]
 
-    is_new_test = True
+    is_first_test = True
     while True:
-        response = input("Starting a new test or resuming an in-progress test?\n[a] new test\n[b] resuming in-progress test\n> ").lower()
+        response = input(
+            "First time testing this pallet?\n[a] first time\n[b] second time\n> "
+        ).lower()
         if response == "a" or response == "b":
-            is_new_test = True if response == "a" else False
+            is_first_test = True if response == "a" else False
             break
 
-    logger = SetupPANGUILogger("root", tag="Methane", be_verbose=False, straw_location = cpal_num)
+    logger = SetupPANGUILogger(
+        "root", tag="Methane", be_verbose=False, straw_location=cpal_num
+    )
 
-    logger.info(f"worker:{worker}, cpalid:{cpal_id}, cpal:{cpal_num}, new_test:{is_new_test}")
+    logger.info(
+        f"worker:{worker}, cpalid:{cpal_id}, cpal:{cpal_num}, first_test:{is_first_test}"
+    )
 
     start_time = datetime.now()
 
     print("\nScan or type the first straw you're testing.")
     print("\nAnd continue scanning straws as you test them.")
-    print("\nPress ctrl-c or enter \"quit\" to log out.\n")
+    print('\nPress ctrl-c or enter "quit" to log out.\n')
     n_straws_scanned = 0
     while True:
         straw = "ST00000"
@@ -45,7 +53,7 @@ def run():
             straw = input(f"Straw {n_straws_scanned+1}: ").upper()
             if straw.lower() == "quit":
                 break
-            assert  len(straw) == 7 and "ST" in straw and int(straw[2:])
+            assert len(straw) == 7 and "ST" in straw and int(straw[2:])
             logger.debug(f"Straw #{n_straws_scanned+1}: {straw}")
             n_straws_scanned += 1
         except AssertionError:
@@ -65,7 +73,7 @@ def run():
 if __name__ == "__main__":
     run()
 
-'''
+"""
     now = datetime.now()
     date = now.strftime("%Y-%m-%d_%H:%M")
     header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers, ***24 straws initially on retest pallet***\n"
@@ -437,5 +445,4 @@ def run():
         myfile.write(date + ",leng," + straws_passed_str + worker + "\n")
 
     logger.info("Finished")
-'''
-
+"""
