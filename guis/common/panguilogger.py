@@ -3,7 +3,7 @@ from os import getenv
 import logging
 
 # the order that these lines appear in is important!
-def SetupPANGUILogger(name="root", tag="PANGUI", be_verbose=False):
+def SetupPANGUILogger(name="root", tag="PANGUI", be_verbose=False, straw_location=None):
     sformatter = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
     fformatter = logging.Formatter(
         "[%(asctime)s][%(levelname)-8s][%(threadName)-10s][%(module)-11s] %(message)s",
@@ -19,6 +19,11 @@ def SetupPANGUILogger(name="root", tag="PANGUI", be_verbose=False):
     logfile = "./logfiles/" + datetime.strftime(
         datetime.now(), f"%Y%m%d_%H%M%S_{tag}_{getenv('USERDOMAIN')}_log.txt"
     )
+    if tag == "Methane":
+        logfile = "./logfiles/" + datetime.strftime(
+            datetime.now(),
+            f"%Y%m%d_%H%M%S_{tag}_{getenv('USERDOMAIN')}_CPAL{straw_location}_log.txt",
+        )
     fhandler = logging.FileHandler(logfile)
     fhandler.setFormatter(fformatter)
     fhandler.setLevel(logging.DEBUG)
