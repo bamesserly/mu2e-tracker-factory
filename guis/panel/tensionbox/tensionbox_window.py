@@ -9,15 +9,7 @@
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QApplication,
-    QWidget,
-    QHBoxLayout,
-    QFileDialog,
-    QGridLayout,
-    QLabel,
-)
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QFileDialog
 import sys
 import os
 
@@ -35,8 +27,6 @@ import csv
 
 from scipy.signal import blackmanharris, fftconvolve
 from guis.panel.tensionbox.parabolic import parabolic
-
-from guis.common.db_classes.measurements_panel import TensionboxMeasurement
 
 from datetime import datetime as dt
 from guis.panel.tensionbox.X0117d import DataCanvas  ## control window for plots
@@ -68,7 +58,6 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.setupUi(self)
         self.connectActions()
         self.process = pro
-        self.panel = panel
 
         # Save input variables
         if panel:
@@ -79,8 +68,6 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.portloc = self.getPortLocation()  ## Arduino COM port
         self.openSerial()
         self.setupCanvas()
-
-        self.plot_tensions(initial=True)
 
     def openSerial(self):
         """Open the serial connection with the Arduino"""
@@ -96,146 +83,12 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         self.runButton.clicked.connect(self.run)
         self.runnext.clicked.connect(lambda: self.run(nextstraw=True))
 
-    def acquire_tbdata(self, initial):
-        if initial is True and self.process == 6:
-            self.wire_tensions = np.full(shape=(96, 2), fill_value=None)
-            self.straw_tensions = np.full(shape=(96, 2), fill_value=None)
-            return
-        elif initial is False:
-            if str(self.comboBox.currentText()) == "Wire":
-                self.wire_tensions[self.spinBox.value()] = [
-                    self.spinBox.value(),
-                    TensionBox.latest_tension,
-                ]
-                return
-            else:
-                self.straw_tensions[self.spinBox.value()] = [
-                    self.spinBox.value(),
-                    TensionBox.latest_tension,
-                ]
-                return
-
-        self.straw_valid=0
-        self.wire_valid=0
-        self.straw_indices=[False for i in range(96)]
-        self.wire_indices=[False for i in range(96)]
-        
-        # acquire and process straw tb data
-        straw_prelim = TensionboxMeasurement.get_tb_measurements(
-            self.panel, "straw"
-        )
-        min_straws = []
-        for i in range(96):
-            # iterate through the list of
-            min_entry = None
-            for j in range(len(straw_prelim)):
-                if straw_prelim[j][4] == i:
-                    if min_entry == None or straw_prelim[j][9] > min_entry[9]:
-                        min_entry = straw_prelim[j]
-            min_straws.append(min_entry)
-
-        # acquire and process wire tb data
-        wire_prelim = TensionboxMeasurement.get_tb_measurements(self.panel, "wire")
-        min_wires = []
-        for i in range(96):
-            # iterate through the list of
-            min_entry = None
-            for j in range(len(wire_prelim)):
-                if wire_prelim[j][4] == i:
-                    if min_entry == None or wire_prelim[j][9] > min_entry[9]:
-                        min_entry = wire_prelim[j]
-            min_wires.append(min_entry)
-
-        # put wires into np format
-        self.wire_tensions = np.empty(shape=(96, 2))
-        self.straw_tensions = np.empty(shape=(96, 2))
-        for i in range(len(min_wires)):
-            if min_wires[i] != None:
-                self.wire_tensions[min_wires[i][4]]=[min_wires[i][4],min_wires[i][8]]
-                self.wire_valid+=1
-                self.wire_indices[i]=True
-
-        # put straws into np format
-        for i in range(len(min_straws)):
-            if min_straws[i] != None:
-                self.straw_tensions[min_straws[i][4]]=[int(min_straws[i][4]),min_straws[i][8]]
-                self.straw_valid+=1
-                self.straw_indices[i]=True
-            
-                
-
-    def _init_Scroll(self, initial):
-        self.acquire_tbdata(initial)
-        if self.process == 3:
-            wire_data,straw_data=self.clear_data()
-        else:
-            wire_data=self.wire_tensions
-            straw_data=self.straw_tensions
-
-        if initial == True:
-            self.tbGrid = QGridLayout()
-        else:
-            for i in range(self.tbGrid.count()):
-                self.tbGrid.itemAt(i).widget().close()
-
-        for i in range(96):  # loop to fill scroll area
-
-            tbLabel = QLabel(f"{i}")  # start with straw position labels
-            tbLabel.setStyleSheet("color: black")
-            tbLabel.setObjectName(
-                f"tbLabel_{i}"
-            )  # they can't (shouldn't) all have the same name
-
-            # acquire proper wire tension
-            current_wire_tension = "None"
-            for j in range(len(wire_data)):
-                if wire_data[j][0] == i and wire_data[j][1] != None:
-                    current_wire_tension = round(wire_data[j][1], 3)
-
-            tb_wire_label = QLabel(
-                f"{current_wire_tension}"
-            )  # create qlabels for the wires
-            tb_wire_label.setStyleSheet("color: black")
-            tb_wire_label.setObjectName(
-                f"tbLabel_{current_wire_tension}"
-            )  # they can't (shouldn't) all have the same name
-
-            # set proper data
-            self.tbGrid.addWidget(tbLabel, i, 0)  # add them to grid, 0th column
-            self.tbGrid.addWidget(
-                tb_wire_label, i, 1, Qt.AlignHCenter
-            )  # add them to grid, 1st column
-
-            # acquire proper straw tension
-            current_straw_tension = "None"
-            for j in range(len(straw_data)):
-                if straw_data[j][0] == i and straw_data[j][1] != None:
-                    current_straw_tension = round(straw_data[j][1], 3)
-            #if self.straw_tensions[i][1] != None:
-            #    current_straw_tension = round(self.straw_tensions[i][1], 3)
-
-            tb_straw_label = QLabel(
-                f"{current_straw_tension}"
-            )  # create qlabels for the straws
-            tb_straw_label.setStyleSheet("color: black")
-            tb_straw_label.setObjectName(
-                f"tbLabel_{current_straw_tension}"
-            )  # they can't (shouldn't) all have the same name
-
-            self.tbGrid.addWidget(
-                tb_straw_label, i, 2, Qt.AlignHCenter
-            )  # add them to grid, 2n column
-
-        # add the newly created grid layout to the GUI
-        self.scrollContents.setLayout(self.tbGrid)
-        # scrollontents is made in the .ui file, and hvGrid is made in this file by the stuff above in this function
-
     def setupCanvas(self):
-        self._init_Scroll(True)
         """Set up canvas for plotting wire number vs. tension"""
         self.data_widget = QWidget(self.graphicsView)
         layout = QHBoxLayout(self.graphicsView)
-        self.acquire_tbdata(True)
+        self.wire_tensions = np.empty(shape=(0, 2))
+        self.straw_tensions = np.empty(shape=(0, 2))
         self.canvas = DataCanvas(
             self.data_widget,
             data=None,
@@ -245,41 +98,26 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             xlabel="Wire Number",
             ylabel="Wire Tension [g]",
             ylabel2="Straw Tension [g]",
-            type="tension",
         )
-
         layout.addWidget(self.canvas)
         self.data_widget.repaint()
 
-    def plot_tensions(self, initial):
-        self.acquire_tbdata(initial)
-
-        if not initial:
-            self.canvas.reset(self.plotted1, self.plotted2)
-
-        if self.process == 3:
-            plot_wire,plot_straw=self.clear_data()
-            self.plotted1 = self.canvas.read_data(plot_wire, 0)[1]
-            self.plotted2 = self.canvas.read_data(plot_straw, 1)[0]
+    def plot_tensions(self, tension, is_straw):
+        if is_straw:
+            self.straw_tensions = np.append(
+                self.straw_tensions,
+                np.array([[self.spinBox.value(), tension]]),
+                axis=0,
+            )
+            self.canvas.read_data(self.straw_tensions, is_straw)
         else:
-            self.plotted1 = self.canvas.read_data(self.wire_tensions, 0)[1]
-            self.plotted2 = self.canvas.read_data(self.straw_tensions, 1)[0]
+            self.wire_tensions = np.append(
+                self.wire_tensions,
+                np.array([[self.spinBox.value(), tension]]),
+                axis=0,
+            )
+            self.canvas.read_data(self.wire_tensions, is_straw)
         self.data_widget.repaint()
-    
-    def clear_data(self):
-        plot_wire=np.empty(shape=(self.wire_valid,2))
-        plot_straw=np.empty(shape=(self.straw_valid,2))
-        free_wire=0
-        free_straw=0
-        for i in range(96):
-            if self.wire_indices[i] is True:
-                plot_wire[free_wire]=self.wire_tensions[i]
-                free_wire+=1
-            
-            if self.straw_indices[i] is True:
-                plot_straw[free_straw]=self.straw_tensions[i]
-                free_straw+=1
-        return plot_wire,plot_straw
 
     def run(self, nextstraw=False):
         """
@@ -293,8 +131,6 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             frequency, pulse width used, and tension to the output file.
             ***
         """
-        # update table containing tension dat
-
         ## increment straw number if "measure next" button clicked
         if nextstraw:
             self.spinBox.setValue(self.spinBox.value() + 1)
@@ -377,9 +213,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             tension_display = "%.3f" % tension
             self.tensionEdit.setText(tension_display)
 
-            # return the latest tension measurement
-            TensionBox.latest_tension = tension
-            self.latest_tension = tension
+            # print(strawNumber, is_straw, length,freq,pulse_width,tension)
 
             """
             # Write a summary of the results to the output file
@@ -399,8 +233,7 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
                 tension=tension,
             )
 
-            self.plot_tensions(initial=False)
-            self._init_Scroll(False)
+            self.plot_tensions(tension, is_straw)
 
             # Given the frequency, calculate the desired pulse width in microseconds for the next run
             pulse_width = (1.0 / (2 * freq)) * 10 ** 6
@@ -660,7 +493,8 @@ def clean(item):
 def run():
     app = QApplication(sys.argv)
     hwl1 = TensionBox(
-        saveMethod=lambda *args: print(f"\nMeasurement: {args}"), panel="MN999",
+        saveMethod=lambda *args: print(f"\nMeasurement: {args}"),
+        panel="MN999",
     )
     hwl1.main()
     app.aboutToQuit.connect(hwl1.cleanUp)
