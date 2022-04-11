@@ -104,34 +104,32 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
         elif initial is False:
             if str(self.comboBox.currentText()) == "Wire":
                 # update wire_indices if process 3
-                if self.process == 3:
-                    self.wire_indices[self.spinBox.value()] = True
                 if (
                     self.process == 3
-                    and self.wire_tensions[self.spinBox.value()] is None
+                    and self.wire_indices[self.spinBox.value()] is False
                 ):
+                    self.wire_indices[self.spinBox.value()] = True
                     self.wire_valid += 1
-                return
 
                 self.wire_tensions[self.spinBox.value()] = [
                     self.spinBox.value(),
                     TensionBox.latest_tension,
                 ]
+                return self.spinBox.value()
             else:
                 # update straw_indices if process 3
-                if self.process == 3:
-                    self.straw_indices[self.spinBox.value()] = True
                 if (
                     self.process == 3
-                    and self.straw_tensions[self.spinBox.value()] is None
+                    and self.straw_indices[self.spinBox.value()] is False
                 ):
+                    self.straw_indices[self.spinBox.value()] = True
                     self.straw_valid += 1
 
                 self.straw_tensions[self.spinBox.value()] = [
                     self.spinBox.value(),
                     TensionBox.latest_tension,
                 ]
-                return
+                return self.spinBox.value()
 
         self.straw_valid = 0
         self.wire_valid = 0
