@@ -23,6 +23,7 @@ from guis.common.panguilogger import SetupPANGUILogger
 ################################################################################
 # Global stuff
 ################################################################################
+kBLANKSTRAWSTRING = "_______"
 logger = SetupPANGUILogger("root", tag="straw_consolidate")
 
 leaktest_dir = GetProjectPaths()["strawleakdata"]
@@ -267,7 +268,10 @@ def finalizeStraws(straws_passed, worker):
 
         # Enter the new straw and make sure it passes
         replace_straw = input("Enter or scan new straw> ")
-        if passedLeakTest(replace_straw, worker):
+        if replace_straw == kBLANKSTRAWSTRING:
+            logger.info(f"Empty straw position entered.")
+            straws_passed[replace_straw_idx] = replace_straw
+        elif passedLeakTest(replace_straw, worker):
             logger.info(f"Straw {replace_straw} is good!")
             straws_passed[replace_straw_idx] = replace_straw
         else:
@@ -305,7 +309,10 @@ def run():
     for i in range(24):
         while True:
             straw = input("Scan barcode #" + str(i + 1) + " ")
-            if passedLeakTest(straw, worker):
+            if straw == kBLANKSTRAWSTRING:
+                logger.info(f"Empty straw position entered.")
+                break
+            elif passedLeakTest(straw, worker):
                 logger.info(f"Straw {straw} is good!")
                 straws_passed.append(straw)
                 break
