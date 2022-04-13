@@ -78,6 +78,8 @@ class Check:
                         for entry in history[len(history) - 1]:
                             if entry.startswith("ST"):
                                 straws.append(entry)
+        if not straws:
+            print(f"ERROR: no straws/cpals found for {CPAL}")
         for straw in straws:
             results.append(self.strawPass(CPAL, straw, step))
         if results == []:
