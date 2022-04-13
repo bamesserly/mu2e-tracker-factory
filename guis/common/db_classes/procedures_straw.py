@@ -145,6 +145,41 @@ class FillLPAL(StrawProcedure):
         super().__init__(station, straw_location, create_key)
 
 
+class SilvProcedure(StrawProcedure):
+    __mapper_args__ = {"polymorphic_identity": "silv"}
+
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "silv"
+        ), f"Error. Tried to construct SilverEpoxy for a station '{station.id}' not 'silv'."
+        super().__init__(station, straw_location, create_key)
+
+    def _getDetailsClass(self):
+        class Details(BASE, OBJECT):
+            __tablename__ = "procedure_details_silv"
+            procedure = Column(Integer, ForeignKey("procedure.id"), primary_key=True)
+            epoxy_batch = Column(Integer)
+            epoxy_time = Column(REAL)
+
+        return Details
+
+    # We no longer save this info
+    def setEpoxyBatch(self, batch):
+        self.details.epoxy_batch = batch
+        self.commit()
+
+    def setEpoxyTime(self, duration):
+        self.details.epoxy_time = duration
+        self.commit()
+
+    # We no longer save this info
+    def getEpoxyBatch(self):
+        return self.details.epoxy_batch
+
+    def getEpoxyTime(self):
+        return self.details.epoxy_time
+
+
 """
 class Co2Procedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "co2"}
@@ -211,27 +246,5 @@ class LasrProcedure(Procedure):
         if position_entry:
             self.details.approximate_humidity = humidity
 
-class SilvProcedure(Procedure):
-    __mapper_args__ = {'polymorphic_identity': "silv"}
-
-    @orm.reconstructor
-    def init_on_load(self):
-        super().init_on_load()
-
-    def _setDetails(self):
-        # Define details class
-        class Details(BASE, OBJECT):
-            __tablename__ = "procedure_details_silv"
-            procedure = Column(Integer, ForeignKey('procedure.id'), primary_key=True)
-            epoxy_batch  = Column(Integer)
-            epoxy_time = Column(REAL)
-        # Save to self.details
-        self.details = SilvProcedure.Details(procedure = self.id)
-
-    def setEpoxyBatch(self,batch):
-        self.details.epoxy_batch = batch
-
-    def setEpoxyTime(self,duration):
-        self.details.epoxy_time = duration
 
 """
