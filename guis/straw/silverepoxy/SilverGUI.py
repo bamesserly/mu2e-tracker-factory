@@ -270,15 +270,23 @@ class Silver(QMainWindow):
         if valid[2]:
             self.ui.epoxyBatchInput.setStyleSheet("")
 
+        # Check in the CPAL file that the pre-requisite steps have been
+        # completed.
+        #
+        # This can fail if (case A) pallet file doesn't have all the requisite
+        # pre-steps OR if (case B) we can't find a CPAL file (e.g. due to no
+        # mergedown, or no consolidate step)
+        #
+        # Either way, ask user to resolve CPAL file issue and exit
         previousSteps = ["prep", "ohms", "C-O2", "leak", "leng", "lasr"]
         check = Check()
-
         passed = False
         try:
             check.check(self.palletNum, previousSteps)
             passed = True
         except StrawFailedError as error:
             pfiles = check.findPalletFiles(self.palletNum)
+            # case A: can't find CPAL file
             if not pfiles:
                 logger.error("CPAL file not found.")
                 QMessageBox.critical(
@@ -286,8 +294,11 @@ class Silver(QMainWindow):
                     "CPAL File Not Found",
                     "Consolidate process either did not run, or, more likely, "
                     "you need to mergedown on the computer that performed the "
-                    "consolidation and then mergedown on this computer.",
+                    "consolidation and then mergedown on this computer. "
+                    "Please find or make this file and try again.",
                 )
+            # case B: CPAL file missing steps or some failed straws on pallet.
+            # TODO give user option to edit CPAL file.
             else:
                 logger.error(
                     f"{self.palletNum} found in the following cpal files: {pfiles}"
@@ -300,10 +311,13 @@ class Silver(QMainWindow):
                     self,
                     "Failed Straws Error",
                     "One or more of these straws has failed a prior straw "
-                    "processing step.\nThat, or, something went wrong with "
-                    "consolidation and you need to do mergedowns.",
+                    "processing step.\nThat, or, something else is wrong with "
+                    "the CPAL file. Please resolve this problem in the CPAL "
+                    "file and try again.",
                 )
 
+                """
+                # none of this stuff is currently working
                 reply = QMessageBox.critical(
                     self,
                     "Modify CPAL?",
@@ -316,37 +330,39 @@ class Silver(QMainWindow):
                 if reply == QMessageBox.Yes:
                     self.editPallet()
                 self.resetGUI()
+                """
 
-        # Make sure old cpal ID is empty
-        cpalid_is_empty = False
-        old_cpals = CuttingPallet._queryPalletsByID(int(self.getPalletID()[-2:])).all()
-        if not old_cpals:
-            cpalid_is_empty = True
-        else:
-            logger.debug(f"clearing straws from old cpals\n{old_cpals}")
-            for cpal in old_cpals:
-                filled_positions = cpal.getFilledPositions()
-                if len(filled_positions):
-                    logger.debug(
-                        f"Clearing {len(filled_positions)} straws from this CPALID."
-                    )
-                    cpal.removeAllStraws()
-                if cpal.isEmpty():
-                    logger.debug(
-                        f"CPALID is cleared of old straw and ready to be filled with new ones."
-                    )
-                    cpalid_is_empty = True
+            sys.exit()
 
-        if all(valid) and passed and cpalid_is_empty:
+        # Lock starting buttons and fields, unlock finishing buttons and fields
+        # Initialize procedure and commit it to the DB
+        if all(valid) and passed:
             self.ui.palletNumInput.setDisabled(True)
             self.ui.epoxyBatchInput.setDisabled(True)
             self.ui.start.setDisabled(True)
             self.ui.viewButton.setEnabled(True)
             self.ui.finishInsertion.setEnabled(True)
 
-            # initialize procedure and commit it to the DB
-            self.DP.saveStart()
-            self.stopWatch()
+            # Catch when trying to create this cpal in the DB (consolidate
+            # should do this but it doesn't currently) AND failing because
+            # this cpal ID still has straws on it (according to the DB).
+            try:
+                self.DP.saveStart()
+            except AssertionError:
+                logger.info(
+                    "Adding this CPAL to the DB. Clearing the old straws from this CPALID."
+                )
+                old_cpals = CuttingPallet._queryPalletsByID(
+                    int(self.getPalletID()[-2:])
+                ).all()
+                for cpal in [i for i in old_cpals if not i.isEmpty()]:
+                    logger.info(f"Clearing straws from CPAL{cpal.number}.")
+                    if len(cpal.getFilledPositions()):
+                        cpal.removeAllStraws()
+                    assert cpal.isEmpty()
+                self.DP.saveStart()
+
+            self.start_timer()
 
     # set self.palletNum
     def verifyPalletNumber(self, pallet_number=None):
@@ -398,7 +414,7 @@ class Silver(QMainWindow):
             return True
 
     # start timer
-    def stopWatch(self):
+    def start_timer(self):
         self.timing = True
         self.startTimer()
         self.temp = False
@@ -428,7 +444,7 @@ class Silver(QMainWindow):
         # self.DP.procedure.setEpoxyBatch(self.epoxyBatch)
         self.DP.procedure.setEpoxyTime(self.timer.getElapsedTime().total_seconds())
 
-        # update epoxy file
+        # update pallet file
         pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
         if pfile.is_file():
             with open(pfile, "r") as palletFile:
