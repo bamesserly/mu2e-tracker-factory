@@ -163,6 +163,7 @@ class SilvProcedure(StrawProcedure):
 
         return Details
 
+    # We no longer save this info
     def setEpoxyBatch(self, batch):
         self.details.epoxy_batch = batch
         self.commit()
@@ -171,6 +172,7 @@ class SilvProcedure(StrawProcedure):
         self.details.epoxy_time = duration
         self.commit()
 
+    # We no longer save this info
     def getEpoxyBatch(self):
         return self.details.epoxy_batch
 
