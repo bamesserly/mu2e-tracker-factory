@@ -40,8 +40,6 @@ logger = SetupPANGUILogger("root")
 from guis.common.getresources import GetProjectPaths, pkg_resources
 import resources
 
-from guis.common.db_classes.straw_location import LoadingPallet
-
 import inspect
 import pyautogui
 from PIL import Image
@@ -82,7 +80,6 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QVBoxLayout,
     QGridLayout,
-    QMessageBox,
 )
 
 try:
@@ -110,7 +107,6 @@ from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.common.gui_utils import generateBox, except_hook
-from guis.common.db_classes.straw_location import StrawLocation
 
 # from guis.panel.resistance.run_test import run_test
 # from guis.panel.leak.PlotLeakRate import RunInteractive
@@ -1551,9 +1547,7 @@ class panelGUI(QMainWindow):
             if btn.text() == "Process 8 - Final QC":
                 logger.warning("Process 8 is under construction")
                 generateBox(
-                    "warning",
-                    "Process 8 Not Ready",
-                    "Please select another process.",
+                    "warning", "Process 8 Not Ready", "Please select another process.",
                 )
             return
 
@@ -2812,7 +2806,6 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][20] = (
             str(self.ui.pallet1code.text()) if self.ui.pallet1code.text() else None
         )
-        # print("logic: " + StrawLocation._queryStrawPositions(self.ui.pallet1code.text()))
         self.data[self.pro_index][21] = (
             str(self.ui.pallet2code.text()) if self.ui.pallet2code.text() else None
         )
@@ -4303,9 +4296,9 @@ class panelGUI(QMainWindow):
             self.ui.lpalLabel.setText("Straws Validated.")
             self.data[0][22] = True
 
-            # Enable finish button
-            if self.stepsList.allStepsChecked():
-                self.finishButton.setText("Finish")
+        # Enable finish button
+        if self.stepsList.allStepsChecked():
+            self.finishButton.setText("Finish")
 
             # Save straws
             self.saveData()
@@ -5841,9 +5834,7 @@ class panelGUI(QMainWindow):
     def run_resistance(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start python -m guis.panel.resistance",
-            shell=True,
-            cwd=root_dir,
+            "start python -m guis.panel.resistance", shell=True, cwd=root_dir,
         )
 
     # record broken tap from the broken tap form in pro8
@@ -5937,9 +5928,7 @@ class panelGUI(QMainWindow):
     def run_plot_leak(self):
         root_dir = pkg_resources.read_text(resources, "rootDirectory.txt")
         subprocess.call(
-            "start /wait python -m guis.panel.leak",
-            shell=True,
-            cwd=root_dir,
+            "start /wait python -m guis.panel.leak", shell=True, cwd=root_dir,
         )
 
 
