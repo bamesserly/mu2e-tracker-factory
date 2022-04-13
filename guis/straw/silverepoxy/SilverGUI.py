@@ -274,41 +274,48 @@ class Silver(QMainWindow):
         check = Check()
 
         passed = False
-
-        while not passed:
-            try:
-                check.check(self.palletNum, previousSteps)
-                passed = True
-            except StrawFailedError as error:
-                pfiles = "\n".join(check.findPalletFiles(self.palletNum))
-                logger.error(f"{self.palletNum} found in {pfiles}")
+        try:
+            check.check(self.palletNum, previousSteps)
+            passed = True
+        except StrawFailedError as error:
+            pfiles = check.findPalletFiles(self.palletNum)
+            if not pfiles:
+                logger.error("CPAL file not found.")
+                QMessageBox.critical(
+                    self,
+                    "CPAL File Not Found",
+                    "Consolidate process either did not run, or, more likely, "
+                    "you need to mergedown on the computer that performed the "
+                    "consolidation and then mergedown on this computer.",
+                )
+            else:
                 logger.error(
-                    "None of these files had the correct previous steps for this process."
+                    f"{self.palletNum} found in the following cpal files: {pfiles}"
+                )
+                logger.error(
+                    "None of these files had passing straws for the previous "
+                    "straw processing steps."
+                )
+                QMessageBox.critical(
+                    self,
+                    "Failed Straws Error",
+                    "One or more of these straws has failed a prior straw "
+                    "processing step.\nThat, or, something went wrong with "
+                    "consolidation and you need to do mergedowns.",
                 )
 
                 reply = QMessageBox.critical(
                     self,
-                    "Testing Error",
-                    "Unable to test this pallet:\n"
-                    + error.message
-                    + "\n\nRemove failed straws?",
+                    "Modify CPAL?",
+                    "Do you want to view the CPAL file and have the option to "
+                    "remove failed straws?",
                     QMessageBox.Yes,
                     QMessageBox.No,
                 )
 
                 if reply == QMessageBox.Yes:
                     self.editPallet()
-
-                else:
-                    self.resetGUI()
-                    QMessageBox.critical(
-                        self,
-                        "Testing Error",
-                        "Unable to test this pallet:\n"
-                        + error.message
-                        + "\n\nPlease remove all failed straws and try again",
-                    )
-                    break
+                self.resetGUI()
 
         # Make sure old cpal ID is empty
         cpalid_is_empty = False
