@@ -107,10 +107,11 @@ from guis.panel.tensionbox.tensionbox_window import TensionBox
 from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.common.gui_utils import generateBox, except_hook
-
-# from guis.panel.resistance.run_test import run_test
-# from guis.panel.leak.PlotLeakRate import RunInteractive
-
+from guis.common.db_classes.straw_location import LoadingPallet
+                                                               
+# from guis.panel.resistance.run_test import run_test          
+# from guis.panel.leak.PlotLeakRate import RunInteractive      
+                                                               
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
 
