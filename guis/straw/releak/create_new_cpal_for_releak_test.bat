@@ -15,3 +15,4 @@ if not exist %SUBFILENAME% (
 )
 
 python -m guis.straw.releak
+exit /b

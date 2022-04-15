@@ -7,25 +7,43 @@
 # ===============================================================================
 
 from datetime import datetime
-
+from guis.common.getresources import GetProjectPaths
+from guis.common.panguilogger import SetupPANGUILogger
 
 def run():
+    pallet_dir = GetProjectPaths()["pallets"]
     now = datetime.now()
     date = now.strftime("%Y-%m-%d_%H:%M")
     header = "Time Stamp, Task, 24 Straw Names/Statuses, Workers, ***24 straws initially on retest pallet***\n"
-    workers = "wk-kballs-b01,wk-ajamal01"
+    workers = input("Scan worker ID: ")
     cpal_id = input("Scan or type CPAL ID: ")
     cpal_id = cpal_id[-2:]
     cpal_num = input("Scan or type CPAL Number: ")
     cpal_num = cpal_num[-4:]
-    directory = (
-        "C:\\Users\\Mu2e\Desktop\\Production\\Data\\Pallets\\CPALID" + cpal_id + "\\"
+    pfile = pallet_dir / f"CPALID{cpal_id}"/ f"CPAL{cpal_num}.csv"
+    is_new_cpal = not pfile.is_file() and not pfile.exists()
+
+    logger = SetupPANGUILogger(
+        "root", tag="pallet_generator", be_verbose=False, straw_location=cpal_num
     )
-    mystring = ""
+
+    logger.info(
+        f"worker:{workers}, cpalid:{cpal_id}, cpal:{cpal_num}, is_new_cpal:{is_new_cpal}"
+    )
+
+    straw_pass_list = ""
     for i in range(24):
         while True:
             straw = input("Scan barcode #" + str(i + 1) + " ")
-            if "st" in straw.lower() and straw in mystring:
+
+            # enforce basic straw format
+            try:
+                assert len(straw) == 7 and ("st" in straw.lower() or straw == "_______")
+            except AssertionError:
+                print("Invalid straw entered. Try again.")
+                continue
+
+            if straw in straw_pass_list and straw != "_______":
                 print("***********************************************")
                 print("WARNING DUPLICATE STRAW NUMBER ENTERED.")
                 print("DUPLICATE STRAW HAS NOT BEEN SAVED.")
@@ -35,17 +53,22 @@ def run():
                 print("***********************************************")
                 continue
             else:
-                mystring += straw + ",P,"
+                straw_pass_list += straw.upper() + ",P,"
                 break
 
-    with open(directory + "CPAL" + cpal_num + ".csv", "w") as myfile:
-        myfile.write(header)
-        myfile.write(date + ",prep," + mystring + workers + "\n")
-        myfile.write(date + ",ohms," + mystring + workers + "\n")
-        myfile.write(date + ",C-O2," + mystring + workers + "\n")
+    with open(pfile, "a+") as myfile:
+        if is_new_cpal:
+            myfile.write(header)
+        else:
+            # navigate to last character in file
+            myfile.seek(myfile.tell() - 1)
+            # make sure it's a newline
+            if myfile.read() != "\n":
+                myfile.write("\n")
+            myfile.write(date + ",prep," + straw_pass_list + workers + "\n")
+            myfile.write(date + ",ohms," + straw_pass_list + workers + "\n")
 
-    print("Finished")
-
+    logger.info("Finished")
 
 if __name__ == "__main__":
     run()
