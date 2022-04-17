@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>18</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -6709,6 +6709,9 @@ Heater GUI</string>
                       <widget class="QLineEdit" name="epoxy_batch5_5">
                        <property name="enabled">
                         <bool>false</bool>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
