@@ -372,13 +372,16 @@ class Pan3Procedure(PanelProcedure):
             self.wire_alignment = wire_alignment
 
         def __repr__(self):
-            return "<MeasurementPan3(id='%s', procedure='%s', position='%s', left_continuity='%s', right_continuity='%s', wire_alignment='%s')>" % (
-                self.id,
-                self.procedure,
-                self.position,
-                self.left_continuity,
-                self.right_continuity,
-                self.wire_alignment,
+            return (
+                "<MeasurementPan3(id='%s', procedure='%s', position='%s', left_continuity='%s', right_continuity='%s', wire_alignment='%s')>"
+                % (
+                    self.id,
+                    self.procedure,
+                    self.position,
+                    self.left_continuity,
+                    self.right_continuity,
+                    self.wire_alignment,
+                )
             )
 
         def isCompletelyDefined(self):
@@ -913,8 +916,24 @@ class Pan7Procedure(PanelProcedure):
             epoxy_time_right_running = Column(BOOLEAN)
             epoxy_time_left_timestamp = Column(Integer)
             epoxy_time_right_timestamp = Column(Integer)
+            epoxy_batch_left_828 = Column(Integer)
+            epoxy_batch_right_828 = Column(Integer)
 
         return Details
+
+    def getEpoxyBatchLeft828(self):
+        return self.details.epoxy_batch_left_828
+
+    def getEpoxyBatchRight828(self):
+        return self.details.epoxy_batch_right_828
+
+    def recordEpoxyBatchLeft828(self, batch):
+        self.details.epoxy_batch_left_828 = batch
+        self.commit()
+
+    def recordEpoxyBatchRight828(self, batch):
+        self.details.epoxy_batch_right_828 = batch
+        self.commit()
 
     def getEpoxyBatchLeft(self):
         return self.details.epoxy_batch_left
@@ -990,7 +1009,7 @@ class Pan8Procedure(PanelProcedure):
             left_ring = Column(String)
             center_ring = Column(String)
             right_ring = Column(String)
-            
+
             leak_rate = Column(Integer)
 
             stage = Column(String)
@@ -1038,14 +1057,14 @@ class Pan8Procedure(PanelProcedure):
     def recordCenterRing(self, center_ring):
         self.details.center_ring = center_ring
         self.commit()
-        
+
     def record_leak_rate(self, lr):
         self.details.leak_rate = lr
         self.commit()
-    
+
     def get_leak_rate(self):
         return self.details.leak_rate
-        
+
     def recordStage(self, stage):
         self.details.stage = stage
         self.commit()

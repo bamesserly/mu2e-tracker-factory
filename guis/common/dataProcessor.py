@@ -204,8 +204,6 @@ class DataProcessor(ABC):
     @abstractmethod
     def checkCredentials(self):
         pass
-        
-    
 
     ## SAVE COMMENTS ##
 
@@ -604,7 +602,7 @@ class MultipleDataProcessor(DataProcessor):
         for dp in self.processors:
             dp.saveLogout(worker)
 
-    def record_leak_rate(self,lr):
+    def record_leak_rate(self, lr):
         for dp in self.processors:
             dp.record_leak_rate(lr)
 
@@ -700,7 +698,7 @@ class MultipleDataProcessor(DataProcessor):
 
     def getCommentText(self):
         return self.primaryDP.getCommentText()
-    
+
     def get_leak_rate(self):
         return self.primaryDP.get_leak_rate()
 
@@ -854,7 +852,7 @@ class TxtDataProcessor(DataProcessor):
                 data[i][0], timedelta
             ):  # is a timedelta tuple
                 timedata = f"[{data[i][0]}|{data[i][1]}]"
-                timedata = timedata.replace(",","") + ","
+                timedata = timedata.replace(",", "") + ","
                 row += timedata
             else:
                 row += str(data[i])  # add it to the row
@@ -1025,10 +1023,10 @@ class TxtDataProcessor(DataProcessor):
             )
         except:
             self.saveWorkers(worker_id, login=False)
-            
-    def record_leak_rate(self,lr):
+
+    def record_leak_rate(self, lr):
         pass
-    
+
     def get_leak_rate(self):
         pass
 
@@ -1540,12 +1538,14 @@ class TxtDataProcessor(DataProcessor):
 
     def _pro7header(self):
         return [
-            5,
+            7,
             "Panel ID",
-            "Flood Epoxy Batch (Left)",
+            "Flood Epoxy Batch 815 (Left)",
             "Flood Epoxy Work Time (H:M:S) (Left)",
-            "Flood Epoxy Batch (Right)",
+            "Flood Epoxy Batch 815 (Right)",
             "Flood Epoxy Work Time (H:M:S) (Right)",
+            "Flood Epoxy Batch 828 (Left)",
+            "Flood Epoxy Batch 828 (Right)",
         ]
 
     def _pro8header(self):
@@ -1596,9 +1596,7 @@ class TxtDataProcessor(DataProcessor):
         return wire in qcdwires
 
     # gets all comments for all pros and returns a big string
-    def getCommentText(
-        self,
-    ):
+    def getCommentText(self,):
         # read 7 files and return one big string, only called once in pangui
         allComments = ""  # string to put comments into
 
@@ -1923,6 +1921,12 @@ class SQLDataProcessor(DataProcessor):
         self.callMethod(
             self.procedure.recordEpoxyTimeRight, *self.parseTimeTuple(data[4])
         )  # Flood Epoxy Work Time (Right)
+        self.callMethod(
+            self.procedure.recordEpoxyBatchLeft828, self.stripNumber(data[6])
+        )  # Flood Epoxy Batch (Left)
+        self.callMethod(
+            self.procedure.recordEpoxyBatchRight828, self.stripNumber(data[7])
+        )  # Flood Epoxy Batch (Left)
 
     # FinalQC
     def saveDataProcess8(self):
@@ -1998,14 +2002,14 @@ class SQLDataProcessor(DataProcessor):
 
     def checkCredentials(self):
         return self.session.checkCredentials()
-    
+
     ## SAVE LEAK RATE ##
-    
-    def record_leak_rate(self,lr):
+
+    def record_leak_rate(self, lr):
         if not self.ensureProcedure():
             return
         self.procedure.record_leak_rate(lr)
-    
+
     def get_leak_rate(self):
         return self.procedure.get_leak_rate()
 
@@ -2622,7 +2626,7 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getHeatTime(), self.procedure.getHeatTimeRunning()
             ),  # Heat Time
             self.getBarcode(panel.getPAAS(L_R=None, letter="B")),  # PAAS B barcode
-            self.procedure.getElapsedTime(), # get elapsed time for main timer
+            self.procedure.getElapsedTime(),  # get elapsed time for main timer
         ]
 
     # Wire Tensions
@@ -2686,7 +2690,7 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getSilverEpoxyRightCureDuration(),
                 self.procedure.getSilverEpoxyRightTimeIsRunning(),
             ),  # silver epoxy batch 2 cure duration
-            self.procedure.getElapsedTime(), # get elapsed time for main timer
+            self.procedure.getElapsedTime(),  # get elapsed time for main timer
         ]
 
     # TODO
@@ -2726,7 +2730,7 @@ class SQLDataProcessor(DataProcessor):
             self.timeDelta(
                 self.procedure.getHeatTime(), self.procedure.getHeatTimeRunning()
             ),  # Heating Time
-            self.procedure.getElapsedTime(), # get elapsed time for main timer
+            self.procedure.getElapsedTime(),  # get elapsed time for main timer
         ]
 
     # Flooding
@@ -2744,7 +2748,9 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getEpoxyTimeRight(),
                 self.procedure.getEpoxyTimeRightRunning(),
             ),  # Flood Epoxy Work Time (Right)
-            self.procedure.getElapsedTime(), # get elapsed time for main timer
+            self.procedure.getElapsedTime(),  # get elapsed time for main timer
+            self.procedure.getEpoxyBatchLeft828(),
+            self.procedure.getEpoxyBatchRight828(),
         ]
 
     # Final QC
