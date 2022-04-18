@@ -10,6 +10,7 @@ from datetime import datetime
 from guis.common.getresources import GetProjectPaths
 from guis.common.panguilogger import SetupPANGUILogger
 
+
 def run():
     pallet_dir = GetProjectPaths()["pallets"]
     now = datetime.now()
@@ -20,7 +21,7 @@ def run():
     cpal_id = cpal_id[-2:]
     cpal_num = input("Scan or type CPAL Number: ")
     cpal_num = cpal_num[-4:]
-    pfile = pallet_dir / f"CPALID{cpal_id}"/ f"CPAL{cpal_num}.csv"
+    pfile = pallet_dir / f"CPALID{cpal_id}" / f"CPAL{cpal_num}.csv"
     is_new_cpal = not pfile.is_file() and not pfile.exists()
 
     logger = SetupPANGUILogger(
@@ -65,10 +66,11 @@ def run():
             # make sure it's a newline
             if myfile.read() != "\n":
                 myfile.write("\n")
-            myfile.write(date + ",prep," + straw_pass_list + workers + "\n")
-            myfile.write(date + ",ohms," + straw_pass_list + workers + "\n")
+        myfile.write(date + ",prep," + straw_pass_list + workers + "\n")
+        myfile.write(date + ",ohms," + straw_pass_list + workers + "\n")
 
     logger.info("Finished")
+
 
 if __name__ == "__main__":
     run()
