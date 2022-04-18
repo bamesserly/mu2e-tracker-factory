@@ -2420,7 +2420,7 @@ class panelGUI(QMainWindow):
                 )  # 26/26/26 = 10% brightness, 255/255/255 = white
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(26, 26, 26);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(26, 26, 26);")
-            elif Current_worker == "WK-BMESS01":
+            elif Current_worker == "WK-BMESS01" or Current_worker == 'WK-IWARDLAW01':
                 self.changeColor((29, 66, 137), (255, 255, 255))  # blue background
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(29,66,137);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(29,66,137);")
