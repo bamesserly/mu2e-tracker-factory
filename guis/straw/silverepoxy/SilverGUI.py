@@ -278,7 +278,7 @@ class Silver(QMainWindow):
         # mergedown, or no consolidate step)
         #
         # Either way, ask user to resolve CPAL file issue and exit
-        previousSteps = ["prep", "ohms", "C-O2", "leak", "leng", "lasr"]
+        previousSteps = ["leng", "lasr"]
         check = Check()
         passed = False
         try:
