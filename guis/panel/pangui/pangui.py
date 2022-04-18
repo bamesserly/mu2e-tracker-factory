@@ -3977,6 +3977,10 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_mixed5_3.setDisabled(False)
             self.ui.epoxy_batch5_4.setDisabled(False)
             self.ui.epoxy_batch5_5.setDisabled(False)
+        if data[6] is not None:
+            self.ui.epoxy_batch5_4.setDisabled(True)
+        if data[7] is not None:
+            self.ui.epoxy_batch5_5.setDisabled(True)
         # if data[1] is not None:
         #     self.ui.epoxy_batch5_2.setText(str(data[1]))
 
