@@ -315,7 +315,7 @@ class panelGUI(QMainWindow):
         self.data = []
 
         # Specify number of data values collected for each pro
-        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 5, 8: 17}
+        data_count = {1: 22, 2: 9, 3: 5, 4: 13, 5: 1, 6: 14, 7: 7, 8: 17}
 
         # Make a list of Nones for each pro (a list of lists, one list for each pro)
         for pro in data_count:
@@ -1103,6 +1103,8 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch42_2.setValidator(valid_epoxy)
         self.ui.epoxy_batch5_2.setValidator(valid_epoxy)
         self.ui.epoxy_batch5_3.setValidator(valid_epoxy)
+        self.ui.epoxy_batch5_4.setValidator(valid_epoxy)
+        self.ui.epoxy_batch5_5.setValidator(valid_epoxy)
         self.ui.epoxy_batch_2.setValidator(valid_epoxy)
         self.ui.epoxy_batch_3.setValidator(valid_epoxy)
         self.ui.epoxy_batch_4.setValidator(valid_epoxy)
@@ -1288,6 +1290,8 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_2,
                 self.ui.epoxy_batch5_3,
                 self.ui.epoxy_applied5_3,
+                self.ui.epoxy_batch5_4,
+                self.ui.epoxy_batch5_5,
             ],
             # pro 8 Widgets
             # 0 = panel input
@@ -2416,7 +2420,7 @@ class panelGUI(QMainWindow):
                 )  # 26/26/26 = 10% brightness, 255/255/255 = white
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(26, 26, 26);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(26, 26, 26);")
-            elif Current_worker == "WK-BMESS01":
+            elif Current_worker == "WK-BMESS01" or Current_worker == 'WK-IWARDLAW01':
                 self.changeColor((29, 66, 137), (255, 255, 255))  # blue background
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(29,66,137);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(29,66,137);")
@@ -2693,7 +2697,6 @@ class panelGUI(QMainWindow):
 
             # update display
             self.ui.lr_display.setText(str(comments))
-            print("da string: " + str(comments))
 
             front = "Leak Rate Test Result:     "
             comments = front + comments
@@ -2913,6 +2916,8 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.timerTuple(self.timers[9])
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
+        self.data[self.pro_index][6] = self.ui.epoxy_batch5_4.text()
+        self.data[self.pro_index][7] = self.ui.epoxy_batch5_5.text()
 
     def updateDataProcess8(self):
         self.data[self.pro_index][0] = self.ui.panelInput_8.text()
@@ -3970,6 +3975,12 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch5_3.setDisabled(False)
             self.ui.epoxy_mixed5_2.setDisabled(False)
             self.ui.epoxy_mixed5_3.setDisabled(False)
+            self.ui.epoxy_batch5_4.setDisabled(False)
+            self.ui.epoxy_batch5_5.setDisabled(False)
+        if data[6] is not None:
+            self.ui.epoxy_batch5_4.setDisabled(True)
+        if data[7] is not None:
+            self.ui.epoxy_batch5_5.setDisabled(True)
         # if data[1] is not None:
         #     self.ui.epoxy_batch5_2.setText(str(data[1]))
 
@@ -4014,6 +4025,11 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_3.setDisabled(False)
             else:
                 self.ui.epoxy_applied5_3.setDisabled(True)
+        if data[6] is not None:
+            self.ui.epoxy_batch5_4.setText(str(data[6]))
+
+        if data[7] is not None:
+            self.ui.epoxy_batch5_5.setText(str(data[7]))
 
         self.displayComments()
 
@@ -5205,6 +5221,10 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_batch5_2,
                 self.ui.epoxy_mixed5_3,
                 self.ui.epoxy_batch5_3,
+                self.ui.epoxy_mixed5_4,
+                self.ui.epoxy_batch5_4,
+                self.ui.epoxy_mixed5_5,
+                self.ui.epoxy_batch5_5,
             ]
         )
 
@@ -5322,6 +5342,8 @@ class panelGUI(QMainWindow):
         self.ui.panelInput7.setText("")
         self.ui.epoxy_batch5_2.setText("")
         self.ui.epoxy_batch5_3.setText("")
+        self.ui.epoxy_batch5_4.setText("")
+        self.ui.epoxy_batch5_5.setText("")
         self.timers[9].reset()
         self.timers[10].reset()
         self.ui.commentBox5.document().setPlainText("")

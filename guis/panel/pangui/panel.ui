@@ -1581,7 +1581,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>6</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>28</height>
+                       <height>18</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>28</height>
+                       <height>16</height>
                       </rect>
                      </property>
                     </widget>
@@ -6517,23 +6517,38 @@ Heater GUI</string>
                      <string>Flooding Epoxy (Left)</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_41">
-                     <item row="0" column="2" colspan="2">
-                      <widget class="QLineEdit" name="epoxy_batch5_2">
+                     <item row="4" column="0" colspan="4">
+                      <widget class="QPushButton" name="epoxy_applied5_2">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
+                       <property name="font">
+                        <font>
+                         <family>Arial</family>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
                        <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>6</number>
-                       </property>
-                       <property name="placeholderText">
-                        <string>EP****</string>
+                        <string>Epoxy Applied</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="0" colspan="4">
+                     <item row="3" column="0" colspan="4">
+                      <layout class="QHBoxLayout" name="horizontalLayout_26">
+                       <item>
+                        <widget class="QLCDNumber" name="hour_disp_10"/>
+                       </item>
+                       <item>
+                        <widget class="QLCDNumber" name="min_disp_10"/>
+                       </item>
+                       <item>
+                        <widget class="QLCDNumber" name="sec_disp_10"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item row="2" column="0" colspan="4">
                       <widget class="QPushButton" name="epoxy_mixed5_2">
                        <property name="enabled">
                         <bool>false</bool>
@@ -6551,41 +6566,46 @@ Heater GUI</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="0" colspan="4">
-                      <layout class="QHBoxLayout" name="horizontalLayout_26">
-                       <item>
-                        <widget class="QLCDNumber" name="hour_disp_10"/>
-                       </item>
-                       <item>
-                        <widget class="QLCDNumber" name="min_disp_10"/>
-                       </item>
-                       <item>
-                        <widget class="QLCDNumber" name="sec_disp_10"/>
-                       </item>
-                      </layout>
-                     </item>
                      <item row="0" column="0" colspan="2">
                       <widget class="QLabel" name="label_134">
                        <property name="text">
-                        <string>Epoxy Batch:</string>
+                        <string>Epoxy Batch (815):</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0" colspan="4">
-                      <widget class="QPushButton" name="epoxy_applied5_2">
+                     <item row="0" column="2" colspan="2">
+                      <widget class="QLineEdit" name="epoxy_batch5_2">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="maxLength">
+                        <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0">
+                      <widget class="QLabel" name="label">
+                       <property name="text">
+                        <string>Epoxy Batch (828):</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="2">
+                      <widget class="QLineEdit" name="epoxy_batch5_4">
+                       <property name="enabled">
+                        <bool>false</bool>
                        </property>
                        <property name="text">
-                        <string>Epoxy Applied</string>
+                        <string/>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
@@ -6606,41 +6626,25 @@ Heater GUI</string>
                      <string>Flooding Epoxy (Right)</string>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_42">
-                     <item row="1" column="0" colspan="4">
-                      <widget class="QPushButton" name="epoxy_mixed5_3">
-                       <property name="enabled">
-                        <bool>false</bool>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
+                     <item row="0" column="0" colspan="2">
+                      <widget class="QLabel" name="label_136">
                        <property name="text">
-                        <string>Epoxy Mixed</string>
+                        <string>Epoxy Batch (815):</string>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="0" colspan="4">
-                      <widget class="QPushButton" name="epoxy_applied5_3">
-                       <property name="enabled">
-                        <bool>false</bool>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>10</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Epoxy Applied</string>
-                       </property>
-                      </widget>
+                      <layout class="QHBoxLayout" name="horizontalLayout_27">
+                       <item>
+                        <widget class="QLCDNumber" name="hour_disp_12"/>
+                       </item>
+                       <item>
+                        <widget class="QLCDNumber" name="min_disp_12"/>
+                       </item>
+                       <item>
+                        <widget class="QLCDNumber" name="sec_disp_12"/>
+                       </item>
+                      </layout>
                      </item>
                      <item row="0" column="2" colspan="2">
                       <widget class="QLineEdit" name="epoxy_batch5_3">
@@ -6658,25 +6662,58 @@ Heater GUI</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="0" column="0" colspan="2">
-                      <widget class="QLabel" name="label_136">
+                     <item row="4" column="0" colspan="4">
+                      <widget class="QPushButton" name="epoxy_applied5_3">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Arial</family>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
                        <property name="text">
-                        <string>Epoxy Batch:</string>
+                        <string>Epoxy Applied</string>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="0" colspan="4">
-                      <layout class="QHBoxLayout" name="horizontalLayout_27">
-                       <item>
-                        <widget class="QLCDNumber" name="hour_disp_12"/>
-                       </item>
-                       <item>
-                        <widget class="QLCDNumber" name="min_disp_12"/>
-                       </item>
-                       <item>
-                        <widget class="QLCDNumber" name="sec_disp_12"/>
-                       </item>
-                      </layout>
+                      <widget class="QPushButton" name="epoxy_mixed5_3">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Arial</family>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Mixed</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0">
+                      <widget class="QLabel" name="label_2">
+                       <property name="text">
+                        <string>Epoxy Batch (828):</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="2">
+                      <widget class="QLineEdit" name="epoxy_batch5_5">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -8323,8 +8360,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="PortalButtons"/>
   <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
-  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>
