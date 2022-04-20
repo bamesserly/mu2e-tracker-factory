@@ -134,7 +134,10 @@ def findPreviousStep(path, step):
         reader = csv.reader(f)
 
         for row in reader:
-            test = row[1]
+            try:
+                test = row[1]
+            except IndexError:
+                continue
 
             if test == step:
                 return True
