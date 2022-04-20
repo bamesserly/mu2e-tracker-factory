@@ -1922,10 +1922,10 @@ class SQLDataProcessor(DataProcessor):
             self.procedure.recordEpoxyTimeRight, *self.parseTimeTuple(data[4])
         )  # Flood Epoxy Work Time (Right)
         self.callMethod(
-            self.procedure.recordEpoxyBatchLeft828, self.stripNumber(data[6])
+            self.procedure.recordEpoxyBatchLeft828, self.stripNumber(data[5])
         )  # Flood Epoxy Batch (Left)
         self.callMethod(
-            self.procedure.recordEpoxyBatchRight828, self.stripNumber(data[7])
+            self.procedure.recordEpoxyBatchRight828, self.stripNumber(data[6])
         )  # Flood Epoxy Batch (Left)
 
     # FinalQC
@@ -2748,9 +2748,9 @@ class SQLDataProcessor(DataProcessor):
                 self.procedure.getEpoxyTimeRight(),
                 self.procedure.getEpoxyTimeRightRunning(),
             ),  # Flood Epoxy Work Time (Right)
-            self.procedure.getElapsedTime(),  # get elapsed time for main timer
             self.procedure.getEpoxyBatchLeft828(),
             self.procedure.getEpoxyBatchRight828(),
+            self.procedure.getElapsedTime(),  # get elapsed time for main timer
         ]
 
     # Final QC
