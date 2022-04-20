@@ -2916,8 +2916,8 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.timerTuple(self.timers[9])
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
-        self.data[self.pro_index][6] = self.ui.epoxy_batch5_4.text()
-        self.data[self.pro_index][7] = self.ui.epoxy_batch5_5.text()
+        self.data[self.pro_index][5] = self.ui.epoxy_batch5_4.text()
+        self.data[self.pro_index][6] = self.ui.epoxy_batch5_5.text()
 
     def updateDataProcess8(self):
         self.data[self.pro_index][0] = self.ui.panelInput_8.text()
@@ -3977,9 +3977,9 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_mixed5_3.setDisabled(False)
             self.ui.epoxy_batch5_4.setDisabled(False)
             self.ui.epoxy_batch5_5.setDisabled(False)
-        if data[6] is not None:
+        if data[5] is not None:
             self.ui.epoxy_batch5_4.setDisabled(True)
-        if data[7] is not None:
+        if data[6] is not None:
             self.ui.epoxy_batch5_5.setDisabled(True)
         # if data[1] is not None:
         #     self.ui.epoxy_batch5_2.setText(str(data[1]))
@@ -4025,11 +4025,11 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_applied5_3.setDisabled(False)
             else:
                 self.ui.epoxy_applied5_3.setDisabled(True)
-        if data[6] is not None:
-            self.ui.epoxy_batch5_4.setText(str(data[6]))
+        if data[5] is not None:
+            self.ui.epoxy_batch5_4.setText(str(data[5]))
 
-        if data[7] is not None:
-            self.ui.epoxy_batch5_5.setText(str(data[7]))
+        if data[6] is not None:
+            self.ui.epoxy_batch5_5.setText(str(data[6]))
 
         self.displayComments()
 
