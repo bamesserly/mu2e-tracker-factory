@@ -58,7 +58,7 @@ def getYN(message):
 ################################################################################
 # rate and error within acceptable limits
 def rateIsAcceptable(leak_rate, leak_error):
-    return (0 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
+    return (2.0e-5 < leak_rate <= 9.65e-5) and (0 < leak_error <= 9.65e-6)
 
 
 # search LeakTestResults for leak info
