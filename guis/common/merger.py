@@ -113,7 +113,7 @@ class Merger:
         try:
             con = sqlite3.connect(dst_db, timeout=15)
         except Exception as e:
-            logger.critical(f"FAILED TO CONNECT TO DATABASE, Exception: {e}")
+            logger.critical(f"FAILED TO CONNECT TO DATABASE, {dst_db}\nException: {e}")
             raise ConnectionError("Failed to connect to database")
 
         # Attach db2

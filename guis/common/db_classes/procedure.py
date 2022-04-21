@@ -164,7 +164,6 @@ class Procedure(BASE, OBJECT):
 
     @classmethod
     def StrawProcedure(cls, process, pallet_id, pallet_number):
-
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
@@ -266,7 +265,6 @@ class Procedure(BASE, OBJECT):
             ProcedureTimestamp.stop(self).commit()
 
     ## DETAILS CLASS ##
-
     def _init_details(self):
         try:
             dc = self._getDetailsClass()
@@ -302,11 +300,8 @@ class Procedure(BASE, OBJECT):
             entries.append(self.details)
         # Commit to database
         DM.commitEntries(entries)
-        
-
 
     ## COMMENTS ##
-
     def comment(self, text):
         from guis.common.db_classes.comment_failure import Comment
 
@@ -403,8 +398,13 @@ class PanelProcedure(Procedure):
 
     def steps_executed(self):
         from guis.common.db_classes.steps import PanelStepExecution, PanelStep
-        
-        panel_execution_list = PanelStepExecution.query().filter(PanelStepExecution.procedure == self.id).group_by(PanelStepExecution.panel_step).all()
+
+        panel_execution_list = (
+            PanelStepExecution.query()
+            .filter(PanelStepExecution.procedure == self.id)
+            .group_by(PanelStepExecution.panel_step)
+            .all()
+        )
         step_list = []
 
         # iterate through panel_execution_list to get list of step names
@@ -412,7 +412,7 @@ class PanelProcedure(Procedure):
             id = i.get_panel_step()
             step_name = str(PanelStep.id_to_step(id).getName())
             step_list.append(step_name)
-    
+
         return step_list
 
     """
@@ -433,6 +433,37 @@ class PanelProcedure(Procedure):
         PanelTempMeasurement(
             procedure=self, temp_paas_a=temp_paas_a, temp_paas_bc=temp_paas_bc
         ).commit()
+
+    # Get existing panel procedure (else return none)
+    # Call like: PanelProcedure.GetPanelProcedure(8, 147)
+    @classmethod
+    def GetPanelProcedure(cls, process, panel_number):
+        from guis.common.db_classes.station import Station
+        from guis.common.db_classes.straw_location import StrawLocation
+        import guis.common.db_classes.procedures_panel
+
+        # Get Station
+        station = Station.get_station(stage="panel", step=process)
+
+        # Get panel
+        panel = StrawLocation.Panel(panel_number)
+
+        # This subclassing stuff is sketchy.  See __init_subclass__ and stack
+        # overflow 4162456 if we ever have trouble.
+
+        # Get furthest-derived class possible -- the one with the matching
+        # station id
+        for c in cls.__subclasses__():
+            if c.__mapper_args__["polymorphic_identity"] == station.id:
+                cls = c
+                break
+
+        return (
+            cls.query()
+            .filter(cls.station == station.id)
+            .filter(cls.straw_location == panel.id)
+            .one_or_none()
+        )
 
 
 # For functions common to all straw procedures
