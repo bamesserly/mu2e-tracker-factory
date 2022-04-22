@@ -1,4 +1,4 @@
-# Manually enter bad channels
+# Form to submit dead channels to the DB
 
 from guis.common.panguilogger import SetupPANGUILogger
 
@@ -14,8 +14,22 @@ import sys
 kPROCESSNUMBER = 8
 sys.excepthook = except_hook  # crash, don't hang when an exception is raised
 
-if __name__ == "__main__":
 
+def get_from_user(prompt, manipulation, condition):
+    while True:
+        info = input(prompt)
+        try:
+            info = manipulation(info)
+            assert condition(info)
+            return info
+        except KeyboardInterrupt:
+            sys.exit()
+        except:
+            print(f"Invalid input {info}")
+            continue
+
+
+def main():
     """
     data fields collected:
         * panel_number
@@ -25,22 +39,15 @@ if __name__ == "__main__":
         * description
     """
 
-    # keep inputting data until you ctrl-C
+    # keep inputting dead channels until you ctrl-C
     while True:
-        # panel number from user input
-        while True:
-            panel_number = input("Enter panel number XXX: ")
-            # panel_number = 147
-            try:
-                assert 0 < int(panel_number) < 1000
-                break
-            except KeyboardInterrupt:
-                sys.exit()
-            except:
-                print("Invalid panel number {panel_number}")
-                continue
 
-        # look up procedure id
+        panel_number = get_from_user(
+            prompt="Panel number XXX: ",
+            manipulation=lambda x: x,
+            condition=lambda x: 0 <= int(x) < 1000,
+        )
+
         pid = -1
         try:
             pid = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, panel_number).id
@@ -51,48 +58,27 @@ if __name__ == "__main__":
             )
             continue
 
-        # position of dead channel from user input
-        while True:
-            position = input("Position of dead wire/straw? ")
-            try:
-                assert 0 <= int(position) <= 95
-                break
-            except KeyboardInterrupt:
-                sys.exit()
-            except:
-                logger.debug("Invalid position {position}")
+        position = get_from_user(
+            prompt="Position of dead wire/straw: ",
+            manipulation=lambda x: x,
+            condition=lambda x: 0 <= int(x) <= 95,
+        )
 
-        # wire or straw from user input
+        # wire/straw
         response = input("Is it a wire [a] or straw [b] that failed? ").lower()
         is_wire = 1 if response == "a" else 0
 
-        # process number in which failure occurred (if other than 8)
-        while True:
-            try:
-                process_number = input(
-                    "In which process was the failure detected? [Default: 8]) >"
-                )
-                process_number = 8 if process_number == "" else int(process_number)
-                assert process_number in list(range(1, 9))
-                break
-            except KeyboardInterrupt:
-                sys.exit()
-            except:
-                logger.debug("Invalid process number {process_number}")
+        process_number = get_from_user(
+            prompt="Process when failure was detected [Default 8]: ",
+            manipulation=lambda x: 8 if x == "" else int(x),
+            condition=lambda x: x in list(range(1, 9)),
+        )
 
-        # description of failure from user input
-        while True:
-            try:
-                description = input(
-                    "Describe in (< 80 characters) how/why the wire/straw failed: "
-                )
-                description.replace("\n", " ")
-                assert len(description) < 80
-                break
-            except KeyboardInterrupt:
-                sys.exit()
-            except:
-                logger.error("Invalid desciption {description}")
+        description = get_from_user(
+            prompt="Describe (< 80 characters) how/why wire/straw failed: ",
+            manipulation=lambda x: x.replace("\n", " "),
+            condition=lambda x: len(x) < 80,
+        )
 
         # ship it
         straw_wire_str = "wire" if is_wire else "straw"
@@ -106,3 +92,7 @@ if __name__ == "__main__":
             failure=description,
             process=process_number,
         )
+
+
+if __name__ == "__main__":
+    main()
