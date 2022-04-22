@@ -623,11 +623,7 @@ class LeakTestStatus(QMainWindow):
 
                     # open the raw data readings for this chamber and save them
                     # in the ppm, ppm_err, and timestamps variables
-                    (
-                        timestamps,
-                        ppm,
-                        ppm_err,
-                    ) = get_data_from_file(outfile)
+                    timestamps, ppm, ppm_err = get_data_from_file(outfile)
 
                     try:
                         running_duration = timestamps[-1]
@@ -669,7 +665,7 @@ class LeakTestStatus(QMainWindow):
                     ############################################################
                     # Calculate leak rate and related parameters
 
-                    (slope, slope_err, intercept, intercept_err,) = get_fit(
+                    slope, slope_err, intercept, intercept_err = get_fit(
                         timestamps,
                         ppm,
                         ppm_err,

@@ -33,7 +33,7 @@ def refit(raw_data_filename, n_skips_start, n_skips_end):
         chamber = int(raw_data_filename[15:16])
     slope, slope_err, intercept, intrcept_err = get_fit(timestamp, ppm, ppm_err)
 
-    leak_rate = calculate_leak_rate(slope, get_chamber_volume(chamber))
+    leak_rate = calculate_leak_rate(slope, get_chamber_volume(chamber) - STRAW_VOLUME)
 
     leak_rate_err = calculate_leak_rate_err(
         leak_rate,
