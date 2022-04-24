@@ -108,10 +108,10 @@ from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.common.gui_utils import generateBox, except_hook
 from guis.common.db_classes.straw_location import LoadingPallet
-                                                               
-# from guis.panel.resistance.run_test import run_test          
-# from guis.panel.leak.PlotLeakRate import RunInteractive      
-                                                               
+
+# from guis.panel.resistance.run_test import run_test
+# from guis.panel.leak.PlotLeakRate import RunInteractive
+
 # Import QLCDTimer from Modules
 from guis.common.timer import QLCDTimer
 
@@ -2035,6 +2035,7 @@ class panelGUI(QMainWindow):
                             # if current step is the start of a new list, enable all checkboxes in list
                             current = self.stepsList.getCurrentStep()
                             enable_subgroup_checkboxes(current)
+                    self.enable_checkbox(current)
 
         # code for if a nonsequential subgroup isn't involved
         if not into_list:
@@ -2420,7 +2421,7 @@ class panelGUI(QMainWindow):
                 )  # 26/26/26 = 10% brightness, 255/255/255 = white
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(26, 26, 26);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(26, 26, 26);")
-            elif Current_worker == "WK-BMESS01" or Current_worker == 'WK-IWARDLAW01':
+            elif Current_worker == "WK-BMESS01" or Current_worker == "WK-IWARDLAW01":
                 self.changeColor((29, 66, 137), (255, 255, 255))  # blue background
                 self.ui.scrollArea.setStyleSheet("background-color: rgb(29,66,137);")
                 self.ui.scrollAreaHV.setStyleSheet("background-color: rgb(29,66,137);")
@@ -2672,16 +2673,21 @@ class panelGUI(QMainWindow):
             # if process 8, determine whether to save from comment box
             # or from leak rate box
             if self.pro_index == 7:
-                if len(str(box[1].document().toPlainText())) != 0:
+                if len(str(box[1].text())) != 0:
                     box = box[1]
                     lr = True
+
+                    # Extract text
+                    comments = box.text()
+                    # Reset comment display
+                    box.setText("")
                 else:
                     box = box[0]
 
-            # Extract text
-            comments = box.document().toPlainText()
-            # Reset comment display
-            box.setPlainText("")
+                    # Extract text
+                    comments = box.document().toPlainText()
+                    # Reset comment display
+                    box.setPlainText("")
 
         comments = comments.strip()  # remove whitespace around comment
 
