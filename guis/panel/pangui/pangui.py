@@ -2035,6 +2035,7 @@ class panelGUI(QMainWindow):
                             # if current step is the start of a new list, enable all checkboxes in list
                             current = self.stepsList.getCurrentStep()
                             enable_subgroup_checkboxes(current)
+                    self.enable_checkbox(current)
 
         # code for if a nonsequential subgroup isn't involved
         if not into_list:
