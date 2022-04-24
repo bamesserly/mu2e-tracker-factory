@@ -2673,16 +2673,16 @@ class panelGUI(QMainWindow):
             # if process 8, determine whether to save from comment box
             # or from leak rate box
             if self.pro_index == 7:
-                if len(str(box[1].document().toPlainText())) != 0:
+                if len(str(box[1].text())) != 0:
                     box = box[1]
                     lr = True
                 else:
                     box = box[0]
 
             # Extract text
-            comments = box.document().toPlainText()
+            comments = box.text()
             # Reset comment display
-            box.setPlainText("")
+            box.setText("")
 
         comments = comments.strip()  # remove whitespace around comment
 
