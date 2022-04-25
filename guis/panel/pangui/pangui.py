@@ -2683,11 +2683,12 @@ class panelGUI(QMainWindow):
                     box.setText("")
                 else:
                     box = box[0]
-
                     # Extract text
                     comments = box.document().toPlainText()
                     # Reset comment display
                     box.setPlainText("")
+            else:
+                comments=box.document().toPlainText()
 
         comments = comments.strip()  # remove whitespace around comment
 
