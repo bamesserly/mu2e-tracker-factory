@@ -805,48 +805,6 @@ class panelGUI(QMainWindow):
         self.ui.strawCheck.toggled.connect(
             lambda: self.ui.wireCheck.setChecked(not (self.ui.strawCheck.isChecked()))
         )
-        self.ui.inflated_no.toggled.connect(
-            lambda: self.ui.inflated_yes.setChecked(
-                not (self.ui.inflated_no.isChecked())
-            )
-        )
-        self.ui.inflated_yes.toggled.connect(
-            lambda: self.ui.inflated_no.setChecked(
-                not (self.ui.inflated_yes.isChecked())
-            )
-        )
-
-        # stage mode
-        self.ui.stageModeCB.currentIndexChanged.connect(self.pro8ChangeStageMode)
-        # stage submit push button
-        self.ui.stageSelectCB.currentIndexChanged.connect(self.pro8ChangeSwitchPBText)
-        # stage mode submit
-        self.ui.goToStagePB.clicked.connect(self.pro8StwitchStage)
-
-        # disable both of above
-        self.ui.stageModeCB.setDisabled(True)
-        self.ui.goToStagePB.setDisabled(True)
-
-        # nav buttons
-        # prep complete
-        self.ui.prepCompletePB.clicked.connect(self.pro8PrepFin)
-        self.ui.prepCompletePB.setDisabled(True)
-        # methane pass/fail/back
-        self.ui.leakPassPB.clicked.connect(self.pro8MethanePass)
-        self.ui.leakFailPB.clicked.connect(self.pro8MethaneFail)
-        # self.ui.methBackPB.clicked.connect()
-        # leak pass/fail/back
-        self.ui.realLeakPassPB.clicked.connect(self.pro8LeakTestPass)
-        self.ui.realLeakFailPB.clicked.connect(self.pro8LeakTestFail)
-        # resolution submit
-        self.ui.submitResoPB.clicked.connect(self.pro8ResolutionSubmit)
-        self.ui.resoBackPB.clicked.connect(self.pro8ResolutionBack)
-        # ship/back to tests
-        self.ui.shippingPB.clicked.connect(self.pro8ToShipping)
-        self.ui.shipBackPB.clicked.connect(self.pro8BackToTests)
-        # test options
-        self.ui.leakReTestPB.clicked.connect(self.pro8LeakReTest)
-        self.ui.methReTestPB.clicked.connect(self.pro8MethReTest)
 
     def _init_timers(self):
         self.timers = [
@@ -4050,8 +4008,6 @@ class panelGUI(QMainWindow):
     """
 
     def parsepro8Data(self, data):
-        self.ui.stageModeCB.setEnabled(True)
-        self.ui.goToStagePB.setEnabled(True)
         # dict for converting month abbreviations to numbers
         monthStrToInt = {
             "Jan": "01",
@@ -4079,7 +4035,6 @@ class panelGUI(QMainWindow):
         if data[0] is not None:
             self.ui.panelInput_8.setText(str(data[0]))
             self.ui.panelInput_8.setDisabled(True)
-            self.ui.prepCompletePB.setEnabled(True)
 
         # covers
         if data[1] is not None:
@@ -5396,12 +5351,7 @@ class panelGUI(QMainWindow):
 
     def pro8ChangeStageMode(self):
         # match stacked widget to combo box option
-        self.ui.stackedWidget_2.setCurrentIndex(self.ui.stageModeCB.currentIndex())
         self.pro8ChangeSwitchPBText()
-
-    def pro8ChangeSwitchPBText(self):
-        # change text on push button to correspond to selected stage
-        self.ui.goToStagePB.setText(f"Go To {self.ui.stageSelectCB.currentText()}")
 
     def pro8StwitchStage(self):
         # make sure user is ready to switch
@@ -5416,16 +5366,6 @@ class panelGUI(QMainWindow):
             # return if user isn't ready
             return
 
-        # reset methane test + resolution form
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.inflated_yes.setChecked(True)
-        self.ui.inflated_no.setChecked(False)
-        self.ui.leak_location.clear()
-        self.ui.leak_size.clear()
-        self.ui.resolutionPTE.clear()
-
         # use text in stage select combo box to determine
         # index to switch to, then do the switch!
         switchDict = {
@@ -5434,12 +5374,6 @@ class panelGUI(QMainWindow):
             "Methane Test": 3,
             "Shipping": 5,
         }
-        self.ui.stackedWidget.setCurrentIndex(
-            switchDict[self.ui.stageSelectCB.currentText()]
-        )
-        self.ui.pro8StageLabel.setText(
-            f"Current Stage: {self.ui.stageSelectCB.currentText()}"
-        )
 
     def pro8part1(self):
         # used later for deciding how to save leak fixes
@@ -5473,12 +5407,8 @@ class panelGUI(QMainWindow):
         self.saveData()
         self.ui.stackedWidget.setCurrentIndex(0)
         self.ui.pro8StageLabel.setText("Current Stage: Preperation")
-        self.ui.prepCompletePB.setFocus()
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
-        self.ui.prepCompletePB.setEnabled(True)
-        self.ui.stageModeCB.setEnabled(True)
-        self.ui.goToStagePB.setEnabled(True)
         self.data[7][16] = "Prep"
         self.saveData()
         self.pro8EnableParts()
@@ -5486,7 +5416,6 @@ class panelGUI(QMainWindow):
     def pro8PrepFin(self):
         self.ui.stackedWidget.setCurrentIndex(3)
         self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-        self.ui.leak_location.setFocus()
         # print(len(self.data))
         # print(self.data)
         self.data[7][16] = "Methane"
@@ -5495,53 +5424,29 @@ class panelGUI(QMainWindow):
 
     def pro8MethanePass(self):
         # save w/ resolution as pass
-        self.ui.resolutionPTE.setPlainText("Pass")
         self.leak_form()
         # reset leak form widgets
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.inflated_yes.setChecked(True)
-        self.ui.inflated_no.setChecked(False)
-        self.ui.leak_location.clear()
-        self.ui.leak_size.clear()
         # move to next stage
         self.ui.stackedWidget.setCurrentIndex(2)
         self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
         self.resolvingLeak = "LeakTest"
-        self.ui.launch_leak_test_2.setFocus()
         self.data[7][16] = "Leak"  # set stage as "Leak"
         self.saveData()
         self.pro8EnableParts()
 
     def pro8MethaneFail(self):
-        self.ui.resoBackPB.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(4)
         self.ui.pro8StageLabel.setText("Current Stage: Resolution")
         self.resolvingLeak = "Methane"
-        self.ui.resolutionPTE.setFocus()
         self.data[7][16] = "Methane"
         self.saveData()
         self.pro8EnableParts()
 
     def pro8ResolutionSubmit(self):
-        # make sure something is entered
-        if self.ui.resolutionPTE.toPlainText() == "":
-            generateBox(
-                "warning",
-                "No explanation entered",
-                "Please explain what was done to resolve the leak.",
-            )
-            return
-
         if self.resolvingLeak == "LeakTest":
             # save methane test form
-            self.DP.saveComment(
-                self.ui.resolutionPTE.toPlainText(), self.getCurrentPanel(), 8
-            )
             self.ui.stackedWidget.setCurrentIndex(3)
             self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-            self.ui.resolutionPTE.clear()
             self.data[7][16] = "Methane"
             self.saveData()
             self.pro8EnableParts()
@@ -5551,33 +5456,20 @@ class panelGUI(QMainWindow):
             self.leak_form()
             self.ui.stackedWidget.setCurrentIndex(3)
             self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-            self.ui.shipBackPB.setFocus()
             self.data[7][16] = "Methane"
             self.saveData()
             self.pro8EnableParts()
-
-        # reset leak test + resolution form
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.inflated_yes.setChecked(True)
-        self.ui.inflated_no.setChecked(False)
-        self.ui.leak_location.clear()
-        self.ui.leak_size.clear()
-        self.ui.resolutionPTE.clear()
 
     def pro8ResolutionBack(self):
         if self.resolvingLeak == "Methane":
             self.ui.stackedWidget.setCurrentIndex(3)
             self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-            self.ui.leak_location.setFocus()
             self.data[7][16] = "Methane"
             self.saveData()
             self.pro8EnableParts()
         if self.resolvingLeak == "LeakTest":
             self.ui.stackedWidget.setCurrentIndex(2)
             self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
-            self.ui.launch_leak_test_2.setFocus()
             self.data[7][16] = "Leak"
             self.saveData()
             self.pro8EnableParts()
@@ -5585,7 +5477,6 @@ class panelGUI(QMainWindow):
     def pro8LeakTestPass(self):
         self.ui.stackedWidget.setCurrentIndex(5)
         self.ui.pro8StageLabel.setText("Current Stage: Shipping")
-        self.ui.shipBackPB.setFocus()
         self.resolvingLeak = "LeakTest"
         self.data[7][16] = "Shipping"
         self.saveData()
@@ -5594,7 +5485,6 @@ class panelGUI(QMainWindow):
     def pro8LeakTestFail(self):
         self.ui.stackedWidget.setCurrentIndex(4)
         self.ui.pro8StageLabel.setText("Current Stage: Resolution")
-        self.ui.resolutionPTE.setFocus()
         self.resolvingLeak = "LeakTest"
         self.data[7][16] = "Leak"
         self.saveData()
@@ -5602,7 +5492,6 @@ class panelGUI(QMainWindow):
 
     def pro8BackToTests(self):
         self.ui.stackedWidget.setCurrentIndex(1)
-        self.ui.methReTestPB.setFocus()
         self.ui.pro8StageLabel.setText("Current Stage: Limbo")
         self.data[7][16] = "Limbo"
         self.saveData()
@@ -5612,23 +5501,13 @@ class panelGUI(QMainWindow):
         self.ui.pro8StageLabel.setText("Current Stage: FINISHED")
         self.ui.pro8StageLabel.setStyleSheet("color: rgb(0, 255, 0);")
         self.ui.commentBox8_6.setFocus()
-        self.ui.shippingPB.setDisabled(True)
         self.data[7][16] = "Shipping"
         self.saveData()
         self.pro8EnableParts()
 
     def pro8MethReTest(self):
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.inflated_yes.setChecked(True)
-        self.ui.inflated_no.setChecked(False)
-        self.ui.leak_location.clear()
-        self.ui.leak_size.clear()
-        self.ui.resolutionPTE.clear()
         self.ui.stackedWidget.setCurrentIndex(3)
         self.ui.pro8StageLabel.setText("Current Stage: Methane Test")
-        self.ui.leak_location.setFocus()
         self.data[7][16] = "Methane"
         self.saveData()
         self.pro8EnableParts()
@@ -5636,7 +5515,6 @@ class panelGUI(QMainWindow):
     def pro8LeakReTest(self):
         self.ui.stackedWidget.setCurrentIndex(2)
         self.ui.pro8StageLabel.setText("Current Stage: Leak Test")
-        self.ui.launch_leak_test_2.setFocus()
         self.data[7][16] = "Leak"
         self.saveData()
         self.pro8EnableParts()
@@ -5664,22 +5542,11 @@ class panelGUI(QMainWindow):
 
         self.pro8EnableParts(False, False)
 
-        self.ui.reORingsCB.setChecked(True)
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.resolutionPTE.clear()
-        self.ui.inflated_no.setChecked(False)
-        self.ui.inflated_yes.setChecked(False)
-        self.ui.leak_location.setText("")
-        self.ui.leak_size.setText("")
-        self.ui.leak_next.setCurrentIndex(0)
         self.ui.wireCheck.setChecked(False)
         self.ui.strawCheck.setChecked(False)
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(0)
-        self.ui.prepCompletePB.setDisabled(True)
 
     # fmt: off
     # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗
@@ -5910,49 +5777,16 @@ class panelGUI(QMainWindow):
     def leak_form(self):
         reinstalled = ""
         # check if anything has been reinstalled
-        if self.ui.reORingsCB.isChecked():
-            reinstalled += "O"
-        if self.ui.reLeftCB.isChecked():
-            reinstalled += "L"
-        if self.ui.reRightCB.isChecked():
-            reinstalled += "R"
-        if self.ui.reCenterCB.isChecked():
-            reinstalled += "C"
 
         inflated = True
-        if self.ui.inflated_no.isChecked():
-            inflated = False
 
-        location = self.ui.leak_location.text()
         # QC People said no longer need confidence
         confidence = "High"
-        try:
-            size = float(self.ui.leak_size.text())
-        except ValueError:
-            generateBox(
-                "warning",
-                "Invalid literal",
-                "Please enter a base 10 number for leak size.",
-            )
-            return 1
-        resolution = self.ui.resolutionPTE.document().toPlainText()
         if resolution == "":
             resolution += "pass"
-        next_step = str(self.ui.leak_next.currentText())
         self.DP.saveLeakForm(
             reinstalled, inflated, location, confidence, size, resolution, next_step
         )
-
-        # clear form data
-        self.ui.reLeftCB.setChecked(False)
-        self.ui.reRightCB.setChecked(False)
-        self.ui.reCenterCB.setChecked(False)
-        self.ui.inflated_yes.setChecked(True)
-        self.ui.inflated_no.setChecked(False)
-        self.ui.leak_location.setText("")
-        self.ui.leak_size.setText("")
-        self.ui.resolutionPTE.setPlainText("")
-        self.ui.leak_next.setCurrentIndex(0)
 
     # Creates a new terminal window and runs the PlotLeakRate.py script
     def run_plot_leak(self):

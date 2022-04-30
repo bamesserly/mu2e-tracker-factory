@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>18</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -7479,13 +7479,13 @@ Heater GUI</string>
                 <item row="4" column="0" rowspan="4">
                  <widget class="QTabWidget" name="tabWidget_2">
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_4">
                    <attribute name="title">
                     <string>Methane Form</string>
                    </attribute>
-                   <widget class="QCheckBox" name="checkBox">
+                   <widget class="QCheckBox" name="top_covers">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -7498,7 +7498,7 @@ Heater GUI</string>
                      <string>Top Covers</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_2">
+                   <widget class="QCheckBox" name="top_flood">
                     <property name="geometry">
                      <rect>
                       <x>150</x>
@@ -7511,7 +7511,7 @@ Heater GUI</string>
                      <string>Top Flooding</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_3">
+                   <widget class="QCheckBox" name="top_straws">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -7537,7 +7537,7 @@ Heater GUI</string>
                      <string>to</string>
                     </property>
                    </widget>
-                   <widget class="QLineEdit" name="lineEdit">
+                   <widget class="QLineEdit" name="ts_low">
                     <property name="geometry">
                      <rect>
                       <x>150</x>
@@ -7547,7 +7547,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                    </widget>
-                   <widget class="QLineEdit" name="lineEdit_2">
+                   <widget class="QLineEdit" name="ts_high">
                     <property name="geometry">
                      <rect>
                       <x>210</x>
@@ -7557,7 +7557,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_5">
+                   <widget class="QCheckBox" name="bottom_covers">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -7570,7 +7570,7 @@ Heater GUI</string>
                      <string>Bottom Covers</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_6">
+                   <widget class="QCheckBox" name="bottom_flood">
                     <property name="geometry">
                      <rect>
                       <x>150</x>
@@ -7583,7 +7583,7 @@ Heater GUI</string>
                      <string>Bottom Flooding</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_7">
+                   <widget class="QCheckBox" name="bottom_straws">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -7596,7 +7596,7 @@ Heater GUI</string>
                      <string>Bottom Straws:</string>
                     </property>
                    </widget>
-                   <widget class="QLineEdit" name="lineEdit_3">
+                   <widget class="QLineEdit" name="bs_low">
                     <property name="geometry">
                      <rect>
                       <x>150</x>
@@ -7619,7 +7619,7 @@ Heater GUI</string>
                      <string>to</string>
                     </property>
                    </widget>
-                   <widget class="QLineEdit" name="lineEdit_4">
+                   <widget class="QLineEdit" name="bs_high">
                     <property name="geometry">
                      <rect>
                       <x>210</x>
@@ -7629,7 +7629,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_8">
+                   <widget class="QCheckBox" name="e_slot">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -7642,7 +7642,7 @@ Heater GUI</string>
                      <string>Electronics Slot</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_9">
+                   <widget class="QCheckBox" name="side_seams">
                     <property name="geometry">
                      <rect>
                       <x>150</x>
@@ -7655,11 +7655,11 @@ Heater GUI</string>
                      <string>Side Seams</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="checkBox_10">
+                   <widget class="QCheckBox" name="sep_layer">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
-                      <y>110</y>
+                      <y>130</y>
                       <width>201</width>
                       <height>17</height>
                      </rect>
@@ -7672,7 +7672,7 @@ Heater GUI</string>
                     <property name="geometry">
                      <rect>
                       <x>10</x>
-                      <y>130</y>
+                      <y>150</y>
                       <width>101</width>
                       <height>16</height>
                      </rect>
@@ -7681,11 +7681,11 @@ Heater GUI</string>
                      <string>Gas Detector:</string>
                     </property>
                    </widget>
-                   <widget class="QLineEdit" name="lineEdit_5">
+                   <widget class="QLineEdit" name="detector">
                     <property name="geometry">
                      <rect>
                       <x>110</x>
-                      <y>130</y>
+                      <y>150</y>
                       <width>31</width>
                       <height>20</height>
                      </rect>
@@ -7695,17 +7695,17 @@ Heater GUI</string>
                     <property name="geometry">
                      <rect>
                       <x>10</x>
-                      <y>160</y>
+                      <y>180</y>
                       <width>291</width>
-                      <height>291</height>
+                      <height>271</height>
                      </rect>
                     </property>
                     <property name="currentIndex">
-                     <number>0</number>
+                     <number>1</number>
                     </property>
                     <widget class="QWidget" name="tab_6">
                      <attribute name="title">
-                      <string>Tab 1</string>
+                      <string>Straw Leak</string>
                      </attribute>
                      <widget class="QLabel" name="label_46">
                       <property name="geometry">
@@ -7720,7 +7720,7 @@ Heater GUI</string>
                        <string>Straw Number:</string>
                       </property>
                      </widget>
-                     <widget class="QLineEdit" name="lineEdit_6">
+                     <widget class="QLineEdit" name="straw_number">
                       <property name="geometry">
                        <rect>
                         <x>120</x>
@@ -7743,7 +7743,7 @@ Heater GUI</string>
                        <string>Location:</string>
                       </property>
                      </widget>
-                     <widget class="QLineEdit" name="lineEdit_7">
+                     <widget class="QLineEdit" name="leak_location">
                       <property name="geometry">
                        <rect>
                         <x>80</x>
@@ -7779,7 +7779,7 @@ Heater GUI</string>
                        <string>Leak Size:</string>
                       </property>
                      </widget>
-                     <widget class="QLineEdit" name="lineEdit_8">
+                     <widget class="QLineEdit" name="leak_size_straw">
                       <property name="geometry">
                        <rect>
                         <x>90</x>
@@ -7802,7 +7802,7 @@ Heater GUI</string>
                        <string>ppm</string>
                       </property>
                      </widget>
-                     <widget class="QCheckBox" name="checkBox_4">
+                     <widget class="QCheckBox" name="long_straw">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
@@ -7819,7 +7819,7 @@ Heater GUI</string>
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>130</y>
+                        <y>120</y>
                         <width>151</width>
                         <height>16</height>
                        </rect>
@@ -7828,21 +7828,21 @@ Heater GUI</string>
                        <string>Further Description:</string>
                       </property>
                      </widget>
-                     <widget class="QTextEdit" name="textEdit">
+                     <widget class="QTextEdit" name="leak_description_straw">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>150</y>
+                        <y>140</y>
                         <width>261</width>
-                        <height>71</height>
+                        <height>61</height>
                        </rect>
                       </property>
                      </widget>
-                     <widget class="QPushButton" name="pushButton_2">
+                     <widget class="QPushButton" name="submit_leak_straw">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>230</y>
+                        <y>210</y>
                         <width>261</width>
                         <height>23</height>
                        </rect>
@@ -7854,9 +7854,9 @@ Heater GUI</string>
                     </widget>
                     <widget class="QWidget" name="tab_7">
                      <attribute name="title">
-                      <string>Tab 2</string>
+                      <string>Panel Leak</string>
                      </attribute>
-                     <widget class="QCheckBox" name="checkBox_11">
+                     <widget class="QCheckBox" name="leak_cover">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
@@ -7869,7 +7869,7 @@ Heater GUI</string>
                        <string>Covers</string>
                       </property>
                      </widget>
-                     <widget class="QCheckBox" name="checkBox_12">
+                     <widget class="QCheckBox" name="leak_flooding">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
@@ -7882,7 +7882,7 @@ Heater GUI</string>
                        <string>Flooding</string>
                       </property>
                      </widget>
-                     <widget class="QCheckBox" name="checkBox_13">
+                     <widget class="QCheckBox" name="leak_e_slot">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
@@ -7895,7 +7895,7 @@ Heater GUI</string>
                        <string>Electronics Slot</string>
                       </property>
                      </widget>
-                     <widget class="QCheckBox" name="checkBox_14">
+                     <widget class="QCheckBox" name="leak_side_seams">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
@@ -7908,24 +7908,11 @@ Heater GUI</string>
                        <string>Side Seams</string>
                       </property>
                      </widget>
-                     <widget class="QCheckBox" name="checkBox_15">
-                      <property name="geometry">
-                       <rect>
-                        <x>10</x>
-                        <y>90</y>
-                        <width>201</width>
-                        <height>17</height>
-                       </rect>
-                      </property>
-                      <property name="text">
-                       <string>Separation Layer Used?</string>
-                      </property>
-                     </widget>
                      <widget class="QLabel" name="label_52">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>120</y>
+                        <y>100</y>
                         <width>81</width>
                         <height>16</height>
                        </rect>
@@ -7934,11 +7921,11 @@ Heater GUI</string>
                        <string>Leak Size:</string>
                       </property>
                      </widget>
-                     <widget class="QLineEdit" name="lineEdit_9">
+                     <widget class="QLineEdit" name="leak_size_panel">
                       <property name="geometry">
                        <rect>
                         <x>90</x>
-                        <y>120</y>
+                        <y>100</y>
                         <width>41</width>
                         <height>20</height>
                        </rect>
@@ -7948,7 +7935,7 @@ Heater GUI</string>
                       <property name="geometry">
                        <rect>
                         <x>140</x>
-                        <y>120</y>
+                        <y>100</y>
                         <width>47</width>
                         <height>13</height>
                        </rect>
@@ -7961,7 +7948,7 @@ Heater GUI</string>
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>150</y>
+                        <y>130</y>
                         <width>151</width>
                         <height>16</height>
                        </rect>
@@ -7970,21 +7957,21 @@ Heater GUI</string>
                        <string>Further Description:</string>
                       </property>
                      </widget>
-                     <widget class="QTextEdit" name="textEdit_2">
+                     <widget class="QTextEdit" name="leak_description_panel">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>170</y>
+                        <y>150</y>
                         <width>261</width>
                         <height>51</height>
                        </rect>
                       </property>
                      </widget>
-                     <widget class="QPushButton" name="pushButton_3">
+                     <widget class="QPushButton" name="submit_leak_panel">
                       <property name="geometry">
                        <rect>
                         <x>10</x>
-                        <y>230</y>
+                        <y>210</y>
                         <width>261</width>
                         <height>23</height>
                        </rect>
@@ -7993,9 +7980,35 @@ Heater GUI</string>
                        <string>Submit Leak</string>
                       </property>
                      </widget>
+                     <widget class="QCheckBox" name="leak_stay_bolts">
+                      <property name="geometry">
+                       <rect>
+                        <x>150</x>
+                        <y>10</y>
+                        <width>101</width>
+                        <height>17</height>
+                       </rect>
+                      </property>
+                      <property name="text">
+                       <string>Stay Bolts</string>
+                      </property>
+                     </widget>
+                     <widget class="QCheckBox" name="leak_pfn_holes">
+                      <property name="geometry">
+                       <rect>
+                        <x>150</x>
+                        <y>30</y>
+                        <width>101</width>
+                        <height>17</height>
+                       </rect>
+                      </property>
+                      <property name="text">
+                       <string>PFN Holes</string>
+                      </property>
+                     </widget>
                     </widget>
                    </widget>
-                   <widget class="QPushButton" name="pushButton">
+                   <widget class="QPushButton" name="submit_methane_session">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -8006,6 +8019,32 @@ Heater GUI</string>
                     </property>
                     <property name="text">
                      <string>Submit Testing Session</string>
+                    </property>
+                   </widget>
+                   <widget class="QCheckBox" name="stay_bolts">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>110</y>
+                      <width>101</width>
+                      <height>17</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Stay Bolts</string>
+                    </property>
+                   </widget>
+                   <widget class="QCheckBox" name="pfn_holes">
+                    <property name="geometry">
+                     <rect>
+                      <x>150</x>
+                      <y>110</y>
+                      <width>101</width>
+                      <height>17</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>PFN Holes</string>
                     </property>
                    </widget>
                   </widget>
