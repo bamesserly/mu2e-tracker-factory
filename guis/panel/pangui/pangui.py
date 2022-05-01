@@ -2641,12 +2641,11 @@ class panelGUI(QMainWindow):
                     box.setText("")
                 else:
                     box = box[0]
+
                     # Extract text
                     comments = box.document().toPlainText()
                     # Reset comment display
                     box.setPlainText("")
-            else:
-                comments=box.document().toPlainText()
 
         comments = comments.strip()  # remove whitespace around comment
 
@@ -5547,6 +5546,26 @@ class panelGUI(QMainWindow):
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(0)
+        
+        self.ui.top_covers.setChecked(False)
+        self.ui.top_straws.setChecked(False)
+        self.ui.bottom_covers.setChecked(False)
+        self.ui.bottom_straws.setChecked(False)
+        self.ui.e_slot.setChecked(False)
+        self.ui.stay_bolts.setChecked(False)
+        self.sep_layer.setChecked(False)
+        self.top_flood.setChecked(False)
+        self.bottom_flood.setChecked(False)
+        self.side_seams.setChecked(False)
+        self.pfn_holes.setChecked(False)
+        self.leak_cover.setChecked(False)
+        self.leak_flooding.setChecked(False)
+        self.leak_e_slot.setChecked(False)
+        self.leak_side_seams.setChecked(False)
+        self.leak_stay_bolts.setChecked(False)
+        self.leak_pfn_holes.setChecked(False)
+        self.long_straw.setChecked(False)
+        
 
     # fmt: off
     # ███████╗██╗   ██╗██████╗      ██████╗ ██╗   ██╗██╗███████╗

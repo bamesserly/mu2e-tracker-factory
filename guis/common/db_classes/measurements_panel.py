@@ -236,3 +236,76 @@ class LeakFinalForm(BASE, OBJECT):
         self.next_step = next_step
 
         self.commit()
+
+class MethaneTestSession(BASE, OBJECT):
+    __tablename__ = "methane_sessions"
+    
+    id = Column(Integer, primary_key=True)
+    covered_areas = Column(VARCHAR)
+    sep_layer = Column(BOOLEAN)
+    top_straw_low = Column(Integer)
+    top_straw_high = Column(Integer)
+    bot_straw_low = Column(Integer)
+    bot_straw_high = Column(Integer)
+    straw_check = Column(BOOLEAN)
+    panel_check = Column(BOOLEAN)
+    
+    def __init__(
+        self,
+        covered_areas,
+        sep_layer,
+        top_straw_low,
+        top_straw_high,
+        bot_straw_low,
+        bot_straw_high,
+        straw_check,
+        panel_check,
+    ):
+        self.id = self.ID()
+        self.covered_areas = covered_areas
+        self.sep_layer = sep_layer
+        self.top_straw_low = top_straw_low
+        self.top_straw_high = top_straw_high
+        sel.bot_straw_low = bot_straw_low
+        self.bot_straw_high = bot_straw_high
+        self.straw_check = straw_check
+        self.panel_check = panel_check
+        
+        self.commit()
+
+class MethaneLeakInstance(BASE, OBJECT):
+    __tablename__ = "leak_instance"
+    
+    id = Column(Integer, primary_key=True)
+    session = Column(Integer, ForeignKey("methane_sessions.id"))
+    straw_leak = Column(BOOLEAN)
+    straw_number = Column(Integer)
+    location = Column(Integer)
+    long_straw = Column(BOOLEAN)
+    description = Column(VARCHAR)
+    leak_size = Column(Integer)
+    panel_leak_location = Column(VARCHAR)
+    
+    def __init__(
+        self,
+        session,
+        straw_leak,
+        straw_number,
+        location,
+        long_straw,
+        description,
+        leak_size,
+        panel_leak_location,
+    ):
+        self.id = self.ID()
+        self.session = methane_sessions.id
+        self.straw_leak = straw_leak
+        self.straw_number = straw_number
+        self.location = location
+        self.long_straw = long_straw
+        self.description = description
+        self.leak_size = leak_size
+        self.panel_leak_location = panel_leak_location
+        
+        self.commit()
+    
