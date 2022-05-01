@@ -17,4 +17,3 @@ cache.*
 *.autosave
 **.ipynb_checkpoints*
 tests/*.csv
-.pre-commit-config.yaml

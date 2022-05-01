@@ -193,7 +193,7 @@ def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
             color=fit1_color,
             linewidth=3.0,
             label="Least Squares\n{0}+-{1} sccm\n$r^2$={2}".format(
-                leak_rate_in_sccm, round(std_err, 4), round(r_value ** 2, 3)
+                leak_rate_in_sccm, round(std_err, 4), round(r_value**2, 3)
             ),
         )
         return slope, intercept, r_value, p_value, std_err
