@@ -280,22 +280,16 @@ def main(options):
     lines, labels = axDiffP.get_legend_handles_labels()
     lines2, labels2 = axTemp.get_legend_handles_labels()
     legend = axTemp.legend(lines + lines2, labels + labels2, loc=0)
-    try:
-        legend.legendHandles[-1]._legmarker.set_markersize(8)
-    except IndexError:
-        pass
-    try:
-        legend.legendHandles[-2]._legmarker.set_markersize(8)
-    except IndexError:
-        pass
+    for handle in legend.legendHandles:
+        handle.set(markersize=8)
+
     lines3, labels3 = axRefP.get_legend_handles_labels()
     legend3 = axRefP.legend(lines3, labels3, loc="lower left")
-    legend3.legendHandles[0]._legmarker.set_markersize(8)
-    legend3.legendHandles[1]._legmarker.set_markersize(8)
+    for handle in legend3.legendHandles:
+        handle.set(markersize=8)
 
     # axis labels
-    title = options.infile.split("\\")[-1]
-    title = title.partition(".")[0]
+    title = Path(options.infile).stem
     plt.title(title)
     axDiffP.set_xlabel("DAYS", fontweight="bold")
     axDiffP.set_ylabel("DIFF PRESSURE (PSI)", fontweight="bold")
