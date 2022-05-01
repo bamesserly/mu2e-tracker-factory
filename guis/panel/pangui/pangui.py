@@ -108,6 +108,7 @@ from guis.panel.heater.PanelHeater import HeatControl
 from guis.panel.hv.hvGUImain import highVoltageGUI
 from guis.common.gui_utils import generateBox, except_hook
 from guis.common.db_classes.straw_location import LoadingPallet
+from guis.common.db_classes.measurements_panel import MethaneTestSession
 
 # from guis.panel.resistance.run_test import run_test
 # from guis.panel.leak.PlotLeakRate import RunInteractive
@@ -804,6 +805,9 @@ class panelGUI(QMainWindow):
         )
         self.ui.strawCheck.toggled.connect(
             lambda: self.ui.wireCheck.setChecked(not (self.ui.strawCheck.isChecked()))
+        )
+        self.ui.submit_methane_session.clicked.connect(
+            lambda: self.start_stop_MethaneSession()
         )
 
     def _init_timers(self):
@@ -4092,15 +4096,6 @@ class panelGUI(QMainWindow):
         if data[15] is not None and data[15] != "None":
             self.ui.centerRing4LE.setText(str(data[15]))
 
-        if data[16] is not None:
-            self.ui.stackedWidget.setCurrentIndex(stageStrtoInt[data[16]])
-            if data[16] == "LeakTest":
-                self.resolvingLeak = "LeakTest"
-            else:
-                self.resolvingLeak = "Methane"
-        else:
-            self.resolvingLeak = "Methane"
-
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
 
@@ -5404,7 +5399,6 @@ class panelGUI(QMainWindow):
 
         self.startRunning()
         self.saveData()
-        self.ui.stackedWidget.setCurrentIndex(0)
         self.ui.pro8StageLabel.setText("Current Stage: Preperation")
         self.ui.submitCoversPB.setEnabled(True)
         self.ui.submitRingsPB.setEnabled(True)
@@ -5545,7 +5539,6 @@ class panelGUI(QMainWindow):
         self.ui.strawCheck.setChecked(False)
         self.ui.startButton7.setEnabled(True)
         self.ui.panelInput7.setEnabled(True)
-        self.ui.stackedWidget.setCurrentIndex(0)
         
         self.ui.top_covers.setChecked(False)
         self.ui.top_straws.setChecked(False)
@@ -5752,6 +5745,43 @@ class panelGUI(QMainWindow):
         subprocess.call(
             "start python -m guis.panel.resistance", shell=True, cwd=root_dir,
         )
+        
+    # Calls save function for methane testing session
+    def start_stop_MethaneSession(self):
+        # save current workers
+        user=""
+        for i in self.Current_workers:
+            if i.text() is not None:
+                user=user+' '+i.text()
+                
+        covered_areas='abc'
+        sep_layer=self.ui.sep_layer.isChecked()
+        top_straw_low=1
+        top_straw_high=2
+        bot_straw_low=1
+        bot_straw_high=2
+                
+                
+        print(self.ui.submit_methane_session.text())
+        if self.ui.submit_methane_session.text() == 'Start Testing Session':
+            self.DP.saveMethaneSession(True,None,None,None,None,None,None,user)
+            self.ui.submit_methane_session.setText('Submit Testing Session')
+            print('hi')
+        else:
+            self.ui.submit_methane_session.setText('Start Testing Session')
+            print(MethaneTestSession.get_methane_session())
+            MethaneTestSession.end_methane_test()
+            print('hi2')
+        
+        
+        
+        
+        
+        
+        
+        
+        #self.DP.saveMethaneSession(covered_areas,sep_layer,top_straw_low,top_straw_high,bot_straw_low,bot_straw_high,user)
+        
 
     # record broken tap from the broken tap form in pro8
     # broken_taps is a column in the pan8 table that stores an integer value

@@ -28,6 +28,7 @@ from sqlalchemy import (
     Table,
     TEXT,
     func,
+    update,
 )
 from datetime import datetime
 
@@ -241,43 +242,63 @@ class MethaneTestSession(BASE, OBJECT):
     __tablename__ = "methane_sessions"
     
     id = Column(Integer, primary_key=True)
+    session = Column(Integer)
+    current = Column(BOOLEAN)
     covered_areas = Column(VARCHAR)
     sep_layer = Column(BOOLEAN)
     top_straw_low = Column(Integer)
     top_straw_high = Column(Integer)
     bot_straw_low = Column(Integer)
     bot_straw_high = Column(Integer)
-    straw_check = Column(BOOLEAN)
-    panel_check = Column(BOOLEAN)
+    user = Column(VARCHAR)
     
     def __init__(
         self,
+        session,
+        current,
         covered_areas,
         sep_layer,
         top_straw_low,
         top_straw_high,
         bot_straw_low,
         bot_straw_high,
-        straw_check,
-        panel_check,
+        user,
     ):
         self.id = self.ID()
+        self.session = session
+        self.current = current
         self.covered_areas = covered_areas
         self.sep_layer = sep_layer
         self.top_straw_low = top_straw_low
         self.top_straw_high = top_straw_high
-        sel.bot_straw_low = bot_straw_low
+        self.bot_straw_low = bot_straw_low
         self.bot_straw_high = bot_straw_high
-        self.straw_check = straw_check
-        self.panel_check = panel_check
+        self.user = user
         
         self.commit()
+        
+    @classmethod
+    def get_methane_session(cls):
+        query_result = (
+            DM.query(cls)
+            .filter(cls.current == 1)
+        )
+        query_result=query_result.all()[0]
+        return(query_result.id,query_result.session,query_result.current,query_result.covered_areas,query_result.sep_layer,query_result.top_straw_low,query_result.top_straw_high,query_result.bot_straw_low,query_result.bot_straw_high,query_result.user)
+
+    @classmethod
+    def end_methane_test(self):
+        print(self.current)
+        self.current=False
+        print(self.current)
+        self.commit()
+        
 
 class MethaneLeakInstance(BASE, OBJECT):
     __tablename__ = "leak_instance"
     
     id = Column(Integer, primary_key=True)
-    session = Column(Integer, ForeignKey("methane_sessions.id"))
+    session = Column(Integer, ForeignKey("procedure.id"))
     straw_leak = Column(BOOLEAN)
     straw_number = Column(Integer)
     location = Column(Integer)

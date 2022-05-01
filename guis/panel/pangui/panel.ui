@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>28</height>
+                       <height>18</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>28</height>
+                       <height>16</height>
                       </rect>
                      </property>
                     </widget>
@@ -7701,7 +7701,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <widget class="QWidget" name="tab_6">
                      <attribute name="title">
@@ -8018,7 +8018,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                     <property name="text">
-                     <string>Submit Testing Session</string>
+                     <string>Start Testing Session</string>
                     </property>
                    </widget>
                    <widget class="QCheckBox" name="stay_bolts">
@@ -8483,8 +8483,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>

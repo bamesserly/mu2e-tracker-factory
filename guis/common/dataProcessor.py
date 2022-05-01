@@ -26,6 +26,8 @@ from guis.common.db_classes.measurements_panel import (
     TensionboxMeasurement,
     BadWire,
     LeakFinalForm,
+    MethaneTestSession,
+    MethaneLeakInstance,
 )
 import logging
 
@@ -369,6 +371,30 @@ class DataProcessor(ABC):
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
         pass
+        
+    """
+    saveMethaneSession(self,session,covered_areas,sep_layer,top_straw_low,top_straw_high,bot_straw_low,bot_straw_high,user)
+    
+        Description: Saves data on a methane testing session
+        
+        Input:
+            Session (int)   -   The procedure during which this methane session occurred.
+            covered_areas   (varchar)   -   Alphanumeric code denoting areas tested in a given session.
+            sep_layer   (Boolean)   -   Tells whether or not the separation layer was used.
+            top_straw_low   (int)   -   Lowest number straw tested on top of panel.
+            top_straw_high  (int)   -   Highest number straw tested on top of panel.
+            bot_straw_low   (int)   -   Lowest number straw tested on bottom of panel.
+            bot_straw_high  (int)   -   Highest number straw tested on bottom of panel.
+            user    (varchar)   -   The user during pertinent methane testing session.
+    """
+    """
+    @abstractmethod
+    def saveMethaneSession(
+        self, session, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+    ):
+        pass
+    """
+    
 
     """#USED
     wireQCd(self,wire)
@@ -648,6 +674,14 @@ class MultipleDataProcessor(DataProcessor):
         for dp in self.processors:
             dp.saveTensionboxMeasurement(
                 panel, is_straw, position, length, frequency, pulse_width, tension
+            )
+    
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+    ):
+        for dp in self.processors:
+            dp.saveMethaneSession(
+                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
             )
 
     def saveBadWire(self, position, failure, process, wire_check):
@@ -1181,6 +1215,12 @@ class TxtDataProcessor(DataProcessor):
             f.write(
                 f"{datetime.now().isoformat()}, {datetime.now().timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}\n"
             )
+            
+    # save process 8 methane testing session instance
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+    ):
+        pass
 
     # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
@@ -2152,6 +2192,22 @@ class SQLDataProcessor(DataProcessor):
                 frequency=frequency,
                 pulse_width=pulse_width,
                 tension=tension,
+            ).commit()
+            
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+    ):
+        if self.ensureProcedure():
+            MethaneTestSession(
+                session=self.procedure.id,
+                current=current,
+                covered_areas=covered_areas,
+                sep_layer=sep_layer,
+                top_straw_low=top_straw_low,
+                top_straw_high=top_straw_high,
+                bot_straw_low=bot_straw_low,
+                bot_straw_high=bot_straw_high,
+                user=user,
             ).commit()
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
