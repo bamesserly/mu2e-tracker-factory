@@ -113,7 +113,8 @@ class PanelData:
             "left_ring": "",
             "right_ring": "",
             "center_ring": "",
-            "stage": ""
+            "stage": "",
+            "leak_rate": ""
         }
 
         # list of leak rate submissions

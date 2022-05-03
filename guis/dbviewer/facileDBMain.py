@@ -1671,7 +1671,8 @@ class facileDBGUI(QMainWindow):
                 pro8Parts.columns.left_ring,
                 pro8Parts.columns.right_ring,
                 pro8Parts.columns.center_ring,
-                pro8Parts.columns.stage
+                pro8Parts.columns.stage,
+                pro8Parts.columns.leak_rate
             ]
         ).where(pro8Parts.columns.procedure == self.data.proIDs['pan8'])
         resultProxy = self.connection.execute(pro8Query)  # make proxy
@@ -1688,6 +1689,7 @@ class facileDBGUI(QMainWindow):
             self.data.qcParts["right_ring"] = rawPro8Data[0][4]
             self.data.qcParts["center_ring"] = rawPro8Data[0][5]
             self.data.qcParts["stage"] = rawPro8Data[0][6]
+            self.data.qcParts["leak_rate"] = rawPro8Data[0][7]
         except IndexError as e:
             logger.warning("No pro8 parts data. This shouldn't be throwing an error. TODO for Ben.")
 
@@ -1920,7 +1922,7 @@ class facileDBGUI(QMainWindow):
             )
 
             if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
-                self.getWid(f'{key}LE').setText("Unknown")
+                self.getWid(f'{key}LE').setText("Not Found")
 
         # leaks next
         for toop in self.data.methane:
