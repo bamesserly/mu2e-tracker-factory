@@ -287,11 +287,15 @@ class MethaneTestSession(BASE, OBJECT):
         return(query_result.id,query_result.session,query_result.current,query_result.covered_areas,query_result.sep_layer,query_result.top_straw_low,query_result.top_straw_high,query_result.bot_straw_low,query_result.bot_straw_high,query_result.user)
 
     @classmethod
-    def end_methane_test(self):
-        print(self.current)
-        self.current=False
-        print(self.current)
-        self.commit()
+    def end_methane_test(cls):
+        query_result = {
+            DM.query(cls)
+            .filter(cls.current == 1)
+            .update({'current': 0}, synchronize_session='evaluate')
+        }
+        
+        
+        
         
 
 class MethaneLeakInstance(BASE, OBJECT):

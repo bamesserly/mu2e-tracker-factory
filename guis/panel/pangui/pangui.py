@@ -5769,7 +5769,6 @@ class panelGUI(QMainWindow):
             print('hi')
         else:
             self.ui.submit_methane_session.setText('Start Testing Session')
-            print(MethaneTestSession.get_methane_session())
             MethaneTestSession.end_methane_test()
             print('hi2')
         
