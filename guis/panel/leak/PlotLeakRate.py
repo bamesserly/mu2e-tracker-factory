@@ -111,6 +111,13 @@ def GetOptions():
         action="store_false",
         help="Don't do any fits.",
     )
+    parser.add_option(
+        "--box_number_config_fix ",
+        dest="box_number_config_fix",
+        type="int",
+        default=-1,
+        help="To correct the bogus labview config params, enter the box number.",
+    )
     options, remainder = parser.parse_args()
     return options
 
@@ -233,7 +240,7 @@ def DoFitAndPlot(df, fit_start_time, fit_end_time, axDiffP, axTemp):
 ################################################################################
 def main(options):
     # read raw data files into a dataframe
-    df = ReadLeakRateFile(options.infile, options.is_new_format)
+    df = ReadLeakRateFile(options.infile, options.is_new_format, options.box_number_config_fix )
 
     # prep plots
     params = {"mathtext.default": "regular"}
@@ -362,26 +369,30 @@ def RunInteractive():
     except AssertionError:
         sys.exit("Input file not found.")
 
-    def SetFloatOption(prompt, default_option):
+    def SetOption(prompt, default_option, enforce_type=float):
         try:
-            return float(input(prompt))
+            return enforce_type(input(prompt))
         except ValueError:
             return default_option
 
-    options.fit_start_time = SetFloatOption("Fit start> ", options.fit_start_time)
-    options.fit_end_time = SetFloatOption("Fit end> ", options.fit_end_time)
-    options.min_diff_pressure = SetFloatOption(
+    options.fit_start_time = SetOption("Fit start> ", options.fit_start_time)
+    options.fit_end_time = SetOption("Fit end> ", options.fit_end_time)
+    options.min_diff_pressure = SetOption(
         "Differential pressure y-axis min> ", options.min_diff_pressure
     )
-    options.max_diff_pressure = SetFloatOption(
+    options.max_diff_pressure = SetOption(
         "Differential pressure y-axis max> ", options.max_diff_pressure
     )
-    options.min_ref_pressure = SetFloatOption(
+    options.min_ref_pressure = SetOption(
         "Reference pressure y-axis min> ", options.min_ref_pressure
     )
-    options.max_ref_pressure = SetFloatOption(
+    options.max_ref_pressure = SetOption(
         "Reference pressure y-axis max> ", options.max_ref_pressure
     )
+    options.box_number_config_fix = SetOption(
+        "Chamber 1 or 2 (only if correcting config file!)> ", -1, int
+    )
+
     print(options)
 
     # If we can't find a procedure ID, give up
