@@ -294,9 +294,6 @@ class MethaneTestSession(BASE, OBJECT):
             .update({'current': 0}, synchronize_session='evaluate')
         }
         
-        
-        
-        
 
 class MethaneLeakInstance(BASE, OBJECT):
     __tablename__ = "leak_instance"

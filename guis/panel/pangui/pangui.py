@@ -5761,23 +5761,35 @@ class panelGUI(QMainWindow):
         bot_straw_low=1
         bot_straw_high=2
                 
-                
-        print(self.ui.submit_methane_session.text())
+        # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session':
             self.DP.saveMethaneSession(True,None,None,None,None,None,None,user)
             self.ui.submit_methane_session.setText('Submit Testing Session')
-            print('hi')
         else:
+            covered_locations_raw =[self.ui.top_covers.isChecked(), self.ui.top_flood.isChecked(),
+            self.ui.top_straws.isChecked(), self.ui.bottom_covers.isChecked(),
+            self.ui.bottom_flood.isChecked(), self.ui.bottom_straws.isChecked(), 
+            self.ui.e_slot.isChecked(), self.ui.side_seams.isChecked(), 
+            self.ui.stay_bolts.isChecked(), self.ui.pfn_holes.isChecked()]
+            covered_locations = ''
+            for i in covered_locations_raw:
+                if i is True:
+                    covered_locations+='Y'
+                else:
+                    covered_locations+='N'
+        
+            # acquire gas detector number
+            try:
+                gas_detector = int(self.ui.detector.text())
+            except:
+                return False
+            print(gas_detector)
+            
+
+            
+            
             self.ui.submit_methane_session.setText('Start Testing Session')
-            MethaneTestSession.end_methane_test()
-            print('hi2')
-        
-        
-        
-        
-        
-        
-        
+            MethaneTestSession.end_methane_test()    
         
         #self.DP.saveMethaneSession(covered_areas,sep_layer,top_straw_low,top_straw_high,bot_straw_low,bot_straw_high,user)
         
