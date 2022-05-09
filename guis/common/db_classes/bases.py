@@ -50,7 +50,6 @@ class AutoCommit:
     def commit(self):
         return DM.commitEntry(self)
 
-
 class Barcode:
     @staticmethod
     def barcode(prefix, digits, n):

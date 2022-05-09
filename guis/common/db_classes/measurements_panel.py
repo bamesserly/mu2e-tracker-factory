@@ -250,6 +250,7 @@ class MethaneTestSession(BASE, OBJECT):
     top_straw_high = Column(Integer)
     bot_straw_low = Column(Integer)
     bot_straw_high = Column(Integer)
+    detector_number = Column(Integer)
     user = Column(VARCHAR)
     
     def __init__(
@@ -262,6 +263,7 @@ class MethaneTestSession(BASE, OBJECT):
         top_straw_high,
         bot_straw_low,
         bot_straw_high,
+        detector_number,
         user,
     ):
         self.id = self.ID()
@@ -273,6 +275,7 @@ class MethaneTestSession(BASE, OBJECT):
         self.top_straw_high = top_straw_high
         self.bot_straw_low = bot_straw_low
         self.bot_straw_high = bot_straw_high
+        self.detector_number = detector_number
         self.user = user
         
         self.commit()
@@ -292,6 +295,16 @@ class MethaneTestSession(BASE, OBJECT):
             DM.query(cls)
             .filter(cls.current == 1)
             .update({'current': 0}, synchronize_session='evaluate')
+        }
+    
+    @classmethod
+    def update_methane_test(cls, covered_locations, gas_detector, top_low, top_high, bot_low, bot_high):
+        query_result = {
+            DM.query(cls)
+            .filter(cls.current == 1)
+            .update({'covered_areas': covered_locations, 'detector_number': gas_detector,
+            'top_straw_low': top_low, 'top_straw_high': top_high, 'bot_straw_low': bot_low,
+            'bot_straw_high': bot_high}, synchronize_session='evaluate')
         }
         
 

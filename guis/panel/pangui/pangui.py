@@ -5763,7 +5763,7 @@ class panelGUI(QMainWindow):
                 
         # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session':
-            self.DP.saveMethaneSession(True,None,None,None,None,None,None,user)
+            self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user)
             self.ui.submit_methane_session.setText('Submit Testing Session')
         else:
             covered_locations_raw =[self.ui.top_covers.isChecked(), self.ui.top_flood.isChecked(),
@@ -5782,11 +5782,39 @@ class panelGUI(QMainWindow):
             try:
                 gas_detector = int(self.ui.detector.text())
             except:
+                generateBox(
+                    "critical", "Warning", "Please ensure that the gas detector number is valid."
+                )
                 return False
-            print(gas_detector)
             
-
+            # acquire top and bottom high and low straws
+            top_low = None
+            top_high = None
+            bot_low = None
+            bot_high = None
+            if self.ui.top_straws.isChecked():
+                try:
+                    top_low = int(self.ui.ts_low.text())
+                    top_high = int(self.ui.ts_high.text())
+                    
+                    assert top_low <= top_high
+                except:
+                    generateBox(
+                        "critical", "Warning", "Please ensure that the top straw numbers are valid."
+                    )
+            elif self.ui.bottom_straws.isChecked():
+                try:
+                    bot_low = int(self.ui.bs_low.text())
+                    bot_high = int(self.ui.bs_high.text())
+                    
+                    assert bot_low <= bot_high
+                except:
+                    generateBox(
+                        "critical", "Warning", "Please ensure that the bottom straw numbers are valid."
+                    )
+                    return False
             
+            MethaneTestSession.update_methane_test(covered_locations, gas_detector, top_low, top_high, bot_low, bot_high)
             
             self.ui.submit_methane_session.setText('Start Testing Session')
             MethaneTestSession.end_methane_test()    

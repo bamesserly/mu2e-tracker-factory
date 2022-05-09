@@ -371,30 +371,6 @@ class DataProcessor(ABC):
         self, panel, is_straw, position, length, frequency, pulse_width, tension
     ):
         pass
-        
-    """
-    saveMethaneSession(self,session,covered_areas,sep_layer,top_straw_low,top_straw_high,bot_straw_low,bot_straw_high,user)
-    
-        Description: Saves data on a methane testing session
-        
-        Input:
-            Session (int)   -   The procedure during which this methane session occurred.
-            covered_areas   (varchar)   -   Alphanumeric code denoting areas tested in a given session.
-            sep_layer   (Boolean)   -   Tells whether or not the separation layer was used.
-            top_straw_low   (int)   -   Lowest number straw tested on top of panel.
-            top_straw_high  (int)   -   Highest number straw tested on top of panel.
-            bot_straw_low   (int)   -   Lowest number straw tested on bottom of panel.
-            bot_straw_high  (int)   -   Highest number straw tested on bottom of panel.
-            user    (varchar)   -   The user during pertinent methane testing session.
-    """
-    """
-    @abstractmethod
-    def saveMethaneSession(
-        self, session, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
-    ):
-        pass
-    """
-    
 
     """#USED
     wireQCd(self,wire)
@@ -677,11 +653,11 @@ class MultipleDataProcessor(DataProcessor):
             )
     
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         for dp in self.processors:
             dp.saveMethaneSession(
-                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
             )
 
     def saveBadWire(self, position, failure, process, wire_check):
@@ -1218,7 +1194,7 @@ class TxtDataProcessor(DataProcessor):
             
     # save process 8 methane testing session instance
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         pass
 
@@ -2195,7 +2171,7 @@ class SQLDataProcessor(DataProcessor):
             ).commit()
             
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, user
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         if self.ensureProcedure():
             MethaneTestSession(
@@ -2207,6 +2183,7 @@ class SQLDataProcessor(DataProcessor):
                 top_straw_high=top_straw_high,
                 bot_straw_low=bot_straw_low,
                 bot_straw_high=bot_straw_high,
+                detector_number=detector_number,
                 user=user,
             ).commit()
 
