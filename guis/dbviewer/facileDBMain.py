@@ -274,6 +274,9 @@ class facileDBGUI(QMainWindow):
         self.ui.submitPB.clicked.connect(self.submitClicked)
         self.ui.panelLE.returnPressed.connect(self.submitClicked)
 
+        # finalQC leak test double click
+        self.ui.leakTestsLW.itemDoubleClicked.connect(self.graphLeak)
+
         # heat buttons
         self.ui.heatExportButton.clicked.connect(
             lambda: self.exportData(
@@ -1597,19 +1600,10 @@ class facileDBGUI(QMainWindow):
         return 0
 
     # finds QC data and puts it into panelData.
-    # parameters: int, pro is the process to find data for (3 or 6)
+    # parameters: none
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
 
-        self.ui.leaksLW.clear()
-        self.ui.badStrawsLW.clear()
-        self.ui.badWiresLW.clear()
-        self.ui.left_coverLE.clear()
-        self.ui.left_ringLE.clear()
-        self.ui.right_coverLE.clear()
-        self.ui.right_ringLE.clear()
-        self.ui.center_coverLE.clear()
-        self.ui.center_ringLE.clear()
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return False
@@ -1624,6 +1618,9 @@ class facileDBGUI(QMainWindow):
         pro8Parts = sqla.Table(
             "procedure_details_pan8", self.metadata, autoload=True, autoload_with=self.engine
         )
+        leakDetails = sqla.Table(
+            "panel_leak_test_details", self.metadata, autoload=True, autoload_with=self.engine
+        ) # should be called leekDeets
 
         # bad straws and wires
         badSWQuery = sqla.select(
@@ -1678,6 +1675,21 @@ class facileDBGUI(QMainWindow):
         resultProxy = self.connection.execute(pro8Query)  # make proxy
         rawPro8Data = resultProxy.fetchall()  # get data from db
 
+        # leek deets
+        leakDetailsQuery = sqla.select(
+            [
+                leakDetails.columns.tag,               # tag name
+                leakDetails.columns.elapsed_days,      # elapsed time
+                leakDetails.columns.timestamp          # time of... completion?
+            ]
+        ).where(leakDetails.columns.procedure == self.data.proIDs['pan8'])
+        resultProxy = self.connection.execute(leakDetailsQuery)  # make proxy
+        rawLDData = resultProxy.fetchall()  # get data from db
+
+        for toop in rawLDData:
+            self.data.leakTests += [toop]
+
+        # if it's > 1 then it found two procedures and needs to go home bc it's drunk
         if len(rawPro8Data) > 1:
             return False
 
@@ -1939,8 +1951,13 @@ class facileDBGUI(QMainWindow):
 
             self.ui.leaksLW.addItem(descStr)
 
-        # lastly straws and wires
+        for toop in self.data.leakTests:
+            newItem = QListWidgetItem()
+            newItem.setText(f'Tag Name: {toop[0]}\nTime Elapsed: {toop[1]} days')
+            newItem.setToolTip(f'Double click to open graph for {toop[0]}')
+            self.ui.leakTestsLW.addItem(newItem)
 
+        # lastly straws and wires
         for toop in self.data.badStraws:
             descStr = ""
             descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
@@ -1956,7 +1973,6 @@ class facileDBGUI(QMainWindow):
             descStr += f'Comment: {toop[1]}\n'
 
             self.ui.badWiresLW.addItem(descStr)
-
 
 
     # put data into QListWidgets
@@ -2048,7 +2064,6 @@ class facileDBGUI(QMainWindow):
                     button.setDisabled(True)
 
     # general function to graph any data on the main window
-    # TODO: actually write the function lol
     def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout,errorBars=False,eIndex=0,microScale=False):
         # clear current plot
         for i in reversed(range(targetLayout.count())):
@@ -2199,7 +2214,7 @@ class facileDBGUI(QMainWindow):
             self.displayOnGraphHEAT(pro)
         return
 
-    # popup with heat data graph
+    # popup(?) with heat data graph  (I don't think this actually makes a popup)
     # parameters:   pro, int representing which pro to get data for (1,2,or 6)
     # returns: nothing returned
     def displayOnGraphHEAT(self,pro):
@@ -2433,6 +2448,13 @@ class facileDBGUI(QMainWindow):
 
         plt.tight_layout()
         plt.show()
+
+    # graph leak data in pop up window
+    # parameters: listItem, a QListWidgetItem from self.ui.leakTestsLW
+    # returns: nothing returned
+    def graphLeak(self, listItem):
+        print(f'{listItem.text()}')
+        return
 
 
     # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗    ██████╗  █████╗ ████████╗ █████╗
