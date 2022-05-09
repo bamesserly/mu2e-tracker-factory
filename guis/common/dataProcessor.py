@@ -659,6 +659,14 @@ class MultipleDataProcessor(DataProcessor):
             dp.saveMethaneSession(
                 current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
             )
+    
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+    ):
+        for dp in self.processors:
+            dp.saveMethaneLeak(
+                session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+            )
 
     def saveBadWire(self, position, failure, process, wire_check):
         for dp in self.processors:
@@ -2186,6 +2194,22 @@ class SQLDataProcessor(DataProcessor):
                 detector_number=detector_number,
                 user=user,
             ).commit()
+    
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+    ):
+        if self.ensureProcedure():
+            MethaneLeakInstance(
+                session=session,
+                straw_leak=straw_leak,
+                straw_number=straw_number,
+                location=location,
+                long_straw=long_straw,
+                description=description,
+                leak_size=leak_size,
+                panel_leak_location,
+            ).commit()
+        
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         # Make sure all data is defined
