@@ -2546,28 +2546,29 @@ class facileDBGUI(QMainWindow):
         ax2[0].set_xlabel("Time, Elapsed Days", fontsize=20)
         ax2[0].tick_params(axis='x', labelsize=15) # change tick font size
 
-        ax2[0].set_ylabel("Temperature (°C)", fontsize=20)
-        ax2[0].plot(xData, yTBox, c="#20fc03", markersize=2, label = "Temp. Box") # plot box temp
-        ax2[0].plot(xData, yTRoom, c="#0313fc", markersize=2, label = "Temp. Room") # plot room temp
-        ax2[0].tick_params(axis='y', labelsize=15)
-        ax2[0].legend(["Temp. Box", "Temp. Room"], loc = "lower left") # create legend for temps
+        ax1.set_ylabel("Temperature (°C)", fontsize=20)
+        ax1.plot(xData, yTBox, c="#20fc03", markersize=2, label = "Temp. Box") # plot box temp
+        ax1.plot(xData, yTRoom, c="#0313fc", markersize=2, label = "Temp. Room") # plot room temp
+        ax1.tick_params(axis='y', labelsize=15)
+        ax1.legend(["Temp. Box", "Temp. Room"], loc = "lower left") # create legend for temps
 
         # since ax1 is the return value of ax2[0].twinx() and not subplots() no indexing needed
-        ax1.set_xlabel("Elapsed Days", fontsize=20)
-        ax1.set_ylabel("Diff Pressure (PSI)", color="#fc0303", fontsize=20)
-        ax1.plot(xData, yPDiff, c="#fc0303", markersize=2, label="P Diff") # plot pressure diff
-        # pressure diff is plotted second so it is not covered up by temperature
-        # could be avoided by changing bounds of temp axis
-        ax1.tick_params(axis='y', labelcolor="#fc0303", labelsize=15)
+        ax2[0].set_xlabel("Elapsed Days", fontsize=20)
+        ax2[0].set_ylabel("Diff Pressure (PSI)", color="#fc0303", fontsize=20)
+        ax2[0].plot(xData, yPDiff, c="#fc0303", markersize=2, label="P Diff") # plot pressure diff
+        ax2[0].tick_params(axis='y', labelcolor="#fc0303", labelsize=15)
 
         # second subplot
         ax2[1].set_xlabel("Time, Elapsed Days", fontsize=20)
         ax2[1].tick_params(axis='x', labelsize=15)
-        ax2[1].set_ylabel("PSI", fontsize=20)
+        ax2[1].set_ylabel("Pressure (PSI)", fontsize=20)
         ax2[1].plot(xData, yPRef, c="#fc0303", markersize=2, label= "P ref") # plot P ref
         ax2[1].plot(xData, yPFill, c="#0313fc", markersize=2, label= "P fill") # plot P fill
         ax2[1].legend(["$P_{Ref}$", "$P_{Fill}$"], loc = "lower left", fontsize=15) # funky syntax for subscript
         
+        ax2[0].grid(color="#fc0303")
+        ax2[1].grid()
+
         fig.tight_layout()
         plt.show()
 
