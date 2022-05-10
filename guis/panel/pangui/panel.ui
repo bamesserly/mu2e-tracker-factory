@@ -7479,7 +7479,7 @@ Heater GUI</string>
                 <item row="4" column="0" rowspan="4">
                  <widget class="QTabWidget" name="tabWidget_2">
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="tab_4">
                    <attribute name="title">
@@ -7691,7 +7691,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                    </widget>
-                   <widget class="QTabWidget" name="tabWidget_3">
+                   <widget class="QTabWidget" name="submit_leak_panel_2">
                     <property name="geometry">
                      <rect>
                       <x>10</x>
@@ -7701,7 +7701,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                     <property name="currentIndex">
-                     <number>0</number>
+                     <number>1</number>
                     </property>
                     <widget class="QWidget" name="tab_6">
                      <attribute name="title">
@@ -8052,6 +8052,16 @@ Heater GUI</string>
                    <attribute name="title">
                     <string>Past Data</string>
                    </attribute>
+                   <widget class="QPlainTextEdit" name="pastMethaneData">
+                    <property name="geometry">
+                     <rect>
+                      <x>0</x>
+                      <y>0</y>
+                      <width>311</width>
+                      <height>481</height>
+                     </rect>
+                    </property>
+                   </widget>
                   </widget>
                  </widget>
                 </item>
@@ -8483,8 +8493,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="saveButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>

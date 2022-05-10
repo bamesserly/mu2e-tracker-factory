@@ -809,6 +809,12 @@ class panelGUI(QMainWindow):
         self.ui.submit_methane_session.clicked.connect(
             lambda: self.start_stop_MethaneSession()
         )
+        self.ui.submit_leak_straw.clicked.connect(
+            lambda: self.submit_methane_leak('straw')
+        )
+        self.ui.submit_leak_panel.clicked.connect(
+            lambda: self.submit_methane_leak('panel')
+        )
 
     def _init_timers(self):
         self.timers = [
@@ -5753,13 +5759,9 @@ class panelGUI(QMainWindow):
         for i in self.Current_workers:
             if i.text() is not None:
                 user=user+' '+i.text()
-                
-        covered_areas='abc'
+        
+        # determine whether or not the plastic separator was used
         sep_layer=self.ui.sep_layer.isChecked()
-        top_straw_low=1
-        top_straw_high=2
-        bot_straw_low=1
-        bot_straw_high=2
                 
         # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session':
@@ -5814,13 +5816,99 @@ class panelGUI(QMainWindow):
                     )
                     return False
             
+            # using collected data, update the current methane test
             MethaneTestSession.update_methane_test(covered_locations, gas_detector, top_low, top_high, bot_low, bot_high)
             
             self.ui.submit_methane_session.setText('Start Testing Session')
+            
+            # end current methane test, setting current to 0 in db
             MethaneTestSession.end_methane_test()    
+            
+            # clear fields
+            self.ui.top_covers.setChecked(False)
+            self.ui.top_flood.setChecked(False)
+            self.ui.top_straws.setChecked(False)
+            self.ui.bottom_covers.setChecked(False)
+            self.ui.bottom_flood.setChecked(False)
+            self.ui.bottom_straws.setChecked(False)
+            self.ui.e_slot.setChecked(False)
+            self.ui.side_seams.setChecked(False)
+            self.ui.stay_bolts.setChecked(False)
+            self.ui.pfn_holes.setChecked(False)
+            self.ui.sep_layer.setChecked(False)
+            self.ui.ts_low.clear()
+            self.ui.ts_high.clear()
+            self.ui.bs_low.clear()
+            self.ui.bs_high.clear()
+            self.ui.detector.clear()
+            
         
-        #self.DP.saveMethaneSession(covered_areas,sep_layer,top_straw_low,top_straw_high,bot_straw_low,bot_straw_high,user)
-        
+    # save methane leak instance
+    def submit_methane_leak(self, leak_type):
+        if leak_type == 'straw':
+            # get straw number and other data
+            try:
+                straw_number = int(self.ui.straw_number.text())
+                assert 0 <= straw_number <= 95
+                
+                location = int(self.ui.leak_location.text())
+                leak_size = int(self.ui.leak_size_straw.text())
+                session = int(MethaneTestSession.get_methane_session()[1])
+            except:
+                generateBox(
+                    "critical", "Warning", "Please ensure that all inputs are valid."
+                )
+                return False
+            
+            long_straw = self.ui.long_straw.isChecked()
+            description = self.ui.leak_description_straw.toPlainText()
+            
+            # save the leak in db
+            self.DP.saveMethaneLeak(session,True,straw_number,location,long_straw,description,leak_size,None)
+
+            # clear all entry fields/checkboxes
+            self.ui.straw_number.clear()
+            self.ui.leak_location.clear()
+            self.ui.leak_size_straw.clear()
+            self.ui.long_straw.setChecked(False)
+            self.ui.leak_description_straw.clear()
+        else:
+            # determine which areas were covered in the methane sweep
+            covered_locations_raw =[self.ui.leak_cover.isChecked(), self.ui.leak_stay_bolts.isChecked(),
+            self.ui.leak_flooding.isChecked(), self.ui.leak_pfn_holes.isChecked(),
+            self.ui.leak_e_slot.isChecked(), self.ui.leak_side_seams.isChecked()]
+            covered_locations = ''
+            for i in covered_locations_raw:
+                if i is True:
+                    covered_locations+='Y'
+                else:
+                    covered_locations+='N'
+            
+            # acquire data from the gui entry fields
+            try:
+                leak_size = int(self.ui.leak_size_panel.text())
+                session = int(MethaneTestSession.get_methane_session()[1])
+            except:
+                generateBox(
+                    "critical", "Warning", "Please ensure that all inputs are valid."
+                )
+                
+            description = self.ui.leak_description_panel.toPlainText()
+                
+            # save the methane leak instance in db
+            self.DP.saveMethaneLeak(session,False,None,None,None,description,leak_size,covered_locations)
+                
+            # reset all entry fields/checkboxes
+            self.ui.leak_description_panel.clear()
+            self.ui.leak_size_panel.clear()
+            self.ui.leak_cover.setChecked(False)
+            self.ui.leak_stay_bolts.setChecked(False)
+            self.ui.leak_flooding.setChecked(False)
+            self.ui.leak_pfn_holes.setChecked(False)
+            self.ui.leak_e_slot.setChecked(False)
+            self.ui.leak_side_seams.setChecked(False)
+
+
 
     # record broken tap from the broken tap form in pro8
     # broken_taps is a column in the pan8 table that stores an integer value

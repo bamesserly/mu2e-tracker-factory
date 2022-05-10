@@ -333,7 +333,7 @@ class MethaneLeakInstance(BASE, OBJECT):
         panel_leak_location,
     ):
         self.id = self.ID()
-        self.session = methane_sessions.id
+        self.session = session
         self.straw_leak = straw_leak
         self.straw_number = straw_number
         self.location = location
@@ -343,4 +343,6 @@ class MethaneLeakInstance(BASE, OBJECT):
         self.panel_leak_location = panel_leak_location
         
         self.commit()
+        
+    
     

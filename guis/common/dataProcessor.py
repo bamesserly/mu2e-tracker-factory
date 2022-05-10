@@ -1205,6 +1205,11 @@ class TxtDataProcessor(DataProcessor):
         self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         pass
+        
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+    ):
+        pass
 
     # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
@@ -2207,7 +2212,7 @@ class SQLDataProcessor(DataProcessor):
                 long_straw=long_straw,
                 description=description,
                 leak_size=leak_size,
-                panel_leak_location,
+                panel_leak_location=panel_leak_location,
             ).commit()
         
 
