@@ -1959,6 +1959,8 @@ class facileDBGUI(QMainWindow):
             self.ui.leaksLW.addItem(descStr)
 
         # leak tests
+        if len(self.data.leakTests) > 0:
+            self.ui.leakTestsLW.addItem("Double click an entry to view it's data on a graph.")
         for toop in self.data.leakTests:
             newItem = QListWidgetItem()
             newItem.setText(f'Tag Name: {toop[0]}\nTime Elapsed: {toop[1]} days')
@@ -2459,6 +2461,9 @@ class facileDBGUI(QMainWindow):
     # parameters: listItem, a QListWidgetItem from self.ui.leakTestsLW
     # returns: nothing returned
     def graphLeak(self, listItem):
+        # if they clicked the list item at the top with instructions return early
+        if len(listItem.toolTip()) == 0:
+            return
         # name of tag clicked is the ending of the tooltip string for that item
         # see the leak tests loop in displayPro8() for how tooltip is set
         # if the actual name of the tag starts with whitespace a bug could arise
