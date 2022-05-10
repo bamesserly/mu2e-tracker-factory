@@ -2489,7 +2489,7 @@ class facileDBGUI(QMainWindow):
 
         leakQuery = sqla.select(
             [
-                leakTable.columns.elapsed_days,   # covers/rings reinstalled
+                leakTable.columns.elapsed_days,   # time in days
                 leakTable.columns.pressure_diff,  # deltaP
                 leakTable.columns.temp_box,       # temp of box
                 leakTable.columns.temp_room,      # ambient temp
@@ -2505,9 +2505,34 @@ class facileDBGUI(QMainWindow):
 
         print(f'{len(rawLeakData)} measurements found in {perfMeasure} seconds.')
 
+
+        # make lists for each group of data, x values are common for all
+        # could be written in half the lines but that would be like 6 big loops
+        xData = []
+        yPDiff = []
+        yTBox = []
+        yTRoom = []
+        yPRef = []
+        yPFill = []
+        for toop in rawLeakData:
+            xData += [toop[0]]
+            yPDiff += [toop[1]]
+            yTBox += [toop[2]]
+            yTRoom += [toop[3]]
+            yPRef += [toop[4]]
+            yPFill += [toop[5]]
+
+
+
+        plt.subplot(211)
+        plt.scatter(xData, yPDiff, c="#fca503", label="P Diff")  # make plot
+
+        plt.xlabel("Time", fontsize=20)  # set x axis label
+        plt.ylabel(f'Diff Pressure (PSI)', fontsize=20)  # set y axis label
+        #plt.ylabel(f'Temperature (°C)', fontsize=20)  # set y axis label
         
-        
-        return
+        plt.tight_layout()
+        plt.show()
 
 
     # ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗    ██████╗  █████╗ ████████╗ █████╗
