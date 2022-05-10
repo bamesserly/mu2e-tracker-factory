@@ -799,6 +799,8 @@ class panelGUI(QMainWindow):
         self.ui.submitRingsPB.clicked.connect(self.saveData)
         self.ui.submitCoversPB.setDisabled(True)
         self.ui.submitRingsPB.setDisabled(True)
+        self.ui.submit_leak_panel.setDisabled(True)
+        self.ui.submit_leak_straw.setDisabled(True)
         # connect checkboxes to pick one or the other, not both
         self.ui.wireCheck.toggled.connect(
             lambda: self.ui.strawCheck.setChecked(not (self.ui.wireCheck.isChecked()))
@@ -4111,6 +4113,7 @@ class panelGUI(QMainWindow):
 
         self.displayComments()
         self.pro8LoadBadWiresStraws()
+        self.display_methane_leaks()
 
     # fmt: off
     # ██████╗ ██████╗  ██████╗      ██╗
@@ -5348,6 +5351,10 @@ class panelGUI(QMainWindow):
         for wire in self.DP.loadBadWires():
             text += f'{"Wire at" if wire[2] else "Straw at"} position {wire[0]}:\n{wire[1]}\n\n'
         self.ui.previousBadPTE.setPlainText(text)
+    
+    def display_methane_leaks(self):
+        output=self.DP.load_methane_leaks()
+        self.ui.pastMethaneData.setPlainText(output)
 
     def pro8ChangeStageMode(self):
         # match stacked widget to combo box option
@@ -5767,6 +5774,8 @@ class panelGUI(QMainWindow):
         if self.ui.submit_methane_session.text() == 'Start Testing Session':
             self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user)
             self.ui.submit_methane_session.setText('Submit Testing Session')
+            self.ui.submit_leak_panel.setDisabled(False)
+            self.ui.submit_leak_straw.setDisabled(False)
         else:
             covered_locations_raw =[self.ui.top_covers.isChecked(), self.ui.top_flood.isChecked(),
             self.ui.top_straws.isChecked(), self.ui.bottom_covers.isChecked(),
@@ -5817,7 +5826,7 @@ class panelGUI(QMainWindow):
                     return False
             
             # using collected data, update the current methane test
-            MethaneTestSession.update_methane_test(covered_locations, gas_detector, top_low, top_high, bot_low, bot_high)
+            MethaneTestSession.update_methane_test(covered_locations, gas_detector, top_low, top_high, bot_low, bot_high, sep_layer)
             
             self.ui.submit_methane_session.setText('Start Testing Session')
             
@@ -5841,6 +5850,9 @@ class panelGUI(QMainWindow):
             self.ui.bs_low.clear()
             self.ui.bs_high.clear()
             self.ui.detector.clear()
+            
+            self.ui.submit_leak_panel.setDisabled(True)
+            self.ui.submit_leak_straw.setDisabled(True)
             
         
     # save methane leak instance
@@ -5887,11 +5899,13 @@ class panelGUI(QMainWindow):
             # acquire data from the gui entry fields
             try:
                 leak_size = int(self.ui.leak_size_panel.text())
+                print(MethaneTestSession.get_methane_session())
                 session = int(MethaneTestSession.get_methane_session()[1])
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."
                 )
+                return False
                 
             description = self.ui.leak_description_panel.toPlainText()
                 

@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>18</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -6988,27 +6988,6 @@ Heater GUI</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="pro8StageLabel">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>16</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Current Stage: Limbo</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="2" column="0" colspan="3">
                  <widget class="Line" name="line_2">
                   <property name="lineWidth">
@@ -7479,7 +7458,7 @@ Heater GUI</string>
                 <item row="4" column="0" rowspan="4">
                  <widget class="QTabWidget" name="tabWidget_2">
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_4">
                    <attribute name="title">
@@ -7701,7 +7680,7 @@ Heater GUI</string>
                      </rect>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <widget class="QWidget" name="tab_6">
                      <attribute name="title">
@@ -8055,14 +8034,35 @@ Heater GUI</string>
                    <widget class="QPlainTextEdit" name="pastMethaneData">
                     <property name="geometry">
                      <rect>
-                      <x>0</x>
-                      <y>0</y>
-                      <width>311</width>
-                      <height>481</height>
+                      <x>10</x>
+                      <y>10</y>
+                      <width>291</width>
+                      <height>471</height>
                      </rect>
                     </property>
                    </widget>
                   </widget>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="pro8StageLabel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Methane Sweep Input</string>
+                  </property>
                  </widget>
                 </item>
                </layout>
