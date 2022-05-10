@@ -58,12 +58,13 @@ class Barcode:
             return f"{prefix}{format(n,f'0{digits}')}"
         except:
             return f"{prefix}0{digits}"
-
-
+            
+            
 class Query:
     @classmethod
     def query(cls):
-        return DM.query(cls)
+        return DM.query(cls)    
+
 
     """
     __queryWithId
