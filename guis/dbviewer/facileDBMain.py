@@ -1,10 +1,10 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 05/18/2021 /
+#  -   / ______  _/____)       /  Last Update 05/10/2022 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
-#from cgi import test don't know where this came from bc I certainly didn't type it
+
 import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
@@ -1428,6 +1428,7 @@ class facileDBGUI(QMainWindow):
         # sort rawHVData into preliminary
         for i in rawHVData:
             # put data into readable variables
+            # source of bug, is_tripped is never used after the next line and never makes it into self.data
             index, left_current, right_current, is_tripped, timestamp = i[0], i[1], i[2], i[3], i[4]
             # ensure that the hv measurement isn't bogus
             if right_current != None:
@@ -1924,6 +1925,11 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def displayPro8(self):
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+        self.ui.leaksLW.clear()
+        self.ui.leakTestsLW.clear()
+
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return
@@ -1950,7 +1956,6 @@ class facileDBGUI(QMainWindow):
             descStr += "Right cover reinstalled\n" if "R" in toop[0] else ""
             descStr += "Center cover reinstalled\n" if "C" in toop[0] else ""
             descStr += f'Resolution: {toop[4]}\n'
-
             self.ui.leaksLW.addItem(descStr)
 
         # leak tests
@@ -1966,7 +1971,6 @@ class facileDBGUI(QMainWindow):
             descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
             descStr += f'\nPosition: {toop[0]}\n'
             descStr += f'Comment: {toop[1]}\n'
-
             self.ui.badStrawsLW.addItem(descStr)
 
         for toop in self.data.badWires:
@@ -1974,7 +1978,6 @@ class facileDBGUI(QMainWindow):
             descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
             descStr += f'\nPosition: {toop[0]}\n'
             descStr += f'Comment: {toop[1]}\n'
-
             self.ui.badWiresLW.addItem(descStr)
 
 
@@ -2460,7 +2463,6 @@ class facileDBGUI(QMainWindow):
         # see the leak tests loop in displayPro8() for how tooltip is set
         # if the actual name of the tag starts with whitespace a bug could arise
         tagName = ((listItem.toolTip())[30:]).lstrip()
-        print(f"Someday we'll be able to graph {tagName}")
 
         # do a stupid inefficient search that could probably be avoided with better signals
         testID = -1
@@ -2498,12 +2500,27 @@ class facileDBGUI(QMainWindow):
             ]
         ).where(leakTable.columns.trial == testID)
 
-        perfMeasure = time.perf_counter() # how fast is it going? not essential
+        #perfMeasure = time.perf_counter() # how fast is it going? not essential
         resultProxy = self.connection.execute(leakQuery)  # make proxy
         rawLeakData = resultProxy.fetchall()  # get data from db
-        perfMeasure = time.perf_counter() - perfMeasure # how fast? not essential
+        #perfMeasure = time.perf_counter() - perfMeasure # how fast? not essential
 
-        print(f'{len(rawLeakData)} measurements found in {perfMeasure} seconds.')
+        #print(f'{len(rawLeakData)} measurements found in {perfMeasure} seconds.')
+
+        # if no data then don't bother
+        if len(rawLeakData) == 0:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Couldn't find any data for the leak test with tag {tagName}.",
+            )
+            return
+        
+        # if small amount of data, tell the user
+        if len(rawLeakData) < 60:
+            tkinter.messagebox.showinfo(
+                title="Few data points found",
+                message=f"Only {len(rawLeakData)} measurements were found.",
+            )
 
 
         # make lists for each group of data, x values are common for all
@@ -2523,15 +2540,35 @@ class facileDBGUI(QMainWindow):
             yPFill += [toop[5]]
 
 
+        fig, ax2 = plt.subplots(2,1) # create figure, top subplot is ax2[0], bottom is ax2[1]
+        fig.suptitle(f'Panel MN{self.data.humanID} Leak Test (Tag: {tagName})', fontsize=25) # big title
+        ax1 = ax2[0].twinx() # add "second" y-axis to right side
+        ax2[0].set_xlabel("Time, Elapsed Days", fontsize=20)
+        ax2[0].tick_params(axis='x', labelsize=15) # change tick font size
 
-        plt.subplot(211)
-        plt.scatter(xData, yPDiff, c="#fca503", label="P Diff")  # make plot
+        ax2[0].set_ylabel("Temperature (°C)", fontsize=20)
+        ax2[0].plot(xData, yTBox, c="#20fc03", markersize=2, label = "Temp. Box") # plot box temp
+        ax2[0].plot(xData, yTRoom, c="#0313fc", markersize=2, label = "Temp. Room") # plot room temp
+        ax2[0].tick_params(axis='y', labelsize=15)
+        ax2[0].legend(["Temp. Box", "Temp. Room"], loc = "lower left") # create legend for temps
 
-        plt.xlabel("Time", fontsize=20)  # set x axis label
-        plt.ylabel(f'Diff Pressure (PSI)', fontsize=20)  # set y axis label
-        #plt.ylabel(f'Temperature (°C)', fontsize=20)  # set y axis label
+        # since ax1 is the return value of ax2[0].twinx() and not subplots() no indexing needed
+        ax1.set_xlabel("Elapsed Days", fontsize=20)
+        ax1.set_ylabel("Diff Pressure (PSI)", color="#fc0303", fontsize=20)
+        ax1.plot(xData, yPDiff, c="#fc0303", markersize=2, label="P Diff") # plot pressure diff
+        # pressure diff is plotted second so it is not covered up by temperature
+        # could be avoided by changing bounds of temp axis
+        ax1.tick_params(axis='y', labelcolor="#fc0303", labelsize=15)
+
+        # second subplot
+        ax2[1].set_xlabel("Time, Elapsed Days", fontsize=20)
+        ax2[1].tick_params(axis='x', labelsize=15)
+        ax2[1].set_ylabel("PSI", fontsize=20)
+        ax2[1].plot(xData, yPRef, c="#fc0303", markersize=2, label= "P ref") # plot P ref
+        ax2[1].plot(xData, yPFill, c="#0313fc", markersize=2, label= "P fill") # plot P fill
+        ax2[1].legend(["$P_{Ref}$", "$P_{Fill}$"], loc = "lower left", fontsize=15) # funky syntax for subscript
         
-        plt.tight_layout()
+        fig.tight_layout()
         plt.show()
 
 
