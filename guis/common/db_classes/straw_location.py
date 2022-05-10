@@ -536,6 +536,19 @@ class Pallet(StrawLocation):
     def _queryPalletsByID(cls, pallet_id):
         return cls.query().filter(cls.pallet_id == pallet_id)
 
+    @classmethod
+    def remove_straws_from_pallet_by_id(cls, pallet_id):
+        old_pals = cls._queryPalletsByID(pallet_id).all()
+        logger.debug(f"clearing straws from old pallets\n{old_pals}")
+        for pal in old_pals:
+            filled_positions = pal.getFilledPositions()
+            if len(filled_positions):
+                logger.debug(
+                    f"Clearing {len(filled_positions)} straws from this {pal}."
+                )
+                pal.removeAllStraws()
+            assert pal.isEmpty()
+
 
 class LoadingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "LPAL"}
