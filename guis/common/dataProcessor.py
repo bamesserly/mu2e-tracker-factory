@@ -2509,66 +2509,60 @@ class SQLDataProcessor(DataProcessor):
             .filter(MethaneTestSession.straw_location == straw_location)
             .all()
         )
-        
         output = ''
         covered_list_reference=['Top Covers','Top Flooding','Bottom Covers','Bottom Flooding','Electronics Slot','Side Seams','Stay Bolts','PFN Holes']
         for session in sessions:
-            output += str(session.user) + str(datetime.fromtimestamp(session.timestamp)) + '\n'
-            output += 'Covered Areas: '
-            for bool,reference in zip(session.covered_areas, covered_list_reference):
-                if bool == 'Y':
-                    output += reference + '\n'
-            
-            if session.covered_areas[2] == 'Y':
-                output += 'Top Straws ' + str(session.top_straw_low) + '-' + str(session.top_straw_high)
-            if session.covered_areas[5] == 'Y':
-                output += 'Top Straws ' + str(session.bot_straw_low) + '-' + str(session.bot_straw_high)
-            output += '\n'
-            if session.sep_layer is True:
-                output += 'A plastic separator was used.'
-            else:
-                output += 'A plastic separator was not used.'
+            if session.covered_areas is not None:
+                output += str(session.user) + str(datetime.fromtimestamp(session.timestamp)) + '\n'
+                output += 'Covered Areas: '
+                for bool,reference in zip(session.covered_areas, covered_list_reference):
+                    if bool == 'Y':
+                        output += reference + '\n'
                 
-            output += '\nDetector number ' + str(session.detector_number) + ' was used.'
-            
-            output += '\n\n'   
-            
-            
-        covered_list_reference=['Covers','Stay Bolts','Flooding','PFN Holes','Electronics Slot','Side Seams']
-        for session in sessions:
-            leaks = (
-                DM.query(MethaneLeakInstance)
-                .filter(MethaneLeakInstance.session == session.session)
-                .all()
-            )
-            for leak in leaks:
-                if leak.straw_leak == 0:
-                    output += 'Panel Leak: \n'
-                    
-                    output += 'Covered Areas: '
-                    for bool,reference in zip(leak.panel_leak_location, covered_list_reference):
-                        if bool == 'Y':
-                            output += reference + '\n'
-                    output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                if session.covered_areas[2] == 'Y':
+                    output += 'Top Straws ' + str(session.top_straw_low) + '-' + str(session.top_straw_high)
+                if session.covered_areas[5] == 'Y':
+                    output += 'Top Straws ' + str(session.bot_straw_low) + '-' + str(session.bot_straw_high)
+                output += '\n'
+                if session.sep_layer is True:
+                    output += 'A plastic separator was used.'
                 else:
-                    output += 'Straw Leak: \n'
-                    output += 'Straw Number ' + str(leak.straw_number)
-                    if leak.long_straw == 0:
-                        output += ' on short side, ' + str(leak.location) + ' inches from left.\n'
-                    else:
-                        output += ' on long side, ' + str(leak.location) + ' inches from left.\n'
+                    output += 'A plastic separator was not used.'
+                    
+                output += '\nDetector number ' + str(session.detector_number) + ' was used.'
+                
+                output += '\n\n'   
+            
+            
+            covered_list_reference=['Covers','Stay Bolts','Flooding','PFN Holes','Electronics Slot','Side Seams']
+            if session.covered_areas is not None:
+                leaks = (
+                    DM.query(MethaneLeakInstance)
+                    .filter(MethaneLeakInstance.session == session.session)
+                    .all()
+                )
+                for leak in leaks:
+                    if leak.straw_leak == 0:
+                        output += 'Panel Leak: \n'
                         
-                    output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
-                    
-                output += str(leak.description) + '\n\n\n'
-                    
-            
-            
-            
-            
-            
-        
-        print(output)
+                        output += 'Covered Areas: '
+                        for bool,reference in zip(leak.panel_leak_location, covered_list_reference):
+                            if bool == 'Y':
+                                output += reference + '\n'
+                        output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                    else:
+                        output += 'Straw Leak: \n'
+                        output += 'Straw Number ' + str(leak.straw_number)
+                        if leak.long_straw == 0:
+                            output += ' on short side, ' + str(leak.location) + ' inches from left.\n'
+                        else:
+                            output += ' on long side, ' + str(leak.location) + ' inches from left.\n'
+                            
+                        output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                        
+                    output += str(leak.description) + '\n\n\n'
+            output += '\n\n'
+
         return output
     ##########################################################################
 

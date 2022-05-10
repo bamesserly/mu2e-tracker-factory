@@ -5772,6 +5772,7 @@ class panelGUI(QMainWindow):
                 
         # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session':
+            MethaneTestSession.end_methane_test()
             self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user)
             self.ui.submit_methane_session.setText('Submit Testing Session')
             self.ui.submit_leak_panel.setDisabled(False)
