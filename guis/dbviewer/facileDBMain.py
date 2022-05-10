@@ -2559,7 +2559,7 @@ class facileDBGUI(QMainWindow):
         ax2[0].tick_params(axis='y', labelcolor="#fc0303", labelsize=15)
 
         # second subplot
-        ax2[1].set_xlabel("Time, Elapsed Days", fontsize=20)
+        ax2[1].set_xlabel("Elapsed Days", fontsize=20)
         ax2[1].tick_params(axis='x', labelsize=15)
         ax2[1].set_ylabel("Pressure (PSI)", fontsize=20)
         ax2[1].plot(xData, yPRef, c="#fc0303", markersize=2, label= "P ref") # plot P ref
