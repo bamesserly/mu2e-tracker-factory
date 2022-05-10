@@ -4,6 +4,7 @@
 #  -   / ______  _/____)       /  Last Update 05/18/2021 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
+#from cgi import test don't know where this came from bc I certainly didn't type it
 import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
@@ -1680,6 +1681,7 @@ class facileDBGUI(QMainWindow):
             [
                 leakDetails.columns.tag,               # tag name
                 leakDetails.columns.elapsed_days,      # elapsed time
+                leakDetails.columns.id,                # id (foreign key in measurement table)
                 leakDetails.columns.timestamp          # time of... completion?
             ]
         ).where(leakDetails.columns.procedure == self.data.proIDs['pan8'])
@@ -2456,12 +2458,54 @@ class facileDBGUI(QMainWindow):
     def graphLeak(self, listItem):
         # name of tag clicked is the ending of the tooltip string for that item
         # see the leak tests loop in displayPro8() for how tooltip is set
+        # if the actual name of the tag starts with whitespace a bug could arise
         tagName = ((listItem.toolTip())[30:]).lstrip()
         print(f"Someday we'll be able to graph {tagName}")
 
-        # do graph
-        # ???
-        # profit
+        # do a stupid inefficient search that could probably be avoided with better signals
+        testID = -1
+        for toop in self.data.leakTests:
+            if toop[0] == tagName:
+                testID = toop[2]
+        
+        # if can't find id then bail
+        if testID == -1:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Couldn't find an id for the leak test with tag {tagName}.",
+            )
+            logger.error(f'Couldnt find an id for the leak test with tag {tagName}')
+            return
+
+        # this next part will likely cause a bit of lag
+        # next is setting up a database table and getting a the relevant data
+        # can be up to if not more than 8000 tuples with 7 data points each
+        # doesn't have a find data function because of the sheer amount of data required
+        # don't want to have to take up space on ram unnecessarily
+
+        leakTable = sqla.Table(
+            "measurement_panel_leak", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        leakQuery = sqla.select(
+            [
+                leakTable.columns.elapsed_days,   # covers/rings reinstalled
+                leakTable.columns.pressure_diff,  # deltaP
+                leakTable.columns.temp_box,       # temp of box
+                leakTable.columns.temp_room,      # ambient temp
+                leakTable.columns.pressure_ref,   # room air pressure?
+                leakTable.columns.pressure_fill   # leak pressure? idk im not physicist
+            ]
+        ).where(leakTable.columns.trial == testID)
+
+        perfMeasure = time.perf_counter() # how fast is it going? not essential
+        resultProxy = self.connection.execute(leakQuery)  # make proxy
+        rawLeakData = resultProxy.fetchall()  # get data from db
+        perfMeasure = time.perf_counter() - perfMeasure # how fast? not essential
+
+        print(f'{len(rawLeakData)} measurements found in {perfMeasure} seconds.')
+
+        
         
         return
 
