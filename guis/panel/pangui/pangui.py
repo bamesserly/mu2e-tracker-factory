@@ -5772,18 +5772,23 @@ class panelGUI(QMainWindow):
                 
         # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session':
+            # in case of previous gui crash, ensure that all methane sessions are ended
             MethaneTestSession.end_methane_test()
+            # call dp function to initialize session
             self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user)
+            # enable leak submission buttons and change text of session submissio button
             self.ui.submit_methane_session.setText('Submit Testing Session')
             self.ui.submit_leak_panel.setDisabled(False)
             self.ui.submit_leak_straw.setDisabled(False)
         else:
+            # initialize list of covered locations
             covered_locations_raw =[self.ui.top_covers.isChecked(), self.ui.top_flood.isChecked(),
             self.ui.top_straws.isChecked(), self.ui.bottom_covers.isChecked(),
             self.ui.bottom_flood.isChecked(), self.ui.bottom_straws.isChecked(), 
             self.ui.e_slot.isChecked(), self.ui.side_seams.isChecked(), 
             self.ui.stay_bolts.isChecked(), self.ui.pfn_holes.isChecked()]
             covered_locations = ''
+            # iterate through the list of covered locations, creating a list of Y & N
             for i in covered_locations_raw:
                 if i is True:
                     covered_locations+='Y'
@@ -5805,20 +5810,20 @@ class panelGUI(QMainWindow):
             bot_low = None
             bot_high = None
             if self.ui.top_straws.isChecked():
+                # ensure that the top straw information is valid
                 try:
                     top_low = int(self.ui.ts_low.text())
                     top_high = int(self.ui.ts_high.text())
-                    
                     assert top_low <= top_high
                 except:
                     generateBox(
                         "critical", "Warning", "Please ensure that the top straw numbers are valid."
                     )
             elif self.ui.bottom_straws.isChecked():
+                # ensure that the bottom straw information is valid
                 try:
                     bot_low = int(self.ui.bs_low.text())
                     bot_high = int(self.ui.bs_high.text())
-                    
                     assert bot_low <= bot_high
                 except:
                     generateBox(
