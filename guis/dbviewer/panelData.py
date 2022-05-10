@@ -22,6 +22,7 @@ class PanelData:
         #   Parts - Base plate, MIR, BIR,
         #           PIR L/R A/B/C, ALF 1/2,
         #           PAAS A/B/C
+        #  some pro 8 data
 
         # Human ID always an int between 1 and 999, inclusive
         self.humanID = -1
@@ -113,11 +114,17 @@ class PanelData:
             "left_ring": "",
             "right_ring": "",
             "center_ring": "",
-            "stage": ""
+            "stage": "",
+            "leak_rate": ""
         }
 
         # list of leak rate submissions
         self.leaks = []
+
+        # List of leak tests
+        # List of tuples of the form:
+        # (<tag name>, <elapsed time in days>, <timestamp>)
+        self.leakTests = []
 
         # list of methane leak form submissions
         self.methane = []
@@ -189,6 +196,8 @@ class PanelData:
 
         self.leaks = []
 
+        self.leakTests = []
+
         self.methane = []
 
         self.badWires = []
@@ -196,6 +205,7 @@ class PanelData:
 
     # print ALL the data (for debugging)
     # indentation is gone due to multi-line string
+    # add pro 8 stuff eventually
     def __str__(self):
         return f"""
 PANEL: {self.humanID}

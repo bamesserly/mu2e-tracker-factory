@@ -1,9 +1,10 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 05/18/2021 /
+#  -   / ______  _/____)       /  Last Update 05/10/2022 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
+
 import sys, time, csv, os, tkinter, tkinter.messagebox, itertools, statistics
 
 # for creating app, time formatting, saving to csv, finding local db, popup dialogs, longest_zip iteration function, stat functions
@@ -273,6 +274,9 @@ class facileDBGUI(QMainWindow):
         # submit push button
         self.ui.submitPB.clicked.connect(self.submitClicked)
         self.ui.panelLE.returnPressed.connect(self.submitClicked)
+
+        # finalQC leak test double click
+        self.ui.leakTestsLW.itemDoubleClicked.connect(self.graphLeak)
 
         # heat buttons
         self.ui.heatExportButton.clicked.connect(
@@ -1424,6 +1428,7 @@ class facileDBGUI(QMainWindow):
         # sort rawHVData into preliminary
         for i in rawHVData:
             # put data into readable variables
+            # source of bug, is_tripped is never used after the next line and never makes it into self.data
             index, left_current, right_current, is_tripped, timestamp = i[0], i[1], i[2], i[3], i[4]
             # ensure that the hv measurement isn't bogus
             if right_current != None:
@@ -1597,19 +1602,10 @@ class facileDBGUI(QMainWindow):
         return 0
 
     # finds QC data and puts it into panelData.
-    # parameters: int, pro is the process to find data for (3 or 6)
+    # parameters: none
     # returns: bool, true if any data found, false otherwise
     def findPro8(self):
 
-        self.ui.leaksLW.clear()
-        self.ui.badStrawsLW.clear()
-        self.ui.badWiresLW.clear()
-        self.ui.left_coverLE.clear()
-        self.ui.left_ringLE.clear()
-        self.ui.right_coverLE.clear()
-        self.ui.right_ringLE.clear()
-        self.ui.center_coverLE.clear()
-        self.ui.center_ringLE.clear()
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return False
@@ -1624,6 +1620,9 @@ class facileDBGUI(QMainWindow):
         pro8Parts = sqla.Table(
             "procedure_details_pan8", self.metadata, autoload=True, autoload_with=self.engine
         )
+        leakDetails = sqla.Table(
+            "panel_leak_test_details", self.metadata, autoload=True, autoload_with=self.engine
+        ) # should be called leekDeets
 
         # bad straws and wires
         badSWQuery = sqla.select(
@@ -1671,12 +1670,29 @@ class facileDBGUI(QMainWindow):
                 pro8Parts.columns.left_ring,
                 pro8Parts.columns.right_ring,
                 pro8Parts.columns.center_ring,
-                pro8Parts.columns.stage
+                pro8Parts.columns.stage,
+                pro8Parts.columns.leak_rate
             ]
         ).where(pro8Parts.columns.procedure == self.data.proIDs['pan8'])
         resultProxy = self.connection.execute(pro8Query)  # make proxy
         rawPro8Data = resultProxy.fetchall()  # get data from db
 
+        # leek deets
+        leakDetailsQuery = sqla.select(
+            [
+                leakDetails.columns.tag,               # tag name
+                leakDetails.columns.elapsed_days,      # elapsed time
+                leakDetails.columns.id,                # id (foreign key in measurement table)
+                leakDetails.columns.timestamp          # time of... completion?
+            ]
+        ).where(leakDetails.columns.procedure == self.data.proIDs['pan8'])
+        resultProxy = self.connection.execute(leakDetailsQuery)  # make proxy
+        rawLDData = resultProxy.fetchall()  # get data from db
+
+        for toop in rawLDData:
+            self.data.leakTests += [toop]
+
+        # if it's > 1 then it found two procedures and needs to go home bc it's drunk
         if len(rawPro8Data) > 1:
             return False
 
@@ -1688,6 +1704,7 @@ class facileDBGUI(QMainWindow):
             self.data.qcParts["right_ring"] = rawPro8Data[0][4]
             self.data.qcParts["center_ring"] = rawPro8Data[0][5]
             self.data.qcParts["stage"] = rawPro8Data[0][6]
+            self.data.qcParts["leak_rate"] = rawPro8Data[0][7]
         except IndexError as e:
             logger.warning("No pro8 parts data. This shouldn't be throwing an error. TODO for Ben.")
 
@@ -1908,6 +1925,11 @@ class facileDBGUI(QMainWindow):
     # parameters: no parameters
     # returns: nothing returned
     def displayPro8(self):
+        self.ui.badStrawsLW.clear()
+        self.ui.badWiresLW.clear()
+        self.ui.leaksLW.clear()
+        self.ui.leakTestsLW.clear()
+
         # check if desired pro exists
         if self.data.proIDs['pan8'] == -1:
             return
@@ -1920,7 +1942,7 @@ class facileDBGUI(QMainWindow):
             )
 
             if self.getWid(f'{key}LE').text() in ["000001Jan00000000000Z", "None"]:
-                self.getWid(f'{key}LE').setText("Unknown")
+                self.getWid(f'{key}LE').setText("Not Found")
 
         # leaks next
         for toop in self.data.methane:
@@ -1934,17 +1956,23 @@ class facileDBGUI(QMainWindow):
             descStr += "Right cover reinstalled\n" if "R" in toop[0] else ""
             descStr += "Center cover reinstalled\n" if "C" in toop[0] else ""
             descStr += f'Resolution: {toop[4]}\n'
-
             self.ui.leaksLW.addItem(descStr)
 
-        # lastly straws and wires
+        # leak tests
+        if len(self.data.leakTests) > 0:
+            self.ui.leakTestsLW.addItem("Double click an entry to view it's data on a graph.")
+        for toop in self.data.leakTests:
+            newItem = QListWidgetItem()
+            newItem.setText(f'Tag Name: {toop[0]}\nTime Elapsed: {toop[1]} days')
+            newItem.setToolTip(f'Double click to open graph for {toop[0]}')
+            self.ui.leakTestsLW.addItem(newItem)
 
+        # lastly straws and wires
         for toop in self.data.badStraws:
             descStr = ""
             descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
             descStr += f'\nPosition: {toop[0]}\n'
             descStr += f'Comment: {toop[1]}\n'
-
             self.ui.badStrawsLW.addItem(descStr)
 
         for toop in self.data.badWires:
@@ -1952,9 +1980,7 @@ class facileDBGUI(QMainWindow):
             descStr += str(time.strftime("%a, %d %b %Y %H:%M", (time.localtime(toop[3]))))
             descStr += f'\nPosition: {toop[0]}\n'
             descStr += f'Comment: {toop[1]}\n'
-
             self.ui.badWiresLW.addItem(descStr)
-
 
 
     # put data into QListWidgets
@@ -2046,7 +2072,6 @@ class facileDBGUI(QMainWindow):
                     button.setDisabled(True)
 
     # general function to graph any data on the main window
-    # TODO: actually write the function lol
     def displayOnGraph(self,dataType,xAxis,xIndex,yAxis,yIndex,targetLayout,errorBars=False,eIndex=0,microScale=False):
         # clear current plot
         for i in reversed(range(targetLayout.count())):
@@ -2197,7 +2222,7 @@ class facileDBGUI(QMainWindow):
             self.displayOnGraphHEAT(pro)
         return
 
-    # popup with heat data graph
+    # popup(?) with heat data graph  (I don't think this actually makes a popup)
     # parameters:   pro, int representing which pro to get data for (1,2,or 6)
     # returns: nothing returned
     def displayOnGraphHEAT(self,pro):
@@ -2430,6 +2455,126 @@ class facileDBGUI(QMainWindow):
             plt.legend(loc="upper left")
 
         plt.tight_layout()
+        plt.show()
+
+    # graph leak data in pop up window
+    # parameters: listItem, a QListWidgetItem from self.ui.leakTestsLW
+    # returns: nothing returned
+    def graphLeak(self, listItem):
+        # if they clicked the list item at the top with instructions return early
+        if len(listItem.toolTip()) == 0:
+            return
+        # name of tag clicked is the ending of the tooltip string for that item
+        # see the leak tests loop in displayPro8() for how tooltip is set
+        # if the actual name of the tag starts with whitespace a bug could arise
+        tagName = ((listItem.toolTip())[30:]).lstrip()
+
+        # do a stupid inefficient search that could probably be avoided with better signals
+        testID = -1
+        for toop in self.data.leakTests:
+            if toop[0] == tagName:
+                testID = toop[2]
+        
+        # if can't find id then bail
+        if testID == -1:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Couldn't find an id for the leak test with tag {tagName}.",
+            )
+            logger.error(f'Couldnt find an id for the leak test with tag {tagName}')
+            return
+
+        # this next part will likely cause a bit of lag
+        # next is setting up a database table and getting a the relevant data
+        # can be up to if not more than 8000 tuples with 7 data points each
+        # doesn't have a find data function because of the sheer amount of data required
+        # don't want to have to take up space on ram unnecessarily
+
+        leakTable = sqla.Table(
+            "measurement_panel_leak", self.metadata, autoload=True, autoload_with=self.engine
+        )
+
+        leakQuery = sqla.select(
+            [
+                leakTable.columns.elapsed_days,   # time in days
+                leakTable.columns.pressure_diff,  # deltaP
+                leakTable.columns.temp_box,       # temp of box
+                leakTable.columns.temp_room,      # ambient temp
+                leakTable.columns.pressure_ref,   # room air pressure?
+                leakTable.columns.pressure_fill   # leak pressure? idk im not physicist
+            ]
+        ).where(leakTable.columns.trial == testID)
+
+        #perfMeasure = time.perf_counter() # how fast is it going? not essential
+        resultProxy = self.connection.execute(leakQuery)  # make proxy
+        rawLeakData = resultProxy.fetchall()  # get data from db
+        #perfMeasure = time.perf_counter() - perfMeasure # how fast? not essential
+
+        #print(f'{len(rawLeakData)} measurements found in {perfMeasure} seconds.')
+
+        # if no data then don't bother
+        if len(rawLeakData) == 0:
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"Couldn't find any data for the leak test with tag {tagName}.",
+            )
+            return
+        
+        # if small amount of data, tell the user
+        if len(rawLeakData) < 60:
+            tkinter.messagebox.showinfo(
+                title="Few data points found",
+                message=f"Only {len(rawLeakData)} measurements were found.",
+            )
+
+
+        # make lists for each group of data, x values are common for all
+        # could be written in half the lines but that would be like 6 big loops
+        xData = []
+        yPDiff = []
+        yTBox = []
+        yTRoom = []
+        yPRef = []
+        yPFill = []
+        for toop in rawLeakData:
+            xData += [toop[0]]
+            yPDiff += [toop[1]]
+            yTBox += [toop[2]]
+            yTRoom += [toop[3]]
+            yPRef += [toop[4]]
+            yPFill += [toop[5]]
+
+
+        fig, ax2 = plt.subplots(2,1) # create figure, top subplot is ax2[0], bottom is ax2[1]
+        fig.suptitle(f'Panel MN{self.data.humanID} Leak Test (Tag: {tagName})', fontsize=25) # big title
+        ax1 = ax2[0].twinx() # add "second" y-axis to right side
+        ax2[0].set_xlabel("Time, Elapsed Days", fontsize=20)
+        ax2[0].tick_params(axis='x', labelsize=15) # change tick font size
+
+        ax1.set_ylabel("Temperature (°C)", fontsize=20)
+        ax1.plot(xData, yTBox, c="#20fc03", markersize=2, label = "Temp. Box") # plot box temp
+        ax1.plot(xData, yTRoom, c="#0313fc", markersize=2, label = "Temp. Room") # plot room temp
+        ax1.tick_params(axis='y', labelsize=15)
+        ax1.legend(["Temp. Box", "Temp. Room"], loc = "lower left") # create legend for temps
+
+        # since ax1 is the return value of ax2[0].twinx() and not subplots() no indexing needed
+        ax2[0].set_xlabel("Elapsed Days", fontsize=20)
+        ax2[0].set_ylabel("Diff Pressure (PSI)", color="#fc0303", fontsize=20)
+        ax2[0].plot(xData, yPDiff, c="#fc0303", markersize=2, label="P Diff") # plot pressure diff
+        ax2[0].tick_params(axis='y', labelcolor="#fc0303", labelsize=15)
+
+        # second subplot
+        ax2[1].set_xlabel("Elapsed Days", fontsize=20)
+        ax2[1].tick_params(axis='x', labelsize=15)
+        ax2[1].set_ylabel("Pressure (PSI)", fontsize=20)
+        ax2[1].plot(xData, yPRef, c="#fc0303", markersize=2, label= "P ref") # plot P ref
+        ax2[1].plot(xData, yPFill, c="#0313fc", markersize=2, label= "P fill") # plot P fill
+        ax2[1].legend(["$P_{Ref}$", "$P_{Fill}$"], loc = "lower left", fontsize=15) # funky syntax for subscript
+        
+        ax2[0].grid(color="#fc0303")
+        ax2[1].grid()
+
+        fig.tight_layout()
         plt.show()
 
 
