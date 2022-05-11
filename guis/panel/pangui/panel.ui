@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>18</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>16</height>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -7490,19 +7490,6 @@ Heater GUI</string>
                      <string>Top Flooding</string>
                     </property>
                    </widget>
-                   <widget class="QCheckBox" name="top_straws">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>30</y>
-                      <width>111</width>
-                      <height>17</height>
-                     </rect>
-                    </property>
-                    <property name="text">
-                     <string>Top Straws:</string>
-                    </property>
-                   </widget>
                    <widget class="QLabel" name="label_8">
                     <property name="geometry">
                      <rect>
@@ -7560,19 +7547,6 @@ Heater GUI</string>
                     </property>
                     <property name="text">
                      <string>Bottom Flooding</string>
-                    </property>
-                   </widget>
-                   <widget class="QCheckBox" name="bottom_straws">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>70</y>
-                      <width>131</width>
-                      <height>17</height>
-                     </rect>
-                    </property>
-                    <property name="text">
-                     <string>Bottom Straws:</string>
                     </property>
                    </widget>
                    <widget class="QLineEdit" name="bs_low">
@@ -8054,6 +8028,32 @@ Heater GUI</string>
                     </property>
                     <property name="text">
                      <string>PFN Holes</string>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_56">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>30</y>
+                      <width>91</width>
+                      <height>16</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Top Straws:</string>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_57">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>70</y>
+                      <width>111</width>
+                      <height>16</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Bottom Straws:</string>
                     </property>
                    </widget>
                   </widget>

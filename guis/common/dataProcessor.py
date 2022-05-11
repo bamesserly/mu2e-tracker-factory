@@ -2519,11 +2519,10 @@ class SQLDataProcessor(DataProcessor):
                     if bool == 'Y':
                         output += reference + '\n'
                 
-                if session.covered_areas[2] == 'Y':
-                    output += 'Top Straws ' + str(session.top_straw_low) + '-' + str(session.top_straw_high)
-                if session.covered_areas[5] == 'Y':
-                    output += 'Top Straws ' + str(session.bot_straw_low) + '-' + str(session.bot_straw_high)
-                output += '\n'
+                if session.covered_areas[8] == 'Y':
+                    output += 'Top Straws ' + str(session.top_straw_low) + '-' + str(session.top_straw_high) + '\n'
+                if session.covered_areas[9] == 'Y':
+                    output += 'Bottom Straws ' + str(session.bot_straw_low) + '-' + str(session.bot_straw_high) + '\n'
                 if session.sep_layer is True:
                     output += 'A plastic separator was used.'
                 else:

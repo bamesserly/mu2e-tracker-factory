@@ -5554,9 +5554,7 @@ class panelGUI(QMainWindow):
         self.ui.panelInput7.setEnabled(True)
         
         self.ui.top_covers.setChecked(False)
-        self.ui.top_straws.setChecked(False)
         self.ui.bottom_covers.setChecked(False)
-        self.ui.bottom_straws.setChecked(False)
         self.ui.e_slot.setChecked(False)
         self.ui.stay_bolts.setChecked(False)
         self.ui.sep_layer.setChecked(False)
@@ -5777,11 +5775,45 @@ class panelGUI(QMainWindow):
             self.ui.submit_leak_panel.setDisabled(False)
             self.ui.submit_leak_straw.setDisabled(False)
         elif self.ui.panelInput_8.text() != '':
+            # acquire top and bottom high and low straws
+            top_low = None
+            top_high = None
+            bot_low = None
+            bot_high = None
+            top_straws=False
+            bottom_straws=False
+            print(self.ui.ts_low.text())
+            print(self.ui.bs_low.text())
+            if self.ui.ts_low.text() != '':
+                try:
+                    top_low = int(self.ui.ts_low.text())
+                    top_high = int(self.ui.ts_high.text())
+                    
+                    assert top_low <= top_high
+                    top_straws=True
+                except:
+                    generateBox(
+                        "critical", "Warning", "Please ensure that the top straw numbers are valid."
+                    )
+            if self.ui.bs_low.text() != '':
+                try:
+                    bot_low = int(self.ui.bs_low.text())
+                    bot_high = int(self.ui.bs_high.text())
+                    
+                    assert bot_low <= bot_high
+                    bottom_straws=True
+                except:
+                    generateBox(
+                        "critical", "Warning", "Please ensure that the bottom straw numbers are valid."
+                    )
+                    return False
+            
             covered_locations_raw =[self.ui.top_covers.isChecked(), self.ui.top_flood.isChecked(),
-            self.ui.top_straws.isChecked(), self.ui.bottom_covers.isChecked(),
-            self.ui.bottom_flood.isChecked(), self.ui.bottom_straws.isChecked(), 
+            self.ui.bottom_covers.isChecked(),
+            self.ui.bottom_flood.isChecked(),
             self.ui.e_slot.isChecked(), self.ui.side_seams.isChecked(), 
-            self.ui.stay_bolts.isChecked(), self.ui.pfn_holes.isChecked()]
+            self.ui.stay_bolts.isChecked(), self.ui.pfn_holes.isChecked(),
+            top_straws, bottom_straws]
             covered_locations = ''
             for i in covered_locations_raw:
                 if i is True:
@@ -5798,33 +5830,6 @@ class panelGUI(QMainWindow):
                 )
                 return False
             
-            # acquire top and bottom high and low straws
-            top_low = None
-            top_high = None
-            bot_low = None
-            bot_high = None
-            if self.ui.top_straws.isChecked():
-                try:
-                    top_low = int(self.ui.ts_low.text())
-                    top_high = int(self.ui.ts_high.text())
-                    
-                    assert top_low <= top_high
-                except:
-                    generateBox(
-                        "critical", "Warning", "Please ensure that the top straw numbers are valid."
-                    )
-            elif self.ui.bottom_straws.isChecked():
-                try:
-                    bot_low = int(self.ui.bs_low.text())
-                    bot_high = int(self.ui.bs_high.text())
-                    
-                    assert bot_low <= bot_high
-                except:
-                    generateBox(
-                        "critical", "Warning", "Please ensure that the bottom straw numbers are valid."
-                    )
-                    return False
-            
             # using collected data, update the current methane test
             MethaneTestSession.update_methane_test(covered_locations, gas_detector, top_low, top_high, bot_low, bot_high, sep_layer)
             
@@ -5836,10 +5841,8 @@ class panelGUI(QMainWindow):
             # clear fields
             self.ui.top_covers.setChecked(False)
             self.ui.top_flood.setChecked(False)
-            self.ui.top_straws.setChecked(False)
             self.ui.bottom_covers.setChecked(False)
             self.ui.bottom_flood.setChecked(False)
-            self.ui.bottom_straws.setChecked(False)
             self.ui.e_slot.setChecked(False)
             self.ui.side_seams.setChecked(False)
             self.ui.stay_bolts.setChecked(False)
