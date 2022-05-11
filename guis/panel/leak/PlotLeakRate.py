@@ -282,7 +282,7 @@ def main(options):
     legend = axTemp.legend(lines + lines2, labels + labels2, loc=0)
     for handle in legend.legendHandles:
         handle.set(markersize=8)
-
+        
     lines3, labels3 = axRefP.get_legend_handles_labels()
     legend3 = axRefP.legend(lines3, labels3, loc="lower left")
     for handle in legend3.legendHandles:

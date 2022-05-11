@@ -26,6 +26,8 @@ from guis.common.db_classes.measurements_panel import (
     TensionboxMeasurement,
     BadWire,
     LeakFinalForm,
+    MethaneTestSession,
+    MethaneLeakInstance,
 )
 import logging
 
@@ -649,6 +651,22 @@ class MultipleDataProcessor(DataProcessor):
             dp.saveTensionboxMeasurement(
                 panel, is_straw, position, length, frequency, pulse_width, tension
             )
+    
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+    ):
+        for dp in self.processors:
+            dp.saveMethaneSession(
+                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+            )
+    
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+    ):
+        for dp in self.processors:
+            dp.saveMethaneLeak(
+                session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+            )
 
     def saveBadWire(self, position, failure, process, wire_check):
         for dp in self.processors:
@@ -725,6 +743,9 @@ class MultipleDataProcessor(DataProcessor):
 
     def loadBadWires(self):
         return self.primaryDP.loadBadWires()
+    
+    def load_methane_leaks(self):
+        return self.primaryDP.load_methane_leaks()
 
 
 #  _____    _    ______
@@ -1181,6 +1202,17 @@ class TxtDataProcessor(DataProcessor):
             f.write(
                 f"{datetime.now().isoformat()}, {datetime.now().timestamp()}, {panel}, {position:2}, {length}, {frequency}, {pulse_width}, {tension}\n"
             )
+            
+    # save process 8 methane testing session instance
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+    ):
+        pass
+        
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+    ):
+        pass
 
     # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
@@ -2153,6 +2185,40 @@ class SQLDataProcessor(DataProcessor):
                 pulse_width=pulse_width,
                 tension=tension,
             ).commit()
+            
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+    ):
+        if self.ensureProcedure():
+            MethaneTestSession(
+                session=self.session.id,
+                current=current,
+                covered_areas=covered_areas,
+                sep_layer=sep_layer,
+                top_straw_low=top_straw_low,
+                top_straw_high=top_straw_high,
+                bot_straw_low=bot_straw_low,
+                bot_straw_high=bot_straw_high,
+                detector_number=detector_number,
+                straw_location=self.procedure.straw_location,
+                user=user,
+            ).commit()
+    
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+    ):
+        if self.ensureProcedure():
+            MethaneLeakInstance(
+                session=session,
+                straw_leak=straw_leak,
+                straw_number=straw_number,
+                location=location,
+                straw_leak_location=straw_leak_location,
+                description=description,
+                leak_size=leak_size,
+                panel_leak_location=panel_leak_location,
+            ).commit()
+        
 
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
         # Make sure all data is defined
@@ -2434,7 +2500,73 @@ class SQLDataProcessor(DataProcessor):
             ret.append((wire.position, wire.failure, wire.wire))
 
         return ret
+    
+    def load_methane_leaks(self):
+        straw_location=int(self.procedure.straw_location)
+        
+        sessions = (
+            DM.query(MethaneTestSession)
+            .filter(MethaneTestSession.straw_location == straw_location)
+            .all()
+        )
+        output = ''
+        covered_list_reference=['Top Covers','Top Flooding','Bottom Covers','Bottom Flooding','Electronics Slot','Side Seams','Stay Bolts','PFN Holes']
+        for session in sessions:
+            if session.covered_areas is not None:
+                output += str(session.user) + str(datetime.fromtimestamp(session.timestamp)) + '\n'
+                output += 'Covered Areas: '
+                for bool,reference in zip(session.covered_areas, covered_list_reference):
+                    if bool == 'Y':
+                        output += reference + '\n'
+                
+                if session.covered_areas[8] == 'Y':
+                    output += 'Top Straws ' + str(session.top_straw_low) + '-' + str(session.top_straw_high) + '\n'
+                if session.covered_areas[9] == 'Y':
+                    output += 'Bottom Straws ' + str(session.bot_straw_low) + '-' + str(session.bot_straw_high) + '\n'
+                if session.sep_layer is True:
+                    output += 'A plastic separator was used.'
+                else:
+                    output += 'A plastic separator was not used.'
+                    
+                output += '\nDetector number ' + str(session.detector_number) + ' was used.'
+                
+                output += '\n\n'   
+            
+            
+            covered_list_reference=['Covers','Stay Bolts','Flooding','PFN Holes','Electronics Slot','Side Seams']
+            if session.covered_areas is not None:
+                leaks = (
+                    DM.query(MethaneLeakInstance)
+                    .filter(MethaneLeakInstance.session == session.session)
+                    .all()
+                )
+                for leak in leaks:
+                    if leak.straw_leak == 0:
+                        output += 'Panel Leak: \n'
+                        
+                        output += 'Covered Areas: '
+                        for bool,reference in zip(leak.panel_leak_location, covered_list_reference):
+                            if bool == 'Y':
+                                output += reference + '\n'
+                        output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                    else:
+                        output += 'Straw Leak: \n'
+                        output += 'Straw Number ' + str(leak.straw_number)
+                        if leak.straw_leak_location == 'top':
+                            output += ' on top side, ' + str(leak.location) + ' inches from left.\n'
+                        elif leak.straw_leak_location == 'bottom':
+                            output += ' on bottom side, ' + str(leak.location) + ' inches from left.\n'
+                        elif leak.straw_leak_location == 'long':
+                            output += ' on long straw side, ' + str(leak.location) + ' inches from left.\n'
+                        else:
+                            output += ' on short straw side, ' + str(leak.location) + ' inches from left.\n'
+                            
+                        output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                        
+                    output += str(leak.description) + '\n\n\n'
+            output += '\n\n'
 
+        return output
     ##########################################################################
 
     # Create a procedure

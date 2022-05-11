@@ -28,6 +28,7 @@ from sqlalchemy import (
     Table,
     TEXT,
     func,
+    update,
 )
 from datetime import datetime
 
@@ -236,3 +237,120 @@ class LeakFinalForm(BASE, OBJECT):
         self.next_step = next_step
 
         self.commit()
+
+class MethaneTestSession(BASE, OBJECT):
+    __tablename__ = "methane_sessions"
+    
+    id = Column(Integer, primary_key=True)
+    session = Column(Integer)
+    current = Column(BOOLEAN)
+    covered_areas = Column(VARCHAR)
+    sep_layer = Column(BOOLEAN)
+    top_straw_low = Column(Integer)
+    top_straw_high = Column(Integer)
+    bot_straw_low = Column(Integer)
+    bot_straw_high = Column(Integer)
+    detector_number = Column(Integer)
+    straw_location = Column(Integer)
+    user = Column(VARCHAR)
+    timestamp = Column(Integer)
+    
+    def __init__(
+        self,
+        session,
+        current,
+        covered_areas,
+        sep_layer,
+        top_straw_low,
+        top_straw_high,
+        bot_straw_low,
+        bot_straw_high,
+        detector_number,
+        straw_location,
+        user,
+    ):
+        self.id = self.ID()
+        self.session = session
+        self.current = current
+        self.covered_areas = covered_areas
+        self.sep_layer = sep_layer
+        self.top_straw_low = top_straw_low
+        self.top_straw_high = top_straw_high
+        self.bot_straw_low = bot_straw_low
+        self.bot_straw_high = bot_straw_high
+        self.detector_number = detector_number
+        self.straw_location = straw_location
+        self.user = user
+        self.timestamp = int(datetime.now().timestamp())
+        
+        self.commit()
+        
+    # returns the methane session data
+    @classmethod
+    def get_methane_session(cls):
+        query_result = (
+            DM.query(cls)
+            .filter(cls.current == 1)
+        )
+        query_result=query_result.all()[0]
+        return(query_result.id,query_result.session,query_result.current,query_result.covered_areas,query_result.sep_layer,query_result.top_straw_low,query_result.top_straw_high,query_result.bot_straw_low,query_result.bot_straw_high,query_result.user)
+
+    # ends current methane sessions - sets current variable to zero
+    @classmethod
+    def end_methane_test(cls):
+        query_result = {
+            DM.query(cls)
+            .filter(cls.current == 1)
+            .update({'current': 0}, synchronize_session='evaluate')
+        }
+    
+    # updates a methane test session with inputted data
+    @classmethod
+    def update_methane_test(cls, covered_locations, gas_detector, top_low, top_high, bot_low, bot_high, sep_layer):
+        query_result = {
+            DM.query(cls)
+            .filter(cls.current == 1)
+            .update({'covered_areas': covered_locations, 'detector_number': gas_detector,
+            'top_straw_low': top_low, 'top_straw_high': top_high, 'bot_straw_low': bot_low,
+            'bot_straw_high': bot_high, 'sep_layer': sep_layer}, synchronize_session='evaluate')
+        }
+        
+
+class MethaneLeakInstance(BASE, OBJECT):
+    __tablename__ = "leak_instance"
+    
+    id = Column(Integer, primary_key=True)
+    session = Column(Integer, ForeignKey("procedure.id"))
+    straw_leak = Column(BOOLEAN)
+    straw_number = Column(Integer)
+    location = Column(Integer)
+    straw_leak_location = Column(VARCHAR)
+    description = Column(VARCHAR)
+    leak_size = Column(Integer)
+    panel_leak_location = Column(VARCHAR)
+    
+    def __init__(
+        self,
+        session,
+        straw_leak,
+        straw_number,
+        location,
+        straw_leak_location,
+        description,
+        leak_size,
+        panel_leak_location,
+    ):
+        self.id = self.ID()
+        self.session = session
+        self.straw_leak = straw_leak
+        self.straw_number = straw_number
+        self.location = location
+        self.straw_leak_location = straw_leak_location
+        self.description = description
+        self.leak_size = leak_size
+        self.panel_leak_location = panel_leak_location
+        
+        self.commit()
+        
+    
+    
