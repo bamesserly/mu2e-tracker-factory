@@ -293,7 +293,6 @@ class MethaneTestSession(BASE, OBJECT):
             .filter(cls.current == 1)
         )
         query_result=query_result.all()[0]
-        print(query_result)
         return(query_result.id,query_result.session,query_result.current,query_result.covered_areas,query_result.sep_layer,query_result.top_straw_low,query_result.top_straw_high,query_result.bot_straw_low,query_result.bot_straw_high,query_result.user)
 
     # ends current methane sessions - sets current variable to zero
