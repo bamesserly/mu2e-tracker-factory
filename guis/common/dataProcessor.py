@@ -661,11 +661,11 @@ class MultipleDataProcessor(DataProcessor):
             )
     
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
     ):
         for dp in self.processors:
             dp.saveMethaneLeak(
-                session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+                session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
             )
 
     def saveBadWire(self, position, failure, process, wire_check):
@@ -1210,7 +1210,7 @@ class TxtDataProcessor(DataProcessor):
         pass
         
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
     ):
         pass
 
@@ -2205,7 +2205,7 @@ class SQLDataProcessor(DataProcessor):
             ).commit()
     
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, long_straw, description, leak_size, panel_leak_location
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
     ):
         if self.ensureProcedure():
             MethaneLeakInstance(
@@ -2213,7 +2213,7 @@ class SQLDataProcessor(DataProcessor):
                 straw_leak=straw_leak,
                 straw_number=straw_number,
                 location=location,
-                long_straw=long_straw,
+                straw_leak_location=straw_leak_location,
                 description=description,
                 leak_size=leak_size,
                 panel_leak_location=panel_leak_location,
@@ -2553,10 +2553,14 @@ class SQLDataProcessor(DataProcessor):
                     else:
                         output += 'Straw Leak: \n'
                         output += 'Straw Number ' + str(leak.straw_number)
-                        if leak.long_straw == 0:
-                            output += ' on short side, ' + str(leak.location) + ' inches from left.\n'
+                        if leak.straw_leak_location == 'top':
+                            output += ' on top side, ' + str(leak.location) + ' inches from left.\n'
+                        elif leak.straw_leak_location == 'bottom':
+                            output += ' on bottom side, ' + str(leak.location) + ' inches from left.\n'
+                        elif leak.straw_leak_location == 'long':
+                            output += ' on long straw side, ' + str(leak.location) + ' inches from left.\n'
                         else:
-                            output += ' on long side, ' + str(leak.location) + ' inches from left.\n'
+                            output += ' on short straw side, ' + str(leak.location) + ' inches from left.\n'
                             
                         output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
                         

@@ -3807,7 +3807,7 @@ class panelGUI(QMainWindow):
     """
     parsepro4Data(self, data)
 
-        Description: Given the loaded data, sets the appropriate UI elements with that data. Also handles the enabling/disabling of
+        Description: Given the loaded data, sets the UI elements with that data. Also handles the enabling/disabling of
                     UI elements to ensure the GUI state is consistent with normal use.
 
         Parameter: data - A list of the parsed input data
@@ -5559,18 +5559,17 @@ class panelGUI(QMainWindow):
         self.ui.bottom_straws.setChecked(False)
         self.ui.e_slot.setChecked(False)
         self.ui.stay_bolts.setChecked(False)
-        self.sep_layer.setChecked(False)
-        self.top_flood.setChecked(False)
-        self.bottom_flood.setChecked(False)
-        self.side_seams.setChecked(False)
-        self.pfn_holes.setChecked(False)
-        self.leak_cover.setChecked(False)
-        self.leak_flooding.setChecked(False)
-        self.leak_e_slot.setChecked(False)
-        self.leak_side_seams.setChecked(False)
-        self.leak_stay_bolts.setChecked(False)
-        self.leak_pfn_holes.setChecked(False)
-        self.long_straw.setChecked(False)
+        self.ui.sep_layer.setChecked(False)
+        self.ui.top_flood.setChecked(False)
+        self.ui.bottom_flood.setChecked(False)
+        self.ui.side_seams.setChecked(False)
+        self.ui.pfn_holes.setChecked(False)
+        self.ui.leak_cover.setChecked(False)
+        self.ui.leak_flooding.setChecked(False)
+        self.ui.leak_e_slot.setChecked(False)
+        self.ui.leak_side_seams.setChecked(False)
+        self.ui.leak_stay_bolts.setChecked(False)
+        self.ui.leak_pfn_holes.setChecked(False)
         
 
     # fmt: off
@@ -5771,13 +5770,13 @@ class panelGUI(QMainWindow):
         sep_layer=self.ui.sep_layer.isChecked()
                 
         # acquire sequence designating which areas have been covered during methane sweep
-        if self.ui.submit_methane_session.text() == 'Start Testing Session':
+        if self.ui.submit_methane_session.text() == 'Start Testing Session' and self.ui.panelInput_8.text() != '':
             MethaneTestSession.end_methane_test()
             self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user)
             self.ui.submit_methane_session.setText('Submit Testing Session')
             self.ui.submit_leak_panel.setDisabled(False)
             self.ui.submit_leak_straw.setDisabled(False)
-        else:
+        elif self.ui.panelInput_8.text() != '':
             covered_locations_raw =[self.ui.top_covers.isChecked(), self.ui.top_flood.isChecked(),
             self.ui.top_straws.isChecked(), self.ui.bottom_covers.isChecked(),
             self.ui.bottom_flood.isChecked(), self.ui.bottom_straws.isChecked(), 
@@ -5855,6 +5854,9 @@ class panelGUI(QMainWindow):
             self.ui.submit_leak_panel.setDisabled(True)
             self.ui.submit_leak_straw.setDisabled(True)
             
+            # refresh the past leak display
+            self.display_methane_leaks()
+            
         
     # save methane leak instance
     def submit_methane_leak(self, leak_type):
@@ -5873,18 +5875,27 @@ class panelGUI(QMainWindow):
                 )
                 return False
             
-            long_straw = self.ui.long_straw.isChecked()
+            # determine the straw leak location
+            if str(self.ui.straw_leak_location.currentText()) == 'Top':
+                straw_leak_location='top'
+            elif str(self.ui.straw_leak_location.currentText()) == 'Bottom':
+                straw_leak_location='bottom'
+            elif str(self.ui.straw_leak_location.currentText()) == 'Long Straw':
+                straw_leak_location='long'
+            else:
+                straw_leak_location='short'
+
             description = self.ui.leak_description_straw.toPlainText()
             
             # save the leak in db
-            self.DP.saveMethaneLeak(session,True,straw_number,location,long_straw,description,leak_size,None)
+            self.DP.saveMethaneLeak(session,True,straw_number,location,straw_leak_location,description,leak_size,None)
 
             # clear all entry fields/checkboxes
             self.ui.straw_number.clear()
             self.ui.leak_location.clear()
             self.ui.leak_size_straw.clear()
-            self.ui.long_straw.setChecked(False)
             self.ui.leak_description_straw.clear()
+
         else:
             # determine which areas were covered in the methane sweep
             covered_locations_raw =[self.ui.leak_cover.isChecked(), self.ui.leak_stay_bolts.isChecked(),
@@ -5900,7 +5911,6 @@ class panelGUI(QMainWindow):
             # acquire data from the gui entry fields
             try:
                 leak_size = int(self.ui.leak_size_panel.text())
-                print(MethaneTestSession.get_methane_session())
                 session = int(MethaneTestSession.get_methane_session()[1])
             except:
                 generateBox(

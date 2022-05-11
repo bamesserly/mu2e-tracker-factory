@@ -325,7 +325,7 @@ class MethaneLeakInstance(BASE, OBJECT):
     straw_leak = Column(BOOLEAN)
     straw_number = Column(Integer)
     location = Column(Integer)
-    long_straw = Column(BOOLEAN)
+    straw_leak_location = Column(VARCHAR)
     description = Column(VARCHAR)
     leak_size = Column(Integer)
     panel_leak_location = Column(VARCHAR)
@@ -336,7 +336,7 @@ class MethaneLeakInstance(BASE, OBJECT):
         straw_leak,
         straw_number,
         location,
-        long_straw,
+        straw_leak_location,
         description,
         leak_size,
         panel_leak_location,
@@ -346,7 +346,7 @@ class MethaneLeakInstance(BASE, OBJECT):
         self.straw_leak = straw_leak
         self.straw_number = straw_number
         self.location = location
-        self.long_straw = long_straw
+        self.straw_leak_location = straw_leak_location
         self.description = description
         self.leak_size = leak_size
         self.panel_leak_location = panel_leak_location

@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>28</height>
+                       <height>18</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5419,7 +5419,7 @@ GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>281</width>
-                       <height>28</height>
+                       <height>16</height>
                       </rect>
                      </property>
                     </widget>
@@ -7781,19 +7781,6 @@ Heater GUI</string>
                        <string>ppm</string>
                       </property>
                      </widget>
-                     <widget class="QCheckBox" name="long_straw">
-                      <property name="geometry">
-                       <rect>
-                        <x>10</x>
-                        <y>100</y>
-                        <width>151</width>
-                        <height>17</height>
-                       </rect>
-                      </property>
-                      <property name="text">
-                       <string>Long Straw Side?</string>
-                      </property>
-                     </widget>
                      <widget class="QLabel" name="label_51">
                       <property name="geometry">
                        <rect>
@@ -7828,6 +7815,49 @@ Heater GUI</string>
                       </property>
                       <property name="text">
                        <string>Submit Leak</string>
+                      </property>
+                     </widget>
+                     <widget class="QComboBox" name="straw_leak_location">
+                      <property name="geometry">
+                       <rect>
+                        <x>170</x>
+                        <y>100</y>
+                        <width>69</width>
+                        <height>22</height>
+                       </rect>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>Top</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Bottom</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Long Straw</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Short Straw</string>
+                       </property>
+                      </item>
+                     </widget>
+                     <widget class="QLabel" name="label_55">
+                      <property name="geometry">
+                       <rect>
+                        <x>10</x>
+                        <y>100</y>
+                        <width>161</width>
+                        <height>16</height>
+                       </rect>
+                      </property>
+                      <property name="text">
+                       <string>Straw Leak Location:</string>
                       </property>
                      </widget>
                     </widget>
@@ -8493,8 +8523,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
  </buttongroups>
 </ui>
