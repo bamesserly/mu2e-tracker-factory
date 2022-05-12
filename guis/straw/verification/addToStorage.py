@@ -3,10 +3,13 @@ import csv
 import os
 from datetime import datetime
 
+from guis.common.getresources import GetProjectPaths
+
 # sys.path.insert(0, '//MU2E-CART1/Database Backup/workers/credentials')
 # from credentials import *
 # from fixChildStraws import VerifyPrep
 def main():
+    palletDirectory = GetProjectPaths()["pallets"]
     total_date = str(datetime.today())
     date = total_date[5:7] + "/" + total_date[8:10] + "/" + total_date[0:4]
     string_hours = total_date[11:13]
@@ -34,8 +37,7 @@ def main():
     if p % 2 == 0:
         position = 92
     pathToPallet = (
-        os.path.dirname(__file__)
-        + "\\..\\..\\..\\Data\\Pallets\\"
+        palletDirectory
         + palID
         + "\\"
         + palNum
