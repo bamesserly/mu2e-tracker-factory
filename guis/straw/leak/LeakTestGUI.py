@@ -91,6 +91,7 @@ class LeakTestStatus(QMainWindow):
         ]
 
         self.leakDirectory = paths["strawleakdata"]
+        self.palletDirectoryLTSclass = paths["pallets"]
         self.leakDirectoryRaw = self.leakDirectory / "raw_data"
         self.leakDirectoryCom = self.leakDirectory / "comments"
         self.workerDirectory = paths["leakworkers"]
@@ -1077,8 +1078,13 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
+            # bad not good
+            #rem = removeStraw(
+            #    self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+            #)
             rem = removeStraw(
-                self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+                self.cpals,
+                self.palletDirectoryLTSclass
             )
             rem.exec_()
         else:
