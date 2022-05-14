@@ -2627,43 +2627,40 @@ class panelGUI(QMainWindow):
         # variable referring to whether or not this is a leak rate measurement
         lr = False
 
-        if comments == "":
-            # Get Comment box [<boxes>][<index we want>]
-            box = [
-                self.ui.commentBox1,
-                self.ui.commentBox2,
-                self.ui.commentBox3,
-                self.ui.commentBox4,
-                self.ui.commentBox5,
-                self.ui.commentBox6,
-                self.ui.commentBox7,
-                [self.ui.commentBox8_6, self.ui.lr_textbox],
+        # Get Comment box [<boxes>][<index we want>]
+        box = [
+            self.ui.commentBox1,
+            self.ui.commentBox2,
+            self.ui.commentBox3,
+            self.ui.commentBox4,
+            self.ui.commentBox5,
+            self.ui.commentBox6,
+            self.ui.commentBox7,
+            [self.ui.commentBox8_6, self.ui.lr_textbox],
             ][self.pro_index]
 
-            # if process 8, determine whether to save from comment box
-            # or from leak rate box
-            if self.pro_index == 7:
-                if len(str(box[1].text())) != 0:
-                    box = box[1]
-                    lr = True
+        # if process 8, determine whether to save from comment box
+        # or from leak rate box
+        if self.pro_index == 7:
+            if len(str(box[1].text())) != 0:
+                box = box[1]
+                lr = True
 
-                    # Extract text
-                    comments = box.text()
-                    # Reset comment display
-                    box.setText("")
-                else:
-                    box = box[0]
-
-                    # Extract text
-                    comments = box.document().toPlainText()
-                    # Reset comment display
-                    box.setPlainText("")
+                # Extract text
+                comments = box.text()
+                # Reset comment display
+                box.setText("")
+            else:
+                box = box[0]
+                # Extract text
+                comments = box.document().toPlainText()
+                # Reset comment display
+                box.setPlainText("")
+        else:
+            comments = box.document().toPlainText()
+            box.setPlainText("")
 
         comments = comments.strip()  # remove whitespace around comment
-
-        # if comments are nothing then return
-        if comments == "":
-            return
 
         # if it is a pro8 lr comment, modify
 
@@ -2676,6 +2673,10 @@ class panelGUI(QMainWindow):
 
             front = "Leak Rate Test Result:     "
             comments = front + comments
+        
+        # if comments are nothing then return
+        if comments == "":
+            return
 
         try:
             self.DP.saveComment(
