@@ -16,6 +16,7 @@ lasercutfiles,guis/straw/laser/Cut_files
 laserdata,data/Laser cut data
 laserworkers,data/workers/straw workers/laser cutting
 leakdata,data/Leak test data/Leak Test Results
+leaktestresults,data/StrawLeak/LeakTestResults.csv
 leakworkers,data/workers/straw workers/leak testing
 listsDirectory,data/Panel Data/Lists/
 lpals,data\Loading Pallets

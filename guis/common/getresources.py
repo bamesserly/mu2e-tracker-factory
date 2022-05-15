@@ -33,7 +33,7 @@ def GetProjectPaths():
     #paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
     for k,v in paths.items():
         # if not special strawroom things
-        if (k != "strawleakdata" and k!= "pallets"):
+        if (k != "strawleakcsv" and k!= "pallets"):
             # we want paths to remain on this machine
             paths.update({k : Path(root + "/" + v)})
         # otherwise (to prevent mergedown mayhem in strawroom)

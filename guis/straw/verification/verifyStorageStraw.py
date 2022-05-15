@@ -220,7 +220,7 @@ class verifyStorageStraw:
                         )
 
                         # Record findings in leak_ratefile.csv
-                        with open(GetProjectPaths()["strawleakdata"] / "LeakTestResults.csv", "a") as leak_rate_file:
+                        with open(GetProjectPaths()["leaktestresults"], "a") as leak_rate_file:
                             leak_rate_file.write("\n")  # Newline
                             leak_rate_file.write(self.strawID + ",")  # Straw ID
                             leak_rate_file.write(
