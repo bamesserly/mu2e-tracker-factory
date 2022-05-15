@@ -27,9 +27,6 @@ def GetProjectPaths():
     # installation is created during setup.py.
     root = pkg_resources.read_text(resources, "rootDirectory.txt")
 
-    #for k,v in paths.items():
-    #    logger.debug(f'k = "{k}", v = "{v}"')
-
     #paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
     for k,v in paths.items():
         # if not special strawroom things

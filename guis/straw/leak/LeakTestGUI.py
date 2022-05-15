@@ -1078,10 +1078,6 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
-            # bad not good
-            #rem = removeStraw(
-            #    self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
-            #)
             rem = removeStraw(
                 self.cpals,
                 self.palletDirectoryLTSclass

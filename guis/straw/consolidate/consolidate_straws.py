@@ -27,7 +27,6 @@ kBLANKSTRAWSTRING = "_______"
 logger = SetupPANGUILogger("root", tag="straw_consolidate")
 
 leaktest_dir = GetProjectPaths()["strawleakdata"]
-#summary_file = leaktest_dir / "LeakTestResults.csv"
 summary_file = GetProjectPaths()["leaktestresults"]
 try:
     assert summary_file.is_file()
