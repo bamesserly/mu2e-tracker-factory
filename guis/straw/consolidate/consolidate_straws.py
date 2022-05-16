@@ -176,7 +176,7 @@ def getLeakInfoFromUser():
 
 
 # search for leak plots, open them, and prompt user for containing info
-def checkPlots(straw):
+def openPlots(straw):
     logger.info(f"Looking for {straw} plots in the raw_data folder.")
     data_found = False
     leak_dir = leaktest_dir / "raw_data"
@@ -186,24 +186,33 @@ def checkPlots(straw):
             f = str(leak_dir / file_name)
             logger.info(f"Opening pdf {f}")
             openFile(f)
-    if not data_found:
-        return False, None, None, None, None
-    else:
-        rate, err, chamber, data_location = getLeakInfoFromUser()
-        return data_found, rate, err, chamber, data_location
+    return data_found
 
 
 ################################################################################
 # Check whether straw passed leak rate
 ################################################################################
 def passedLeakTest(straw, worker):
-    # First try LeakTestResults.csv
-    if checkSummaryFile(straw):
+    # First open plot for review
+    plots_found = openPlots(straw)
+
+    if not plots_found:
+        rate, err, chamber, data_location = None, None, None, None
+        logger.info(f"{straw} plots NOT found {str(leaktest_dir)}.")
+        print(
+            "If straw was tested recently, you may need to mergedown on "
+            "the leak computer, and then on this computer."
+        )
+
+    # Look for rate in master spreadsheet, LeakTestResults.csv
+    if checkSummaryFile(straw) and getYN(
+        "Based on master spreadsheet, straw seems good. Confirm and proceed?"
+    ):
         return True
 
-    # Next try plots in the raw_data folder.
-    found_plot, leak_rate, leak_error, chamber, data_location = checkPlots(straw)
-    if found_plot:
+    # Otherwise, user type in info from plots
+    if plots_found:
+        rate, err, chamber, data_location = getLeakInfoFromUser()
         passed = checkAndRecord(
             summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
         )
@@ -214,12 +223,6 @@ def passedLeakTest(straw, worker):
                 "The data you entered manually is not acceptable, and "
                 "you chose not to override."
             )
-    else:
-        logger.info(f"{straw} plots NOT found {str(leaktest_dir)}.")
-        print(
-            "If straw was tested recently, you may need to mergedown on "
-            "the leak computer, and then on this computer."
-        )
 
     # Last chance old data? old straw new name?
     use_other_data = getYN(
