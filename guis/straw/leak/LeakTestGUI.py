@@ -1132,8 +1132,8 @@ class LeakTestStatus(QMainWindow):
         self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 40, 40);")
 
     def setStrawStatus(self, chamber, passed):
-        if passed and int(self.leak_rate[chamber]) < 2*10**(-5):
-            self.Chambers[chamber].setStyleSheet("background-color: rgb(225, 165, 0);")
+        if passed and self.leak_rate[chamber] < NOTIFY_LOW_LEAK_RATE:
+            self.Chambers[chamber].setStyleSheet("background-color: rgb(204, 153, 255);")
         elif passed:
             self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
         else:

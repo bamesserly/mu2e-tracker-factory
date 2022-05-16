@@ -21,6 +21,7 @@ STRAW_VOLUME = 26.0  # ccs, uncut straw
 EXCLUDE_RAW_DATA_SECONDS = 120  # skip first 2 minutes of raw data file
 MIN_N_DATAPOINTS_FOR_FIT = 10
 MAX_ALLOWED_LEAK_RATE = 0.00009645060  # cc/min
+NOTIFY_LOW_LEAK_RATE  = 0.00002 # cc/min
 
 
 CHAMBER_VOLUME = [
