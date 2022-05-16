@@ -844,7 +844,7 @@ class LeakTestStatus(QMainWindow):
             wasrunning = True
             self._running[ROW] = False
         else:
-            wasrunning == False
+            wasrunning = False
         straw = "empty%s" % ((ROW) * 5 + COL)
         self.Choosenames[ROW][COL] = straw
         self.update_name(ROW, COL)
@@ -859,7 +859,7 @@ class LeakTestStatus(QMainWindow):
             wasrunning = True
             self._running[ROW] = False
         else:
-            wasrunning == False
+            wasrunning = False
 
         ctr = StrawSelect(
             self.leakDirectory
