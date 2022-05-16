@@ -3,10 +3,11 @@ import os
 from guis.common.getresources import GetProjectPaths
 
 leaktest_dir = GetProjectPaths()["strawleakdata"]
+leakresult_dir = GetProjectPaths()["leaktestresults"]
 leaktest_dir_old = GetProjectPaths()["leakdata"]
 
 pathlist = [
-    leaktest_dir / "LeakTestResults.csv",
+    leakresult_dir,
     leaktest_dir_old / "Leak Test Results.csv",
     leaktest_dir_old / "Leak test results old" / "Leak Test Results.csv",
     leaktest_dir_old / "Leak test results old" / "Old Leak Test Results.csv"

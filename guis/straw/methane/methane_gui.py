@@ -90,6 +90,13 @@ if __name__ == "__main__":
     cpal_id = cpal_id[-2:]
     cpal_num = input("Scan or type CPAL Number: ")
     cpal_num = cpal_num[-4:]
+    # if this code is ever uncommented this should use
+    # "from guis.common.getresources import GetProjectPaths"
+    # and "self.palletDirectory = paths["pallets"]" to get a path to the pallets directory
+    # otherwise bad things happen with the strawroom and merges and stuff
+    # with the two previous lines the next could be like this:
+    # "directory = ("C:self.palletDirectory\\CPALID" + cpal_id + "\\")
+
     directory = (
         "C:\\Users\\Mu2e\Desktop\\Production\\Data\\Pallets\\CPALID" + cpal_id + "\\"
     )
@@ -132,7 +139,7 @@ import os, sys, subprocess
 logger = SetupPANGUILogger("root", tag="straw_consolidate")
 
 leaktest_dir = GetProjectPaths()["strawleakdata"]
-summary_file = leaktest_dir / "LeakTestResults.csv"
+summary_file = GetProjectPaths()["leaktestresults"]
 try:
     assert summary_file.is_file()
 except AssertionError:

@@ -91,6 +91,7 @@ class LeakTestStatus(QMainWindow):
         ]
 
         self.leakDirectory = paths["strawleakdata"]
+        self.palletDirectoryLTSclass = paths["pallets"]
         self.leakDirectoryRaw = self.leakDirectory / "raw_data"
         self.leakDirectoryCom = self.leakDirectory / "comments"
         self.workerDirectory = paths["leakworkers"]
@@ -127,7 +128,7 @@ class LeakTestStatus(QMainWindow):
         self.files = {}
         # Passed straws with saved data
         self.straw_list = []
-        self.result = self.leakDirectory / "LeakTestResults.csv"
+        self.result = GetProjectPaths()["leaktestresults"]
 
         # what are these next two lines for??
         result = open(self.result, "a+", 1)
@@ -970,7 +971,7 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
 
-        path = self.leakDirectory / "LeakTestResults.csv"
+        path = GetProjectPaths()["leaktestresults"]
 
         Current_worker = self.getWorker()
 
@@ -1078,7 +1079,8 @@ class LeakTestStatus(QMainWindow):
         if self.checkCredentials():
             self.getCPALS()
             rem = removeStraw(
-                self.cpals, os.path.dirname(__file__) + "..\\..\\..\\Data\\Pallets\\"
+                self.cpals,
+                self.palletDirectoryLTSclass
             )
             rem.exec_()
         else:
