@@ -212,7 +212,7 @@ def passedLeakTest(straw, worker):
 
     # Otherwise, user type in info from plots
     if plots_found:
-        rate, err, chamber, data_location = getLeakInfoFromUser()
+        leak_rate, leak_error, chamber, data_location = getLeakInfoFromUser()
         passed = checkAndRecord(
             summary_file, straw, worker, chamber, leak_rate, leak_error, data_location
         )
