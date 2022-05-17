@@ -17,11 +17,13 @@ laserdata,data/Laser cut data
 laserworkers,data/workers/straw workers/laser cutting
 leakdata,data/Leak test data/Leak Test Results
 leaktestresults,data/StrawLeak/LeakTestResults.csv
+leaktestresultsLTG,data/StrawLeak/LeakTestResults.csv
 leakworkers,data/workers/straw workers/leak testing
 listsDirectory,data/Panel Data/Lists/
 lpals,data\Loading Pallets
 moldReleasePath,data/Panel Data/Mold Release/Mold Release.csv
 pallets,data/Pallets
+palletsLTG,data/Pallets
 panelDirectory,data/Panel Data
 panelresistancedata,data/Panel Data/FinalQC/Resistance
 panelleak,data/Panel data/FinalQC/Leak/Plots
