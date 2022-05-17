@@ -91,7 +91,7 @@ class LeakTestStatus(QMainWindow):
         ]
 
         self.leakDirectory = paths["strawleakdata"]
-        self.palletDirectoryLTSclass = paths["pallets"]
+        self.palletDirectoryLTSclass = paths["palletsLTG"]
         self.leakDirectoryRaw = self.leakDirectory / "raw_data"
         self.leakDirectoryCom = self.leakDirectory / "comments"
         self.workerDirectory = paths["leakworkers"]
@@ -128,7 +128,7 @@ class LeakTestStatus(QMainWindow):
         self.files = {}
         # Passed straws with saved data
         self.straw_list = []
-        self.result = GetProjectPaths()["leaktestresults"]
+        self.result = GetProjectPaths()["leaktestresultsLTG"]
 
         # what are these next two lines for??
         result = open(self.result, "a+", 1)
@@ -971,7 +971,7 @@ class LeakTestStatus(QMainWindow):
         ROW = int(chamber / 5)
         COL = chamber % 5
 
-        path = GetProjectPaths()["leaktestresults"]
+        path = GetProjectPaths()["leaktestresultsLTG"]
 
         Current_worker = self.getWorker()
 
