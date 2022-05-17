@@ -89,8 +89,8 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
     
     def acquire_tbdata(self):
         if self.process == 6:
-            self.wire_tensions = [None]*95
-            self.straw_tensions = [None]*95
+            self.wire_tensions = [None]*96
+            self.straw_tensions = [None]*96
         else:
             self.wire_tensions = []
             self.straw_tensions = []
@@ -154,7 +154,18 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             self.canvas.flush_events()
         
     def display_scroll(self, initial):
-        wire_data, straw_data = self.process_data()
+        wire_display=[]
+        straw_display=[]
+        
+        for i in range(96):
+            if self.wire_tensions[i] != None:
+                wire_display.append(round(self.wire_tensions[i],2))
+            else:
+                wire_display.append(None)
+            if self.straw_tensions[i] != None:
+                straw_display.append(round(self.straw_tensions[i],2))
+            else:
+                straw_display.append(None)
         
         if initial is True:
             self.tbGrid = QGridLayout()
@@ -170,11 +181,11 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )  # they can't (shouldn't) all have the same name
                 
             tb_wire_label = QLabel(
-                f"{round(wire_data[i],2)}"
+                f"{wire_display[i]}"
             )  # create qlabels for the wires
             tb_wire_label.setStyleSheet("color: black")
             tb_wire_label.setObjectName(
-                f"tbLabel_{round(wire_data[i],2)}"
+                f"tbLabel_{wire_display[i]}"
             )  # they can't (shouldn't) all have the same name
             
             # set proper data
@@ -184,11 +195,11 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )  # add them to grid, 1st column
             
             tb_straw_label = QLabel(
-                f"{round(straw_data[i],2)}"
+                f"{straw_display[i]}"
             )  # create qlabels for the straws
             tb_straw_label.setStyleSheet("color: black")
             tb_straw_label.setObjectName(
-                f"tbLabel_{round(straw_data[i],2)}"
+                f"tbLabel_{straw_display[i]}"
             )  # they can't (shouldn't) all have the same name
 
             self.tbGrid.addWidget(
@@ -340,7 +351,6 @@ class TensionBox(QMainWindow, tensionbox_ui.Ui_MainWindow):
             )
             if is_straw == 1:
                 self.straw_tensions[self.spinBox.value()] = tension
-                print('straw: ' + str(tension))
             else:
                 self.wire_tensions[self.spinBox.value()] = tension
             
