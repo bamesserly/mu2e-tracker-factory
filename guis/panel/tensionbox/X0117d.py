@@ -37,7 +37,7 @@ class DataCanvas(FigureCanvas):
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
         self.axes.set_xlim(-2, 96)
-        self.axes.set_ylim(bottom=-2, top=200)
+        self.axes.set_ylim(bottom=50, top=100)
         # self.axes.autoscale(enable=True, axis='y')
         box = self.axes.get_position()
         if ylabel2:
