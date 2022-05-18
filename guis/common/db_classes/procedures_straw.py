@@ -90,6 +90,7 @@ class Resistance(StrawProcedure):
 
         def __init__(
             self,
+            id,
             procedure,
             straw,
             ii_resistance=None,
@@ -102,6 +103,7 @@ class Resistance(StrawProcedure):
             oo_method=None,
             evaluation=None,
         ):
+            self.id = self.ID()
             self.procedure = procedure.id
             self.straw = straw
             self.inside_inside_resistance = ii_resistance

@@ -280,7 +280,7 @@ class Procedure(BASE, OBJECT):
             self.details = qry.one_or_none()
         else:
             # Otherwise, construct a new one
-            self.details = dc(procedure=self.id)
+            self.details = dc(id=self.ID(),procedure=self.id)
 
     def _getDetailsClass(self):
         # TODO: If additional procedure data is recorded at this station,
