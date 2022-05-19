@@ -1092,6 +1092,10 @@ class SuppliesList:
     """
 
     def clearMoldRelease(self):
+        # return if currently in a methane testing session
+        if self.ui.submit_methane_session.text() != 'Start Testing Session':
+            return
+        
         # Re-enable accept button
         self.acceptButton.setEnabled(True)
 
