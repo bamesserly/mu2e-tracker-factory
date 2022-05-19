@@ -384,7 +384,11 @@ def RunInteractive():
     )
     print(options)
 
-    load_into_db(options.infile)
+    # If we can't find a procedure ID, give up
+    try:
+        load_into_db(options.infile)
+    except TypeError:
+        print("\nDATA NOT LOADED INTO DB. PROBABLY BECAUSE PANEL DOESN'T EXIST IN DB.")
 
     main(options)
 
