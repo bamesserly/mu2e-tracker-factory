@@ -1091,9 +1091,8 @@ class SuppliesList:
                  Called at the end of panel pro five.
     """
 
-    def clearMoldRelease(self):
-        # return if currently in a methane testing session
-        if self.ui.submit_methane_session.text() != 'Start Testing Session':
+    def clearMoldRelease(self, text):
+        if text != 'Start Testing Session':
             return
         
         # Re-enable accept button

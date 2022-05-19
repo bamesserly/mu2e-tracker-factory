@@ -1312,13 +1312,13 @@ class panelGUI(QMainWindow):
         self.finishButton.clicked.connect(self.saveData)
 
         # clear mold release
-        self.finishButton.clicked.connect(lambda: self.suppliesList.clearMoldRelease())
+        self.finishButton.clicked.connect(
+            lambda: self.suppliesList.clearMoldRelease(self.ui.submit_methane_session.text())
+        )
 
         # stop vestigal timer that creates many bugs if we get rid of it
         self.finishButton.clicked.connect(
             lambda: self.timers[5].stop()
-            if self.stepsList.allStepsChecked() and self.pro == 3
-            else None
         )  # Stop the pro 3 timer when finish button is pushed
 
         # stop running current process
@@ -1676,7 +1676,7 @@ class panelGUI(QMainWindow):
         # return if currently in a methane testing session
         if self.ui.submit_methane_session.text() != 'Start Testing Session':
             return
-
+        
         # Pause GUI
         if pause:
             self.saveData()
@@ -2528,10 +2528,9 @@ class panelGUI(QMainWindow):
          # return if currently in a methane testing session
         if self.ui.submit_methane_session.text() != 'Start Testing Session':
             generateBox(
-                "warning",
+                "critical",
                 "Methane Session",
                 "Please end methane session prior to closing GUI.",
-                question=True,
             )
             return
         
