@@ -2525,15 +2525,6 @@ class panelGUI(QMainWindow):
     # fmt: on
 
     def saveData(self):
-         # return if currently in a methane testing session
-        if self.ui.submit_methane_session.text() != 'Start Testing Session':
-            generateBox(
-                "critical",
-                "Methane Session",
-                "Please end methane session prior to closing GUI.",
-            )
-            return
-        
         # Extract data from gui widgets
         self.updateData()
 

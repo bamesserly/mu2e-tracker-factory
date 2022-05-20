@@ -1092,8 +1092,14 @@ class SuppliesList:
     """
 
     def clearMoldRelease(self, text):
+        # return if currently in a methane testing session
         if text != 'Start Testing Session':
-            return
+           generateBox(
+               "critical",
+               "Methane Session",
+               "Please end methane session prior to closing GUI.",
+           )
+           return
         
         # Re-enable accept button
         self.acceptButton.setEnabled(True)
