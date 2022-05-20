@@ -304,7 +304,7 @@ class Pan3Procedure(PanelProcedure):
     def _getDetailsClass(self):
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_pan3"
-            # TODO shouldn't this have an ID?
+            id = Column(Integer, primary_key=True)
             procedure = Column(Integer, ForeignKey("procedure.id"), primary_key=True)
             sense_wire_insertion_time = Column(REAL)
             sense_wire_insertion_time_running = Column(BOOLEAN)
@@ -757,7 +757,7 @@ class Pan6Procedure(PanelProcedure):
     def _getDetailsClass(self):
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_pan6"
-            # TODO shouldn't this have an ID?
+            id = Column(Integer, primary_key=True)
             procedure = Column(Integer, ForeignKey("procedure.id"), primary_key=True)
             baseplate_ribs_MIR_gap_left = Column(Integer)
             baseplate_ribs_MIR_gap_right = Column(Integer)

@@ -87,6 +87,7 @@ class MoldReleaseItemsChecked(BASE, OBJECT):
     timestamp = Column(Integer)
 
     def setMoldReleased(self, boolean, worker=str()):
+        self.id = self.ID()
         self.worker = worker if boolean else None
         self.mold_released = boolean
         self.commit()
