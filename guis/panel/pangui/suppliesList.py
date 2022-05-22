@@ -12,6 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime
 from PIL import Image
 import string
+from guis.common.gui_utils import generateBox
 
 
 class SuppliesList:
