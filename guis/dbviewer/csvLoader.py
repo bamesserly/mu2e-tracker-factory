@@ -48,7 +48,8 @@ class csvLoader(QMainWindow):
         # make tkinter root for popup messages
         self.tkRoot = tkinter.Tk()
 
-        # for storing excel sheets as data frames
+        # for storing excel sheets as 2D arrays
+        # {<sheet name>: [<2D array of values>, <list of column names>]} 
         self.sheets = {}
 
     def dragEnterEvent(self, event):
@@ -69,13 +70,20 @@ class csvLoader(QMainWindow):
         self.readFile(f'{files[0]}')
 
     # called at the end of dropEvent()
+    # to avoid the absolute ridiculous overcomplexity of data frames...
+    #   df.name = gets sheet name
+    #   [col for col in df.columns] gets list of column names
+    #   df.values gets 2D array [[row0],[row1],[row2],...]
     def readFile(self, file):
         xlFile = pd.ExcelFile(file)
         self.sheets = {}
 
         for name in xlFile.sheet_names:
             df = pd.read_excel(xlFile, name)
-            self.sheets[name] = df
+            self.sheets[name] = [df.values, [col for col in df.columns]]
+            print(f'----------{name}----------')
+            print([namee for namee in df.columns])
+            print(df.values)
 
         self.setupSheetComboBox()
         return
