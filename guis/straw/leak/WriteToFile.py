@@ -41,7 +41,7 @@ def FindCPAL(strawname):
     # If a straw is associated with more than one CPALID, use the largest (i.e.
     # most recent) one.
     cpal_return_pairs = []
-    database_path = GetProjectPaths()["pallets"]
+    database_path = GetProjectPaths()["palletsLTG"]
     for i in range(1, 25):
         files = []
         cpalid = "CPALID" + str(i).zfill(2)
@@ -79,7 +79,7 @@ def FindCPAL(strawname):
 
 def UpdateStrawInfo(test, workers, strawname, result):
     # Save data to appropriate CPAL file
-    database_path = GetProjectPaths()["pallets"]
+    database_path = GetProjectPaths()["palletsLTG"]
 
     (cpalid, cpal) = FindCPAL(strawname)
 
@@ -244,7 +244,7 @@ def checkPass(path, strawname, current_test):
 
 
 def checkStraw(strawname, expected_previous_test, current_test):
-    database_path = GetProjectPaths()["pallets"]
+    database_path = GetProjectPaths()["palletsLTG"]
 
     (cpalid, cpal) = FindCPAL(strawname)
 
