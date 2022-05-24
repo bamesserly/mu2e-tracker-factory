@@ -68,6 +68,7 @@ def run():
                 myfile.write("\n")
         myfile.write(date + ",prep," + straw_pass_list + workers + "\n")
         myfile.write(date + ",ohms," + straw_pass_list + workers + "\n")
+        myfile.write(date + ",C-O2," + straw_pass_list + workers + "\n")
 
     logger.info("Finished")
 
