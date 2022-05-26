@@ -37,6 +37,7 @@ stepsDirectory,data/Panel Data/Steps/
 straw_tensioner_data,data/Panel Data/straw_tensioner_data
 strawfailure,data/Failure Data/Upload Failure
 strawleakdata,data/StrawLeak
+network_leaktest_raw_data,data/StrawLeak/raw_data
 strawresistance,data/Resistance Testing
 strawresistancecal,guis/straw/resistance/calib.csv
 strawstorage,data/Straw storage

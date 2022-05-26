@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 def refit(raw_data_filename, n_skips_start, n_skips_end):
-    directory = GetProjectPaths()["strawleakdata"] / "raw_data"
+    directory = GetProjectPaths()["network_leaktest_raw_data"]
     leak_rate = 0
     leak_rate_err = 0
 

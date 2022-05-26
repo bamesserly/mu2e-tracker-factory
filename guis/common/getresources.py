@@ -27,16 +27,15 @@ def GetProjectPaths():
     # installation is created during setup.py.
     root = pkg_resources.read_text(resources, "rootDirectory.txt")
 
-    #paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
-    for k,v in paths.items():
-        # if not special strawroom things
-        if (k != "leaktestresults" and k!= "pallets"):
-            # we want paths to remain on this machine
-            paths.update({k : Path(root + "/" + v)})
-        # otherwise (to prevent mergedown mayhem in strawroom)
-        else:
+    # paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
+    for k, v in paths.items():
+        # if special strawroom things
+        if k == "leaktestresults" or k == "pallets" or k == "network_leaktest_raw_data":
             # save directly to the network
-            paths.update({k : Path("X:/" + v)})
+            paths.update({k: Path("X:/" + v)})
+        else:
+            # we want paths to remain on this machine
+            paths.update({k: Path(root + "/" + v)})
 
     return paths
 
