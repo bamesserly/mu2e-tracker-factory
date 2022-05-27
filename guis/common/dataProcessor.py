@@ -1506,14 +1506,16 @@ class TxtDataProcessor(DataProcessor):
     def getPanelLongMethaneSessionPath(self):
         return (
             self.panelDirectory
-            / "Methanedata"
+            / "FinalQC"
+            / "leak_resolution"
             / f"{self.getPanel()}_sess.csv"
         )
     
     def getPanelLongMethaneLeakPath(self):
         return (
             self.panelDirectory
-            / "Methanedata"
+            / "FinalQC"
+            / "leak_resolution"
             / f"{self.getPanel()}_leak.csv"
         )
 
