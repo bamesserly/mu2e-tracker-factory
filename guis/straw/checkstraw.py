@@ -19,10 +19,9 @@ class Check:
 
     def findPalletFiles(self, CPAL):
         pfiles = []
-        for palletid in os.listdir(self.palletDirectory):
-            for pallet in os.listdir(self.palletDirectory / palletid):
-                if CPAL + ".csv" == pallet:
-                    pfiles.append(self.palletDirectory / palletid / pallet)
+        for file in Path(self.palletDirectory).rglob("*"):
+            if file.is_file() and file.suffix == '.csv' and file.stem == CPAL:
+                pfiles.append(file)
         return pfiles
 
     def strawPass(self, CPAL, straw, step):

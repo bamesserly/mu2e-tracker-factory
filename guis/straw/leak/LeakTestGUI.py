@@ -1067,7 +1067,7 @@ class LeakTestStatus(QMainWindow):
                 strawname = self.Choosenames[ROW][COL][:7]
 
                 try:
-                    cpal = FindCPAL(strawname)[1]
+                    cpal = FindCPALContainingStraw(strawname)[1]
                     if cpal not in self.cpals:
                         self.cpals.append(cpal)
                 except StrawNotFoundError:
