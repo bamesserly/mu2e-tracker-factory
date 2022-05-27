@@ -2,6 +2,11 @@
 
 import os, time, datetime, csv
 from guis.common.getresources import GetProjectPaths
+from pathlib import Path
+
+import logging
+
+logger = logging.getLogger("root")
 
 
 class StrawNotFoundError(Exception):
@@ -42,24 +47,28 @@ def FindAllCPALsContainingStraw(strawname):
     # "LTG" == leak test GUI, i.e. local data folder
     pallets_data_dir = GetProjectPaths()["palletsLTG"]
     for file in Path(pallets_data_dir).rglob("*"):
-        if file.is_file() and file.suffix == '.csv':
+        if file.is_file() and file.suffix == ".csv":
             cpalid = file.parent.name
             assert "CPALID" in cpalid and int(cpalid[-2:]) and len(cpalid) == 8
 
-            cpal = file.stem[:-4]
-            assert "CPAL" in cpal and int(cpal[-4]) and len(cpal) == 8
+            cpal = file.stem
+            try:
+                assert "CPAL" in cpal and int(cpal[-4:]) and len(cpal) == 8
+            except:
+                logger.debug(f"Problem with CPAL file {file}.")
+                continue
 
             with open(file, "r") as f:
-                if strawname.lower() in f.read.lower():
+                if strawname.lower() in f.read().lower():
                     cpals.append((cpalid, cpal))
     return cpals
 
 
 def GetLastLineOfPalletFile(cpalid, cpal):
-    cpal_file = GetProjectPaths()["pallets"] / cpalid / str(cpal + ".csv")
+    cpal_file = GetProjectPaths()["palletsLTG"] / cpalid / str(cpal + ".csv")
     assert cpal_file.is_file()
     # Files are only few lines, so OK to read like this
-    with open (cpal_file, "r") as f:
+    with open(cpal_file, "r") as f:
         last_line = f.readlines()[-1]
     return last_line
 
@@ -73,22 +82,29 @@ def FindCPALContainingStraw(strawname):
     cpals = list(set(cpals))  # remove duplicates
 
     if not cpals:
-        logger.error("FindCPALContainingStraw: no cpals found for {strawname}".)
+        logger.error("FindCPALContainingStraw: no cpals found for {strawname}.")
         raise StrawNotFoundError
 
     # get cpals with strawname in final line
-    cpals_with_straw_in_final_line = {} # {(cpalid, cpal#) : timestamp, ...}
+    cpals_with_straw_in_final_line = {}  # {(cpalid, cpal#) : timestamp, ...}
     for c in cpals:
         last_line = GetLastLineOfPalletFile(c[0], c[1])
         last_line = last_line.split(",")
-        straw_idx = last_line.lower().find(strawname.lower())
+        try:
+            straw_idx = [i.lower() for i in last_line].index(strawname.lower())
+        except ValueError:
+            straw_idx = None
 
-        if straw_idx and last_line[straw_idx + 1] = "P":
+        if straw_idx != None and last_line[straw_idx + 1] == "P":
             timestamp_last_line = last_line[0]
             try:
-                timestamp_last_line = datetime.strptime(timestamp_last_line, '%Y-%m-%d_%H:%M')
+                timestamp_last_line = datetime.datetime.strptime(
+                    timestamp_last_line, "%Y-%m-%d_%H:%M"
+                )
             except ValueError:
-                logger.error("CPAL FILE WITH A DIFFERENT TIME FORMAT. PLEASE INFORM BEN.")
+                logger.error(
+                    "CPAL FILE WITH A DIFFERENT TIME FORMAT. PLEASE INFORM BEN."
+                )
                 sys.exit()
             cpals_with_straw_in_final_line[c] = timestamp_last_line
 
@@ -96,14 +112,20 @@ def FindCPALContainingStraw(strawname):
     # If multiple, return most recent one
     # returning (CPAL, CPALID)
     if len(cpals_with_straw_in_final_line) == 0:
-        logger.error(f"Straw not found in final line of any of these cpal files {cpals}.")
+        logger.error(
+            f"Straw not found in final line of any of these cpal files {cpals}."
+        )
         return StrawNotFoundError
     elif len(cpals_with_straw_in_final_line) == 1:
         return cpals_with_straw_in_final_line[0]
     else:
-        logger.info(f"Straw {strawname} found in the final line of multiple pallet files.")
+        logger.info(
+            f"Straw {strawname} found in the final line of multiple pallet files."
+        )
         logger.info(f"Choosing the pallet file with the most recent timestamp.")
-        return max(cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get)
+        return max(
+            cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get
+        )
 
 
 def UpdateStrawInfo(test, workers, strawname, result):
