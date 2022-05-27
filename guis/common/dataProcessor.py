@@ -484,6 +484,21 @@ class DataProcessor(ABC):
     def loadHVMeasurements(self,position=None):
         pass
     """
+    
+    @abstractmethod
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+    ):
+        pass
+    
+    @abstractmethod
+    def saveMethaneLeak(
+        session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+    ):
+        pass
+    
+    
+    
 
     ##########################################################################
 
@@ -784,6 +799,7 @@ class TxtDataProcessor(DataProcessor):
         self.sessionWorkers = []
         self.workerInformation = []
         self.validWorkers = []
+        
 
     def _init_directories(self, paths):
         self.workerDirectory = paths["workerDirectory"]
@@ -1114,7 +1130,9 @@ class TxtDataProcessor(DataProcessor):
 
         ## Save comment:
         self.saveComment(comment, self.getPanel(), self.getPro())
-
+    
+    def saveMethaneSession(self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user):
+        pass
     # update all continuity measurements for panel
     # parameters are lists of data
     def saveContinuityMeasurement(self, position, continuity_str, wire_alignment):
@@ -1217,6 +1235,81 @@ class TxtDataProcessor(DataProcessor):
     # save panel heating measurement (DEFUNCT)
     def savePanelTempMeasurement(self, temp_paas_a, temp_paas_bc):
         pass
+    
+    # save the methane session txt
+    def saveMethaneSession(
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+    ):
+        headers=["Panel","current","covered_areas","sep_layer","top_straw_low","top_straw_high","bot_straw_low","bot_straw_high","detector_number","user","timestamp"]
+
+        outfile = self.getPanelLongMethaneSessionPath()
+        file_exists = os.path.isfile(outfile)
+        logger.info("Saving methane session data to {0}".format(outfile))
+        try:
+            with open(outfile, "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Panel": self.getPanel(),
+                        "current": str(current),
+                        "covered_areas": str(covered_areas),
+                        "sep_layer": str(sep_layer),
+                        "top_straw_low": str(top_straw_low),
+                        "top_straw_high": str(top_straw_high),
+                        "bot_straw_low": str(bot_straw_low),
+                        "bot_straw_high": str(bot_straw_high),
+                        "detector_number": str(detector_number),
+                        "user": str(user),
+                        "timestamp": self.timestamp(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "Methane session data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            logger.warning("Methane session data is not being saved to CSV files.")
+        return
+    
+    # save the methane leak txt
+    def saveMethaneLeak(
+        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+    ):
+        headers=["Panel","session","straw_leak","straw_number","location","straw_leak_location","description","leak_size","panel_leak_location","timestamp"]
+
+        outfile = self.getPanelLongMethaneLeakPath()
+        file_exists = os.path.isfile(outfile)
+        logger.info("Saving methane leak data to {0}".format(outfile))
+        try:
+            with open(outfile, "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
+                )
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Panel": self.getPanel(),
+                        "session": str(session),
+                        "straw_leak": str(straw_leak),
+                        "straw_number": str(straw_number),
+                        "location": str(location),
+                        "straw_leak_location": str(straw_leak_location),
+                        "description": str(description),
+                        "leak_size": str(leak_size),
+                        "panel_leak_location": str(panel_leak_location),
+                        "timestamp": self.timestamp()
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "Methane leak data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            logger.warning("Methane leak data is not being saved to CSV files.")
+        return
 
     # update all wire tension measurements for panel
     # parameters are lists of data
@@ -1408,6 +1501,20 @@ class TxtDataProcessor(DataProcessor):
             self.panelDirectory
             / f"Day {self.getPro()} data"
             / f"{self.getPanel()}_DB.csv"
+        )
+        
+    def getPanelLongMethaneSessionPath(self):
+        return (
+            self.panelDirectory
+            / "Methanedata"
+            / f"{self.getPanel()}_sess.csv"
+        )
+    
+    def getPanelLongMethaneLeakPath(self):
+        return (
+            self.panelDirectory
+            / "Methanedata"
+            / f"{self.getPanel()}_leak.csv"
         )
 
     def getPanelLongContinuityDataPath(self):
