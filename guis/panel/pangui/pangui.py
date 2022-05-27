@@ -5786,6 +5786,8 @@ class panelGUI(QMainWindow):
             bot_high = None
             top_straws=False
             bottom_straws=False
+            print(self.ui.ts_low.text())
+            print(self.ui.bs_low.text())
             if self.ui.ts_low.text() != '':
                 try:
                     top_low = int(self.ui.ts_low.text())
@@ -5840,7 +5842,7 @@ class panelGUI(QMainWindow):
             MethaneTestSession.end_methane_test(user)    
             
             # save the methane session in txt file
-            self.DP.saveMethaneSession(True,covered_locations,sep_layer,top_low,top_high,bot_low,bot_high,gas_detector,user)
+            self.DP.saveMethaneSession(False,covered_locations,sep_layer,top_low,top_high,bot_low,bot_high,gas_detector,user)
             
             # clear fields
             self.ui.top_covers.setChecked(False)
