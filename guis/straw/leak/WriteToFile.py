@@ -41,26 +41,44 @@ def ExtractPreviousStrawData(path):
     return test_name, names, pf
 
 
-# Get list of all CPALs (CPALID, CPAL#), whose files contain strawname
+# pass full path to pallet file and make sure it's in the right directory
+# structure, filename format, etc.
+def VerifyPalletFile(file):
+    if !file.is_file() or !file.suffix == ".csv":
+        return False
+
+    cpalid = file.parent.name
+    cpal = file.stem
+
+    try:
+        assert "CPALID" in cpalid and int(cpalid[-2:]) and len(cpalid) == 8
+    except:
+        logger.error(f"Problem with pallet folder structure {cpalid}.")
+        logger.error(f"Please inform Ben.")
+        sys.exit()
+
+    try:
+        assert "CPAL" in cpal and int(cpal[-4:]) and len(cpal) == 8
+    except:
+        #logger.debug(f"Bad CPAL file {file}.")
+        return False
+
+    return True
+
+
+# Get list of all CPALs (CPALID, CPAL#), whose files contain strawname.
+# This function gets called constantly by UpdateStrawInfo via
+# FindCPALContainingStraw, so it must be efficient.
 def FindAllCPALsContainingStraw(strawname):
     cpals = []
     # "LTG" == leak test GUI, i.e. local data folder
     pallets_data_dir = GetProjectPaths()["palletsLTG"]
     for file in Path(pallets_data_dir).rglob("*"):
-        if file.is_file() and file.suffix == ".csv":
-            cpalid = file.parent.name
-            assert "CPALID" in cpalid and int(cpalid[-2:]) and len(cpalid) == 8
-
-            cpal = file.stem
-            try:
-                assert "CPAL" in cpal and int(cpal[-4:]) and len(cpal) == 8
-            except:
-                logger.debug(f"Problem with CPAL file {file}.")
-                continue
-
-            with open(file, "r") as f:
-                if strawname.lower() in f.read().lower():
-                    cpals.append((cpalid, cpal))
+        if not VerifyPalletFile(file):
+            continue
+        with open(file, "r") as f:
+            if strawname.lower() in f.read().lower():
+                cpals.append((cpalid, cpal))
     return cpals
 
 
@@ -74,7 +92,9 @@ def GetLastLineOfPalletFile(cpalid, cpal):
 
 
 # Get CPAL file containing straw name.
-# If multiple, pick one with straw in final line or most recent
+# If multiple, pick one with straw in final line or most recent.
+# This function gets called constantly by UpdateStrawInfo, so it must be
+# efficient.
 def FindCPALContainingStraw(strawname):
     cpals = FindAllCPALsContainingStraw(strawname)
 
@@ -119,13 +139,14 @@ def FindCPALContainingStraw(strawname):
     elif len(cpals_with_straw_in_final_line) == 1:
         return cpals_with_straw_in_final_line[0]
     else:
+        ret_cpal = max(
+            cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get
+        )
         logger.info(
             f"Straw {strawname} found in the final line of multiple pallet files."
         )
-        logger.info(f"Choosing the pallet file with the most recent timestamp.")
-        return max(
-            cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get
-        )
+        logger.info(f"Choosing the pallet file with the most recent timestamp, {ret_cpal}")
+        return ret_cpal
 
 
 def UpdateStrawInfo(test, workers, strawname, result):
@@ -324,7 +345,7 @@ def checkStraw(strawname, expected_previous_test, current_test):
         if straw.lower() == strawname.lower():
             return
 
-    print("CPAL file", path)
+    logger.error("CPAL file", path)
 
     raise StrawRemovedError
 
