@@ -44,7 +44,7 @@ def ExtractPreviousStrawData(path):
 # pass full path to pallet file and make sure it's in the right directory
 # structure, filename format, etc.
 def VerifyPalletFile(file):
-    if !file.is_file() or !file.suffix == ".csv":
+    if not file.is_file() or not file.suffix == ".csv":
         return False
 
     cpalid = file.parent.name
@@ -60,7 +60,7 @@ def VerifyPalletFile(file):
     try:
         assert "CPAL" in cpal and int(cpal[-4:]) and len(cpal) == 8
     except:
-        #logger.debug(f"Bad CPAL file {file}.")
+        # logger.debug(f"Bad CPAL file {file}.")
         return False
 
     return True
@@ -76,6 +76,8 @@ def FindAllCPALsContainingStraw(strawname):
     for file in Path(pallets_data_dir).rglob("*"):
         if not VerifyPalletFile(file):
             continue
+        cpalid = file.parent.name
+        cpal = file.stem
         with open(file, "r") as f:
             if strawname.lower() in f.read().lower():
                 cpals.append((cpalid, cpal))
@@ -137,7 +139,8 @@ def FindCPALContainingStraw(strawname):
         )
         return StrawNotFoundError
     elif len(cpals_with_straw_in_final_line) == 1:
-        return cpals_with_straw_in_final_line[0]
+        # arbitrary (first and only) key of an element of dict
+        return list(cpals_with_straw_in_final_line.items())[0][0]
     else:
         ret_cpal = max(
             cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get
@@ -145,7 +148,9 @@ def FindCPALContainingStraw(strawname):
         logger.info(
             f"Straw {strawname} found in the final line of multiple pallet files."
         )
-        logger.info(f"Choosing the pallet file with the most recent timestamp, {ret_cpal}")
+        logger.info(
+            f"Choosing the pallet file with the most recent timestamp, {ret_cpal}"
+        )
         return ret_cpal
 
 
@@ -153,7 +158,9 @@ def UpdateStrawInfo(test, workers, strawname, result):
     # Save data to appropriate CPAL file
     database_path = GetProjectPaths()["palletsLTG"]
 
-    (cpalid, cpal) = FindCPALContainingStraw(strawname)
+    cpal_tuple, timestamp = FindCPALContainingStraw(strawname)
+    cpalid = cpal_tuple[0]
+    cpal = cpal_tuple[1]
 
     path = database_path / cpalid / str(cpal + ".csv")
 
@@ -318,16 +325,18 @@ def checkPass(path, strawname, current_test):
 def checkStraw(strawname, expected_previous_test, current_test):
     database_path = GetProjectPaths()["palletsLTG"]
 
-    (cpalid, cpal) = FindCPALContainingStraw(strawname)
+    cpal_tuple, timestamp = FindCPALContainingStraw(strawname)
+    cpalid = cpal_tuple[0]
+    cpal = cpal_tuple[1]
 
     path = database_path / cpalid / str(cpal + ".csv")
 
     try:
         assert path.is_file()
     except AssertionError:
-        print("cannot find pallet file", path)
+        logger.warning("cannot find pallet file", path)
 
-    print(cpal, "found for straw", strawname, "with file", path)
+    logger.info(cpal, "found for straw", strawname, "with file", path)
 
     straw_list = ExtractPreviousStrawData(path)[1]
 
