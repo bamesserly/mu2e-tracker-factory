@@ -780,12 +780,15 @@ class StrawPresent(BASE, OBJECT):
     straw = Column(Integer, ForeignKey("straw.id"))
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
+    #TODO time_in...
+    #TODO time_out...
 
     def __init__(self, straw, position, present=true()):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
         self.present = present
+        #TODO self.commit() OR sp = StrawPresent() --> sp.commit()
 
     def __repr__(self):
         return "<StrawPresent(id='%s',straw'%s',position='%s')>" % (

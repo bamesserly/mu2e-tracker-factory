@@ -66,6 +66,25 @@ def remove_straw_from_current_locations(straw):
 
 
 if __name__ == "__main__":
+    # 1. submit new/update existing info about LPAL (LPAL ID)
+    # "lpal" or "lpal number" == LPAL1234
+    # "lpalid" == LPALID01
+    # I'm pretty sure that when you do this: associated entries in the
+    # straw_position table will be created.
+
+    # 2. add straw info to the LPAL
+    # (in most old cases) add new entries to straw_present table
+    # This means: collect 24 entries -- get the field info for each entry.
+    #     straw should be a Straw object (see class in guis/common/db_classes/)
+    #     position should be a StrawPosition object
+    #     time_in and time_out -- no current way to record this info
+    #     timestamp = timestamp of LPAL file OR same as time_in
+    # The addition of a new StrawPresent entry should just amount to /instantiating/ a StrawPresent object.
+    # loop straws in an lpal file
+    #   straw_number, straw_position_integer, time_in = parse_file()
+    #   straw = GetStraw(straw_number) # Straw(straw_number)
+    #   straw_position = GetStrawPosition(straw_position_integer, LPAL)
+    #   sp = StrawPresent(straw, straw_position, current = False, time_in=1234, time_out = 2345, timestamp = 12345)
     lpal = LoadingPallet._queryStrawLocation(468)
     print(lpal)
     unfilled_db = lpal.getUnfilledPositions()
