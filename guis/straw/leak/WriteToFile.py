@@ -139,12 +139,17 @@ def FindCPALContainingStraw(strawname):
         )
         return StrawNotFoundError
     elif len(cpals_with_straw_in_final_line) == 1:
-        # arbitrary (first and only) key of an element of dict
+        # key of the first (and only in this case) element of a dict
+        # i.e. (CPAL, CPALID)
         return list(cpals_with_straw_in_final_line.items())[0][0]
     else:
-        ret_cpal = max(
+        # get the element of the dict which has the highest timestamp
+        cpal_dict_entry = max(
             cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get
         )
+        # key of the first (and only in this case) element of a dict
+        # i.e. (CPAL, CPALID)
+        ret_cpal = list(cpal_dict_entry.items())[0][0]
         logger.info(
             f"Straw {strawname} found in the final line of multiple pallet files."
         )
@@ -158,9 +163,7 @@ def UpdateStrawInfo(test, workers, strawname, result):
     # Save data to appropriate CPAL file
     database_path = GetProjectPaths()["palletsLTG"]
 
-    cpal_tuple, timestamp = FindCPALContainingStraw(strawname)
-    cpalid = cpal_tuple[0]
-    cpal = cpal_tuple[1]
+    (cpalid, cpal) = FindCPALContainingStraw(strawname)
 
     path = database_path / cpalid / str(cpal + ".csv")
 
@@ -325,9 +328,7 @@ def checkPass(path, strawname, current_test):
 def checkStraw(strawname, expected_previous_test, current_test):
     database_path = GetProjectPaths()["palletsLTG"]
 
-    cpal_tuple, timestamp = FindCPALContainingStraw(strawname)
-    cpalid = cpal_tuple[0]
-    cpal = cpal_tuple[1]
+    (cpalid, cpal) = FindCPALContainingStraw(strawname)
 
     path = database_path / cpalid / str(cpal + ".csv")
 
