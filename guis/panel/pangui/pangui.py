@@ -5774,7 +5774,7 @@ class panelGUI(QMainWindow):
         # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session' and self.ui.panelInput_8.text() != '':
             MethaneTestSession.end_methane_test(user)
-            self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user,False)
+            self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user)
             self.ui.submit_methane_session.setText('Submit Testing Session')
             self.ui.submit_leak_panel.setDisabled(False)
             self.ui.submit_leak_straw.setDisabled(False)
@@ -5842,7 +5842,7 @@ class panelGUI(QMainWindow):
             MethaneTestSession.end_methane_test(user)    
             
             # save the methane session in txt file
-            self.DP.saveMethaneSession(False,covered_locations,sep_layer,top_low,top_high,bot_low,bot_high,gas_detector,user,True)
+            self.DP.saveMethaneSession(False,covered_locations,sep_layer,top_low,top_high,bot_low,bot_high,gas_detector,user)
             
             # clear fields
             self.ui.top_covers.setChecked(False)

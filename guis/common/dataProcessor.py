@@ -487,7 +487,7 @@ class DataProcessor(ABC):
     
     @abstractmethod
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         pass
     
@@ -668,11 +668,11 @@ class MultipleDataProcessor(DataProcessor):
             )
     
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         for dp in self.processors:
             dp.saveMethaneSession(
-                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
             )
     
     def saveMethaneLeak(
@@ -1131,7 +1131,7 @@ class TxtDataProcessor(DataProcessor):
         ## Save comment:
         self.saveComment(comment, self.getPanel(), self.getPro())
     
-    def saveMethaneSession(self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt):
+    def saveMethaneSession(self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user):
         pass
     # update all continuity measurements for panel
     # parameters are lists of data
@@ -1223,7 +1223,7 @@ class TxtDataProcessor(DataProcessor):
             
     # save process 8 methane testing session instance
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         pass
         
@@ -1238,42 +1238,41 @@ class TxtDataProcessor(DataProcessor):
     
     # save the methane session txt
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
-        if txt:
-            headers=["Panel","current","covered_areas","sep_layer","top_straw_low","top_straw_high","bot_straw_low","bot_straw_high","detector_number","user","timestamp"]
+        headers=["Panel","current","covered_areas","sep_layer","top_straw_low","top_straw_high","bot_straw_low","bot_straw_high","detector_number","user","timestamp"]
 
-            outfile = self.getPanelLongMethaneSessionPath()
-            file_exists = os.path.isfile(outfile)
-            logger.info("Saving methane session data to {0}".format(outfile))
-            try:
-                with open(outfile, "a+") as f:
-                    writer = DictWriter(
-                        f, delimiter=",", lineterminator="\n", fieldnames=headers
-                    )
-                    if not file_exists:
-                        writer.writeheader()  # file doesn't exist yet, write a header
-                    writer.writerow(
-                        {
-                            "Panel": self.getPanel(),
-                            "current": str(current),
-                            "covered_areas": str(covered_areas),
-                            "sep_layer": str(sep_layer),
-                            "top_straw_low": str(top_straw_low),
-                            "top_straw_high": str(top_straw_high),
-                            "bot_straw_low": str(bot_straw_low),
-                            "bot_straw_high": str(bot_straw_high),
-                            "detector_number": str(detector_number),
-                            "user": str(user),
-                            "timestamp": self.timestamp(),
-                        }
-                    )
-            except PermissionError:
-                logger.warning(
-                    "Methane session data CSV file is locked. Probably open somewhere. Close and try again."
+        outfile = self.getPanelLongMethaneSessionPath()
+        file_exists = os.path.isfile(outfile)
+        logger.info("Saving methane session data to {0}".format(outfile))
+        try:
+            with open(outfile, "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
                 )
-                logger.warning("Methane session data is not being saved to CSV files.")
-                return
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Panel": self.getPanel(),
+                        "current": str(current),
+                        "covered_areas": str(covered_areas),
+                        "sep_layer": str(sep_layer),
+                        "top_straw_low": str(top_straw_low),
+                        "top_straw_high": str(top_straw_high),
+                        "bot_straw_low": str(bot_straw_low),
+                        "bot_straw_high": str(bot_straw_high),
+                        "detector_number": str(detector_number),
+                        "user": str(user),
+                        "timestamp": self.timestamp(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "Methane session data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            logger.warning("Methane session data is not being saved to CSV files.")
+        return
     
     # save the methane leak txt
     def saveMethaneLeak(
@@ -2297,24 +2296,23 @@ class SQLDataProcessor(DataProcessor):
             ).commit()
             
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
-        if not txt:
-            if self.ensureProcedure():
-                MethaneTestSession(
-                    session=self.session.id,
-                    current=current,
-                    covered_areas=covered_areas,
-                    sep_layer=sep_layer,
-                    top_straw_low=top_straw_low,
-                    top_straw_high=top_straw_high,
-                    bot_straw_low=bot_straw_low,
-                    bot_straw_high=bot_straw_high,
-                    detector_number=detector_number,
-                    straw_location=self.procedure.straw_location,
-                    user=user,
-                ).commit()
-        
+        if self.ensureProcedure():
+            MethaneTestSession(
+                session=self.session.id,
+                current=current,
+                covered_areas=covered_areas,
+                sep_layer=sep_layer,
+                top_straw_low=top_straw_low,
+                top_straw_high=top_straw_high,
+                bot_straw_low=bot_straw_low,
+                bot_straw_high=bot_straw_high,
+                detector_number=detector_number,
+                straw_location=self.procedure.straw_location,
+                user=user,
+            ).commit()
+    
     def saveMethaneLeak(
         self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
     ):
