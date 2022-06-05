@@ -41,7 +41,6 @@ def ExtractPreviousStrawData(path):
     return test_name, names, pf
 
 
-
 # pass full path to pallet file and make sure it's in the right directory
 # structure, filename format, etc.
 def VerifyPalletFile(file):
