@@ -198,7 +198,7 @@ def load_test_details(connection, pid, timestamp, tag=None, elapsed_days=None):
 def load_test_data(connection, df, test_id):
     query = """
     INSERT OR IGNORE INTO measurement_panel_leak(trial, pressure_fill, pressure_ref, pressure_diff, temp_box, temp_room, heater_pct, elapsed_days)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     """
 
     to_db = [

@@ -70,7 +70,7 @@ def run(panel, process, data_file):
 
         query = """
         INSERT OR IGNORE INTO panel_heat (id, procedure, temp_paas_a, temp_paas_bc, timestamp)
-        VALUES (?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?);
         """
 
         with open(data_file, "r") as f:
@@ -79,7 +79,7 @@ def run(panel, process, data_file):
             # an entry of dr looks like:
             # OrderedDict([('Date', '2021-07-02_073223'), ('PAASA_Temp[C]', '-242.02'), ('2ndPAAS_Temp[C]', '-99.00'), ('Epoc', '1625229143.7965412')])
             to_db = [
-                (int(float(str(i["Epoc"])+str(randint(1000,9999))),npid, i["PAASA_Temp[C]"], i["2ndPAAS_Temp[C]"], int(float(i["Epoc"])))
+                (int(float(str(i["Epoc"])+str(randint(1000,9999))),pid, i["PAASA_Temp[C]"], i["2ndPAAS_Temp[C]"], int(float(i["Epoc"])))
                 for i in dr
             ]
 
