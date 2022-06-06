@@ -4,6 +4,7 @@ import os
 import csv
 import sys
 from guis.common.getresources import GetProjectPaths
+from pathlib import Path
 
 
 class StrawFailedError(Exception):
