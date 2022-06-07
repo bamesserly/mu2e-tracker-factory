@@ -184,11 +184,11 @@ def validate_data_file(data_file):
 # load an entry about a leak test into the panel_leak_test_details table
 def load_test_details(connection, pid, timestamp, tag=None, elapsed_days=None):
     query = """
-    INSERT OR IGNORE INTO panel_leak_test_details(procedure, tag, elapsed_days, timestamp)
-    VALUES (?, ?, ?, ?);
+    INSERT OR IGNORE INTO panel_leak_test_details(id, procedure, tag, elapsed_days, timestamp)
+    VALUES (?, ?, ?, ?, ?);
     """
 
-    to_db = [(pid, tag, elapsed_days, timestamp)]
+    to_db = [(int(str(timestamp)+str(randint(1000,9999))), pid, tag, elapsed_days, timestamp)]
 
     execute_query(connection, query, to_db)
 
