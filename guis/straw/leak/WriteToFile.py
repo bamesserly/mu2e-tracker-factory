@@ -143,13 +143,10 @@ def FindCPALContainingStraw(strawname):
         # i.e. (CPAL, CPALID)
         return list(cpals_with_straw_in_final_line.items())[0][0]
     else:
-        # get the element of the dict which has the highest timestamp
-        cpal_dict_entry = max(
+        # get the key of the dict whose value is the largest timestamp
+        return max(
             cpals_with_straw_in_final_line, key=cpals_with_straw_in_final_line.get
         )
-        # key of the first (and only in this case) element of a dict
-        # i.e. (CPAL, CPALID)
-        ret_cpal = list(cpal_dict_entry.items())[0][0]
         logger.info(
             f"Straw {strawname} found in the final line of multiple pallet files."
         )
