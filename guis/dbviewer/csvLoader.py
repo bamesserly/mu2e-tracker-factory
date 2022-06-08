@@ -1,4 +1,4 @@
-import sys, tkinter, tkinter.messagebox, csv, pandas as pd, re, os
+import sys, tkinter, tkinter.messagebox, csv, pandas as pd, re, os, random
 #pip install openpyxl
 #pip install xlrd==1.2.0
 
@@ -20,7 +20,14 @@ from PyQt5.QtCore import Qt, QPointF
 import sqlalchemy as sqla  # for interacting with db
 import sqlite3  # for connecting with db
 
+from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
+
 from guis.dbviewer.csvLoaderUI import Ui_MainWindow  # import raw UI
+from guis.common.panguilogger import SetupPANGUILogger
+
+import logging
+
+logger = logging.getLogger("root")
 
 '''
 Reminder: these are the columns that we need to submit
@@ -55,18 +62,17 @@ class csvLoader(QMainWindow):
                 message="This program is still very much in development, use it with caution."
                 )
 
-        # for storing excel sheets as 2D arrays
-        # {<sheet name>: [<2D array of values>, <list of column names>]} 
-        self.sheets = {}
+        self.dataArr = []
+        self.panelNum = -1
+        self.panelPro = -1
 
-        # auto load button TODO RENAME IT
-        self.ui.pushButton_2.clicked.connect(self.autoLoad)
         # clear button TODO RENAME IT
         self.ui.pushButton.clicked.connect(self.clear)
+        self.ui.submitToDbPB.clicked.connect(self.submitData)
 
-        # put rows into the submit table
-        for i in range(96):
-            self.ui.submitTable.insertRow(i)
+        self.connectToDB()
+
+        self.loadCSV("C:/Users/Adam/Desktop/MN063_pro3_0.csv")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -83,134 +89,221 @@ class csvLoader(QMainWindow):
             )
             return
         self.ui.fileLE.setText(f'{files[0]}')
-        self.readFile(f'{files[0]}')
+        logger.info(f'File {files[0]} dropped in.')
+        self.loadCSV(f'{files[0]}')
 
     def clear(self):
         self.ui.table.clear()
-        self.ui.submitTable.clearContents()
-        self.sheets = {}
-        self.ui.sheetCB.clear()
+        self.dataArr = []
+        self.panelNum = -1
+        self.panelPro = -1
+        self.ui.fileLE.clear()
 
-    # called at the end of dropEvent()
-    # to avoid the absolute ridiculous overcomplexity of data frames...
-    #   df.name = gets sheet name
-    #   [col for col in df.columns] gets list of column names
-    #   (df.values).tolist() gets 2D python array [[row0],[row1],[row2],...]
-    #   I HATE NUMPY AND PANDAS
-    def readFile(self, file):
-        xlFile = pd.ExcelFile(file)
-        self.sheets = {}
+    def connectToDB(self):
+        db = GetLocalDatabasePath()
+        self.engine = sqla.create_engine("sqlite:///"+db)
+        self.connection = self.engine.connect()
 
-        for name in xlFile.sheet_names:
-            df = pd.read_excel(xlFile, name)
-            self.sheets[name] = [(df.values).tolist(), [col for col in df.columns]]
-            print(f'----------{name}----------')
-            print([namee for namee in df.columns])
-            print(df.values)
+        # Given a panel and process, access the DB to get the procedure ID
+    def getProcedureID(self, panel, process):
+        try:
+            assert isinstance(panel, int) and panel <= 999
+            assert process in range(1,9)
+        except AssertionError:
+            tkinter.messagebox.showerror(
+                "Not Found",
+                f'The procedure {process} could not be found for panel MN{panel}.'
+            )
+            logger.error(f'The procedure {process} could not be found for panel MN{panel}.')
+            return -1
 
-        self.setupSheetComboBox()
-        return
-
-    # called at the end of readFile()
-    def setupSheetComboBox(self):
-        for key in self.sheets:
-            self.ui.sheetCB.addItem(key)
-
-        self.populateDataTable()
-        return
-
-    # maybe add name as a parameter, have it display whatever sheet it's told
-    def populateDataTable(self):
-        # self.sheets[name] = [df.values, [col for col in df.columns]]
-        dataList = self.sheets[self.ui.sheetCB.currentText()]
-        for col in enumerate(dataList[1]):
-            self.ui.table.insertColumn(col[0])
-
-        # figure out header
-        usedFirstRow = False
-        if (tkinter.messagebox.askquestion (
-            'Header',
-            f'Does the following look like a header? (Position, current, etc)\n{dataList[1]}',
-            icon = 'info'
-            )) == 'yes':
-            self.ui.table.setHorizontalHeaderLabels(dataList[1])
-        else:
-            # try first row of data if "header" wasn't really a header
-            if (tkinter.messagebox.askquestion (
-                'Header',
-                f'Does the following look like a header? (Position, current, etc)\n{dataList[0][0]}',
-                icon = 'info'
-                )) == 'yes':
-                    self.ui.table.setHorizontalHeaderLabels(dataList[0][0])
-                    usedFirstRow = True
-            else:
-                tkinter.messagebox.showerror("Well fuck", "-_-")
+        query = f"""
+        SELECT procedure.id from procedure
+        INNER JOIN straw_location on procedure.straw_location = straw_location.id
+        WHERE straw_location.location_type = "MN"
+        AND straw_location.number = {panel}
+        AND procedure.station = "pan{process}"
+        """
+        result = self.connection.execute(query)
+        try:
+            result = result.first()[0]
+        except:
+            tkinter.messagebox.showerror(
+                "Not Found",
+                f'The procedure {process} could not be found for panel MN{panel}.'
+            )
+            logger.error(f'The procedure {process} could not be found for panel MN{panel}.')
+            return -1
+        return result
 
 
-        self.ui.table.setHorizontalHeaderLabels(dataList[1])
-        # for each data point
-        for toop in enumerate(dataList[0]):
-            # make a new row
-            self.ui.table.insertRow(toop[0])
-            # then for each index in that point
-            for i in enumerate(toop[1]):
-                # make a new table item
-                newI = QTableWidgetItem(
-                    "" if str(toop[1][i[0]]) == "nan" else str(toop[1][i[0]])
-                    )
-                self.ui.table.setItem(toop[0], i[0], newI)
-                
-        return
+    # loads the contents of the CSV into self.dataArr
+    # doesn't handle parsing of data to the table
+    def loadCSV(self, file):
+        filename = file[-16:]
+        logger.info(f'Loading {filename} into csvLoader...')
+        self.panelNum = int(filename[2:5])
+        self.panelPro = int(filename[9:10])
+        self.ui.fileLE.setText(str(file))
 
-    # autoload button, picks data for the user the best the lowest-tier AI can do
-    def autoLoad(self):
-        if self.ui.sheetCB.currentText() == "":
+        if self.panelPro not in [3,5,6]:
+            tkinter.messagebox.showwarning(
+                "Incorrect file name format.",
+                f'The panel procedure must be 3, 5, or 6.  The file you submitted provided "{self.panelPro}".'
+            )
+            logger.error(f'Unable to load file {file}.')
+            self.clear()
             return
-        dataList = self.sheets[self.ui.sheetCB.currentText()]
 
-        # search for certain words in the titles of columns and get the index of the column in dataList[1]
-        # so if position is in the first (left most) column, then colNames[0] = [0, 'position', 0]
-        # [<col in left/input table>, <search item>, <col in right/output table>]
-        colNames = [
-            [-1, "position",0],
-            [-1, "wire", 0],
-            [-1, "left", 1],
-            [-1, "current", 1], # current not marked as left/right is considered left
-            [-1, "right", 2],
-            [-1, "voltage", 3],
-            #[-1, "1100"],
-            #[-1, "1500"],
-            [-1, "trip", 4],
-            [-1, "time", 5]
-        ]
-        for toop in colNames:
-            for col in enumerate(dataList[1]):
-                #if re.search(col[1], toop[1], re.IGNORECASE):
-                if (col[1].lower()).find((toop[1].lower())) != -1:
-                    toop[0] = col[0]
+        if self.panelNum not in range(1,300):
+            tkinter.messagebox.showwarning(
+                "Incorrect file name format.",
+                f'The panel number must be between 1 and 300.  The file you submitted provided "{self.panelNum}".'
+            )
+            logger.error(f'Unable to load file {file}.')
+            self.clear()
+            return
 
-        #print("!!!!!!!!!!!!!!!!!!!!\n",colNames)
-        for col in colNames:
-            print(col[1])
-            if col[0] > -1:
-                print(f"autoloading {col[1]}")
-                self.autoLoadColumn(col[0], col[2], dataList[0])
 
-        print(colNames)
+        with open(file) as file:
+            reader = csv.reader(file)
+            
+            for row in reader:
+                self.dataArr += [row]
+
+        self.parseCSV()
         return
 
-    # puts all the data from column <inp> in the left table into column <outp> in the right table
-    def autoLoadColumn(self, inp, outp, dataLs):
-        tempList = ["" for i in range(len(dataLs))]
-        for toop in enumerate(dataLs):
-            tempList[toop[0]] = toop[1][inp]
+    def parseCSV(self):
+        # column & row index
+        # row starts at 1 to skip header
+        #cI = 0
+        rI = 1
 
-        for i in range(len(dataLs)):
-            newI = QTableWidgetItem(str(tempList[i]))
-            self.ui.submitTable.setItem(i, outp, newI)
+        # get voltage - there must be an easier way than this...
+        voltsLst = [i for i in self.dataArr[0][0] if i.isdigit()]
+        volts = ""
+        for i in voltsLst:
+            volts += i
 
-        return
+        # anything tripped?
+        tripped = len(self.dataArr[0]) == 5
+        print(len(self.dataArr[0]))
+        print(tripped)
+
+        for i in range(len(self.dataArr)-1):
+            self.ui.table.insertRow(i)
         
+        while rI < len(self.dataArr):
+
+            for cI in range(6 if tripped else 5):
+                # position or current
+                if cI <3 :  # <3 <3 <3
+                    newItem = QTableWidgetItem(str(self.dataArr[rI][cI]))
+                    self.ui.table.setItem(rI-1,cI,newItem)
+                # voltage
+                elif cI == 3:
+                    newItem = QTableWidgetItem(str(volts))
+                    self.ui.table.setItem(rI-1,cI,newItem)
+                # trip status or timestamp if not tripped
+                elif cI == 4:
+                    if tripped:
+                        newItem = QTableWidgetItem(str(self.dataArr[rI][3]))
+                        self.ui.table.setItem(rI-1,cI,newItem)
+                    else:
+                        newItem = QTableWidgetItem("0")
+                        self.ui.table.setItem(rI-1,cI,newItem)
+                        newItem = QTableWidgetItem(
+                        str(self.dataArr[rI][int(4 if tripped else 3)])
+                        )
+                        self.ui.table.setItem(rI-1,cI+1,newItem)
+                # timestamp if tripped
+                else:
+                    newItem = QTableWidgetItem(
+                        str(self.dataArr[rI][int(4 if tripped else 3)])
+                        )
+                    self.ui.table.setItem(rI-1,cI,newItem)
+            rI += 1
+
+        self.ui.submitToDbPB.setEnabled(True)
+
+    def submitData(self):
+
+        logger.info(f'Attempting to submit {len(self.dataArr)-1} data points for MN{self.panelNum}, procedure {self.panelPro}')
+        
+        query = """
+        INSERT OR IGNORE INTO measurement_pan5 (id, procedure, position, current_left, current_right, voltage, is_tripped, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        """
+
+        # anything tripped?
+        tripped = len(self.dataArr[0]) == 5
+
+        # get voltage - there must be an easier way than this...
+        voltsLst = [i for i in self.dataArr[0][0] if i.isdigit()]
+        volts = ""
+        for i in voltsLst:
+            volts += i
+
+        # check voltage validity
+        if int(volts) != 1100 and int(volts) != 1500:
+            tkinter.messagebox.showwarning(
+                "Unable to submit",
+                f'Data could not be submitted due to invalid voltage: {volts}'
+            )
+            logger.error(f'Unable to submit.  Reason: Invalid voltage {volts}')
+            return
+
+        # get procedure ID
+        proID = self.getProcedureID(self.panelNum, self.panelPro)
+
+        # check procedure ID validity
+        if proID < 1560000000000000:
+            tkinter.messagebox.showwarning(
+                "Unable to submit",
+                f'Data could not be submitted due to invalid procudure ID: {proID}'
+            )
+            logger.error(f'Unable to submit.  Reason: Invalid procedure ID {proID}')
+            return
+
+        toCommit = [
+            (
+                int(i[4 if tripped else 3]) + int(self.panelNum)*13 + int(self.panelPro)*688 + int(i[0]),
+                proID,
+                i[0],
+                i[1],
+                i[2],
+                volts,
+                i[3] if tripped else False,
+                i[4 if tripped else 3]
+            )
+            for i in self.dataArr[1:]
+        ]
+
+        try:
+            r_set = self.connection.execute(query, toCommit)
+        except sqla.exc.OperationalError as e:
+            logger.error(e)
+            error = str(e.__dict__["orig"])
+            logger.error(error)
+            logger.error(
+                "Unable to submit.  Reason: Operational Error."
+            )
+        except sqla.exc.IntegrityError as e:
+            logger.error(e)
+            error = str(e.__dict__["orig"])
+            logger.error(error)
+            logger.error(
+                "Unable to submit.  Reason: Integrity error, an identical data point was already in the DB."
+            )
+        else:
+            logger.info(f'Successfully loaded {len(self.dataArr)-1} data points into the local DB.')
+            tkinter.messagebox.showinfo(
+                "Success!",
+                f'Successfully loaded {len(self.dataArr)-1} data points into the local DB.  The data will now be cleared from this program.'
+            )
+            self.clear()
+        return
         
 
 
@@ -230,4 +323,5 @@ def run():
 
 
 if __name__ == "__main__":
+    logger = SetupPANGUILogger("root", "csvLoader")
     run()
