@@ -13,6 +13,7 @@ import time, re
 from guis.common.panguilogger import SetupPANGUILogger
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.panel.leak.panel_leak_utilities import *
+from random import randint
 
 import logging
 
