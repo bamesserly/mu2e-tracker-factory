@@ -22,7 +22,7 @@ import sqlite3  # for connecting with db
 
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
-from guis.dbviewer.csvLoaderUI import Ui_MainWindow  # import raw UI
+from guis.panel.hv.hvLoaderUI import Ui_MainWindow  # import raw UI
 from guis.common.panguilogger import SetupPANGUILogger
 
 import logging
@@ -40,8 +40,17 @@ Reminder: these are the columns that we need to submit
  timestamp     INTEGER ("epoch" time (msec, sec), if no time avail, use file create datetime).
 '''
 
+# the same as int() but returns None or '' as 0
+def intx(i):
+    try:
+        retval = int(i)
+    except:
+        retval = 0
+    return retval
 
-class csvLoader(QMainWindow):
+
+
+class hvLoader(QMainWindow):
 
     def __init__(self, ui_layout):
         # initialize superclass
@@ -56,23 +65,16 @@ class csvLoader(QMainWindow):
         self.tkRoot = tkinter.Tk()
         self.tkRoot.withdraw()
 
-        if "Adam" not in os.environ.get('USERNAME'):
-            tkinter.messagebox.showwarning(
-                title="Warning",
-                message="This program is still very much in development, use it with caution."
-                )
-
         self.dataArr = []
         self.panelNum = -1
         self.panelPro = -1
+        self.fileNum = -1
 
         # clear button TODO RENAME IT
         self.ui.pushButton.clicked.connect(self.clear)
         self.ui.submitToDbPB.clicked.connect(self.submitData)
 
         self.connectToDB()
-
-        self.loadCSV("C:/Users/Adam/Desktop/MN063_pro3_0.csv")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -81,6 +83,13 @@ class csvLoader(QMainWindow):
             event.ignore()
 
     def dropEvent(self, event):
+        if self.ui.fileLE.text() != "":
+            tkinter.messagebox.showerror(
+                title="Error",
+                message=f"A file is already loaded!  Please clear it if you wish to load another.",
+            )
+            return
+
         files = [u.toLocalFile() for u in event.mimeData().urls()]
         if len(files) > 1:
             tkinter.messagebox.showerror(
@@ -94,9 +103,21 @@ class csvLoader(QMainWindow):
 
     def clear(self):
         self.ui.table.clear()
+        self.ui.table.setRowCount(0)
+        self.ui.table.setHorizontalHeaderLabels(
+            [
+                "position",
+                "current_left",
+                "current_right",
+                "voltage",
+                "is_tripped",
+                "timestamp"
+            ]
+        )
         self.dataArr = []
         self.panelNum = -1
         self.panelPro = -1
+        self.fileNum = -1
         self.ui.fileLE.clear()
 
     def connectToDB(self):
@@ -144,6 +165,7 @@ class csvLoader(QMainWindow):
         logger.info(f'Loading {filename} into csvLoader...')
         self.panelNum = int(filename[2:5])
         self.panelPro = int(filename[9:10])
+        self.fileNum = int(filename[11:12])
         self.ui.fileLE.setText(str(file))
 
         if self.panelPro not in [3,5,6]:
@@ -155,7 +177,7 @@ class csvLoader(QMainWindow):
             self.clear()
             return
 
-        if self.panelNum not in range(1,300):
+        if self.panelNum not in range(1,301):
             tkinter.messagebox.showwarning(
                 "Incorrect file name format.",
                 f'The panel number must be between 1 and 300.  The file you submitted provided "{self.panelNum}".'
@@ -188,8 +210,7 @@ class csvLoader(QMainWindow):
 
         # anything tripped?
         tripped = len(self.dataArr[0]) == 5
-        print(len(self.dataArr[0]))
-        print(tripped)
+
 
         for i in range(len(self.dataArr)-1):
             self.ui.table.insertRow(i)
@@ -268,7 +289,7 @@ class csvLoader(QMainWindow):
 
         toCommit = [
             (
-                int(i[4 if tripped else 3]) + int(self.panelNum)*13 + int(self.panelPro)*688 + int(i[0]),
+                int(i[4 if tripped else 3]) + int(self.panelNum)*13 + int(self.panelPro)*688 + int(i[0])*(self.fileNum+1) + intx(i[1]) + intx(i[2]),
                 proID,
                 i[0],
                 i[1],
@@ -314,7 +335,7 @@ def run():
 
     app = QApplication(sys.argv)  # make an app
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
-    window = csvLoader(Ui_MainWindow())  # make a window
+    window = hvLoader(Ui_MainWindow())  # make a window
 
     #window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
     window.show()
