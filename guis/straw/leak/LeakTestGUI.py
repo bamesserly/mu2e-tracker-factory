@@ -1078,10 +1078,7 @@ class LeakTestStatus(QMainWindow):
     def editPallet(self):
         if self.checkCredentials():
             self.getCPALS()
-            rem = removeStraw(
-                self.cpals,
-                self.palletDirectoryLTSclass
-            )
+            rem = removeStraw(self.cpals, self.palletDirectoryLTSclass)
             rem.exec_()
         else:
             self.openLogInDialog()
@@ -1133,7 +1130,9 @@ class LeakTestStatus(QMainWindow):
 
     def setStrawStatus(self, chamber, passed):
         if passed and self.leak_rate[chamber] < NOTIFY_LOW_LEAK_RATE:
-            self.Chambers[chamber].setStyleSheet("background-color: rgb(204, 153, 255);")
+            self.Chambers[chamber].setStyleSheet(
+                "background-color: rgb(204, 153, 255);"
+            )
         elif passed:
             self.Chambers[chamber].setStyleSheet("background-color: rgb(40, 225, 40);")
         else:
@@ -1147,8 +1146,8 @@ class LeakTestStatus(QMainWindow):
             str(
                 "%.2f ± %.2f"
                 % (
-                    (self.leak_rate[chamber] * (10 ** 5)),
-                    self.leak_rate_err[chamber] * (10 ** 5),
+                    (self.leak_rate[chamber] * (10**5)),
+                    self.leak_rate_err[chamber] * (10**5),
                 )
             )
         )
@@ -1314,19 +1313,15 @@ class LeakTestStatus(QMainWindow):
                     # com = file.readline()
                     com = row.split(sep=",")
                     logger.info(com)
-                    if (
-                        com
-                        != [
-                            "strawID",
-                            "chamber",
-                            "worker",
-                            "comment",
-                            "epochTime",
-                            "humanTime",
-                            "inflationTestStatus\n",
-                        ]
-                        and com != [""]
-                    ):
+                    if com != [
+                        "strawID",
+                        "chamber",
+                        "worker",
+                        "comment",
+                        "epochTime",
+                        "humanTime",
+                        "inflationTestStatus\n",
+                    ] and com != [""]:
                         com3 = com[3].replace("\\n", "\n")
                         newItem = QListWidgetItem(
                             f"{com[2]}, {com[5]}"
@@ -1393,6 +1388,13 @@ class StrawSelect(QDialog):
                 QMessageBox.critical(
                     self, "Testing Error", "Unable to test straw:\n" + error.message
                 )
+            except StrawConsolidateError:
+                QMessageBox.critical(
+                    self,
+                    "Pallet File Error",
+                    "Straw not found in final line of any CPAL file.\nWas consolidate or CO2 gui run? Do you need to mergedown?",
+                )
+
         else:
             logger.warning("Not a valid straw barcode. Try formatting like st00023.")
             self.straw_load = "empty"

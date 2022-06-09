@@ -14,6 +14,13 @@ class StrawNotFoundError(Exception):
     pass
 
 
+class StrawConsolidateError(Exception):
+    # Straw was found, but it's not in the final line of any pallet file. This
+    # means one of the following: (1) straw moved pallets after the CO2 gui was
+    # run, (2) consolidate was never run, or (3) mergedown  needs to be run.
+    pass
+
+
 class StrawRemovedError(Exception):
     # Raised when a tested straw was removed in previous step
     pass
@@ -96,7 +103,7 @@ def GetLastLineOfPalletFile(cpalid, cpal):
 # Get CPAL file containing straw name.
 # If multiple, pick one with straw in final line or most recent.
 # This function gets called constantly by UpdateStrawInfo, so it must be
-# efficient.
+# efficient and quiet.
 def FindCPALContainingStraw(strawname):
     cpals = FindAllCPALsContainingStraw(strawname)
 
@@ -104,7 +111,7 @@ def FindCPALContainingStraw(strawname):
     cpals = list(set(cpals))  # remove duplicates
 
     if not cpals:
-        logger.error("FindCPALContainingStraw: no cpals found for {strawname}.")
+        logger.error(f"FindCPALContainingStraw: no cpals found for {strawname}.")
         raise StrawNotFoundError
 
     # get cpals with strawname in final line
@@ -117,7 +124,7 @@ def FindCPALContainingStraw(strawname):
         except ValueError:
             straw_idx = None
 
-        if straw_idx != None and last_line[straw_idx + 1] == "P":
+        if straw_idx != None:
             timestamp_last_line = last_line[0]
             try:
                 timestamp_last_line = datetime.datetime.strptime(
@@ -135,9 +142,9 @@ def FindCPALContainingStraw(strawname):
     # returning (CPAL, CPALID)
     if len(cpals_with_straw_in_final_line) == 0:
         logger.error(
-            f"Straw not found in final line of any of these cpal files {cpals}."
+            f"{strawname} not found in final line of any of these cpal files {cpals}."
         )
-        return StrawNotFoundError
+        raise StrawConsolidateError
     elif len(cpals_with_straw_in_final_line) == 1:
         # key of the first (and only in this case) element of a dict
         # i.e. (CPAL, CPALID)
@@ -334,7 +341,7 @@ def checkStraw(strawname, expected_previous_test, current_test):
     except AssertionError:
         logger.warning("cannot find pallet file", path)
 
-    logger.info(cpal, "found for straw", strawname, "with file", path)
+    logger.info(f"{cpal} found for {strawname} with file {path}")
 
     straw_list = ExtractPreviousStrawData(path)[1]
 
