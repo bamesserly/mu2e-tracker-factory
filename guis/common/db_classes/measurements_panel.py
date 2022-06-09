@@ -31,6 +31,7 @@ from sqlalchemy import (
     update,
 )
 from datetime import datetime
+import time
 
 
 class PanelTempMeasurement(BASE, OBJECT):
@@ -302,7 +303,7 @@ class MethaneTestSession(BASE, OBJECT):
             DM.query(cls)
             .filter(cls.current == 1)
             .filter(cls.user == str(user))
-            .update({'current': 0}, synchronize_session='evaluate')
+            .update({'current': 0, 'timestamp': int(time.time())}, synchronize_session='evaluate')
         }
     
     # updates a methane test session with inputted data
@@ -314,7 +315,7 @@ class MethaneTestSession(BASE, OBJECT):
             .filter(cls.user == user)
             .update({'covered_areas': covered_locations, 'detector_number': gas_detector,
             'top_straw_low': top_low, 'top_straw_high': top_high, 'bot_straw_low': bot_low,
-            'bot_straw_high': bot_high, 'sep_layer': sep_layer}, synchronize_session='evaluate')
+            'bot_straw_high': bot_high, 'sep_layer': sep_layer, 'timestamp': int(time.time())}, synchronize_session='evaluate')
         }
         
 
