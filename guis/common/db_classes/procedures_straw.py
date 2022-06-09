@@ -160,7 +160,8 @@ class SilvProcedure(StrawProcedure):
     def _getDetailsClass(self):
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_silv"
-            procedure = Column(Integer, ForeignKey("procedure.id"), primary_key=True)
+            id = Column(Integer, primary_key=True)
+            procedure = Column(Integer, ForeignKey("procedure.id"))
             epoxy_batch = Column(Integer)
             epoxy_time = Column(REAL)
 

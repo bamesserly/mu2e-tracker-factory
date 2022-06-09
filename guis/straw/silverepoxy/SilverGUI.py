@@ -303,6 +303,7 @@ class Silver(QMainWindow):
                 logger.error(
                     f"{self.palletNum} found in the following cpal files: {pfiles}"
                 )
+                logger.error(f"{error}")
                 logger.error(
                     "None of these files had passing straws for the previous "
                     "straw processing steps."

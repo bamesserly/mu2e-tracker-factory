@@ -21,34 +21,35 @@ class Check:
     def findPalletFiles(self, CPAL):
         pfiles = []
         for file in Path(self.palletDirectory).rglob("*"):
-            if file.is_file() and file.suffix == '.csv' and file.stem == CPAL:
+            if file.is_file() and file.suffix == ".csv" and file.stem == CPAL:
                 pfiles.append(file)
         return pfiles
 
     def strawPass(self, CPAL, straw, step):
         PASS = False
         for pfile in self.findPalletFiles(CPAL):
+            # get the file contents
+            history = []
             with open(pfile, "r") as file:
                 dummy = csv.reader(file)
-                history = []
                 for line in dummy:
                     if line != []:
                         history.append(line)
-                for line in history:
-                    if line[1] == step:
-                        for index in range(len(line)):
-                            if line[index] == straw and line[index + 1] == "P":
-                                PASS = True
-                    if line[1] == "adds":
-                        for index in range(len(line)):
-                            if line[index] == straw and line[index + 1].startswith(
-                                "CPAL"
-                            ):
-                                PASS = self.strawPass(line[index + 1], straw, step)
-                            if line[index] == straw and line[index + 1].startswith(
-                                "ST"
-                            ):
-                                PASS = self.strawPass(CPAL, line[index + 1], step)
+
+            for line in history:
+                # find the line corresponding to this step
+                if line[1].lower() == step.lower():
+                    # find the straw, and check the character right after it
+                    for index in range(len(line)):
+                        if line[index] == straw and line[index + 1] == "P":
+                            PASS = True
+                # IDK what this is
+                if line[1] == "adds":
+                    for index in range(len(line)):
+                        if line[index] == straw and line[index + 1].startswith("CPAL"):
+                            PASS = self.strawPass(line[index + 1], straw, step)
+                        if line[index] == straw and line[index + 1].startswith("ST"):
+                            PASS = self.strawPass(CPAL, line[index + 1], step)
 
         return PASS
 
@@ -67,6 +68,7 @@ class Check:
         results = []
         straws = []
 
+        # get all straws
         for pfile in self.findPalletFiles(CPAL):
             with open(pfile, "r") as file:
                 dummy = csv.reader(file)
@@ -75,9 +77,12 @@ class Check:
                     if line != []:
                         history.append(line)
                 for entry in history[len(history) - 1]:
-                    if entry.startswith("ST"):
+                    if entry.upper().startswith("ST"):
                         straws.append(entry)
 
+        # check each straw
+        # TODO this is so bad: it opens the same file for every one of these
+        # straws. SO slow.
         for straw in straws:
             results.append(self.strawPass(CPAL, straw, step))
         if results == []:
