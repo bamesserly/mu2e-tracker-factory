@@ -383,35 +383,42 @@ class CO2EndpieceGUI(QMainWindow):
 
     def savePalletDataToText(self):
         pfile = self.palletDirectory / self.palletID / str(self.palletNum + ".csv")
-        if pfile.is_file():
-            with open(pfile, "r") as palletFile:
-                dummy = csv.reader(palletFile)
-                pallet = []
-                for line in dummy:
-                    pallet.append(line)
-                for row in range(len(pallet)):
-                    if row == len(pallet) - 1:
-                        for entry in range(len(pallet[row])):
-                            if entry > 1 and entry < 50:
-                                if entry % 2 == 0:
-                                    self.straws.append(pallet[row][entry])
 
-            with open(pfile, "a") as palletWrite:
+        # get straws
+        with open(pfile, "r") as palletFile:
+            dummy = csv.reader(palletFile)
+            pallet = []
+            for line in dummy:
+                pallet.append(line)
+            for row in range(len(pallet)):
+                if row == len(pallet) - 1:
+                    for entry in range(len(pallet[row])):
+                        if entry > 1 and entry < 50:
+                            if entry % 2 == 0:
+                                self.straws.append(pallet[row][entry])
+
+        with open(pfile, "r+") as palletWrite:
+            text = (
+                palletWrite.readlines()
+            )  # read whole file so next write will be at end of file
+            if (
+                text[-1][-1] != "\n"
+            ):  # if last character of last line is not newline, add it
                 palletWrite.write("\n")
-                palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
-                palletWrite.write(self.stationID + ",")
-                for straw in self.straws:
-                    palletWrite.write(straw)
+            palletWrite.write(datetime.now().strftime("%Y-%m-%d_%H:%M") + ",")
+            palletWrite.write(self.stationID + ",")
+            for straw in self.straws:
+                palletWrite.write(straw)
+                palletWrite.write(",")
+                if straw != "":
+                    palletWrite.write("P")
+                palletWrite.write(",")
+            i = 0
+            for worker in self.sessionWorkers:
+                palletWrite.write(worker.lower())
+                if i != len(self.sessionWorkers) - 1:
                     palletWrite.write(",")
-                    if straw != "":
-                        palletWrite.write("P")
-                    palletWrite.write(",")
-                i = 0
-                for worker in self.sessionWorkers:
-                    palletWrite.write(worker.lower())
-                    if i != len(self.sessionWorkers) - 1:
-                        palletWrite.write(",")
-                    i = i + 1
+                i = i + 1
 
     def saveProcessDataToText(self):
         efile = self.epoxyDirectory / str(self.palletNum + ".csv")
@@ -592,6 +599,7 @@ def run():
         ctr = CO2EndpieceGUI(paths)
         ctr.show()
         exit_code = app.exec_()
+        ctr.close()
 
 
 if __name__ == "__main__":
