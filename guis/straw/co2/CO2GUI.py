@@ -48,6 +48,7 @@ from guis.common.gui_utils import except_hook, generateBox
 from guis.common.save_straw_workers import saveWorkers
 from guis.common.timer import QLCDTimer
 from guis.straw.checkstraw import Check, StrawFailedError
+from guis.straw.co2.co2 import Ui_MainWindow  ## edit via Qt Designer
 from guis.straw.removestraw import removeStraw
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
