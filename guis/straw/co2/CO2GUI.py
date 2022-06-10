@@ -160,7 +160,7 @@ class CO2(QMainWindow):
     def editPallet(self):
         rem = removeStraw(self.sessionWorkers)
         rem.palletDirectory = self.palletDirectory
-        CPAL, lastTask, straws, passfail = rem.getPallet(self.palletNum)
+        CPAL, lastTask, straws, passfail, CPALID = rem.getPallet(self.palletNum)
         rem.displayPallet(CPAL, lastTask, straws, passfail)
         rem.exec_()
 
