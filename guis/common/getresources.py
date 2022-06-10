@@ -32,7 +32,12 @@ def GetProjectPaths():
         # if special strawroom things
         if k == "leaktestresults" or k == "pallets" or k == "network_leaktest_raw_data":
             # save directly to the network
-            paths.update({k: Path("X:/" + v)})
+            # official production mode
+            if "rds01.storage.umn.edu\cse_spa_mu2e\Data" in GetNetworkDatabasePath():
+                paths.update({k: Path("X:/" + v)})
+            # developer test mode
+            else:
+                paths.update({k: Path("X:/DeveloperTestArea/" + v)})
         else:
             # we want paths to remain on this machine
             paths.update({k: Path(root + "/" + v)})
