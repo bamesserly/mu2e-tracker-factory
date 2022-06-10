@@ -185,26 +185,48 @@ class SilvProcedure(StrawProcedure):
 
 
 """
-class Co2Procedure(Procedure):
-    __mapper_args__ = {'polymorphic_identity': "co2"}
+    id          INTEGER PRIMARY KEY NOT NULL UNIQUE,
+    procedure   INTEGER REFERENCES procedure (id) UNIQUE,
+    epoxy_batch INTEGER,
+    epoxy_time  INTEGER,
+    dp190       INTEGER,
+    timestamp   INTEGER NOT NULL
+"""
+class CO2(StrawProcedure):
+    __mapper_args__ = {"polymorphic_identity": "co2"}
 
-    def _setDetails(self):
+    def __init__(self, station, straw_location, create_key):
+        assert (
+            station.id == "co2"
+        ), f"Error. Tried to construct co2 procedure for a station '{station.id}' not 'co2'."
+        # creates/gets entries in procedure table and procedure_details_co2
+        super().__init__(station, straw_location, create_key)
+
+    def _getDetailsClass(self):
         class Details(BASE, OBJECT):
             __tablename__ = "procedure_details_co2"
-            procedure = Column(Integer, ForeignKey('procedure.id'), primary_key=True)
-            epoxy_batch  = Column(Integer)
-            epoxy_time = Column(REAL)
+            id = Column(Integer, primary_key=True)
+            procedure = Column(Integer, ForeignKey("procedure.id"))
+            epoxy_batch = Column(Integer)
+            epoxy_time = Column(Integer)
             dp190 = Column(Integer)
-        self.details = Co2Procedure.Details(procedure = self.id)
 
-    def setEpoxyBatch(self,batch):
+        return Details
+
+    def setEpoxyBatch(self, batch):
         self.details.epoxy_batch = batch
+        self.commit()
 
-    def setEpoxyTime(self,duration):
+    def setEpoxyTime(self, duration):
         self.details.epoxy_time = duration
+        self.commit()
 
-    def setDp190(self,dp190):
+    def setDP190(self, dp190):
         self.details.dp190 = dp190
+        self.commit()
+
+
+"""
 
 class LasrProcedure(Procedure):
     __mapper_args__ = {'polymorphic_identity': "lasr"}
