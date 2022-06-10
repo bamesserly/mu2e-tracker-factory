@@ -12,14 +12,11 @@
 from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root", "CO2")
-import pyautogui
-import time
-import os
+from datetime import datetime
 import csv
 import os
 import pyautogui
 import sys
-from datetime import datetime
 from PyQt5.QtCore import QRect, Qt, QTimer, QMetaObject, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QBrush
 from PyQt5.QtWidgets import (
@@ -154,27 +151,6 @@ class CO2EndpieceGUI(QMainWindow):
 
         # Start it off with the prep tab frozen
         self.LockGUI.emit(False)
-
-    def updateBoard(self):
-        status = []
-        try:
-            with open(self.boardPath / "Progression Status.csv") as readfile:
-                data = csv.reader(readfile)
-                for row in data:
-                    for pallet in row:
-                        status.append(pallet)
-            status[int(self.palletID[6:]) - 1] == 22
-            with open(self.boardPath / "Progression Status.csv", "w") as writefile:
-                i = 0
-                for pallet in status:
-                    writefile.write(pallet)
-                    if i != 23:
-                        writefile.write(",")
-                    i = i + 1
-        except IOError:
-            print(
-                "Could not update board due to board file being accessed concurrently"
-            )
 
     ############################################################################
     # Worker login and gui lock
