@@ -40,15 +40,15 @@ from PyQt5.QtWidgets import (
 from pynput.keyboard import Key, Controller
 from pathlib import Path
 
-from guis.straw.removestraw import removeStraw
-from guis.straw.checkstraw import Check, StrawFailedError
 from data.workers.credentials.credentials import Credentials
-from guis.common.getresources import GetProjectPaths
-from guis.common.save_straw_workers import saveWorkers
-from guis.common.gui_utils import except_hook, generateBox
 from guis.common.dataProcessor import SQLDataProcessor as DP
-from guis.common.timer import QLCDTimer
 from guis.common.db_classes.straw_location import CuttingPallet
+from guis.common.getresources import GetProjectPaths
+from guis.common.gui_utils import except_hook, generateBox
+from guis.common.save_straw_workers import saveWorkers
+from guis.common.timer import QLCDTimer
+from guis.straw.checkstraw import Check, StrawFailedError
+from guis.straw.removestraw import removeStraw
 
 pyautogui.FAILSAFE = True  # Move mouse to top left corner to abort script
 
