@@ -594,12 +594,9 @@ def run():
     sys.excepthook = except_hook
     app = QApplication(sys.argv)
     paths = GetProjectPaths()
-    exit_code = kRESET_EXIT_CODE
-    while exit_code == kRESET_EXIT_CODE:
-        ctr = CO2EndpieceGUI(paths)
-        ctr.show()
-        exit_code = app.exec_()
-        ctr.close()
+    ctr = CO2EndpieceGUI(paths)
+    ctr.show()
+    exit_code = app.exec_()
 
 
 if __name__ == "__main__":
