@@ -10,9 +10,25 @@ from guis.common.db_classes.measurements_panel import BadWire
 from guis.common.db_classes.procedure import PanelProcedure
 from guis.common.gui_utils import except_hook
 import sys
+from dataclasses import dataclass
+from pathlib import Path
+import pandas as pd
+from datetime import datetime
+import time
+
 
 kPROCESSNUMBER = 8
 sys.excepthook = except_hook  # crash, don't hang when an exception is raised
+
+
+@dataclass
+class BadChannel:
+    pid: int
+    position: int
+    is_wire: bool
+    description: str
+    timestamp: int
+    process_number: int = 8
 
 
 def get_from_user(prompt, manipulation, condition):
@@ -29,7 +45,7 @@ def get_from_user(prompt, manipulation, condition):
             continue
 
 
-def main():
+def interactive_load():
     """
     data fields collected:
         * panel_number
@@ -94,5 +110,61 @@ def main():
         )
 
 
+def load_data_from_csv(infile):
+    assert Path(infile).is_file()
+    # header = ('panel', 'date', 'position', 'explanation', 'wire_straw', 'shipping_confirmed', 'box', 'dbv_notes', 'nsources', 'notes')
+    data = pd.read_csv(infile, sep=",", skipinitialspace=True).to_dict("records")
+    bad_channels = []
+    for i in data:
+        # timestamp
+        dt = datetime.strptime(i.date, "%-m/%d/Y")
+        timestamp = time.mktime(dt.timetuple())
+
+        # procedure ID
+        pid = -1
+        pid = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i.panel).id
+        assert pid != -1
+
+        # wire/straw
+        assert i.wire_straw == "S" or i.wire_straw == "W"
+        is_wire = 1 if i.wire_straw.upper() == "W" else 0
+
+        assert len(i.explanation) <= 80
+
+        bad_channels.append(
+            BadChannel(
+                pid=int(pid),
+                position=int(i.position),
+                is_wire=is_wire,
+                description=i.explanation,
+                timestamp=timestamp,
+            )
+        )
+
+
+def bulk_load():
+    # list of bad channel objects
+    bad_channel_data = load_data_from_csv("tests/dead_channels.csv")
+    for i in bad_channel_data:
+        print(i)
+    #    straw_wire_str = "wire" if i.is_wire else "straw"
+    #    logger.debug(f"Submitting entry to DB:")
+    #    logger.debug(
+    #        f"panel:{i.panel_number}, position:{i.position}, "
+    #        "wire-straw:{i.straw_wire_str}, process:{i.process_number}, "
+    #        "timestamp:{i.timestamp}\n"
+    #    )
+    #    logger.debug(f"description:{description}")
+    #    BadWire(
+    #        procedure=i.pid,
+    #        position=i.position,
+    #        wire_check=i.is_wire,
+    #        failure=i.description,
+    #        process=i.process_number,
+    #        timestamp=i.timestamp,
+    #    )
+
+
 if __name__ == "__main__":
-    main()
+    bulk_load()
+    # interactive_load()
