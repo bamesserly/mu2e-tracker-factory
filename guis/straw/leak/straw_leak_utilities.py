@@ -21,7 +21,8 @@ STRAW_VOLUME = 26.0  # ccs, uncut straw
 EXCLUDE_RAW_DATA_SECONDS = 120  # skip first 2 minutes of raw data file
 MIN_N_DATAPOINTS_FOR_FIT = 10
 MAX_ALLOWED_LEAK_RATE = 0.00009645060  # cc/min
-NOTIFY_LOW_LEAK_RATE  = 0.00002 # cc/min
+NOTIFY_LOW_LEAK_RATE = 0.00002  # cc/min
+UPPER_GOOD_LEAK_RATE = 0.00007  # cc/min
 
 
 CHAMBER_VOLUME = [
@@ -90,14 +91,14 @@ def get_chamber_volume_err(*args):
 
 
 def calc_ppm_err(ppm):
-    return ((ppm * 0.02) ** 2 + 20 ** 2) ** 0.5
+    return ((ppm * 0.02) ** 2 + 20**2) ** 0.5
 
 
 # Calculate leak rate from change in N millions of CO2 molecules
 # [slope] = ppm/s, [chamber_volume] = ccs, [leak_rate] = ccs/min
 # leak rate in cc/min = slope(PPM/sec) * chamber_volume(cc) * 10^-6(1/PPM) * 60 (sec/min) * scale
 def calculate_leak_rate(slope, chamber_volume):
-    return slope * chamber_volume * (10 ** -6) * 60 * LEAK_RATE_SCALING
+    return slope * chamber_volume * (10**-6) * 60 * LEAK_RATE_SCALING
 
 
 # error = sqrt((lr/slope)^2 * slope_err^2 + (lr/ch_vol)^2 * ch_vol_err^2)
@@ -105,8 +106,8 @@ def calculate_leak_rate_err(
     leak_rate, slope, slope_err, chamber_volume, chamber_volume_err
 ):
     return (
-        (leak_rate / slope) ** 2 * slope_err ** 2
-        + (leak_rate / chamber_volume) ** 2 * chamber_volume_err ** 2
+        (leak_rate / slope) ** 2 * slope_err**2
+        + (leak_rate / chamber_volume) ** 2 * chamber_volume_err**2
     ) ** 0.5
 
 
@@ -200,13 +201,13 @@ def plot(
     info_string = (
         "Slope = %.2f +- %.2f x $10^{-3}$ PPM/sec \n"
         % (
-            slope * 10 ** 4,
-            slope_err * 10 ** 4,
+            slope * 10**4,
+            slope_err * 10**4,
         )
         + "Leak Rate = %.2f +- %.2f x $10^{-5}$ cc/min \n"
         % (
-            leak_rate * (10 ** 5),
-            leak_rate_err * (10 ** 5),
+            leak_rate * (10**5),
+            leak_rate_err * (10**5),
         )
         + status_string
         + "\n"
