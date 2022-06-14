@@ -168,10 +168,10 @@ class hvLoader(QMainWindow):
         self.fileNum = int(filename[11:12])
         self.ui.fileLE.setText(str(file))
 
-        if self.panelPro not in [3,5,6]:
+        if self.panelPro not in [3,4,5,6]:
             tkinter.messagebox.showwarning(
                 "Incorrect file name format.",
-                f'The panel procedure must be 3, 5, or 6.  The file you submitted provided "{self.panelPro}".'
+                f'The panel procedure must be 3, 4, 5, or 6.  The file you submitted provided "{self.panelPro}".'
             )
             logger.error(f'Unable to load file {file}.')
             self.clear()
