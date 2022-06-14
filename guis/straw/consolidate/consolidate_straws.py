@@ -181,7 +181,7 @@ def openPlots(straw):
     data_found = False
     leak_dir = leaktest_dir / "raw_data"
     for file_name in os.listdir(leak_dir):
-        if straw in file_name.upper() and "FIT.PDF" in file_name.upper():
+        if straw.upper() in file_name.upper() and "FIT.PDF" in file_name.upper():
             data_found = True
             f = str(leak_dir / file_name)
             logger.info(f"Opening pdf {f}")
@@ -303,9 +303,13 @@ def run():
     directory = GetProjectPaths()["pallets"] / f"CPALID{cpal_id}"
     cfile = directory / f"CPAL{cpal_num}.csv"
     logger.info(
-        f"Saving leak and length status for CPALID{cpal_id}, CPAL#{cpal_num} "
+        f"Saving leak and length status for CPALID{cpal_id}, CPAL{cpal_num} "
         f"to file {cfile}"
     )
+    if not cfile.is_file():
+        logger.error(f"{cfile} doesn't exist! find it or make it (say, with pallet generator) first.")
+        print("sorry, exiting")
+        sys.exit()
 
     # Scan-in straws
     straws_passed = []
