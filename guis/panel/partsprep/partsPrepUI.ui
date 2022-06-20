@@ -109,7 +109,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="label_2">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="font">
                <font>
@@ -591,7 +591,7 @@
                </font>
               </property>
               <property name="text">
-               <string>6.2 - Check/calibrate caliper or heiht gauge with gauge block</string>
+               <string>6.2 - Check/calibrate caliper or height gauge with gauge block</string>
               </property>
              </widget>
             </item>
