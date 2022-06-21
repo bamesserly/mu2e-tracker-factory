@@ -116,14 +116,16 @@ def load_data_from_csv(infile):
     data = pd.read_csv(infile, sep=",", skipinitialspace=True).to_dict("records")
     bad_channels = []
     for i in data:
+        print(i)
         # timestamp
         dt = datetime.strptime(i["date"], "%m/%d/%Y")
         timestamp = time.mktime(dt.timetuple())
 
         # procedure ID
-        pid = -1
-        pid = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i["panel"]).id
-        assert pid != -1
+        # TODO make procedure if doesn't exist
+        procedure = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i["panel"]).id
+        assert procedure
+        pid = procedure.id
 
         # wire/straw
         assert i["wire_straw"] == "S" or i["wire_straw"] == "W"
