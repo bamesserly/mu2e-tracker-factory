@@ -117,26 +117,26 @@ def load_data_from_csv(infile):
     bad_channels = []
     for i in data:
         # timestamp
-        dt = datetime.strptime(i.date, "%-m/%d/Y")
+        dt = datetime.strptime(i["date"], "%m/%d/%Y")
         timestamp = time.mktime(dt.timetuple())
 
         # procedure ID
         pid = -1
-        pid = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i.panel).id
+        pid = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i["panel"]).id
         assert pid != -1
 
         # wire/straw
-        assert i.wire_straw == "S" or i.wire_straw == "W"
-        is_wire = 1 if i.wire_straw.upper() == "W" else 0
+        assert i["wire_straw"] == "S" or i["wire_straw"] == "W"
+        is_wire = 1 if i["wire_straw"].upper() == "W" else 0
 
         assert len(i.explanation) <= 80
 
         bad_channels.append(
             BadChannel(
                 pid=int(pid),
-                position=int(i.position),
+                position=int(i["position"]),
                 is_wire=is_wire,
-                description=i.explanation,
+                description=i["explanation"],
                 timestamp=timestamp,
             )
         )
