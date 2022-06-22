@@ -1,4 +1,18 @@
-# Form to submit dead channels to the DB
+################################################################################
+# This script is able to submit a csv of bad channels to the DB, and it can
+# interactively submit a dead channel to the DB.
+#
+# Specifically, we're talking about adding entries to the bad_wire_straw table.
+#
+# Currently runs the batch/csv submission by default.
+#
+# TODO accept an infile argument and the ability to run interactive instead.
+#
+# Also TODO: Haven't decided yet whether you should be allowed to update
+# entries, or whether submitting an entry with an existing (procedure_id,
+# channel position) pair should ignore or fail.
+#
+################################################################################
 
 from guis.common.panguilogger import SetupPANGUILogger
 
@@ -7,7 +21,7 @@ import logging
 logger = SetupPANGUILogger("root", "dead_channel_entry")
 
 from guis.common.db_classes.measurements_panel import BadWire
-from guis.common.db_classes.procedure import PanelProcedure
+from guis.common.db_classes.procedure import Procedure, PanelProcedure
 from guis.common.gui_utils import except_hook
 import sys
 from dataclasses import dataclass
@@ -113,58 +127,81 @@ def interactive_load():
 def load_data_from_csv(infile):
     assert Path(infile).is_file()
     # header = ('panel', 'date', 'position', 'explanation', 'wire_straw', 'shipping_confirmed', 'box', 'dbv_notes', 'nsources', 'notes')
-    data = pd.read_csv(infile, sep=",", skipinitialspace=True).to_dict("records")
+    df = pd.read_csv(infile, sep=",", skipinitialspace=True)
+    df = df.where(pd.notnull(df), None)
+    data = df.to_dict("records")
     bad_channels = []
     for i in data:
-        print(i)
-        # timestamp
-        dt = datetime.strptime(i["date"], "%m/%d/%Y")
-        timestamp = time.mktime(dt.timetuple())
+        # make sure all the important fields are not null
+        notnull_fields = ["date", "panel", "wire_straw", "position", "explanation"]
+        try:
+            assert all(
+                value is not None for key, value in i.items() if key in notnull_fields
+            )
+        except AssertionError:
+            logger.error(
+                f"Entry is missing one or more fields. Skipping this one:\n{i}"
+            )
+            continue
 
-        # procedure ID
-        # TODO make procedure if doesn't exist
-        procedure = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i["panel"]).id
-        assert procedure
+        # validate timestamp
+        try:
+            dt = datetime.strptime(i["date"], "%m/%d/%Y")
+        except ValueError:
+            dt = datetime.strptime(i["date"], "%m/%d/%y")
+
+        timestamp = int(time.mktime(dt.timetuple()))
+
+        # validate procedure ID
+        procedure = PanelProcedure.GetPanelProcedure(kPROCESSNUMBER, i["panel"])
+        try:
+            assert procedure
+        except AssertionError:
+            # print(i)
+            logger.info(f"Process 8 doesn't exist for MN{i['panel']}. Creating it.")
+            procedure = Procedure.PanelProcedure(
+                process=kPROCESSNUMBER, panel_number=int(i["panel"])
+            )
+            assert procedure
+
         pid = procedure.id
 
-        # wire/straw
+        # validate is_wire vs is_straw
         assert i["wire_straw"] == "S" or i["wire_straw"] == "W"
         is_wire = 1 if i["wire_straw"].upper() == "W" else 0
 
-        assert len(i.explanation) <= 80
+        # validate explanation of failure
+        assert len(i["explanation"]) <= 80
 
+        # add BadChannel object to list of bad channels
         bad_channels.append(
             BadChannel(
                 pid=int(pid),
                 position=int(i["position"]),
                 is_wire=is_wire,
                 description=i["explanation"],
+                process_number=i["process"] if i["process"] else kPROCESSNUMBER,
                 timestamp=timestamp,
             )
         )
+    return bad_channels
 
 
 def bulk_load():
-    # list of bad channel objects
+    # list of bad channel objects from csv
     bad_channel_data = load_data_from_csv("tests/dead_channels.csv")
+    # loop bad channels and submit each to DB
     for i in bad_channel_data:
+        logger.info(f"Submitting entry to DB:")
         print(i)
-    #    straw_wire_str = "wire" if i.is_wire else "straw"
-    #    logger.debug(f"Submitting entry to DB:")
-    #    logger.debug(
-    #        f"panel:{i.panel_number}, position:{i.position}, "
-    #        "wire-straw:{i.straw_wire_str}, process:{i.process_number}, "
-    #        "timestamp:{i.timestamp}\n"
-    #    )
-    #    logger.debug(f"description:{description}")
-    #    BadWire(
-    #        procedure=i.pid,
-    #        position=i.position,
-    #        wire_check=i.is_wire,
-    #        failure=i.description,
-    #        process=i.process_number,
-    #        timestamp=i.timestamp,
-    #    )
+        BadWire(
+            procedure=i.pid,
+            position=i.position,
+            wire_check=i.is_wire,
+            failure=i.description,
+            process=i.process_number,
+            timestamp=i.timestamp,
+        )
 
 
 if __name__ == "__main__":
