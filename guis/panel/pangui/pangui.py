@@ -5877,7 +5877,12 @@ class panelGUI(QMainWindow):
                 
                 location = int(self.ui.leak_location.text())
                 leak_size = int(self.ui.leak_size_straw.text())
-                session = int(MethaneTestSession.get_methane_session()[1])
+                
+                user=""
+                for i in self.Current_workers:
+                    if i.text() is not None:
+                        user=user+' '+i.text()
+                session = int(MethaneTestSession.get_methane_session(user)[1])
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."
@@ -5920,7 +5925,12 @@ class panelGUI(QMainWindow):
             # acquire data from the gui entry fields
             try:
                 leak_size = int(self.ui.leak_size_panel.text())
-                session = int(MethaneTestSession.get_methane_session()[1])
+                
+                user=""
+                for i in self.Current_workers:
+                    if i.text() is not None:
+                        user=user+' '+i.text()
+                session = int(MethaneTestSession.get_methane_session(user)[1])
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."

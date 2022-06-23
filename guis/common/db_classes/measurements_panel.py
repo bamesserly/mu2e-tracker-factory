@@ -288,10 +288,11 @@ class MethaneTestSession(BASE, OBJECT):
         
     # returns the methane session data
     @classmethod
-    def get_methane_session(cls):
+    def get_methane_session(cls,user):
         query_result = (
             DM.query(cls)
             .filter(cls.current == 1)
+            .filter(cls.user == user)
         )
         query_result=query_result.all()[0]
         return(query_result.id,query_result.session,query_result.current,query_result.covered_areas,query_result.sep_layer,query_result.top_straw_low,query_result.top_straw_high,query_result.bot_straw_low,query_result.bot_straw_high,query_result.user)
