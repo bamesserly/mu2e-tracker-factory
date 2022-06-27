@@ -34,7 +34,7 @@ def main(panel_number, process_number):
                 "Are you sure you want to create it? Type 'y' to confirm> "
             ).lower()
         ):
-            procedure = Procedure.PanelProcedure(process=2, panel_number=20)
+            procedure = Procedure.PanelProcedure(process=process_number, panel_number=panel_number)
             pid = procedure.id
     print(f"PID: {pid}")
 
