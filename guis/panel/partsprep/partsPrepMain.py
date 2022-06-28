@@ -40,6 +40,7 @@ class partsPrepGUI(QMainWindow):
         self.initStartStopButtons()
         self.initCheckboxes()
         self.initMenuButtons()
+        self.initImageButtons()
         self.initValidators()
 
  
@@ -74,6 +75,15 @@ class partsPrepGUI(QMainWindow):
             lambda : self.diagramPopup("bir6_4")
         )
         return
+
+    # connect image push buttons to funciton
+    def initImageButtons(self):
+        self.ui.birImage2_3PB.clicked.connect(
+            lambda: self.diagramPopup("bir2_3")
+        )
+        self.ui.birImage6_4PB.clicked.connect(
+            lambda: self.diagramPopup("bir6_4")
+        )
 
     # connect checkbox state chenged to below funciton
     def initCheckboxes(self):
