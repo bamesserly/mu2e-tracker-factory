@@ -10,7 +10,10 @@ from tkinter import messagebox
 
 from guis.common.db_classes.bases import DM
 from guis.common.db_classes.comment_failure import Comment
-from guis.common.db_classes.steps import PanelStep
+from guis.common.db_classes.steps import (
+    PanelStep,
+    PanelStepExecution,
+)
 from guis.common.db_classes.procedure import Procedure
 from guis.common.db_classes.station import Station
 from guis.common.db_classes.straw_location import Panel
@@ -2252,9 +2255,20 @@ class SQLDataProcessor(DataProcessor):
             .filter(PanelStep.station == self.station.id)
             .one_or_none()
         )
+        
+        
+        duplicate_steps = (
+            PanelStepExecution.query()
+            .filter(PanelStepExecution.panel_step == step.id)
+            .filter(PanelStepExecution.procedure == self.procedure.id)
+            .all()
+        )
 
-        # Execute step
-        self.procedure.executeStep(step)
+        if len(duplicate_steps) == 0:
+            # Execute step
+            self.procedure.executeStep(step)
+        else:
+            pass
 
     def saveFailure(self, failure_type, failure_mode, straw_position, comment):
         if not self.ensureProcedure():
