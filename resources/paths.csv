@@ -27,6 +27,7 @@ palletsLTG,data/Pallets
 panelDirectory,data/Panel Data
 panelresistancedata,data/Panel Data/FinalQC/Resistance
 panelleak,data/Panel data/FinalQC/Leak/Plots
+partsprepdata,data/Panel data/parts_prep_data
 prepdata,data/Straw Prep Data
 prepworkers,data/workers/straw workers/straw prep
 qc_leak_resolution,data/Panel Data/FinalQC/leak_resolution
