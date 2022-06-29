@@ -642,6 +642,24 @@ class StrawPosition(BASE, OBJECT):
     def getStrawLocationType(self):
         return self.getStrawLocation().location_type
 
+    # Get (a query of) the StrawPresent objects associated with this position
+    def queryStrawPresents(self):
+        return (
+            StrawPresent.query()
+            .join(StrawPosition, StrawPosition.id == StrawPresent.position)
+            .filter(StrawPosition.id == self.id)
+        )
+
+    # unload all straws from this position
+    def unloadPresentStraws(self, straw_number=None):
+        present_straws = (
+            self.queryStrawPresents().filter(StrawPresent.present == True).all()
+        )  # list of StrawPresent objects
+        for present_straw in present_straws:
+            if straw_number is not None and straw_number != present_straw.straw:
+                continue
+            present_straw.remove()
+
 
 # Each straw's past (present == false) and current (present == true) straw
 # locations. More specifically, the position points to the straw_position
@@ -668,7 +686,16 @@ class StrawPresent(BASE, OBJECT):
             self.position,
         )
 
+    def getStrawPosition(self):
+        return (
+            StrawPosition.query()
+            .join(StrawPresent, StrawPresent.position == StrawPosition.id)
+            .filter(StrawPresent.position == self.position)
+            .one_or_none()
+        )
+
     def remove(self, commit=True):
         self.present = false()
         if commit:
             self.commit()
+            logger.debug(f"Straw ST{self.id} removed from {self.getStrawPosition()}")
