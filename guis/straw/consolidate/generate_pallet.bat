@@ -14,5 +14,5 @@ if not exist %SUBFILENAME% (
 	call Updater.bat
 )
 
-python -m guis.straw.releak
+python -m guis.straw.consolidate.generate_pallet
 pause
