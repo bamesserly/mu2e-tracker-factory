@@ -243,7 +243,7 @@ def passedLeakTest(straw, worker):
 ################################################################################
 # Give user a chance to review the straws
 ################################################################################
-def finalizeStraws(straws_passed, worker):
+def finalizeStraws(straws_passed, worker, require_leak_pass=True):
     finalized = False
     while not finalized:
         # show the user the current state of the CPAL
@@ -260,21 +260,25 @@ def finalizeStraws(straws_passed, worker):
         while True:
             try:
                 replace_straw_idx = (
-                    int(input("Which straw do you want to replace? (1-24) ")) - 1
+                    int(input("Which position do you want to replace? (1-24) ")) - 1
                 )
                 assert replace_straw_idx in range(24)
                 break
             except AssertionError:
-                logger.warning("Invalid straw. Must be #1-#24")
+                logger.warning("Invalid position. Must be #1-#24")
             except ValueError:
-                logger.warning("Invalid straw. Just looking for a number 1-24")
+                logger.warning("Invalid position. Just looking for a number 1-24")
 
-        # Enter the new straw and make sure it passes
+        # Enter the new straw and make sure it passes if it needs to
         replace_straw = input("Enter or scan new straw> ")
-        if replace_straw == kBLANKSTRAWSTRING:
-            logger.info(f"Empty straw position entered.")
-            straws_passed[replace_straw_idx] = replace_straw
-        elif passedLeakTest(replace_straw, worker):
+
+        replace_straw_is_valid = (
+            (replace_straw == kBLANKSTRAWSTRING)
+            or (not require_leak_pass)
+            or (passedLeakTest(replace_straw, worker))
+        )
+
+        if replace_straw_is_valid:
             logger.info(f"Straw {replace_straw} is good!")
             straws_passed[replace_straw_idx] = replace_straw
         else:
@@ -307,7 +311,9 @@ def run():
         f"to file {cfile}"
     )
     if not cfile.is_file():
-        logger.error(f"{cfile} doesn't exist! find it or make it (say, with pallet generator) first.")
+        logger.error(
+            f"{cfile} doesn't exist! find it or make it (say, with pallet generator) first."
+        )
         print("sorry, exiting")
         sys.exit()
 
