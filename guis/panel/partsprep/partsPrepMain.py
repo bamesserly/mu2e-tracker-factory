@@ -1,4 +1,5 @@
 import sys, datetime, tkinter
+from time import time
 from os.path import exists
 
 from guis.common.getresources import GetProjectPaths # import paths for saving CSVs
@@ -14,7 +15,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QInputDialog,
-    QMessageBox
+    QMessageBox,
 )
 
 from PyQt5.QtGui import QPixmap, QRegularExpressionValidator
@@ -42,6 +43,7 @@ class partsPrepGUI(QMainWindow):
         self.initMenuButtons()
         self.initImageButtons()
         self.initValidators()
+        self.initOthers()
 
  
     # get a list of all checkboxes that are a child, 
@@ -104,6 +106,7 @@ class partsPrepGUI(QMainWindow):
 
         return
 
+
     # connect start/stop buttons to appropriate funcitons
     def initStartStopButtons(self):
         # bir start button
@@ -123,6 +126,13 @@ class partsPrepGUI(QMainWindow):
         )
         # bir validator
         self.ui.birLE.setValidator(validator('\d{3}'))
+
+
+    # connect other things to approprite funcitons
+    def initOthers(self):
+        self.ui.birComEntryPB.clicked.connect(
+            lambda: self.submitComment("bir")
+        )
 
     # for each box make it:
     # - launch a picture if the next step (TODO)
@@ -205,7 +215,6 @@ class partsPrepGUI(QMainWindow):
         else:
             with open(filepath, 'w') as csv:
                 csv.write(stepname+","+timestamp+","+self.getWorkers()+"\n")
-
         return
 
     # pulled straight from pangui with minimal modification
@@ -239,6 +248,7 @@ class partsPrepGUI(QMainWindow):
     # does start button things if starting == True
     #   else does stop button things
     def startStopButton(self, partType, starting):
+        startingNoID = False
         # if starting verify that there are workers
         if starting:
             if len(self.workers) == 0:
@@ -248,24 +258,63 @@ class partsPrepGUI(QMainWindow):
                     "To begin please add a worker using the tab in the upper left."
                 )
                 return
-            if len(self.ui.birLE.text()) < 3:
-                return
+            if len(self.ui.birLE.text()) <3 : # <3 <3 <3
+                
+                # no ID found
+                reply = QMessageBox.question(self,
+                    "No ID entered",
+                    "No ID has been entered for this part.  If you choose to continue, the part will be referred to as the first worker's name plus today's date.  This can be changed later.\nDo you wish to continue?",
+                    QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No
+                )
+                if reply == QMessageBox.StandardButton.Yes:
+                    # get first worker
+                    first = ""
+                    for action in self.ui.menuWorkers.children():
+                        if action.text() != "Workers":
+                            first = action.text()
+                    # get todays date
+                    now = datetime.datetime.now()
+                    today = f'{now.day:02d}{now.month:02d}{now.year}'
+                    # allow for weird ID
+                    getattr(self.ui, f'{partType}LE').setValidator(None)
+                    # set new ID
+                    getattr(self.ui, f'{partType}LE').setText(
+                        f'{first[6:]}-{today}'
+                    )
+                    startingNoID = True
+                if reply == QMessageBox.StandardButton.No:
+                    return
 
         for box in self.getCheckboxes(getattr(self.ui, partType)):
             box.setEnabled(starting)
 
-        # line edit for id
-        getattr(self.ui,f"{partType}LE").setDisabled(starting)
+        # line edit for id - disable if starting unless starting w/ no id
+        getattr(self.ui,f"{partType}LE").setDisabled(starting and not startingNoID)
         # start button
         getattr(self.ui,f"{partType}StartPB").setDisabled(starting)
         # stop button
         getattr(self.ui,f"{partType}StopPB").setEnabled(starting)
+        # comment button
+        getattr(self.ui, f'{partType}ComEntryPB').setEnabled(starting)
 
         # add a "step" to the CSV
         self.writeToCSV(
             partType,
             "Session Initialized " if starting else "Session Terminated "
         )
+
+        return
+
+    # submit comment from entry text edit widget (triggered by submit comment button)
+    def submitComment(self,partType):
+        # get comment text
+        text = getattr(self.ui, f'{partType}ComEntryTE').toPlainText()
+        # save to CSV
+        self.writeToCSV(partType, text)
+        # clear entry widget
+        getattr(self.ui, f'{partType}ComEntryTE').clear()
+        # add to comment list
+        getattr(self.ui, f'{partType}ComDisplayTE').append(text)
 
         return
         
