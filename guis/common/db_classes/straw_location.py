@@ -120,6 +120,11 @@ class StrawLocation(BASE, OBJECT):
             An instance of 'cls' that is linked to an entry in the database.
     """
 
+    # problem with this function for pallets (not panels): if multiple pallets
+    # exist with the same number but different id. Well I'm not sure what would
+    # happen, but it's not good. Likewise, if you can call this function with
+    # an existing number but new id, then you'll just get returned the existing
+    # pallet when instead you should get an error.
     @classmethod
     def _construct(cls, number=int(), pallet_id=None):
         assert int(
@@ -146,10 +151,14 @@ class StrawLocation(BASE, OBJECT):
     def Panel(number):
         return Panel._construct(number)
 
+    # TODO check here (not in construct) for existing pallets with this number
+    # but a different id.
     @staticmethod
     def CPAL(number=int(), pallet_id=None):
         return CuttingPallet._construct(number=number, pallet_id=pallet_id)
 
+    # TODO check here (not in construct) for existing pallets with this number
+    # but a different id.
     @staticmethod
     def LPAL(number=int(), pallet_id=None):
         return LoadingPallet._construct(number=number, pallet_id=pallet_id)

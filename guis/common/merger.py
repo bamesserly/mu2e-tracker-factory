@@ -206,7 +206,11 @@ class AutoMerger(Merger, LoopingReusableThread):
         LoopingReusableThread.run(self)
 
 
-if __name__ == "__main__":
-    logger = SetupPANGUILogger("root", "IsolatedAutoMerge", be_verbose=True)
+def isolated_automerge():
     merger = Merger(src_db=GetLocalDatabasePath(), dst_db=GetNetworkDatabasePath())
     merger.mergeAll()
+
+
+if __name__ == "__main__":
+    logger = SetupPANGUILogger("root", "IsolatedAutoMerge", be_verbose=True)
+    isolated_automerge()

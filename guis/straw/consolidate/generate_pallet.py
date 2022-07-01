@@ -20,7 +20,8 @@ from guis.common.getresources import GetProjectPaths
 from guis.common.panguilogger import SetupPANGUILogger
 from guis.straw.consolidate.consolidate_utils import finalizeStraws
 from guis.common.db_classes.straw import Straw
-from guis.common.db_classes.straw_location import StrawLocation
+from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
+from guis.common.merger import isolated_automerge
 
 import logging
 
@@ -30,7 +31,13 @@ def save_to_db(straws_passed_list, pallet_id, pallet_number):
     assert len(straws_passed_list) == 24
 
     # Get or create a cpal in the DB
-    cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
+    try:
+        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
+    # can't make new pallet bc this id still has straws on it.
+    except AssertionError as e:
+        logger.debug(e)
+        CuttingPallet.remove_straws_from_pallet_by_id(pallet_id)
+        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
 
     for position, straw_id in enumerate(straws_passed_list):
         straw_number = int(straw_id[2:])
@@ -113,6 +120,8 @@ def run():
 
     save_to_csv(pfile, is_new_cpal, straws_passed_list, workers)
     save_to_db(straws_passed_list, cpal_id, cpal_num)
+
+    isolated_automerge()
 
     logger.info("Finished")
     logger.info("See logfile for detailed straw transfer information.")
