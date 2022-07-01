@@ -144,3 +144,8 @@ class Straw(BASE, OBJECT):
             .filter(sl.StrawPresent.straw == self.id)  # for this straw
             .all()
         )
+
+    # remove straw from all locations
+    def removeFromAllLocations(self):
+        for position in self.locate():
+            position.unloadPresentStraws(straw_number=self.id)
