@@ -374,15 +374,15 @@ class StrawLocation(BASE, OBJECT):
             self._queryStrawPresents().filter(StrawPresent.straw == straw).all()
         )
         if len(straw_presents) > 1:
-            logger.debug(f"Straw {straw} located in > 1 position :(.")
+            logger.debug(f"Straw ST{straw} located in > 1 position :(.")
 
         # Remove straw from all current positions, unless one of them is the
         # target position, in which case quit when done.
         done = False
         for straw_present in straw_presents:
             if straw_present.getStrawPosition() == target_position:
-                logger.info(
-                    f"Straw {straw} already in target location {target_position}."
+                logger.debug(
+                    f"Straw ST{straw} already in target location {target_position}."
                 )
                 done = True
             else:
