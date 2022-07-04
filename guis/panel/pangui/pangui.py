@@ -5767,7 +5767,15 @@ class panelGUI(QMainWindow):
         for i in self.Current_workers:
             if i.text() is not None:
                 user=user+' '+i.text()
-        
+                
+        # check to see if the current user has another session open
+        if MethaneTestSession.get_methane_session(user) != False:
+            generateBox(
+                "critical", "Warning", "A single user may not have more than one session open."
+            )
+            return False
+                
+            
         # determine whether or not the plastic separator was used
         sep_layer=self.ui.sep_layer.isChecked()
                 
