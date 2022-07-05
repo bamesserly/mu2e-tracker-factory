@@ -5767,12 +5767,18 @@ class panelGUI(QMainWindow):
         for i in self.Current_workers:
             if i.text() is not None:
                 user=user+' '+i.text()
-        
+            
         # determine whether or not the plastic separator was used
         sep_layer=self.ui.sep_layer.isChecked()
                 
         # acquire sequence designating which areas have been covered during methane sweep
         if self.ui.submit_methane_session.text() == 'Start Testing Session' and self.ui.panelInput_8.text() != '':
+            # check to see if the current user has another session open
+            if MethaneTestSession.get_methane_session(user,True) != False:
+                generateBox(
+                    "critical", "Warning", "A single user may not have more than one session open."
+                )
+                return False
             MethaneTestSession.end_methane_test(user)
             self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user,False)
             self.ui.submit_methane_session.setText('Submit Testing Session')
@@ -5882,7 +5888,7 @@ class panelGUI(QMainWindow):
                 for i in self.Current_workers:
                     if i.text() is not None:
                         user=user+' '+i.text()
-                session = int(MethaneTestSession.get_methane_session(user)[1])
+                session = int(MethaneTestSession.get_methane_session(user,False)[1])
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."
@@ -5930,7 +5936,7 @@ class panelGUI(QMainWindow):
                 for i in self.Current_workers:
                     if i.text() is not None:
                         user=user+' '+i.text()
-                session = int(MethaneTestSession.get_methane_session(user)[1])
+                session = int(MethaneTestSession.get_methane_session(user,False)[1])
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."
