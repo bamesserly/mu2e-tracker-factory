@@ -288,7 +288,7 @@ class MethaneTestSession(BASE, OBJECT):
         
     # returns the methane session data
     @classmethod
-    def get_methane_session(cls,user):
+    def get_methane_session(cls,user,start):
         query_result = (
             DM.query(cls)
             .filter(cls.current == 1)
