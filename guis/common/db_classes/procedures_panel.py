@@ -685,6 +685,40 @@ class Pan4Procedure(PanelProcedure):
     def getSilverEpoxyRightTimeIsRunning(self):
         return self.details.silver_epoxy_right_time_is_running
 
+    # hv measurements
+    def getHVMeasurements(self):
+        measurements = self._queryMeasurementsHV().all()
+        lst = []
+        for m in measurements:
+            lst += [m]
+        return lst
+
+    def _queryMeasurementHV(self, position):
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
+
+        return self._queryMeasurementsHV().filter(MeasurementPan5.position == position)
+
+    def _queryMeasurementsHV(self):
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
+
+        return (
+            MeasurementPan5.query()
+            .filter(MeasurementPan5.procedure == self.id)
+            .order_by(MeasurementPan5.position.asc())
+        )
+
+    def recordHVMeasurement(self, position, side, current, voltage, is_tripped):
+        from guis.common.db_classes.measurements_panel import MeasurementPan5
+
+        MeasurementPan5(
+            procedure=self.id,
+            position=position,
+            current_left=current if side == "Left" else None,
+            current_right=current if side == "Right" else None,
+            voltage=voltage,
+            is_tripped=is_tripped,
+        ).commit()
+
 
 # HV
 class Pan5Procedure(PanelProcedure):

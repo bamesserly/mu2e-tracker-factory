@@ -1581,7 +1581,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>7</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>28</height>
+                       <height>718</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -4404,6 +4404,77 @@ GUI</string>
                   </layout>
                  </widget>
                 </item>
+                <item row="5" column="0" colspan="2">
+                 <widget class="QGroupBox" name="commentBox">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>180</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>400</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Comments</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_51">
+                   <item row="0" column="0">
+                    <widget class="QPlainTextEdit" name="commentBox4">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="saveButton">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>80</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>14</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Save</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">saveButtons</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
                 <item row="1" column="0">
                  <layout class="QHBoxLayout" name="panelAndStart">
                   <item>
@@ -4500,78 +4571,7 @@ GUI</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0" colspan="2">
-                 <widget class="QGroupBox" name="commentBox">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>180</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>400</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="title">
-                   <string>Comments</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_51">
-                   <item row="0" column="0">
-                    <widget class="QPlainTextEdit" name="commentBox4">
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="saveButton">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Arial</family>
-                       <pointsize>14</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Save</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">saveButtons</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="2" column="0">
+                <item row="2" column="0" rowspan="2">
                  <layout class="QGridLayout" name="pinsAndOmegaLayout">
                   <item row="0" column="0">
                    <layout class="QGridLayout" name="pinProtectorsLayout">
@@ -5229,6 +5229,22 @@ GUI</string>
                   </item>
                  </layout>
                 </item>
+                <item row="3" column="1">
+                 <widget class="QGroupBox" name="groupBox_2">
+                  <property name="title">
+                   <string>External GUIs</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_66">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="launchHVpro4">
+                     <property name="text">
+                      <string>Launch HV GUI</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
                </layout>
               </widget>
               <widget class="QWidget" name="p5HV">
@@ -5418,8 +5434,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>281</width>
-                       <height>28</height>
+                       <width>465</width>
+                       <height>656</height>
                       </rect>
                      </property>
                     </widget>

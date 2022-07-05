@@ -576,6 +576,10 @@ class panelGUI(QMainWindow):
         self.ui.epoxyAppliedROP.clicked.connect(self.applyEpoxyROP)
         self.ui.epoxyCuredROP.clicked.connect(self.cureEpoxyROP)
 
+        # bind launch hv w/ corresponding function
+        self.ui.launchHVpro4.clicked.connect(self.hvMeasurementsPopup)
+        self.ui.launchHVpro4.setDisabled(True)
+
         self.pro4Timer1 = [
             self.ui.hour_disp_5,
             self.ui.min_disp_5,
@@ -3573,6 +3577,8 @@ class panelGUI(QMainWindow):
         if data[0] is not None:  # if panel input data exists
             self.ui.panelInput4.setText(data[0])  # set it's text to data[0]
             self.ui.panelInput4.setDisabled(True)  # and disable the panel input widget
+
+        self.ui.launchHVpro4.setEnabled(True)
 
         # LEFT PIN
         if data[2] is not None:  # if timer data for left pin application time exists
