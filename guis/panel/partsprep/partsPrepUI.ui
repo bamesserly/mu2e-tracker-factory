@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>966</width>
-    <height>707</height>
+    <width>967</width>
+    <height>741</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,12 +25,664 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="baseplate">
        <attribute name="title">
         <string>Base Plate</string>
        </attribute>
+       <widget class="QPushButton" name="bpStartPB">
+        <property name="geometry">
+         <rect>
+          <x>530</x>
+          <y>20</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pbStopPB">
+        <property name="geometry">
+         <rect>
+          <x>620</x>
+          <y>20</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="bpLE">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>20</y>
+          <width>113</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_8">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Base PLate</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp1_1">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>80</y>
+          <width>221</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1.1 - Check Flatness</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="bpImage1_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>120</y>
+          <width>151</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Step 1.2 Image</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_9">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>60</y>
+          <width>181</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>1- Dimension Check</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp1_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>100</y>
+          <width>231</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1.2 - Check tongue with tool</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp1_3">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>150</y>
+          <width>471</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1.3 - Check screw hole and counter bore holes with template for fit/no fit</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp1_4">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>170</y>
+          <width>531</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1.4 - Check end rib height 17.56+/-0.1mm (caliper, or height gauge against optical table)</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp1_5">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>190</y>
+          <width>411</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1.5 - Check survey hole fitness 6.35mm +0.013mm-0 (use gauge pin)</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp1_6">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>210</y>
+          <width>291</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1.6 - Mark pass/fail on data sheet</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_10">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>230</y>
+          <width>181</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>2- De-oxidation</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_1">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>250</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.1 - Inspect Scotch Brite on drill end, replace as needed</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>270</y>
+          <width>461</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.2 - Adjust Scotch Brite pressure on Base Plate outer ring and end rib</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_3">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>290</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.3 - Apply vinegar to parts surface and scotch brite</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_4">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>310</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.4 - Turn on/adjust drill to set speed</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_5">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>330</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.5 - Slide part under scotch brite</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_6">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>350</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.6 - Turn off drill</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_7">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>370</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.7 - Flush and clean parts with water</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_8">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>390</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.8 - Wipe/clean part with vinegar</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp2_9">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>410</y>
+          <width>351</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2.9 - Wipe/clean part with isopropyl alcohol</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp3_1">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>450</y>
+          <width>421</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>3.1 - Visually inspect processed surface for smoothness, cleanliness</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_21">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>430</y>
+          <width>181</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>3- De-oxidation QC</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="bpComEntryTE">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>540</y>
+          <width>460</width>
+          <height>72</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="bpComEntryPB">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>620</y>
+          <width>460</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Submit Comment</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="bpComDisplayTE">
+        <property name="geometry">
+         <rect>
+          <x>480</x>
+          <y>540</y>
+          <width>459</width>
+          <height>106</height>
+         </rect>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_22">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>60</y>
+          <width>321</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>4- Teflon/Kapton dots masking</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp4_1">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>80</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>4.1 - Pick up Teflon dots with a razor blade</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp4_2">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>100</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>4.2 - Apply Teflon dots to all holes on outer ring and outer rib</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="bpImage1_4">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>120</y>
+          <width>151</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Step 4.2</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_23">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>150</y>
+          <width>371</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>5- Epoxy pre-coating and press-fit gluing</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp5_1">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>170</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>5.1 - Mix epoxy (815c/3140 ratio by weight 4/3 (double mix)</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp5_2">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>190</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>5.2 - Roll on epoxy with a roller</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp5_3">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>210</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>5.3 - Clean up excess along eges (Kimwipe)</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp5_4">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>230</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>5.4 - Press in and glue 4 threaded press-fit nuts in middle section</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="bp5_5">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>250</y>
+          <width>391</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>5.5 - Put in oven and heat to 60C for &gt;4 hours for glue to cure</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_24">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>270</y>
+          <width>371</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>5- Epoxy pre-coating and press-fit gluing</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="bir">
        <attribute name="title">
@@ -725,7 +1377,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>966</width>
+     <width>967</width>
      <height>22</height>
     </rect>
    </property>
