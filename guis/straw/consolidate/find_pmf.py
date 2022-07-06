@@ -7,7 +7,8 @@ logger = SetupPANGUILogger("root")
 
 paths = GetProjectPaths()
 
-def is_pmf(straw):
+
+def get_pmf_list():
     straws=[]
     for file in Path(paths['palletsLTG']).rglob("*.csv"):
         if file.is_file() and file.stem[4:5]=='3':
@@ -19,11 +20,16 @@ def is_pmf(straw):
                     if len(item) > 1:
                         if item[:2] == 'ST':
                             straws.append(item)
+    return straws
 
+
+def is_pmf(straw):
+    straws=get_pmf_list()
     if straw in straws:
         return True
     else:
         return False
+        
 
 if __name__ == '__main__':
     while True:

@@ -20,11 +20,16 @@ import sys
 from guis.common.getresources import GetProjectPaths
 from guis.common.panguilogger import SetupPANGUILogger
 import guis.straw.consolidate.consolidate_utils as utils
+import guis.straw.consolidate.find_pmf
 
 logger = SetupPANGUILogger("root", tag="straw_consolidate")
 
 
 def run():
+    # acquire a list of pmf straws
+    pmf_list = find_pmf.get_pmf_list()
+    pmf_count = 0
+    
     logger.info("Beginning straw consolidation")
     now = datetime.now()
     date = now.strftime("%Y-%m-%d_%H:%M")
@@ -59,6 +64,8 @@ def run():
             elif utils.passedLeakTest(straw, worker):
                 logger.info(f"Straw {straw} is good!")
                 straws_passed.append(straw)
+                if straw in pmf_list:
+                    pmf_count += 1
                 break
             else:
                 logger.info(
