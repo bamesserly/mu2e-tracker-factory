@@ -20,7 +20,9 @@ import sys
 from guis.common.getresources import GetProjectPaths
 from guis.common.panguilogger import SetupPANGUILogger
 import guis.straw.consolidate.consolidate_utils as utils
-import guis.straw.consolidate.find_pmf
+import guis.straw.consolidate.find_pmf as find_pmf
+
+paths = GetProjectPaths()
 
 logger = SetupPANGUILogger("root", tag="straw_consolidate")
 
@@ -96,6 +98,7 @@ def run():
         myfile.write(date + ",lasr," + straws_passed_str + worker + "\n")
         myfile.write(date + ",leng," + straws_passed_str + worker + "\n")
 
+    logger.info(str(pmf_count) + " out of " + str(len(straws_passed)) + " straws were pmf.")
     logger.info("Finished")
 
 
