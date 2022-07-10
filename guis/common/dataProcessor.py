@@ -490,13 +490,13 @@ class DataProcessor(ABC):
     
     @abstractmethod
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         pass
     
     @abstractmethod
     def saveMethaneLeak(
-        session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+        straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location, user
     ):
         pass
     
@@ -671,19 +671,19 @@ class MultipleDataProcessor(DataProcessor):
             )
     
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         for dp in self.processors:
             dp.saveMethaneSession(
-                current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+                covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
             )
     
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+        self, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location, user
     ):
         for dp in self.processors:
             dp.saveMethaneLeak(
-                session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+                straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location, user
             )
 
     def saveBadWire(self, position, failure, process, wire_check):
@@ -1134,7 +1134,7 @@ class TxtDataProcessor(DataProcessor):
         ## Save comment:
         self.saveComment(comment, self.getPanel(), self.getPro())
     
-    def saveMethaneSession(self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt):
+    def saveMethaneSession(self, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user):
         pass
     # update all continuity measurements for panel
     # parameters are lists of data
@@ -1226,12 +1226,12 @@ class TxtDataProcessor(DataProcessor):
             
     # save process 8 methane testing session instance
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
         pass
         
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+        self, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location, user
     ):
         pass
 
@@ -1241,48 +1241,46 @@ class TxtDataProcessor(DataProcessor):
     
     # save the methane session txt
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
-        if txt:
-            headers=["Panel","current","covered_areas","sep_layer","top_straw_low","top_straw_high","bot_straw_low","bot_straw_high","detector_number","user","timestamp"]
+        headers=["Panel","covered_areas","sep_layer","top_straw_low","top_straw_high","bot_straw_low","bot_straw_high","detector_number","user","timestamp"]
 
-            outfile = self.getPanelLongMethaneSessionPath()
-            file_exists = os.path.isfile(outfile)
-            logger.info("Saving methane session data to {0}".format(outfile))
-            try:
-                with open(outfile, "a+") as f:
-                    writer = DictWriter(
-                        f, delimiter=",", lineterminator="\n", fieldnames=headers
-                    )
-                    if not file_exists:
-                        writer.writeheader()  # file doesn't exist yet, write a header
-                    writer.writerow(
-                        {
-                            "Panel": self.getPanel(),
-                            "current": str(current),
-                            "covered_areas": str(covered_areas),
-                            "sep_layer": str(sep_layer),
-                            "top_straw_low": str(top_straw_low),
-                            "top_straw_high": str(top_straw_high),
-                            "bot_straw_low": str(bot_straw_low),
-                            "bot_straw_high": str(bot_straw_high),
-                            "detector_number": str(detector_number),
-                            "user": str(user),
-                            "timestamp": self.timestamp(),
-                        }
-                    )
-            except PermissionError:
-                logger.warning(
-                    "Methane session data CSV file is locked. Probably open somewhere. Close and try again."
+        outfile = self.getPanelLongMethaneSessionPath()
+        file_exists = os.path.isfile(outfile)
+        logger.info("Saving methane session data to {0}".format(outfile))
+        try:
+            with open(outfile, "a+") as f:
+                writer = DictWriter(
+                    f, delimiter=",", lineterminator="\n", fieldnames=headers
                 )
-                logger.warning("Methane session data is not being saved to CSV files.")
-                return
+                if not file_exists:
+                    writer.writeheader()  # file doesn't exist yet, write a header
+                writer.writerow(
+                    {
+                        "Panel": self.getPanel(),
+                        "covered_areas": str(covered_areas),
+                        "sep_layer": str(sep_layer),
+                        "top_straw_low": str(top_straw_low),
+                        "top_straw_high": str(top_straw_high),
+                        "bot_straw_low": str(bot_straw_low),
+                        "bot_straw_high": str(bot_straw_high),
+                        "detector_number": str(detector_number),
+                        "user": str(user),
+                        "timestamp": self.timestamp(),
+                    }
+                )
+        except PermissionError:
+            logger.warning(
+                "Methane session data CSV file is locked. Probably open somewhere. Close and try again."
+            )
+            logger.warning("Methane session data is not being saved to CSV files.")
+            return
     
     # save the methane leak txt
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+        self, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location, user
     ):
-        headers=["Panel","session","straw_leak","straw_number","location","straw_leak_location","description","leak_size","panel_leak_location","timestamp"]
+        headers=["Panel","session","straw_leak","straw_number","location","straw_leak_location","description","leak_size","panel_leak_location","user","timestamp"]
 
         outfile = self.getPanelLongMethaneLeakPath()
         file_exists = os.path.isfile(outfile)
@@ -1297,7 +1295,6 @@ class TxtDataProcessor(DataProcessor):
                 writer.writerow(
                     {
                         "Panel": self.getPanel(),
-                        "session": str(session),
                         "straw_leak": str(straw_leak),
                         "straw_number": str(straw_number),
                         "location": str(location),
@@ -1305,6 +1302,7 @@ class TxtDataProcessor(DataProcessor):
                         "description": str(description),
                         "leak_size": str(leak_size),
                         "panel_leak_location": str(panel_leak_location),
+                        "user": str(user),
                         "timestamp": self.timestamp()
                     }
                 )
@@ -2311,30 +2309,26 @@ class SQLDataProcessor(DataProcessor):
             ).commit()
             
     def saveMethaneSession(
-        self, current, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user, txt
+        self, covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
     ):
-        if not txt:
-            if self.ensureProcedure():
-                MethaneTestSession(
-                    session=self.session.id,
-                    current=current,
-                    covered_areas=covered_areas,
-                    sep_layer=sep_layer,
-                    top_straw_low=top_straw_low,
-                    top_straw_high=top_straw_high,
-                    bot_straw_low=bot_straw_low,
-                    bot_straw_high=bot_straw_high,
-                    detector_number=detector_number,
-                    straw_location=self.procedure.straw_location,
-                    user=user,
-                ).commit()
+        if self.ensureProcedure():
+            MethaneTestSession(
+                covered_areas=covered_areas,
+                sep_layer=sep_layer,
+                top_straw_low=top_straw_low,
+                top_straw_high=top_straw_high,
+                bot_straw_low=bot_straw_low,
+                bot_straw_high=bot_straw_high,
+                detector_number=detector_number,
+                straw_location=self.procedure.straw_location,
+                user=user,
+            ).commit()
         
     def saveMethaneLeak(
-        self, session, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location
+        self, straw_leak, straw_number, location, straw_leak_location, description, leak_size, panel_leak_location, user
     ):
         if self.ensureProcedure():
             MethaneLeakInstance(
-                session=session,
                 straw_leak=straw_leak,
                 straw_number=straw_number,
                 location=location,
@@ -2342,6 +2336,8 @@ class SQLDataProcessor(DataProcessor):
                 description=description,
                 leak_size=leak_size,
                 panel_leak_location=panel_leak_location,
+                straw_location=self.procedure.straw_location,
+                user=user,
             ).commit()
         
 
@@ -2656,40 +2652,40 @@ class SQLDataProcessor(DataProcessor):
                 output += '\nDetector number ' + str(session.detector_number) + ' was used.'
                 
                 output += '\n\n'   
-            
-            
-            covered_list_reference=['Covers','Stay Bolts','Flooding','PFN Holes','Electronics Slot','Side Seams']
-            if session.covered_areas is not None:
-                leaks = (
-                    DM.query(MethaneLeakInstance)
-                    .filter(MethaneLeakInstance.session == session.session)
-                    .all()
-                )
-                for leak in leaks:
-                    if leak.straw_leak == 0:
-                        output += 'Panel Leak: \n'
+
+        leak_list_reference=['Covers','Stay Bolts','Flooding','PFN Holes','Electronics Slot','Side Seams']
+        leaks = (
+            DM.query(MethaneLeakInstance)
+            .filter(MethaneLeakInstance.straw_location == straw_location)
+            .all()
+        )
+        
+        for leak in leaks:
+            if leak.straw_leak == 0:
+                output += 'Panel Leak: \n'
                         
-                        output += 'Covered Areas: '
-                        for bool,reference in zip(leak.panel_leak_location, covered_list_reference):
-                            if bool == 'Y':
-                                output += reference + '\n'
-                        output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
-                    else:
-                        output += 'Straw Leak: \n'
-                        output += 'Straw Number ' + str(leak.straw_number)
-                        if leak.straw_leak_location == 'top':
-                            output += ' on top side, ' + str(leak.location) + ' inches from left.\n'
-                        elif leak.straw_leak_location == 'bottom':
-                            output += ' on bottom side, ' + str(leak.location) + ' inches from left.\n'
-                        elif leak.straw_leak_location == 'long':
-                            output += ' on long straw side, ' + str(leak.location) + ' inches from left.\n'
-                        else:
-                            output += ' on short straw side, ' + str(leak.location) + ' inches from left.\n'
-                            
-                        output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                output += 'Covered Areas: '
+                for bool,reference in zip(leak.panel_leak_location, leak_list_reference):
+                    if bool == 'Y':
+                        output += reference + '\n'
+                output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+            else:
+                output += 'Straw Leak: \n'
+                output += 'Straw Number ' + str(leak.straw_number)
+                if leak.straw_leak_location == 'top':
+                    output += ' on top side, ' + str(leak.location) + ' inches from left.\n'
+                elif leak.straw_leak_location == 'bottom':
+                    output += ' on bottom side, ' + str(leak.location) + ' inches from left.\n'
+                elif leak.straw_leak_location == 'long':
+                    output += ' on long straw side, ' + str(leak.location) + ' inches from left.\n'
+                else:
+                    output += ' on short straw side, ' + str(leak.location) + ' inches from left.\n'
                         
-                    output += str(leak.description) + '\n\n\n'
+                output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
+                        
+            output += str(leak.description) + '\n\n\n'
             output += '\n\n'
+        
 
         return output
     ##########################################################################

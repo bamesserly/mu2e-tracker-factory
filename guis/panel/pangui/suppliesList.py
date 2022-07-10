@@ -1092,16 +1092,7 @@ class SuppliesList:
                  Called at the end of panel pro five.
     """
 
-    def clearMoldRelease(self, text):
-        # return if currently in a methane testing session
-        if text != 'Start Testing Session':
-           generateBox(
-               "critical",
-               "Methane Session",
-               "Please end methane session prior to closing GUI.",
-           )
-           return
-        
+    def clearMoldRelease(self):
         # Re-enable accept button
         self.acceptButton.setEnabled(True)
 

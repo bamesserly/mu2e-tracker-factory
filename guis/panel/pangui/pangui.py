@@ -803,8 +803,6 @@ class panelGUI(QMainWindow):
         self.ui.submitRingsPB.clicked.connect(self.saveData)
         self.ui.submitCoversPB.setDisabled(True)
         self.ui.submitRingsPB.setDisabled(True)
-        self.ui.submit_leak_panel.setDisabled(True)
-        self.ui.submit_leak_straw.setDisabled(True)
         # connect checkboxes to pick one or the other, not both
         self.ui.wireCheck.toggled.connect(
             lambda: self.ui.strawCheck.setChecked(not (self.ui.wireCheck.isChecked()))
@@ -813,7 +811,7 @@ class panelGUI(QMainWindow):
             lambda: self.ui.wireCheck.setChecked(not (self.ui.strawCheck.isChecked()))
         )
         self.ui.submit_methane_session.clicked.connect(
-            lambda: self.start_stop_MethaneSession()
+            lambda: self.record_MethaneSession()
         )
         self.ui.submit_leak_straw.clicked.connect(
             lambda: self.submit_methane_leak('straw')
@@ -1317,7 +1315,7 @@ class panelGUI(QMainWindow):
 
         # clear mold release
         self.finishButton.clicked.connect(
-            lambda: self.suppliesList.clearMoldRelease(self.ui.submit_methane_session.text())
+            lambda: self.suppliesList.clearMoldRelease()
         )
 
         # stop vestigal timer that creates many bugs if we get rid of it
@@ -1677,10 +1675,6 @@ class panelGUI(QMainWindow):
     """
 
     def stopRunning(self, pause=False):
-        # return if currently in a methane testing session
-        if self.ui.submit_methane_session.text() != 'Start Testing Session':
-            return
-        
         # Pause GUI
         if pause:
             self.saveData()
@@ -5767,30 +5761,15 @@ class panelGUI(QMainWindow):
         )
         
     # Calls save function for methane testing session
-    def start_stop_MethaneSession(self):
-        # save current workers
-        user=""
-        for i in self.Current_workers:
-            if i.text() is not None:
-                user=user+' '+i.text()
+    def record_MethaneSession(self):
+
+        if self.ui.panelInput_8.text() != '':
+            # save current worker
+            user=self.Current_workers[0].text()
+    
+            # determine whether or not the plastic separator was used
+            sep_layer=self.ui.sep_layer.isChecked()
             
-        # determine whether or not the plastic separator was used
-        sep_layer=self.ui.sep_layer.isChecked()
-                
-        # acquire sequence designating which areas have been covered during methane sweep
-        if self.ui.submit_methane_session.text() == 'Start Testing Session' and self.ui.panelInput_8.text() != '':
-            # check to see if the current user has another session open
-            if MethaneTestSession.get_methane_session(user,True) != False:
-                generateBox(
-                    "critical", "Warning", "A single user may not have more than one session open."
-                )
-                return False
-            MethaneTestSession.end_methane_test(user)
-            self.DP.saveMethaneSession(True,None,None,None,None,None,None,None,user,False)
-            self.ui.submit_methane_session.setText('Submit Testing Session')
-            self.ui.submit_leak_panel.setDisabled(False)
-            self.ui.submit_leak_straw.setDisabled(False)
-        elif self.ui.panelInput_8.text() != '':
             # acquire top and bottom high and low straws
             top_low = None
             top_high = None
@@ -5846,15 +5825,13 @@ class panelGUI(QMainWindow):
                 )
                 return False
             
-            # using collected data, update the current methane test
-            MethaneTestSession.update_methane_test(covered_locations, gas_detector, top_low, top_high, bot_low, bot_high, sep_layer, user)
-            self.ui.submit_methane_session.setText('Start Testing Session')
+
             
-            # end current methane test, setting current to 0 in db
-            MethaneTestSession.end_methane_test(user)    
+            # covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
+            self.DP.saveMethaneSession(covered_locations, sep_layer, top_low, top_high, bot_low, bot_high, gas_detector, user)
             
-            # save the methane session in txt file
-            self.DP.saveMethaneSession(False,covered_locations,sep_layer,top_low,top_high,bot_low,bot_high,gas_detector,user,True)
+        
+
             
             # clear fields
             self.ui.top_covers.setChecked(False)
@@ -5872,9 +5849,6 @@ class panelGUI(QMainWindow):
             self.ui.bs_high.clear()
             self.ui.detector.clear()
             
-            self.ui.submit_leak_panel.setDisabled(True)
-            self.ui.submit_leak_straw.setDisabled(True)
-            
             # refresh the past leak display
             self.display_methane_leaks()
             
@@ -5890,11 +5864,7 @@ class panelGUI(QMainWindow):
                 location = int(self.ui.leak_location.text())
                 leak_size = int(self.ui.leak_size_straw.text())
                 
-                user=""
-                for i in self.Current_workers:
-                    if i.text() is not None:
-                        user=user+' '+i.text()
-                session = int(MethaneTestSession.get_methane_session(user,False)[1])
+                user=self.Current_workers[0].text()
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."
@@ -5914,7 +5884,7 @@ class panelGUI(QMainWindow):
             description = self.ui.leak_description_straw.toPlainText()
             
             # save the leak in db
-            self.DP.saveMethaneLeak(session,True,straw_number,location,straw_leak_location,description,leak_size,None)
+            self.DP.saveMethaneLeak(True,straw_number,location,straw_leak_location,description,leak_size,None,user)
 
             # clear all entry fields/checkboxes
             self.ui.straw_number.clear()
@@ -5938,11 +5908,6 @@ class panelGUI(QMainWindow):
             try:
                 leak_size = int(self.ui.leak_size_panel.text())
                 
-                user=""
-                for i in self.Current_workers:
-                    if i.text() is not None:
-                        user=user+' '+i.text()
-                session = int(MethaneTestSession.get_methane_session(user,False)[1])
             except:
                 generateBox(
                     "critical", "Warning", "Please ensure that all inputs are valid."
@@ -5952,7 +5917,8 @@ class panelGUI(QMainWindow):
             description = self.ui.leak_description_panel.toPlainText()
                 
             # save the methane leak instance in db
-            self.DP.saveMethaneLeak(session,False,None,None,None,description,leak_size,covered_locations)
+            user=self.Current_workers[0].text()
+            self.DP.saveMethaneLeak(False,None,None,None,description,leak_size,covered_locations,user)
                 
             # reset all entry fields/checkboxes
             self.ui.leak_description_panel.clear()
