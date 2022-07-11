@@ -294,6 +294,7 @@ class MethaneLeakInstance(BASE, OBJECT):
     panel_leak_location = Column(VARCHAR)
     straw_location = Column(Integer)
     user = Column(VARCHAR)
+    timestamp = Column(Integer)
     
     def __init__(
         self,
@@ -317,6 +318,7 @@ class MethaneLeakInstance(BASE, OBJECT):
         self.panel_leak_location = panel_leak_location
         self.straw_location = straw_location
         self.user = user
+        self.timestamp = int(datetime.now().timestamp())
         
         self.commit()
         

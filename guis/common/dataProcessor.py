@@ -2634,7 +2634,7 @@ class SQLDataProcessor(DataProcessor):
         covered_list_reference=['Top Covers','Top Flooding','Bottom Covers','Bottom Flooding','Electronics Slot','Side Seams','Stay Bolts','PFN Holes']
         for session in sessions:
             if session.covered_areas is not None:
-                output += str(session.user) + str(datetime.fromtimestamp(session.timestamp)) + '\n'
+                output += str(session.user) + ' ' + str(datetime.fromtimestamp(session.timestamp)) + '\n'
                 output += 'Covered Areas: '
                 for bool,reference in zip(session.covered_areas, covered_list_reference):
                     if bool == 'Y':
@@ -2662,6 +2662,7 @@ class SQLDataProcessor(DataProcessor):
         
         for leak in leaks:
             if leak.straw_leak == 0:
+                output += str(leak.user) + ' ' + str(datetime.fromtimestamp(leak.timestamp)) + '\n'
                 output += 'Panel Leak: \n'
                         
                 output += 'Covered Areas: '
@@ -2670,6 +2671,7 @@ class SQLDataProcessor(DataProcessor):
                         output += reference + '\n'
                 output += 'Leak Size: ' + str(leak.leak_size) + ' ppm\n\n'
             else:
+                output += str(leak.user) + ' ' + str(datetime.fromtimestamp(leak.timestamp)) + '\n'
                 output += 'Straw Leak: \n'
                 output += 'Straw Number ' + str(leak.straw_number)
                 if leak.straw_leak_location == 'top':
