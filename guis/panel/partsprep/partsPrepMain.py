@@ -76,6 +76,17 @@ class partsPrepGUI(QMainWindow):
         self.ui.actionbir6_4.triggered.connect(
             lambda : self.diagramPopup("bir6_4")
         )
+
+        self.ui.actionbp1_2.triggered.connect(
+            lambda : self.diagramPopup("bp1_2")
+        )
+        self.ui.actionbp4_2.triggered.connect(
+            lambda : self.diagramPopup("bp4_2")
+        )
+        self.ui.actionbp7_2.triggered.connect(
+            lambda : self.diagramPopup("bp7_2")
+        )
+        
         return
 
     # connect image push buttons to funciton
@@ -87,6 +98,18 @@ class partsPrepGUI(QMainWindow):
             lambda: self.diagramPopup("bir6_4")
         )
 
+        self.ui.bpImage1_2PB.clicked.connect(
+            lambda: self.diagramPopup("bp1_2")
+        )
+        self.ui.bpImage4_2PB.clicked.connect(
+            lambda: self.diagramPopup("bp4_2")
+        )
+        self.ui.bpImage7_2PB.clicked.connect(
+            lambda: self.diagramPopup("bp7_2")
+        )
+
+
+
     # connect checkbox state chenged to below funciton
     def initCheckboxes(self):
         
@@ -95,6 +118,13 @@ class partsPrepGUI(QMainWindow):
             stepText = box.text()
             box.stateChanged.connect(
                 lambda state, stepText=stepText: self.checkboxReaction("bir",stepText)
+            )
+
+        # connect BP checkboxes
+        for box in self.getCheckboxes(self.ui.bp):
+            stepText = box.text()
+            box.stateChanged.connect(
+                lambda state, stepText=stepText: self.checkboxReaction("bp",stepText)
             )
 
         # connect <OTHER PART TYPE> checkboxes
@@ -117,6 +147,14 @@ class partsPrepGUI(QMainWindow):
         self.ui.birStopPB.clicked.connect(
             lambda: self.startStopButton("bir",False)
             )
+        # bp start button
+        self.ui.bpStartPB.clicked.connect(
+            lambda: self.startStopButton("bp",True)
+        )
+        # bp stop button
+        self.ui.bpStopPB.clicked.connect(
+            lambda: self.startStopButton("bp",False)
+        )
 
         return
 
@@ -132,6 +170,9 @@ class partsPrepGUI(QMainWindow):
     def initOthers(self):
         self.ui.birComEntryPB.clicked.connect(
             lambda: self.submitComment("bir")
+        )
+        self.ui.bpComEntryPB.clicked.connect(
+            lambda: self.submitComment("bp")
         )
 
     # for each box make it:

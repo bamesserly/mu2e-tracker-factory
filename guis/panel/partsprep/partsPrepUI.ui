@@ -25,7 +25,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="baseplate">
        <attribute name="title">
@@ -37,7 +37,7 @@
           <item>
            <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>Base PLate</string>
+             <string>Base Plate</string>
             </property>
            </widget>
           </item>
@@ -57,6 +57,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="pbStopPB">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Stop</string>
             </property>
@@ -1305,11 +1308,1033 @@
        <attribute name="title">
         <string>Frame</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_10">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="frLE"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="frStartPB">
+          <property name="text">
+           <string>Start</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QPushButton" name="frStopPB">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Stop</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_12">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1 - Dimension Check</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr1_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.1 - Check Flatness</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr1_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.2 - Spot check thickness, 3 positions (ends + mid in inner ring) 3.175+/-0.08 mm</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr1_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.3 - Check groove depth with depth gauge and width by running a gauge pin</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="frImage1_3">
+            <property name="text">
+             <string>Step 1.3 Image</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr1_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.4 - Hole pattern check with template</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr1_5">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.5 - Mark pass/fail date on data sheet</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_13">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2 - De-oxidation</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.1 - Inspect scotch brite on drill end, replace as needed</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.2 - Load parts in sliding tray</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.3 - Adjust scotch brite pressure on tray</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.4 - Apply vinegar to parts surface</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_5">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.5 - Turn on/adjust drill to the set speed</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_6">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.6 - Slide part under scotch brite</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_7">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.7 - Turn off drill</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_8">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.8 - Flush and wipe clean parts with water</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_9">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.9 - Wipe/clean part with vinegar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr2_10">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.10 - Wipe/clean part with isopropyl alcohol</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_14">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>3 - De-oxidation QC</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr3_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>3.1 - Visually inspect processed surface for smoothness, cleanliness</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="2" colspan="2">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_15">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4 - Teflon dots masking</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr4_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4.1 - Pick up Teflon dots with a razor blade</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr4_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4.2 - Apply 90 Teflon dots to simple holes on outer ring, outer rib, MIR</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="frImage4_2">
+            <property name="text">
+             <string>Step 4.2 Image</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr4_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4.3 - Apply 4 Teflon dots to threaded holes in inner ring</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="frImage4_3">
+            <property name="text">
+             <string>Step 4.3 Image</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>5 - Epoxy pre-coating</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr5_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.1 - Mix epoxy (815c/3140 ratio by weight 4/3 (double mix)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr5_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.2 - Roll on epoxy with a roller</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr5_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.3 - Clean up excess along eges (Kimwipe)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr5_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.4 - Put in oven and heat to 60C for &gt;4 hours for glue to cure</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_27">
+            <property name="text">
+             <string>6 - Epoxy pre-coating QC</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr6_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.1 - Check scale with 100g reference weight</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr6_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.2 - Check caliper or height gauge with gauge block</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr6_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.3 - Visually inspect glue surface for smoothness and no void spot</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fr6_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.4 - Spot check outer ring and outer rib height &lt; 17.66 mm</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QTextEdit" name="frComEntryTE"/>
+        </item>
+        <item row="2" column="2" rowspan="2" colspan="2">
+         <widget class="QTextEdit" name="frComDisplayTE">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>75</height>
+           </size>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QPushButton" name="frComEntryPB">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Submit Comment</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="mir">
        <attribute name="title">
         <string>MIR</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_21">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>MIR</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="mirLE"/>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QPushButton" name="mirStartPB">
+            <property name="text">
+             <string>Start</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mirStopPB">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Stop</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_20">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_47">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1 - Dimension Check</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" rowspan="2">
+           <widget class="QLabel" name="label_51">
+            <property name="text">
+             <string>5 - Epoxy pre-coating</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="2">
+           <widget class="QCheckBox" name="mir1_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.1 - Check flatness</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" rowspan="2">
+           <widget class="QCheckBox" name="mir5_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.1 - Mix epoxy (815c/3140 ratio by weight 4/3 (double mix)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" rowspan="2">
+           <widget class="QCheckBox" name="mir1_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.2 - Hole pattern check with template</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" rowspan="2">
+           <widget class="QCheckBox" name="mir5_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.2 - Roll on epoxy with a roller</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="mir1_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>1.3 - Mark pass/fail date on data sheet</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_48">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2 - De-oxidation</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QCheckBox" name="mir5_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.3 - Clean up excess along eges (Kimwipe)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QCheckBox" name="mir2_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.1 - Inspect scotch brite on drill end, replace as needed</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QCheckBox" name="mir5_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>5.4 - Put in oven and heat to 60C for &gt;4 hours for glue to cure</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QCheckBox" name="mir2_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.2 - Load parts in sliding tray</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QPushButton" name="mirImage5_4">
+            <property name="text">
+             <string>Step 5.4 Image</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QCheckBox" name="mir2_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.3 - Adjust scotch brite pressure on tray</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1" rowspan="2">
+           <widget class="QLabel" name="label_52">
+            <property name="text">
+             <string>6 - Epoxy pre-coating QC</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0" rowspan="2">
+           <widget class="QCheckBox" name="mir2_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.4 - Apply vinegar to parts surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="1" rowspan="2">
+           <widget class="QCheckBox" name="mir6_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.1 - Check scale with 100g reference weight</string>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="0" rowspan="2">
+           <widget class="QCheckBox" name="mir2_5">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.5 - Turn on/adjust drill to the set speed</string>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="1" rowspan="2">
+           <widget class="QCheckBox" name="mir6_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.2 - Check caliper or height gauge with gauge block</string>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="0" rowspan="2">
+           <widget class="QCheckBox" name="mir2_6">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.6 - Slide part under scotch brite</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="1" rowspan="2">
+           <widget class="QCheckBox" name="mir6_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>6.3 - Visually inspect glue surface for smoothness and no void spot</string>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="0">
+           <widget class="QCheckBox" name="mir2_7">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.7 - Turn off drill</string>
+            </property>
+           </widget>
+          </item>
+          <item row="17" column="0">
+           <widget class="QCheckBox" name="mir2_8">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.8 - Flush and wipe clean parts with water</string>
+            </property>
+           </widget>
+          </item>
+          <item row="18" column="0">
+           <widget class="QCheckBox" name="mir2_9">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.9 - Wipe/clean part with vinegar</string>
+            </property>
+           </widget>
+          </item>
+          <item row="19" column="0">
+           <widget class="QCheckBox" name="mir2_10">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>2.10 - Wipe/clean part with isopropyl alcohol</string>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="0">
+           <widget class="QLabel" name="label_49">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>3 - De-oxidation QC</string>
+            </property>
+           </widget>
+          </item>
+          <item row="21" column="0">
+           <widget class="QCheckBox" name="mir3_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>3.1 - Visually inspect processed surface for smoothness, cleanliness</string>
+            </property>
+           </widget>
+          </item>
+          <item row="22" column="0">
+           <widget class="QLabel" name="label_50">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4 - Teflon dots masking</string>
+            </property>
+           </widget>
+          </item>
+          <item row="23" column="0">
+           <widget class="QCheckBox" name="mir4_1">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4.1 - Pick up Teflon or Kapton dots with a razor blade</string>
+            </property>
+           </widget>
+          </item>
+          <item row="24" column="0">
+           <widget class="QCheckBox" name="mir4_2">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>4.2 Apply Teflon dots to all holes on top and bottom surface</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <widget class="QTextEdit" name="mirComEntryTE"/>
+        </item>
+        <item row="2" column="1" rowspan="2">
+         <widget class="QTextEdit" name="mirComDisplayTE">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>75</height>
+           </size>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="mirComEntryPB">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Submit Comment</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="mr">
        <attribute name="title">
@@ -1340,8 +2365,16 @@
      <addaction name="actionbir2_3"/>
      <addaction name="actionbir6_4"/>
     </widget>
+    <widget class="QMenu" name="menuBase_Plate">
+     <property name="title">
+      <string>Base Plate</string>
+     </property>
+     <addaction name="actionbp1_2"/>
+     <addaction name="actionbp4_2"/>
+     <addaction name="actionbp7_2"/>
+    </widget>
     <addaction name="actionAutomatically_Open"/>
-    <addaction name="actionBase_Plate"/>
+    <addaction name="menuBase_Plate"/>
     <addaction name="menuBIR"/>
     <addaction name="actionFrame"/>
     <addaction name="actionMIR"/>
@@ -1366,11 +2399,6 @@
    </property>
    <property name="text">
     <string>Automatically Open</string>
-   </property>
-  </action>
-  <action name="actionBase_Plate">
-   <property name="text">
-    <string>Base Plate</string>
    </property>
   </action>
   <action name="actionFrame">
@@ -1411,6 +2439,21 @@
   <action name="actionbir6_4">
    <property name="text">
     <string>Step 6.4</string>
+   </property>
+  </action>
+  <action name="actionbp1_2">
+   <property name="text">
+    <string>Step 1.2</string>
+   </property>
+  </action>
+  <action name="actionbp4_2">
+   <property name="text">
+    <string>Step 4.2</string>
+   </property>
+  </action>
+  <action name="actionbp7_2">
+   <property name="text">
+    <string>Step 7.2</string>
    </property>
   </action>
  </widget>
