@@ -68,4 +68,4 @@ def refit(raw_data_file_fullpath, n_skips_start=0, n_skips_end=0):
 
     # print("\n  Status leak rate after refit:", leak_status)
 
-    return leak_rate, leak_rate_err, leak_status
+    return leak_rate, leak_rate_err, leak_status, chamber
