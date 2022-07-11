@@ -76,6 +76,17 @@ class partsPrepGUI(QMainWindow):
         self.ui.actionbir6_4.triggered.connect(
             lambda : self.diagramPopup("bir6_4")
         )
+
+        self.ui.actionbp1_2.triggered.connect(
+            lambda : self.diagramPopup("bp1_2")
+        )
+        self.ui.actionbp4_2.triggered.connect(
+            lambda : self.diagramPopup("bp4_2")
+        )
+        self.ui.actionbp7_2.triggered.connect(
+            lambda : self.diagramPopup("bp7_2")
+        )
+        
         return
 
     # connect image push buttons to funciton
@@ -86,6 +97,35 @@ class partsPrepGUI(QMainWindow):
         self.ui.birImage6_4PB.clicked.connect(
             lambda: self.diagramPopup("bir6_4")
         )
+        self.ui.bpImage1_2PB.clicked.connect(
+            lambda: self.diagramPopup("bp1_2")
+        )
+        self.ui.bpImage4_2PB.clicked.connect(
+            lambda: self.diagramPopup("bp4_2")
+        )
+        self.ui.bpImage7_2PB.clicked.connect(
+            lambda: self.diagramPopup("bp7_2")
+        )
+        self.ui.frImage1_3PB.clicked.connect(
+            lambda: self.diagramPopup("fr1_3")
+        )
+        self.ui.frImage4_2PB.clicked.connect(
+            lambda: self.diagramPopup("fr4_2")
+        )
+        self.ui.frImage4_3PB.clicked.connect(
+            lambda: self.diagramPopup("fr4_3")
+        )
+        self.ui.mrImage3_10PB.clicked.connect(
+            lambda: self.diagramPopup("mr3_10")
+        )
+        self.ui.mirImage5_4PB.clicked.connect(
+            lambda: self.diagramPopup("mir5_4")
+        )
+        self.ui.mrImage5_4PB.clicked.connect(
+            lambda: self.diagramPopup("mr5_4")
+        )
+
+
 
     # connect checkbox state chenged to below funciton
     def initCheckboxes(self):
@@ -95,6 +135,31 @@ class partsPrepGUI(QMainWindow):
             stepText = box.text()
             box.stateChanged.connect(
                 lambda state, stepText=stepText: self.checkboxReaction("bir",stepText)
+            )
+
+        # connect BP checkboxes
+        for box in self.getCheckboxes(self.ui.bp):
+            stepText = box.text()
+            box.stateChanged.connect(
+                lambda state, stepText=stepText: self.checkboxReaction("bp",stepText)
+            )
+
+        for box in self.getCheckboxes(self.ui.fr):
+            stepText = box.text()
+            box.stateChanged.connect(
+                lambda state, stepText=stepText: self.checkboxReaction("fr",stepText)
+            )
+
+        for box in self.getCheckboxes(self.ui.mir):
+            stepText = box.text()
+            box.stateChanged.connect(
+                lambda state, stepText=stepText: self.checkboxReaction("mir",stepText)
+            )
+
+        for box in self.getCheckboxes(self.ui.mr):
+            stepText = box.text()
+            box.stateChanged.connect(
+                lambda state, stepText=stepText: self.checkboxReaction("mr",stepText)
             )
 
         # connect <OTHER PART TYPE> checkboxes
@@ -117,6 +182,41 @@ class partsPrepGUI(QMainWindow):
         self.ui.birStopPB.clicked.connect(
             lambda: self.startStopButton("bir",False)
             )
+        # bp start button
+        self.ui.bpStartPB.clicked.connect(
+            lambda: self.startStopButton("bp",True)
+        )
+        # bp stop button
+        self.ui.b_p_Stop_push_button.clicked.connect(
+            lambda: self.startStopButton("bp",False)
+        )
+
+        # fr start button
+        self.ui.frStartPB.clicked.connect(
+            lambda: self.startStopButton("fr",True)
+        )
+        # fr stop button
+        self.ui.frStopPB.clicked.connect(
+            lambda: self.startStopButton("fr",False)
+        )
+
+        # mir start button
+        self.ui.mirStartPB.clicked.connect(
+            lambda: self.startStopButton("mir",True)
+        )
+        # mir stop button
+        self.ui.mirStopPB.clicked.connect(
+            lambda: self.startStopButton("mir",False)
+        )
+
+        # mr start button
+        self.ui.mrStartPB.clicked.connect(
+            lambda: self.startStopButton("mr",True)
+        )
+        # mr stop button
+        self.ui.mrStopPB.clicked.connect(
+            lambda: self.startStopButton("mr",False)
+        )
 
         return
 
@@ -132,6 +232,18 @@ class partsPrepGUI(QMainWindow):
     def initOthers(self):
         self.ui.birComEntryPB.clicked.connect(
             lambda: self.submitComment("bir")
+        )
+        self.ui.bpComEntryPB.clicked.connect(
+            lambda: self.submitComment("bp")
+        )
+        self.ui.frComEntryPB.clicked.connect(
+            lambda: self.submitComment("fr")
+        )
+        self.ui.mirComEntryPB.clicked.connect(
+            lambda: self.submitComment("mir")
+        )
+        self.ui.mrComEntryPB.clicked.connect(
+            lambda: self.submitComment("mr")
         )
 
     # for each box make it:
