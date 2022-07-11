@@ -5830,8 +5830,8 @@ class panelGUI(QMainWindow):
             # covered_areas, sep_layer, top_straw_low, top_straw_high, bot_straw_low, bot_straw_high, detector_number, user
             self.DP.saveMethaneSession(covered_locations, sep_layer, top_low, top_high, bot_low, bot_high, gas_detector, user)
             
-        
-
+            # refresh the past leak display
+            self.display_methane_leaks()
             
             # clear fields
             self.ui.top_covers.setChecked(False)
@@ -5848,9 +5848,6 @@ class panelGUI(QMainWindow):
             self.ui.bs_low.clear()
             self.ui.bs_high.clear()
             self.ui.detector.clear()
-            
-            # refresh the past leak display
-            self.display_methane_leaks()
             
         
     # save methane leak instance
@@ -5929,6 +5926,9 @@ class panelGUI(QMainWindow):
             self.ui.leak_pfn_holes.setChecked(False)
             self.ui.leak_e_slot.setChecked(False)
             self.ui.leak_side_seams.setChecked(False)
+        
+        # refresh the past leak display
+        self.display_methane_leaks()
 
 
 

@@ -7664,13 +7664,13 @@ Heater GUI</string>
                     <property name="geometry">
                      <rect>
                       <x>10</x>
-                      <y>180</y>
+                      <y>210</y>
                       <width>291</width>
                       <height>271</height>
                      </rect>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <widget class="QWidget" name="tab_6">
                      <attribute name="title">
@@ -8007,19 +8007,6 @@ Heater GUI</string>
                      </widget>
                     </widget>
                    </widget>
-                   <widget class="QPushButton" name="submit_methane_session">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>460</y>
-                      <width>291</width>
-                      <height>23</height>
-                     </rect>
-                    </property>
-                    <property name="text">
-                     <string>Submit Testing Session</string>
-                    </property>
-                   </widget>
                    <widget class="QCheckBox" name="stay_bolts">
                     <property name="geometry">
                      <rect>
@@ -8070,6 +8057,19 @@ Heater GUI</string>
                     </property>
                     <property name="text">
                      <string>Bottom Straws:</string>
+                    </property>
+                   </widget>
+                   <widget class="QPushButton" name="submit_methane_session">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>180</y>
+                      <width>281</width>
+                      <height>23</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Submit Methane Session</string>
                     </property>
                    </widget>
                   </widget>
@@ -8539,8 +8539,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
   <buttongroup name="PortalButtons"/>
-  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>
