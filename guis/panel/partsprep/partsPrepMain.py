@@ -115,8 +115,8 @@ class partsPrepGUI(QMainWindow):
         self.ui.frImage4_3PB.clicked.connect(
             lambda: self.diagramPopup("fr4_3")
         )
-        self.ui.mirImage3_10PB.clicked.connect(
-            lambda: self.diagramPopup("mir3_10")
+        self.ui.mrImage3_10PB.clicked.connect(
+            lambda: self.diagramPopup("mr3_10")
         )
         self.ui.mirImage5_4PB.clicked.connect(
             lambda: self.diagramPopup("mir5_4")
@@ -187,7 +187,7 @@ class partsPrepGUI(QMainWindow):
             lambda: self.startStopButton("bp",True)
         )
         # bp stop button
-        self.ui.bpStopPB.clicked.connect(
+        self.ui.b_p_Stop_push_button.clicked.connect(
             lambda: self.startStopButton("bp",False)
         )
 
