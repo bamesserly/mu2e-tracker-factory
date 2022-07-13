@@ -95,17 +95,18 @@ void loop() {
     pKbd++;
     usrsp = atof(pKbd);
     if (abs(usrsp - setpointA) >
-        5) {  // new setpoint from python interface either 34C or 55C / software
+        5) {  // new setpoint from python interface either 38C or 55C / software
               // timer fixed
       do_increase_temperature =
           1;  // resets holdstart to get full holdtime at new setpoint
       setpointA = min(usrsp, 52);
+      if(setpointA!=52) { setpointA = 38; }
       // setpointB based on PAAS-B correction for temperature difference at RTD
       // location vs. bulk surface
-      if (setpointA > 34) {
+      if (setpointA > 38) {
         setpointB = 50;
       } else {
-        setpointB = 33.9;
+        setpointB = 37.9;
       }
       // setpointC based on PAAS-C correction for temperature difference at RTD
       // location vs. under baseplate
@@ -171,8 +172,8 @@ void temp_control() {
       // PAAS-B correction: RTD placed in corner measures lower temperature than
       // bulk surface at 55C
       dT = tempA - temp2 -
-           4.5 * (max(0, temp2 - 34) / 16);  // experimental: with cube foam
-      if (setpointB < 34) {  // try to get faster rise to 34C by altering where
+           4.5 * (max(0, temp2 - 38) / 16);  // experimental: with cube foam
+      if (setpointB < 38) {  // try to get faster rise to 38C by altering where
                              // feedback constraint applies
         // 0130. adding condition on temp2 to prevent heating if B not plugged
         // in
