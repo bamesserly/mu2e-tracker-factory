@@ -287,68 +287,6 @@ class MethaneTestSession(BASE, OBJECT):
 
         self.commit()
 
-    # returns the methane session data
-    @classmethod
-    def get_methane_session(cls):
-        query_result = DM.query(cls).filter(cls.current == 1)
-        query_result = query_result.all()[0]
-        return (
-            query_result.id,
-            query_result.session,
-            query_result.current,
-            query_result.covered_areas,
-            query_result.sep_layer,
-            query_result.top_straw_low,
-            query_result.top_straw_high,
-            query_result.bot_straw_low,
-            query_result.bot_straw_high,
-            query_result.user,
-        )
-
-    # ends current methane sessions - sets current variable to zero
-    @classmethod
-    def end_methane_test(cls, user):
-        query_result = {
-            DM.query(cls)
-            .filter(cls.current == 1)
-            .filter(cls.user == str(user))
-            .update(
-                {"current": 0, "timestamp": int(time.time())},
-                synchronize_session="evaluate",
-            )
-        }
-
-    # updates a methane test session with inputted data
-    @classmethod
-    def update_methane_test(
-        cls,
-        covered_locations,
-        gas_detector,
-        top_low,
-        top_high,
-        bot_low,
-        bot_high,
-        sep_layer,
-        user,
-    ):
-        query_result = {
-            DM.query(cls)
-            .filter(cls.current == 1)
-            .filter(cls.user == user)
-            .update(
-                {
-                    "covered_areas": covered_locations,
-                    "detector_number": gas_detector,
-                    "top_straw_low": top_low,
-                    "top_straw_high": top_high,
-                    "bot_straw_low": bot_low,
-                    "bot_straw_high": bot_high,
-                    "sep_layer": sep_layer,
-                    "timestamp": int(time.time()),
-                },
-                synchronize_session="evaluate",
-            )
-        }
 
 class MethaneLeakInstance(BASE, OBJECT):
     __tablename__ = "leak_instance"
@@ -388,5 +326,5 @@ class MethaneLeakInstance(BASE, OBJECT):
         self.straw_location = straw_location
         self.user = user
         self.timestamp = int(datetime.now().timestamp())
-        
+
         self.commit()
