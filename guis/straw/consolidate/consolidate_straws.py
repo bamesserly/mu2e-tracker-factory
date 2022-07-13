@@ -25,11 +25,13 @@ from guis.common.db_classes.straw import Straw
 from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
 from guis.common.merger import isolated_automerge
 
+import logging
+
 paths = GetProjectPaths()
 
-logger = SetupPANGUILogger("root", tag="straw_consolidate")
 
 def run():
+    logger = logging.getLogger("root")
     # acquire a list of pmf straws
     pmf_list = find_pmf.get_pmf_list()
     pmf_count = 0
