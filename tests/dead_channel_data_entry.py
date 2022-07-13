@@ -20,6 +20,7 @@ import logging
 
 logger = SetupPANGUILogger("root", "dead_channel_entry")
 
+import sqlalchemy as sqla  # for interacting with db
 from guis.common.db_classes.measurements_panel import BadWire
 from guis.common.db_classes.procedure import Procedure, PanelProcedure
 from guis.common.gui_utils import except_hook
@@ -29,6 +30,7 @@ from pathlib import Path
 import pandas as pd
 from datetime import datetime
 import time
+from guis.common.db_classes.bases import DM
 
 
 kPROCESSNUMBER = 8
@@ -127,7 +129,7 @@ def interactive_load():
 def load_data_from_csv(infile):
     assert Path(infile).is_file()
     # header = ('panel', 'date', 'position', 'explanation', 'wire_straw', 'shipping_confirmed', 'box', 'dbv_notes', 'nsources', 'notes')
-    df = pd.read_csv(infile, sep=",", skipinitialspace=True)
+    df = pd.read_csv(infile, sep=",", skipinitialspace=True, index_col=False)
     df = df.where(pd.notnull(df), None)
     data = df.to_dict("records")
     bad_channels = []
@@ -187,23 +189,50 @@ def load_data_from_csv(infile):
     return bad_channels
 
 
-def bulk_load():
+def bulk_load(infile):
     # list of bad channel objects from csv
-    bad_channel_data = load_data_from_csv("tests/dead_channels.csv")
+    bad_channel_data = load_data_from_csv(infile)
+    logger.info(f"Loading {len(bad_channel_data)} bad channels into DB.")
+    print("\n\n")
+    submitted = 0
+    failed = 0
     # loop bad channels and submit each to DB
     for i in bad_channel_data:
+        print("\n")
         logger.info(f"Submitting entry to DB:")
         print(i)
-        BadWire(
-            procedure=i.pid,
-            position=i.position,
-            wire_check=i.is_wire,
-            failure=i.description,
-            process=i.process_number,
-            timestamp=i.timestamp,
-        )
+
+        # ship it
+        try:
+            BadWire(
+                procedure=i.pid,
+                position=i.position,
+                wire_check=i.is_wire,
+                failure=i.description,
+                process=i.process_number,
+                timestamp=i.timestamp,
+            )
+            submitted += 1
+
+        # uniqueness constraint (procedure, position, wire-straw) failed
+        # in other words: this bad channel already exists
+        # If you want to update a channel, you gotta do something different
+        except sqla.exc.IntegrityError:
+            failed += 1
+            logger.warning(
+                "Bad channel entry already exists. NOT adding duplicate to the DB."
+            )
+            logger.warning(
+                "If you want to update an entry tell Ben or put it in the comments."
+            )
+            DM._connection.rollback()  # after the conflict, need to rollback
+    print("\n\n")
+    logger.info(f"Of {len(bad_channel_data)} bad channels from the csv file...")
+    logger.info(
+        f"{submitted} entries added to DB. {failed} duplicate entries not added."
+    )
 
 
 if __name__ == "__main__":
-    bulk_load()
+    bulk_load("tests/2022-07-13_dead_channels.csv")
     # interactive_load()
