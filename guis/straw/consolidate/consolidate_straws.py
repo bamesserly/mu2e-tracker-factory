@@ -21,37 +21,13 @@ from guis.common.getresources import GetProjectPaths
 from guis.common.panguilogger import SetupPANGUILogger
 import guis.straw.consolidate.consolidate_utils as utils
 import guis.straw.consolidate.find_pmf as find_pmf
-from guis.straw.consolidate.consolidate_utils import finalizeStraws
 from guis.common.db_classes.straw import Straw
-from guis.common.db_classes.straw_location import StrawLocation
+from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
 from guis.common.merger import isolated_automerge
 
 paths = GetProjectPaths()
 
 logger = SetupPANGUILogger("root", tag="straw_consolidate")
-
-def save_to_db(straws_passed_list, pallet_id, pallet_number):
-    logger = logging.getLogger("root")
-    assert len(straws_passed_list) == 24
-    
-    # Get a cpal in the DB
-    try:
-        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
-    # can't make new pallet bc this id still has straws on it.
-    except AssertionError as e:
-        logger.debug(e)
-        CuttingPallet.remove_straws_from_pallet_by_id(pallet_id)
-        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
-
-    for position, straw_id in enumerate(straws_passed_list):
-        straw_number = int(straw_id[2:])
-        if not Straw.exists(straw_number):
-            logger.info(f"Straw ST{straw_number} doesn't exist! Creating it.")
-            logger.info("If you see lots of these messages, stop and inform Ben.")
-
-        # safely remove this straw from its current location(s), clear the
-        # target position, and then add the straw
-        cpal.forceAddStraw(Straw.Straw(id=straw_number).id, position)
 
 def run():
     # acquire a list of pmf straws
@@ -105,6 +81,7 @@ def run():
     logger.debug(f"Initial straws submitted: {straws_passed}")
 
     straws_passed = utils.finalizeStraws(straws_passed, worker)
+    straws_passed_list = straws_passed
 
     logger.debug(f"Finalized straws: {straws_passed}")
 
@@ -124,11 +101,7 @@ def run():
         myfile.write(date + ",lasr," + straws_passed_str + worker + "\n")
         myfile.write(date + ",leng," + straws_passed_str + worker + "\n")
         
-    straws_passed_list = finalizeStraws(
-        straws_passed=straws_passed, worker=None, require_leak_pass=False
-    )
-        
-    save_to_db(straws_passed_list, cpal_id, cpal_num)
+    CuttingPallet.save_to_db(straws_passed_list, cpal_id, cpal_num)
     
     isolated_automerge()
 

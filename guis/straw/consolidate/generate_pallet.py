@@ -25,31 +25,6 @@ from guis.common.merger import isolated_automerge
 
 import logging
 
-
-def save_to_db(straws_passed_list, pallet_id, pallet_number):
-    logger = logging.getLogger("root")
-    assert len(straws_passed_list) == 24
-
-    # Get or create a cpal in the DB
-    try:
-        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
-    # can't make new pallet bc this id still has straws on it.
-    except AssertionError as e:
-        logger.debug(e)
-        CuttingPallet.remove_straws_from_pallet_by_id(pallet_id)
-        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
-
-    for position, straw_id in enumerate(straws_passed_list):
-        straw_number = int(straw_id[2:])
-        if not Straw.exists(straw_number):
-            logger.info(f"Straw ST{straw_number} doesn't exist! Creating it.")
-            logger.info("If you see lots of these messages, stop and inform Ben.")
-
-        # safely remove this straw from its current location(s), clear the
-        # target position, and then add the straw
-        cpal.forceAddStraw(Straw.Straw(id=straw_number).id, position)
-
-
 def save_to_csv(pfile, is_new_cpal, straw_pass_list, workers):
     logger = logging.getLogger("root")
     now = datetime.now()
@@ -119,7 +94,7 @@ def run():
     )
 
     save_to_csv(pfile, is_new_cpal, straws_passed_list, workers)
-    save_to_db(straws_passed_list, cpal_id, cpal_num)
+    CuttingPallet.save_to_db(straws_passed_list, cpal_id, cpal_num)
 
     isolated_automerge()
 
