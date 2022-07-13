@@ -191,14 +191,20 @@ class BadWire(BASE, OBJECT):
     process = Column(Integer)
     procedure = Column(Integer)
     wire = Column(BOOLEAN)
+    timestamp = Column(Integer)
 
-    def __init__(self, position, failure, process, procedure, wire_check):
+    def __init__(
+        self, position, failure, process, procedure, wire_check, timestamp=None
+    ):
         self.id = self.ID()
         self.position = position
         self.failure = failure
         self.process = process
         self.procedure = procedure
         self.wire = wire_check
+        self.timestamp = (
+            timestamp if timestamp is not None else int(datetime.now().timestamp())
+        )
 
         self.commit()
 
@@ -239,9 +245,10 @@ class LeakFinalForm(BASE, OBJECT):
 
         self.commit()
 
+
 class MethaneTestSession(BASE, OBJECT):
     __tablename__ = "methane_sessions"
-    
+
     id = Column(Integer, primary_key=True)
     covered_areas = Column(VARCHAR)
     sep_layer = Column(BOOLEAN)
@@ -253,7 +260,7 @@ class MethaneTestSession(BASE, OBJECT):
     straw_location = Column(Integer)
     user = Column(VARCHAR)
     timestamp = Column(Integer)
-    
+
     def __init__(
         self,
         covered_areas,
@@ -277,13 +284,13 @@ class MethaneTestSession(BASE, OBJECT):
         self.straw_location = straw_location
         self.user = user
         self.timestamp = int(datetime.now().timestamp())
-        
+
         self.commit()
-        
+
 
 class MethaneLeakInstance(BASE, OBJECT):
     __tablename__ = "leak_instance"
-    
+
     id = Column(Integer, primary_key=True)
     straw_leak = Column(BOOLEAN)
     straw_number = Column(Integer)
@@ -295,7 +302,7 @@ class MethaneLeakInstance(BASE, OBJECT):
     straw_location = Column(Integer)
     user = Column(VARCHAR)
     timestamp = Column(Integer)
-    
+
     def __init__(
         self,
         straw_leak,
@@ -319,9 +326,5 @@ class MethaneLeakInstance(BASE, OBJECT):
         self.straw_location = straw_location
         self.user = user
         self.timestamp = int(datetime.now().timestamp())
-        
+
         self.commit()
-        
-        
-    
-    
