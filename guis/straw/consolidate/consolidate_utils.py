@@ -1,8 +1,6 @@
 from guis.common.getresources import GetProjectPaths
 import os, sys, subprocess
 from datetime import datetime
-from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
-from guis.common.db_classes.straw import Straw
 
 import logging
 
@@ -44,7 +42,7 @@ def get_start_info():
     cpal_num = cpal_num[-4:]
     directory = GetProjectPaths()["pallets"] / f"CPALID{cpal_id}"
     pfile = directory / f"CPAL{cpal_num}.csv"
-    
+
     return date, worker, cpal_id, cpal_num, pfile
 
 
@@ -313,6 +311,9 @@ def save_to_csv(pfile, is_new_cpal, straws_passed, workers, steps):
 
 
 def save_to_db(straws_passed, pallet_id, pallet_number):
+    from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
+    from guis.common.db_classes.straw import Straw
+
     assert len(straws_passed) == 24
 
     # Get or create a cpal in the DB

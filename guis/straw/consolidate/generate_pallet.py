@@ -23,29 +23,29 @@ from guis.straw.consolidate.consolidate_utils import (
     save_to_csv,
     kGENERATE_STEPS,
     save_to_db,
+    get_start_info,
 )
-from guis.common.db_classes.straw import Straw
-from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
 from guis.common.merger import isolated_automerge
+from tests.do_a_mergedown import run as do_a_mergedown
 
 import logging
 
+
 def run():
-    pallet_dir = GetProjectPaths()["pallets"]
-    workers = input("Scan worker ID: ")
-    cpal_id = input("Scan or type CPAL ID: ")
-    cpal_id = cpal_id[-2:]
-    cpal_num = input("Scan or type CPAL Number: ")
-    cpal_num = cpal_num[-4:]
-    pfile = pallet_dir / f"CPALID{cpal_id}" / f"CPAL{cpal_num}.csv"
+    date, worker, cpal_id, cpal_num, pfile = get_start_info()
+
     is_new_cpal = not pfile.is_file() and not pfile.exists()
+
+    # download the latest DB to local.
+    # mostly so that straws don't get erronously marked "new"
+    do_a_mergedown()
 
     logger = SetupPANGUILogger(
         "root", tag="pallet_generator", be_verbose=False, straw_location=cpal_num
     )
 
     logger.info(
-        f"worker:{workers}, cpalid:{cpal_id}, cpal:{cpal_num}, is_new_cpal:{is_new_cpal}"
+        f"worker:{worker}, cpalid:{cpal_id}, cpal:{cpal_num}, is_new_cpal:{is_new_cpal}"
     )
 
     straws_passed = []
@@ -77,7 +77,7 @@ def run():
         straws_passed=straws_passed, worker=None, require_leak_pass=False
     )
 
-    save_to_csv(pfile, is_new_cpal, straws_passed, workers, kGENERATE_STEPS)
+    save_to_csv(pfile, is_new_cpal, straws_passed, worker, kGENERATE_STEPS)
     save_to_db(straws_passed, cpal_id, cpal_num)
 
     isolated_automerge()

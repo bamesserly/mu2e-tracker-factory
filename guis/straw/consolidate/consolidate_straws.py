@@ -21,9 +21,8 @@ from guis.common.getresources import GetProjectPaths
 from guis.common.panguilogger import SetupPANGUILogger
 import guis.straw.consolidate.consolidate_utils as utils
 import guis.straw.consolidate.find_pmf as find_pmf
-from guis.common.db_classes.straw import Straw
-from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
 from guis.common.merger import isolated_automerge
+from tests.do_a_mergedown import run as do_a_mergedown
 
 import logging
 
@@ -37,9 +36,13 @@ def run():
         "root", tag="consolidate", be_verbose=False, straw_location=cpal_num
     )
 
+    # download the latest DB to local.
+    # mostly so that straws don't get erronously marked "new"
+    do_a_mergedown()
+
     logger.info("Beginning straw consolidation")
     logger.info(
-        f"Saving leak and length status for CPALID{cpal_id}, CPAL{cpal_num} "
+        f"Saving laser and length status for CPALID{cpal_id}, CPAL{cpal_num} "
         f"to file {pfile}"
     )
 

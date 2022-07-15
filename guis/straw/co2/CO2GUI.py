@@ -12,6 +12,11 @@
 from guis.common.panguilogger import SetupPANGUILogger
 
 logger = SetupPANGUILogger("root", "CO2")
+
+from tests.do_a_mergedown import run as do_a_mergedown
+
+do_a_mergedown()
+
 from datetime import datetime
 import csv
 import os

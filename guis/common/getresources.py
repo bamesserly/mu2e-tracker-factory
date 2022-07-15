@@ -25,7 +25,7 @@ def GetProjectPaths():
     paths = dict(np.loadtxt(paths_file, delimiter=",", dtype=str))
     # Make paths absolute. This txt file that holds the root/top dir of this
     # installation is created during setup.py.
-    root = pkg_resources.read_text(resources, "rootDirectory.txt")
+    root = GetRootPath()
 
     # paths.update((k, Path(root + "/" + v)) for k, v in paths.items())
     for k, v in paths.items():
@@ -58,3 +58,11 @@ def GetLocalDatabasePath():
 
 def GetNetworkDatabasePath():
     return pkg_resources.read_text(resources, "networkDatabasePath.txt")
+
+
+def GetNetworkDataPath():
+    return Path(GetNetworkDatabasePath()).parent
+
+
+def GetRootPath():
+    return pkg_resources.read_text(resources, "rootDirectory.txt")

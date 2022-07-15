@@ -2,10 +2,11 @@ from pathlib import Path
 from guis.common.getresources import GetProjectPaths, pkg_resources
 import csv
 from guis.common.panguilogger import SetupPANGUILogger
-
-logger = SetupPANGUILogger("root", tag="find_pmf", be_verbose=False)
+import logging
 
 paths = GetProjectPaths()
+
+logger = logging.getLogger("root")
 
 
 def get_pmf_list():
@@ -31,6 +32,7 @@ def is_pmf(straw):
 
 
 if __name__ == "__main__":
+    logger = SetupPANGUILogger("root", tag="find_pmf", be_verbose=False)
     while True:
         straw = input("Please input the straw number: ")
         if is_pmf(straw) is True:
