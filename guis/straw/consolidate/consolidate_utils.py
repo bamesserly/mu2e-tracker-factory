@@ -1,12 +1,17 @@
 from guis.common.getresources import GetProjectPaths
 import os, sys, subprocess
 from datetime import datetime
+from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
+from guis.common.db_classes.straw import Straw
 
 import logging
 
 logger = logging.getLogger("root")
 
 kBLANKSTRAWSTRING = "_______"
+kCONSOLIDATE_STEPS = ["lasr", "leng"]
+kGENERATE_STEPS = ["prep", "ohms", "C-O2"]
+kHEADER = "Time Stamp, Task, 24 Straw Names/Statuses, Workers, ***24 straws initially on retest pallet***\n"
 
 
 ################################################################################
@@ -27,6 +32,20 @@ def getYN(message):
         print("\r")
         response = input(message + " (y/n)").strip().lower()
     return response == "y"
+
+
+def get_start_info():
+    now = datetime.now()
+    date = now.strftime("%Y-%m-%d_%H:%M")
+    worker = input("Scan worker ID: ")
+    cpal_id = input("Scan or type CPAL ID: ")
+    cpal_id = cpal_id[-2:]
+    cpal_num = input("Scan or type CPAL Number: ")
+    cpal_num = cpal_num[-4:]
+    directory = GetProjectPaths()["pallets"] / f"CPALID{cpal_id}"
+    pfile = directory / f"CPAL{cpal_num}.csv"
+    
+    return date, worker, cpal_id, cpal_num, pfile
 
 
 ################################################################################
@@ -270,3 +289,50 @@ def finalizeStraws(straws_passed, worker, require_leak_pass=True):
             )
 
     return straws_passed
+
+
+################################################################################
+# Save
+################################################################################
+def save_to_csv(pfile, is_new_cpal, straws_passed, workers, steps):
+    logger.debug(f"Finalized straws: {straws_passed}")
+    now = datetime.now()
+    date = now.strftime("%Y-%m-%d_%H:%M")
+    straws_passed_str = ",P,".join(straws_passed) + ",P,"
+    with open(pfile, "a+") as myfile:
+        if is_new_cpal:
+            myfile.write(kHEADER)
+        else:
+            # navigate to last character in file
+            myfile.seek(myfile.tell() - 1)
+            # make sure it's a newline
+            if myfile.read() != "\n":
+                myfile.write("\n")
+        for step in steps:
+            myfile.write(date + "," + step + "," + straws_passed_str + workers + "\n")
+
+
+def save_to_db(straws_passed, pallet_id, pallet_number):
+    assert len(straws_passed) == 24
+
+    # Get or create a cpal in the DB
+    try:
+        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
+    # can't make new pallet bc this id still has straws on it.
+    except AssertionError as e:
+        logger.debug(e)
+        CuttingPallet.remove_straws_from_pallet_by_id(pallet_id)
+        cpal = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
+
+    for position, straw_id in enumerate(straws_passed):
+        if straw_id == kBLANKSTRAWSTRING:
+            continue
+
+        straw_number = int(straw_id[2:])
+        if not Straw.exists(straw_number):
+            logger.info(f"Straw ST{straw_number} doesn't exist! Creating it.")
+            logger.info("If you see lots of these messages, stop and inform Ben.")
+
+        # safely remove this straw from its current location(s), clear the
+        # target position, and then add the straw
+        cpal.forceAddStraw(Straw.Straw(id=straw_number).id, position)
