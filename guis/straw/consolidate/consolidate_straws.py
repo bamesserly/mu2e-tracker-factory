@@ -37,7 +37,7 @@ def run():
     pmf_count = 0
     
     logger.info("Beginning straw consolidation")
-    (date, worker, cpal_id, cpal_num, pfile) = get_start_info()
+    date, worker, cpal_id, cpal_num, pfile = utils.get_start_info()
     logger.info(
         f"Saving leak and length status for CPALID{cpal_id}, CPAL{cpal_num} "
         f"to file {pfile}"
@@ -76,8 +76,8 @@ def run():
     straws_passed = utils.finalizeStraws(straws_passed, worker)
     straws_passed_list = straws_passed
 
-    save_to_csv(pfile, is_new_cpal, straws_passed, workers, kCONSOLIDATE_STEPS)
-    save_to_db(straws_passed, cpal_id, cpal_num)
+    utils.save_to_csv(pfile, is_new_cpal, straws_passed, worker, utils.kCONSOLIDATE_STEPS)
+    utils.save_to_db(straws_passed, cpal_id, cpal_num)
 
     isolated_automerge()
 

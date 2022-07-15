@@ -1,6 +1,8 @@
 from guis.common.getresources import GetProjectPaths
 import os, sys, subprocess
 from datetime import datetime
+from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet
+from guis.common.db_classes.straw import Straw
 
 import logging
 
@@ -42,6 +44,8 @@ def get_start_info():
     cpal_num = cpal_num[-4:]
     directory = GetProjectPaths()["pallets"] / f"CPALID{cpal_id}"
     pfile = directory / f"CPAL{cpal_num}.csv"
+    
+    return date, worker, cpal_id, cpal_num, pfile
 
 
 ################################################################################
