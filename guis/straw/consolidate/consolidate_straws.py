@@ -31,17 +31,18 @@ paths = GetProjectPaths()
 
 
 def run():
-    logger = logging.getLogger("root")
-    # acquire a list of pmf straws
-    pmf_list = find_pmf.get_pmf_list()
-    pmf_count = 0
-    
-    logger.info("Beginning straw consolidation")
     date, worker, cpal_id, cpal_num, pfile = utils.get_start_info()
+
+    logger = SetupPANGUILogger(
+        "root", tag="consolidate", be_verbose=False, straw_location=cpal_num
+    )
+
+    logger.info("Beginning straw consolidation")
     logger.info(
         f"Saving leak and length status for CPALID{cpal_id}, CPAL{cpal_num} "
         f"to file {pfile}"
     )
+
     if not pfile.is_file():
         logger.error(
             f"{pfile} doesn't exist! find it or make it (say, with pallet generator) first."
@@ -49,6 +50,10 @@ def run():
         print("sorry, exiting")
         sys.exit()
     is_new_cpal = False
+
+    # get existing pmf straws
+    pmf_list = find_pmf.get_pmf_list()
+    pmf_count = 0
 
     # Scan-in straws
     straws_passed = []
@@ -76,12 +81,16 @@ def run():
     straws_passed = utils.finalizeStraws(straws_passed, worker)
     straws_passed_list = straws_passed
 
-    utils.save_to_csv(pfile, is_new_cpal, straws_passed, worker, utils.kCONSOLIDATE_STEPS)
+    utils.save_to_csv(
+        pfile, is_new_cpal, straws_passed, worker, utils.kCONSOLIDATE_STEPS
+    )
     utils.save_to_db(straws_passed, cpal_id, cpal_num)
 
     isolated_automerge()
 
-    logger.info(str(pmf_count) + " out of " + str(len(straws_passed)) + " straws were pmf.")
+    logger.info(
+        str(pmf_count) + " out of " + str(len(straws_passed)) + " straws were pmf."
+    )
     logger.info("Finished")
 
 
