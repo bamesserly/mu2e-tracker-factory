@@ -803,6 +803,8 @@ class panelGUI(QMainWindow):
         self.ui.submitRingsPB.clicked.connect(self.saveData)
         self.ui.submitCoversPB.setDisabled(True)
         self.ui.submitRingsPB.setDisabled(True)
+        self.ui.launchHVpro8.clicked.connect(self.hvMeasurementsPopup)
+        self.ui.launchHVpro8.setDisabled(True)
         # connect checkboxes to pick one or the other, not both
         self.ui.wireCheck.toggled.connect(
             lambda: self.ui.strawCheck.setChecked(not (self.ui.wireCheck.isChecked()))
@@ -4050,6 +4052,7 @@ class panelGUI(QMainWindow):
         if data[0] is not None:
             self.ui.panelInput_8.setText(str(data[0]))
             self.ui.panelInput_8.setDisabled(True)
+            self.ui.launchHVpro8.setEnabled(True)
 
         # covers
         if data[1] is not None:
@@ -4743,6 +4746,7 @@ class panelGUI(QMainWindow):
         self.ui.epoxyMixedLOP.setEnabled(True)
         self.ui.epoxyMixedROP.setEnabled(True)
         self.ui.commentBox2.setFocus()
+        self.ui.launchHVpro4.setEnable(True)
 
         self.startRunning()
         self.saveData()
@@ -5413,6 +5417,8 @@ class panelGUI(QMainWindow):
         ]:
             wid.setToolTip("Enter all digits as '0' to mark as unknown")
             wid.editingFinished.connect(self.pro8TrySave)
+
+        self.ui.launchHVpro8.setEnabled(True)
 
         self.startRunning()
         self.saveData()

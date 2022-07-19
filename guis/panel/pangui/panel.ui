@@ -1581,7 +1581,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>7</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -3993,7 +3993,7 @@ Heater GUI</string>
                        <x>0</x>
                        <y>0</y>
                        <width>531</width>
-                       <height>717</height>
+                       <height>28</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout">
@@ -5434,8 +5434,8 @@ GUI</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>461</width>
-                       <height>654</height>
+                       <width>281</width>
+                       <height>28</height>
                       </rect>
                      </property>
                     </widget>
@@ -7001,6 +7001,13 @@ Heater GUI</string>
                      </property>
                     </widget>
                    </item>
+                   <item row="2" column="1">
+                    <widget class="QPushButton" name="launchHVpro8">
+                     <property name="text">
+                      <string>Launch HV GUI</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </item>
@@ -8539,8 +8546,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
-  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>
