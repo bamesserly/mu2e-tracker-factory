@@ -74,16 +74,22 @@ def run(panel, process, data_file):
         """
 
         with open(data_file, "r") as f:
-            dr = csv.DictReader(f)
+            measurements = csv.DictReader(f)
 
-            # an entry of dr looks like:
-            # OrderedDict([('Date', '2021-07-02_073223'), ('PAASA_Temp[C]', '-242.02'), ('2ndPAAS_Temp[C]', '-99.00'), ('Epoc', '1625229143.7965412')])
+            # a row from measurements:
+            # {"Date" : 2022-04-19_160641}, {"PAASA_Temp[C]" : 22.35}, 
+            #   {"2ndPAAS_Temp[C]": -99.00}, {"Epoc" : 1650402401.968532}
+
             to_db = [
-                (int(float(str(i["Epoc"])+str(randint(1000,9999))),pid, i["PAASA_Temp[C]"], i["2ndPAAS_Temp[C]"], int(float(i["Epoc"]))))
-                for i in dr
+                (
+                    int(float(row["Epoc"])*1e6),
+                    pid,
+                    row["PAASA_Temp[C]"],
+                    row["2ndPAAS_Temp[C]"],
+                    int(float(row["Epoc"]))
+                )
+                for row in measurements
             ]
-
-            # to_db = to_db[:5]
 
             try:
                 r_set = connection.execute(query, to_db)
