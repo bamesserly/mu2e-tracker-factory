@@ -25,7 +25,7 @@ def get_pmf_list():
 
 def is_pmf(straw):
     straws = get_pmf_list()
-    if straw in straws:
+    if straw.upper() in straws:
         return True
     else:
         return False
