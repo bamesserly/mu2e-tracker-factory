@@ -18,7 +18,7 @@ def get_pmf_list():
             for row in reader:
                 for item in row:
                     if len(item) > 1:
-                        if item[:2] == "ST":
+                        if item[:2].upper() == "ST":
                             straws.append(item)
     return straws
 
