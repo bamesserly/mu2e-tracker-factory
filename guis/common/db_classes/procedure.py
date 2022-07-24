@@ -473,3 +473,14 @@ class PanelProcedure(Procedure):
 class StrawProcedure(Procedure):
     def __init__(self, station, straw_location, create_key):
         super().__init__(station, straw_location, create_key)
+    
+class Co2StrawProcedure(Procedure):
+    def _init_details(self):
+        try:
+            dc = self._getDetailsClass()
+        except Exception:
+            dc = None
+        if dc is None:
+            print('got none')
+            return
+        self.details = dc(id=self.ID(),procedure=self.id)

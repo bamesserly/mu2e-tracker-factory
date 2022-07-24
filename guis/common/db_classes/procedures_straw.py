@@ -191,7 +191,7 @@ class SilvProcedure(StrawProcedure):
     dp190       INTEGER,
     timestamp   INTEGER NOT NULL
 """
-class CO2(StrawProcedure):
+class CO2(Co2StrawProcedure):
     __mapper_args__ = {"polymorphic_identity": "co2"}
 
     def __init__(self, station, straw_location, create_key):
