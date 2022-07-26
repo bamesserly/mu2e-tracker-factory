@@ -72,13 +72,29 @@ def run(panel, process, data_file):
         INSERT OR IGNORE INTO panel_heat (id, procedure, temp_paas_a, temp_paas_bc, timestamp)
         VALUES (?, ?, ?, ?, ?);
         """
+        # mark that we got to the point right before opening the file
+        logger.debug(f"Opening {data_file} in mode 'r'...")
 
         with open(data_file, "r") as f:
+
+            # mark that we got to the point right after opening the file
+            logger.debug(f"Opened {data_file} in mode 'r'!")
+
             measurements = csv.DictReader(f)
+
+            # mark that the csv.dictreader is good
+            logger.debug("Successfully initialized DictReader")
 
             # a row from measurements:
             # {"Date" : 2022-04-19_160641}, {"PAASA_Temp[C]" : 22.35}, 
             #   {"2ndPAAS_Temp[C]": -99.00}, {"Epoc" : 1650402401.968532}
+
+            # take one row so we can see what it looks like
+            for row in measurements:
+                logger.debug(f'Sample row from measurements: {row}')
+                # breaking after one iteration seems like heresy but it works for what I want to do
+                # (Not sure if you can index a dict reader like an array)
+                break
 
             to_db = [
                 (
@@ -91,7 +107,10 @@ def run(panel, process, data_file):
                 for row in measurements
             ]
 
+            logger.debug(f'Length of to_db: {len(to_db)}')
+
             try:
+                logger.debug("Entering try/except/else block")
                 r_set = connection.execute(query, to_db)
             except sqla.exc.OperationalError as e:
                 logger.error(e)
