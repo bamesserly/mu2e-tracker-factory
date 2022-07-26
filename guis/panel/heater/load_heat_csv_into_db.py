@@ -62,7 +62,7 @@ def run(panel, process, data_file):
         logger.error(f"    Data file {data_file} not found!")
 
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
-
+    
     with engine.connect() as connection:
         pid = GetProcedureID(connection, int(panel), int(process))
 
@@ -87,14 +87,14 @@ def run(panel, process, data_file):
 
             # a row from measurements:
             # {"Date" : 2022-04-19_160641}, {"PAASA_Temp[C]" : 22.35}, 
-            #   {"2ndPAAS_Temp[C]": -99.00}, {"Epoc" : 1650402401.968532}
+            #       {"2ndPAAS_Temp[C]": -99.00}, {"Epoc" : 1650402401.968532}
 
-            # take one row so we can see what it looks like
-            for row in measurements:
-                logger.debug(f'Sample row from measurements: {row}')
-                # breaking after one iteration seems like heresy but it works for what I want to do
-                # (Not sure if you can index a dict reader like an array)
-                break
+            # take a few rows as samples for convinient viewing
+            # toop[0] = counter, toop[1] = row from measurements as ordered dict
+            for toop in enumerate(measurements):
+                if (toop[0] % 10 == 0):
+                    logger.debug(f'Sample row from measurements: {toop[1]}')
+                
 
             to_db = [
                 (
@@ -110,7 +110,7 @@ def run(panel, process, data_file):
             logger.debug(f'Length of to_db: {len(to_db)}')
 
             try:
-                logger.debug("Entering try/except/else block")
+                logger.debug("Entering try/except/else block, executing query...")
                 r_set = connection.execute(query, to_db)
             except sqla.exc.OperationalError as e:
                 logger.error(e)
