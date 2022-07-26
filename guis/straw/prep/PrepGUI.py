@@ -223,6 +223,8 @@ class Prep(QMainWindow):
         # initialize procedure and commit it to the DB
         self.DP.saveStart()
 
+        logger.info(f"This procedure's pallet is {self.getPalletID()}, {self.getPalletNumber()}")
+
     # disable prelim fields, enable ppg fields
     def enablePPGDataCollection(self):
         self.ui.input_palletID.setDisabled(True)
@@ -695,19 +697,27 @@ class Prep(QMainWindow):
 
     # Add entries to the straw, straw_present and measurement_prep tables
     def saveDataToDB(self):
+        # our procedure (created and) knows our CPAL. In creating the CPAL
+        # straw location, we made 24 "straw positions" (in the
+        # straw_position" table), aka slots where straws can go.
+        cpal = self.DP.procedure.getStrawLocation()
+        logger.debug(cpal)
+
         for position in range(24):
+            logger.debug(f"{position}")
             straw_id = int(self.strawIDs[position][2:])
             batch = self.batchBarcodes[position]
             batch = "".join(filter(str.isalnum, batch))  # for the db, drop the period
             ppg = self.paperPullGrades[position][-1]
 
+            logger.debug(straw_id)
+            logger.debug(batch)
+            logger.debug(ppg)
+
             # new entry in straw table
             straw = Straw.Straw(id=straw_id, batch=batch)
 
-            # our procedure (created and) knows our CPAL. In creating the CPAL
-            # straw location, we made 24 "straw positions" (in the
-            # straw_position" table), aka slots where straws can go.
-            cpal = self.DP.procedure.getStrawLocation()
+            logger.debug(straw)
 
             # new entry in straw_present table.
             cpal.addStraw(straw, position)
