@@ -702,8 +702,14 @@ class Prep(QMainWindow):
         # straw_position" table), aka slots where straws can go.
         cpal = self.DP.procedure.getStrawLocation()
         logger.debug(cpal)
+        
+        # ensure that the bogus row at the top isn't counted if only doing 23 straws
+        if self.strawCount == 23:
+            position_range = range(1,23)
+        else:
+            position_range = range(24)
 
-        for position in range(24):
+        for position in position_range:
             logger.debug(f"{position}")
             straw_id = int(self.strawIDs[position][2:])
             batch = self.batchBarcodes[position]
