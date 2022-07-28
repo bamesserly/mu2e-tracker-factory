@@ -702,39 +702,34 @@ class Prep(QMainWindow):
         # straw_position" table), aka slots where straws can go.
         cpal = self.DP.procedure.getStrawLocation()
         logger.debug(cpal)
-
-        # determine indices to attempt and save, based upon number of submitted straws
-        if self.strawCount == 24:
-            straw_range = range(24)
-        else:
-            straw_range = range(1,24)
         
-        for position in straw_range:
-            logger.debug(f"{position}")
-            straw_id = int(self.strawIDs[position][2:])
-            batch = self.batchBarcodes[position]
-            batch = "".join(filter(str.isalnum, batch))  # for the db, drop the period
-            ppg = self.paperPullGrades[position][-1]
+        for position in range(24):
+            if self.strawIDs[position] != '_______':
+                logger.debug(f"{position}")
+                straw_id = int(self.strawIDs[position][2:])
+                batch = self.batchBarcodes[position]
+                batch = "".join(filter(str.isalnum, batch))  # for the db, drop the period
+                ppg = self.paperPullGrades[position][-1]
 
-            logger.debug(straw_id)
-            logger.debug(batch)
-            logger.debug(ppg)
+                logger.debug(straw_id)
+                logger.debug(batch)
+                logger.debug(ppg)
 
-            # new entry in straw table
-            straw = Straw.Straw(id=straw_id, batch=batch)
+                # new entry in straw table
+                straw = Straw.Straw(id=straw_id, batch=batch)
 
-            logger.debug(straw)
+                logger.debug(straw)
 
-            # new entry in straw_present table.
-            cpal.addStraw(straw, position)
+                # new entry in straw_present table.
+                cpal.addStraw(straw, position)
 
-            # new entry in measurement_prep table
-            self.DP.procedure.StrawPrepMeasurement(
-                procedure=self.DP.procedure,
-                straw_id=straw_id,
-                paper_pull_grade=ppg,
-                evaluation=None,
-            ).commit()
+                # new entry in measurement_prep table
+                self.DP.procedure.StrawPrepMeasurement(
+                    procedure=self.DP.procedure,
+                    straw_id=straw_id,
+                    paper_pull_grade=ppg,
+                    evaluation=None,
+                ).commit()
 
     ############################################################################
     # Worker login and gui lock
