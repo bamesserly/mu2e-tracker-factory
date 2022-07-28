@@ -19,7 +19,22 @@ def entryLocation(presentID, connection):
         "FROM straw_location\n"
         "INNER JOIN straw_position ON straw_location.id=straw_position.location\n"
         "INNER JOIN straw_present ON straw_position.id=straw_present.position\n"
-        f"WHERE straw_present.id = {presentID} AND straw_present.present = 1"
+        f"WHERE straw_present.id = {presentID}"
+    )
+
+    ret = connection.execute(query)
+    result = ret.fetchone()
+
+    return result
+
+# get the current location of a straw
+def strawCurrentLocation(strawID, connection):
+    query = (
+        "SELECT straw_location.location_type, straw_location.number\n"
+        "FROM straw_location\n"
+        "INNER JOIN straw_position ON straw_location.id=straw_position.location\n"
+        "INNER JOIN straw_present ON straw_position.id=straw_present.position\n"
+        f"WHERE straw_present.straw = {strawID} AND straw_present.present = 1"
     )
 
     ret = connection.execute(query)
@@ -32,11 +47,9 @@ def entryLocation(presentID, connection):
 
 
 
-
 def run():
     if os.getlogin() != 'Adam':
-        print(os.getlogin())
-        print("Don't try this on a lab machine")
+        print("Don't try this on a lab (production) machine")
         print("Add your username to the first if in run() to use your own machine")
         return
 
@@ -47,10 +60,13 @@ def run():
     connection = engine.connect()
 
 
-    # test1
+    #test 1, should return two different locations, one not present and one present
     print(strawIsPresent(20474, connection))
-    #test2
+    #test 2, should return MN173
     print(entryLocation(16328391116816108,connection))
+    #test 3, should return MN173
+    print(strawCurrentLocation(20474,connection))
+    
 
     return
 
