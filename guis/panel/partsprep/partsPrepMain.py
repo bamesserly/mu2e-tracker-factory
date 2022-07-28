@@ -97,31 +97,31 @@ class partsPrepGUI(QMainWindow):
         self.ui.birImage6_4PB.clicked.connect(
             lambda: self.diagramPopup("bir6_4")
         )
-        self.ui.bpImage1_2PB.clicked.connect(
+        self.ui.bpImage1_2.clicked.connect(
             lambda: self.diagramPopup("bp1_2")
         )
-        self.ui.bpImage4_2PB.clicked.connect(
+        self.ui.bpImage4_2.clicked.connect(
             lambda: self.diagramPopup("bp4_2")
         )
-        self.ui.bpImage7_2PB.clicked.connect(
+        self.ui.bpImage7_2.clicked.connect(
             lambda: self.diagramPopup("bp7_2")
         )
-        self.ui.frImage1_3PB.clicked.connect(
+        self.ui.frImage1_3.clicked.connect(
             lambda: self.diagramPopup("fr1_3")
         )
-        self.ui.frImage4_2PB.clicked.connect(
+        self.ui.frImage4_2.clicked.connect(
             lambda: self.diagramPopup("fr4_2")
         )
-        self.ui.frImage4_3PB.clicked.connect(
+        self.ui.frImage4_3.clicked.connect(
             lambda: self.diagramPopup("fr4_3")
         )
-        self.ui.mrImage3_10PB.clicked.connect(
+        self.ui.mrImage3_10.clicked.connect(
             lambda: self.diagramPopup("mr3_10")
         )
-        self.ui.mirImage5_4PB.clicked.connect(
+        self.ui.mirImage5_4.clicked.connect(
             lambda: self.diagramPopup("mir5_4")
         )
-        self.ui.mrImage5_4PB.clicked.connect(
+        self.ui.mrImage5_4.clicked.connect(
             lambda: self.diagramPopup("mr5_4")
         )
 
@@ -187,7 +187,7 @@ class partsPrepGUI(QMainWindow):
             lambda: self.startStopButton("bp",True)
         )
         # bp stop button
-        self.ui.b_p_Stop_push_button.clicked.connect(
+        self.ui.bpStopPB.clicked.connect(
             lambda: self.startStopButton("bp",False)
         )
 
@@ -225,7 +225,15 @@ class partsPrepGUI(QMainWindow):
             QRegularExpression(string)
         )
         # bir validator
-        self.ui.birLE.setValidator(validator('\d{3}'))
+        self.ui.birLE.setValidator(validator('(BIR)\d{3}'))
+        # bp validator
+        self.ui.bpLE.setValidator(validator('(BP)\d{3}'))
+        # f validator
+        self.ui.frLE.setValidator(validator('(F)\d{3}'))
+        # mir validator
+        self.ui.mirLE.setValidator(validator('(MIR)\d{3}'))
+        # mr validator
+        self.ui.mrLE.setValidator(validator('(MR)\d{3}'))
 
 
     # connect other things to approprite funcitons
@@ -320,7 +328,7 @@ class partsPrepGUI(QMainWindow):
         timestamp = str(datetime.datetime.now())
         
         # f string below will be part type + the parts ID
-        filepath = str(self.saveDir) + f'\{partType}{getattr(self.ui,f"{partType}LE").text()}.csv'
+        filepath = str(self.saveDir) + f'\{getattr(self.ui,f"{partType}LE").text()}.csv'
         if exists(filepath):
             with open(filepath, 'a') as csv:
                 csv.write(stepname+","+timestamp+","+self.getWorkers()+"\n")
@@ -370,7 +378,8 @@ class partsPrepGUI(QMainWindow):
                     "To begin please add a worker using the tab in the upper left."
                 )
                 return
-            if len(self.ui.birLE.text()) <3 : # <3 <3 <3
+            
+            if len(getattr(self.ui, f"{partType}LE").text()) <3 :   # <3 <3 <3
                 
                 # no ID found
                 reply = QMessageBox.question(self,
