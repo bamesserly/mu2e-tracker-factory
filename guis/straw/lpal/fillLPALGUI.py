@@ -53,7 +53,8 @@ def getLPALFile(lpalid, lpal):
     # If it doesn't exist yet, writes a header and all the positions
     if not outfile.exists():
         with outfile.open("w") as f:
-            f.write("Position,Straw,Timestamp\n")
+            f.write("Position,Straw,Timestamp,Cpal\n")
+
             for i in range(0, 96, 2):
                 f.write(f"{i},,\n")
 
@@ -68,12 +69,12 @@ def readRows(file):
     return rows, reader.fieldnames
 
 
-def saveStrawToLPAL(file, position, straw):
+def saveStrawToLPAL(file, position, straw, cpal):
     # Read-in current file
     rows, fieldnames = readRows(file)
 
     # Assemble new row
-    new_row = {"Position": position, "Straw": straw, "Timestamp": int(time())}
+    new_row = {"Position": position, "Straw": straw, "Timestamp": int(time()), "Cpal": cpal}
     # Replace row in previous data with the new row
     rows[int(position / 2)] = new_row
 
@@ -151,7 +152,7 @@ def removeStrawFromCurrentLocations(straw, cpals):
         return True
 
 
-def addStrawToLPAL(lpal, outfile, cpals):
+def addStrawToLPAL(lpal, outfile, cpals, cpal):
     ########################################################################
     # Check: is the lPAL full?
     ########################################################################
@@ -224,7 +225,7 @@ def addStrawToLPAL(lpal, outfile, cpals):
     ########################################################################
     # Save to Text -- add straw to LPAL txt file
     ########################################################################
-    saveStrawToLPAL(outfile, position, straw_id)
+    saveStrawToLPAL(outfile, position, straw_id, cpal)
 
     ########################################################################
     # Save to DB
@@ -305,6 +306,18 @@ def run():
     """
     )
     ############################################################################
+    # Get CPAL Info
+    ############################################################################
+    cpal = getInput(
+        prompt='HEY! Please scan the CPAL first!',
+        checkcondition=lambda s: len(s) == 8
+        and s.startswith('CPAL')
+        and s[-4:].isnumeric(),
+    )
+    if cpal is None:
+        return
+    
+    ############################################################################
     # Scan-in LPAL Info
     ############################################################################
     lpalid = getInput(
@@ -364,7 +377,7 @@ def run():
     status = "scanning"
     while status == "scanning":
         print("\n")
-        status = addStrawToLPAL(lpal, outfile, cpals)
+        status = addStrawToLPAL(lpal, outfile, cpals, cpal)
 
     lpalgui.stopTimer()
 
