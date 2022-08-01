@@ -15,7 +15,13 @@ def strawIsPresent(strawID, connection):
     return lst
 
 # get the location mentioned in an entry in straw_present
-def entryLocation(presentID, connection):
+def entryLocation(presentID, connection, checkIntegrity=True):
+
+    # doing this will allow fetchone to get all the results (since there should only be one)
+    if checkIntegrity:
+        if not checkStrawIntegrity(presentID, connection):
+            return ("Integrity check failed")
+
     query = (
         "SELECT straw_location.location_type, straw_location.number\n"
         "FROM straw_location\n"
@@ -30,7 +36,13 @@ def entryLocation(presentID, connection):
     return result
 
 # get the current location of a straw
-def strawCurrentLocation(strawID, connection):
+def strawCurrentLocation(strawID, connection, checkIntegrity=True):
+
+    # doing this will allow fetchone to get all the results (since there should only be one)
+    if checkIntegrity:
+        if not checkStrawIntegrity(strawID, connection):
+            return ("Integrity check failed")
+
     query = (
         "SELECT straw_location.location_type, straw_location.number\n"
         "FROM straw_location\n"
@@ -70,7 +82,8 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
     return True
 
 # check if straw has only one entry per position and one present = 1
-# TODO: add check if timestamps line up or contradict each other
+# TODO: add check if timestamps line up or contradict each other?
+# returns true if all looks good, false if some sort of contradiction found
 def checkStrawIntegrity(strawID, connection):
     # dict of positions
     positions = {}
@@ -96,7 +109,6 @@ def checkStrawIntegrity(strawID, connection):
                 print("Two presences detected")
                 return False
         
-
         # add to dict
         #        {position : (present, time_in, time_out)}
         positions[toop[2]] = (toop[3], toop[4], toop[5])
@@ -113,23 +125,21 @@ def run():
         print("Add your username to the first if in run() to use your own machine")
         return
 
-
     # get database path and make the engine and connection
     database = GetLocalDatabasePath()
     engine = sqla.create_engine("sqlite:///" + database)
     connection = engine.connect()
 
-
     #test 1, should return two different locations, one not present and one present
     print(strawIsPresent(20474, connection))
-    #test 2, should return MN173
-    print(entryLocation(16328391116816108,connection))
-    #test 3, should return MN173
+    #test 2, should return LPAL 360
+    print(entryLocation(16325227138278103,connection))
+    #test 3, should return MN 173
     print(strawCurrentLocation(20474,connection))
     #test 4
     #newEntry(99999, 42969, 1, connection, 0, 5)
-    #test5
-    print(checkStrawIntegrity(99999, connection))
+    #test5, should return true
+    print(checkStrawIntegrity(20474, connection))
 
     return
 
