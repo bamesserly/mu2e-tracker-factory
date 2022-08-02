@@ -9,6 +9,8 @@ def parse_files():
     cpal_list = []
     straw_information = {}
     failure_cpals = []
+    pp_grades=['A','B','C','D']
+    cpal_prefix_list=[]
 
     
     # format: time, cpalid, cpal, paper pull time, worker
@@ -30,69 +32,78 @@ def parse_files():
                     vertical_layout = False
             except:
                 pass
-            
         
-        try:
-            f = open(file,'r')
-            reader = csv.reader(f)
-            for row in reader:
-                # acquire cpal prefix information
-                if len(str(row[0])) == 16 and 2015 < int(str(row[0][0:4])) < 2023:
-                    for i in row:
-                        if len(str(i)) == 16 and 2015 < int(str(i[0:4])) < 2023:
-                            prefixes['time'] = str(i)
-                        elif str(i[0:7]).upper() == 'CPALID':
-                            prefixes['cpalid'] = int(i[7:9])
-                        elif str(i[-2]) == 'B':
-                            prefixes['batch'] = str(i)
-                        elif str(i[0:3]).lower() == 'wk-':
-                            prefixes['worker'] = str(i)
-                    break
+        f = open(file,'r')
+        reader = csv.reader(f)
+        for row in reader:
+            # acquire cpal prefix information
 
-                    
-            # acquire constituent straw information
-            f = open(file,'r')
-            reader = csv.reader(f)
-            cpal_straws = []
-            if vertical_layout is True:
-                for row in reader:
-                    straw = {}
-                    if len(row) != 0:
-                        if str(row[0])[0:2].lower() == 'st':
-                            straw['id'] = str(row[0]).lower()
-                        if str(row[1][-2]) == 'B':
-                            straw['batch'] = str(i)
-                        if str(row[2][0:3]).upper() == 'PP.':
-                            straw['grade'] = str(i[3]).upper()
-                        
-                        if len(straw) != 0:
-                            cpal_straws.append(straw)
-            else:
-                pass
+            if len(str(row[0])) == 16 and 2015 < int(str(row[0][0:4])) < 2023:
+                for i in row:
+                    if len(str(i)) == 16 and 2015 < int(str(i[0:4])) < 2023:
+                        prefixes['time'] = str(i)
+                    elif len(str(i)) == 8:
+                        if str(i[0:7]).upper() == 'CPALID':
+                            prefixes['cpalid'] = int(i[7:9])
+                    elif len(str(i)) == 4:
+                        if str(i[-2]) in pp_grades:
+                            prefixes['batch'] = str(i)
+                    elif str(i[0:3]).lower() == 'wk-':
+                        prefixes['worker'] = str(i)
+                break
+        if len(prefixes) > 1:
+            cpal_prefix_list.append(prefixes)
+        else:
+            print(name)
+
+
                 
-            cpal_list.append(name)
-            straw_information[name] = cpal_straws
+        # acquire constituent straw information
+        f = open(file,'r')
+        reader = csv.reader(f)
+        cpal_straws = []
+        if vertical_layout is True:
+            for row in reader:
+                straw = {}
+                if len(row) >= 3:
+                    for i in range(3):
+                        if len(row[i]) == 7:
+                            if str(row[i])[0:2].lower() == 'st' and str(row[i][2].isnumeric()):
+                                straw['id'] = str(row[i]).lower()
+                        if len(row[i]) == 9:
+                            if str(row[i][-2]) in pp_grades:
+                                straw['batch'] = str(i)
+                        if len(row[i]) == 4:
+                            if str(row[i][0:3]).upper() == 'PP.':
+                                straw['grade'] = str(row[i]).upper()
                         
-            '''        
-            print(prefixes)
+                    if len(straw) != 0:
+                        cpal_straws.append(straw)
+        else:
+            pass
             
-            print(vertical_layout)
-            
-            print(cpal_straws)
-            '''
-        except:
-            failure_cpals.append(name)
-            failure_count += 1
-    return failure_cpals, failure_count, cpal_list, straw_information
+        cpal_list.append(name)
+        straw_information[name] = cpal_straws
+                    
+
+    return failure_cpals, failure_count, cpal_list, straw_information, cpal_prefix_list
             
 
 def run():
-    failure_cpals, failure_count, cpal_list, straw_information = parse_files()
+    failure_cpals, failure_count, cpal_list, straw_information, cpal_prefix_list = parse_files()
+    
+    '''
     print(cpal_list)
     print(straw_information)
+    print(cpal_prefix_list)
+    '''
+    
+    
     print('length of cpal list: ' + str(len(cpal_list)))
     print('length of straw_information: ' + str(len(straw_information)))
     print('failure count: ' + str(failure_count))
+    print('length of cpal prefixes: ' + str(len(cpal_prefix_list)))
+    
                     
     
 if __name__ == "__main__":
