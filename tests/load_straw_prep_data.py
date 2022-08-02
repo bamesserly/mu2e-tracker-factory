@@ -63,6 +63,7 @@ def parse_files():
         reader = csv.reader(f)
         cpal_straws = []
         if vertical_layout is True:
+            
             for row in reader:
                 straw = {}
                 if len(row) >= 3:
@@ -79,8 +80,41 @@ def parse_files():
                         
                     if len(straw) != 0:
                         cpal_straws.append(straw)
-        else:
+            
             pass
+        else:
+            inner_straw=[]
+            inner_batch=[]
+            inner_grade=[]
+            
+            for row in reader:
+                if len(row) != 0:
+                    for i in row:
+                        if len(i) == 7:
+                            if str(i)[0:2].lower() == 'st' and str(i[2].isnumeric()):
+                                inner_straw.append(str(i))
+                        if len(i) == 9:
+                            if str(i[-2]) in pp_grades:
+                                inner_batch.append(str(i))
+                        if len(i) == 4:
+                            if str(i[0:3]).upper() == 'PP.':
+                                inner_grade.append(str(i).upper())
+            
+            if len(inner_straw) == len(inner_batch) or len(inner_batch) == len(inner_grade) or len(inner_straw) == len(inner_grade):
+                for i in range(len(inner_straw)):
+                    straw={'id': inner_straw[i].lower()}
+                    if len(inner_batch) == len(inner_straw):
+                        straw['batch'] = str(inner_batch[i])
+                    if len(inner_grade) == len(inner_straw):
+                        straw['grade'] = str(inner_grade[i]).upper()
+                    
+                    cpal_straws.append(straw)
+                    
+            else:
+                print('PROBLEM')
+                print(name)
+                            
+                    
             
         cpal_list.append(name)
         straw_information[name] = cpal_straws
@@ -94,7 +128,9 @@ def run():
     
     '''
     print(cpal_list)
+    '''
     print(straw_information)
+    '''
     print(cpal_prefix_list)
     '''
     
