@@ -13,7 +13,7 @@ def parse_files():
     failure_cpals = []
     pp_grades=['A','B','C','D']
     cpal_prefix_list=[]
-    problem_files=['CPAL0002.csv', 'CPAL0025.csv', 'CPAL0040.csv', 'CPAL0040.csv', 'CPAL0413.csv']
+    problem_files=[]
 
     
     # format: time, cpalid, cpal, paper pull time, worker
@@ -31,7 +31,7 @@ def parse_files():
         vertical_layout=True
         for row in reader:
             try:
-                if len(row[0]) != 0 and str(row[0])[0:3].lower() == 'pp.':
+                if len(row[0]) != 0 and str(row[0])[0:3].lower() == 'pp.' or str(row[2])[0:3].lower() == 'pp.' or len(row[0]) != 0 and str(row[1])[0:3].lower() == 'pp.':
                     vertical_layout = False
             except:
                 pass
@@ -41,10 +41,18 @@ def parse_files():
         for row in reader:
             # acquire cpal prefix information
 
-            if len(str(row[0])) == 16 and 2015 < int(str(row[0][0:4])) < 2023:
+            if (len(str(row[0])) == 16 or len(str(row[0])) == 19) and 2015 < int(str(row[0][0:4])) < 2023:
                 for i in row:
                     if len(str(i)) == 16 and 2015 < int(str(i[0:4])) < 2023:
-                        time = datetime.datetime.strptime(i, "%Y-%m-%d_%H:%S")
+                        time = datetime.datetime.strptime(i, "%Y-%m-%d_%H:%M")
+                        time = datetime.datetime.timestamp(time)
+                        prefixes['time'] = int(time)
+                    elif len(str(i)) == 19 and 2015 < int(str(i[0:4])) < 2023 and str(i)[10] == ' ':
+                        time = datetime.datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
+                        time = datetime.datetime.timestamp(time)
+                        prefixes['time'] = int(time)
+                    elif len(str(i)) == 19 and 2015 < int(str(i[0:4])) < 2023 and str(i)[10] == '_':
+                        time = datetime.datetime.strptime(i, "%Y-%m-%d_%H:%M:%S")
                         time = datetime.datetime.timestamp(time)
                         prefixes['time'] = int(time)
                     elif len(str(i)) == 8:
@@ -69,7 +77,7 @@ def parse_files():
         cpal_straws = []
         if vertical_layout is True:
             
-            
+            '''
             for row in reader:
                 straw = {}
                 if len(row) >= 3:
@@ -80,24 +88,24 @@ def parse_files():
                         if len(row[i]) == 9:
                             if str(row[i][-2]) == 'B':
                                 straw['batch'] = str(row[i])
-                        if len(row[i]) == 4:
-                            if str(row[i][0:3]).upper() == 'PP.' or str(i) == 'DNE':
+                        if len(row[i]) == 4 or len(str(row[i])) == 3:
+                            if str(row[i][0:3]).upper() == 'PP.' or str(row[i]) == 'DNE':
                                 straw['grade'] = str(row[i]).upper()
                         
                     if len(straw) != 0:
                         cpal_straws.append(straw)
             
-            
+            '''
             pass
         else:
-            '''
+            
             inner_straw=[]
             inner_batch=[]
             inner_grade=[]
             
             eof=False
             for row in reader:
-                if len(row) != 0 and eof == False:
+                if len(row) != 0:
                     for i in row:
                         if len(i) == 7:
                             if str(i)[0:2].lower() == 'st' and str(i[2].isnumeric()):
@@ -105,10 +113,9 @@ def parse_files():
                         if len(i) == 9:
                             if str(i[-2]) == 'B':
                                 inner_batch.append(str(i))
-                        if len(i) == 4:
+                        if len(i) == 4 or len(i) == 3:
                             if str(i[0:3]).upper() == 'PP.' or str(i).upper() == 'DNE':
                                 inner_grade.append(str(i).upper())
-                                eof=True
             
             if len(inner_straw) == len(inner_batch) or len(inner_straw) == len(inner_grade):
                 for i in range(len(inner_straw)):
@@ -119,11 +126,9 @@ def parse_files():
                         straw['grade'] = str(inner_grade[i]).upper()
                     
                     cpal_straws.append(straw)
-                
-                    
             else:
                 print(name)
-            '''
+            
         
                             
         cpal_list.append(name)
