@@ -7,6 +7,7 @@ import sys, csv
 from pathlib import Path
 from datetime import datetime as dt
 from guis.common.panguilogger import SetupPANGUILogger
+from guis.common.merger import isolated_automerge
 
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
@@ -129,12 +130,11 @@ def run(panel, process, data_file):
                 )
             else:
                 logger.info(f"    Loaded {r_set.rowcount} data points into local DB.")
-                logger.info(
-                    "    To send it to the network (and see it in DBV) "
-                    "trigger an automerge."
-                )
 
-        logger.info("All done! You can close the heater window now.")
+    logger.info("Doing an automerge so you don't have to!")
+    logger.info("Seriously the data will definitely be in the network DB and in the DBV after this.")
+    isolated_automerge()
+    logger.info("All done! You can close the heater window now.")
 
 
 if __name__ == "__main__":
