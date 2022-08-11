@@ -11,7 +11,7 @@ logger = logging.getLogger("root")
 
 def get_pmf_list():
     straws = []
-    for file in Path(paths["palletsLTG"]).rglob("*.csv"):
+    for file in Path(paths["pallets"]).rglob("*.csv"):
         if file.is_file() and file.stem[4:5] == "3":
             f = open(file, "r")
             reader = csv.reader(f)
@@ -19,7 +19,7 @@ def get_pmf_list():
                 for item in row:
                     if len(item) > 1:
                         if item[:2].upper() == "ST":
-                            straws.append(item)
+                            straws.append(item.upper())
     return straws
 
 
