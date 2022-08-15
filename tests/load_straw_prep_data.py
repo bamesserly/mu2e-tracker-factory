@@ -1,6 +1,8 @@
 from pathlib import Path
 from guis.common.getresources import GetProjectPaths, pkg_resources
 import csv
+import tests.straw_present_utils as straw_utils
+import datetime
 
 paths = GetProjectPaths()
 
@@ -11,6 +13,7 @@ def parse_files():
     failure_cpals = []
     pp_grades=['A','B','C','D']
     cpal_prefix_list=[]
+    problem_files=[]
 
     
     # format: time, cpalid, cpal, paper pull time, worker
@@ -28,7 +31,7 @@ def parse_files():
         vertical_layout=True
         for row in reader:
             try:
-                if len(row[0]) != 0 and str(row[0])[0:3].lower() == 'pp.':
+                if len(row[0]) != 0 and str(row[0])[0:3].lower() == 'pp.' or str(row[2])[0:3].lower() == 'pp.' or len(row[0]) != 0 and str(row[1])[0:3].lower() == 'pp.':
                     vertical_layout = False
             except:
                 pass
@@ -38,10 +41,20 @@ def parse_files():
         for row in reader:
             # acquire cpal prefix information
 
-            if len(str(row[0])) == 16 and 2015 < int(str(row[0][0:4])) < 2023:
+            if (len(str(row[0])) == 16 or len(str(row[0])) == 19) and 2015 < int(str(row[0][0:4])) < 2023:
                 for i in row:
                     if len(str(i)) == 16 and 2015 < int(str(i[0:4])) < 2023:
-                        prefixes['time'] = str(i)
+                        time = datetime.datetime.strptime(i, "%Y-%m-%d_%H:%M")
+                        time = datetime.datetime.timestamp(time)
+                        prefixes['time'] = int(time)
+                    elif len(str(i)) == 19 and 2015 < int(str(i[0:4])) < 2023 and str(i)[10] == ' ':
+                        time = datetime.datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
+                        time = datetime.datetime.timestamp(time)
+                        prefixes['time'] = int(time)
+                    elif len(str(i)) == 19 and 2015 < int(str(i[0:4])) < 2023 and str(i)[10] == '_':
+                        time = datetime.datetime.strptime(i, "%Y-%m-%d_%H:%M:%S")
+                        time = datetime.datetime.timestamp(time)
+                        prefixes['time'] = int(time)
                     elif len(str(i)) == 8:
                         if str(i[0:7]).upper() == 'CPALID':
                             prefixes['cpalid'] = int(i[7:9])
@@ -64,6 +77,7 @@ def parse_files():
         cpal_straws = []
         if vertical_layout is True:
             
+            '''
             for row in reader:
                 straw = {}
                 if len(row) >= 3:
@@ -72,21 +86,24 @@ def parse_files():
                             if str(row[i])[0:2].lower() == 'st' and str(row[i][2].isnumeric()):
                                 straw['id'] = str(row[i]).lower()
                         if len(row[i]) == 9:
-                            if str(row[i][-2]) in pp_grades:
-                                straw['batch'] = str(i)
-                        if len(row[i]) == 4:
-                            if str(row[i][0:3]).upper() == 'PP.':
+                            if str(row[i][-2]) == 'B':
+                                straw['batch'] = str(row[i])
+                        if len(row[i]) == 4 or len(str(row[i])) == 3:
+                            if str(row[i][0:3]).upper() == 'PP.' or str(row[i]) == 'DNE':
                                 straw['grade'] = str(row[i]).upper()
                         
                     if len(straw) != 0:
                         cpal_straws.append(straw)
             
+            '''
             pass
         else:
+            
             inner_straw=[]
             inner_batch=[]
             inner_grade=[]
             
+            eof=False
             for row in reader:
                 if len(row) != 0:
                     for i in row:
@@ -94,13 +111,13 @@ def parse_files():
                             if str(i)[0:2].lower() == 'st' and str(i[2].isnumeric()):
                                 inner_straw.append(str(i))
                         if len(i) == 9:
-                            if str(i[-2]) in pp_grades:
+                            if str(i[-2]) == 'B':
                                 inner_batch.append(str(i))
-                        if len(i) == 4:
-                            if str(i[0:3]).upper() == 'PP.':
+                        if len(i) == 4 or len(i) == 3:
+                            if str(i[0:3]).upper() == 'PP.' or str(i).upper() == 'DNE':
                                 inner_grade.append(str(i).upper())
             
-            if len(inner_straw) == len(inner_batch) or len(inner_batch) == len(inner_grade) or len(inner_straw) == len(inner_grade):
+            if len(inner_straw) == len(inner_batch) or len(inner_straw) == len(inner_grade):
                 for i in range(len(inner_straw)):
                     straw={'id': inner_straw[i].lower()}
                     if len(inner_batch) == len(inner_straw):
@@ -109,36 +126,52 @@ def parse_files():
                         straw['grade'] = str(inner_grade[i]).upper()
                     
                     cpal_straws.append(straw)
-                    
             else:
-                print('PROBLEM')
                 print(name)
-                            
-                    
             
+        
+                            
         cpal_list.append(name)
         straw_information[name] = cpal_straws
+
                     
 
     return failure_cpals, failure_count, cpal_list, straw_information, cpal_prefix_list
-            
 
-def run():
+def analyze_data():
     failure_cpals, failure_count, cpal_list, straw_information, cpal_prefix_list = parse_files()
-    
-    '''
-    print(cpal_list)
-    '''
-    print(straw_information)
-    '''
-    print(cpal_prefix_list)
-    '''
-    
     
     print('length of cpal list: ' + str(len(cpal_list)))
     print('length of straw_information: ' + str(len(straw_information)))
-    print('failure count: ' + str(failure_count))
-    print('length of cpal prefixes: ' + str(len(cpal_prefix_list)))
+    print('length of cpal prefix list: ' + str(len(cpal_prefix_list)))
+    
+    print(cpal_prefix_list)
+
+def save_db():
+    failure_cpals, failure_count, cpal_list, straw_information, cpal_prefix_list = parse_files()
+    
+    print('     ')
+    for i in cpal_list:
+        problem=False
+        for y in straw_information[i]:
+            if len(y) != 3:
+                problem=True
+        if problem==True:
+            print(i)
+    
+    
+    '''
+    for i in straw_information:
+    # check to see if a straw id exists in the straw table
+    val = straw_utils.strawExists()
+    '''
+    
+            
+
+def run():
+    save_db()
+    
+    
     
                     
     
