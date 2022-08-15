@@ -6,7 +6,7 @@ from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 # get all occurances of a certain straw ID in straw_present
 # returns list of tuples of the form
 # (<id>, <straw>, <position>, <present>, <time_in>, <time_out>, <timestamp>)
-def strawIsPresent(strawID, connection):
+def strawPresences(strawID, connection):
     query = f"SELECT * FROM straw_present WHERE straw = {strawID}"
 
     ret = connection.execute(query)
@@ -14,7 +14,34 @@ def strawIsPresent(strawID, connection):
 
     return lst
 
+# get all occurances of a certain straw ID in straw_present
+# returns list of tuples of the form
+# (<id>, <straw>, <LOCATION TYPE AS STRING>, <location>, <present>, <time_in>, <time_out>, <timestamp>)
+def strawPresencesReadable(strawID, connection):
+    query = f"SELECT * FROM straw_present WHERE straw = {strawID}"
+
+    ret = connection.execute(query)
+    lst = ret.fetchall()
+
+    retLst = []
+
+    for entry in lst:
+        newLoc = str(entryLocation(entry[0], connection, checkIntegrity=False)[0])
+        retLst += (
+            entry[0],
+            entry[1],
+            newLoc,
+            entry[2],
+            entry[3],
+            entry[4],
+            entry[5],
+            entry[6]
+        )
+    
+    return retLst
+
 # get the location mentioned in an entry in straw_present
+# takes id of an entry in straw_present
 def entryLocation(presentID, connection, checkIntegrity=True):
 
     # doing this will allow fetchone to get all the results (since there should only be one)
@@ -34,6 +61,14 @@ def entryLocation(presentID, connection, checkIntegrity=True):
     result = ret.fetchone()
 
     return result
+
+# return list of all straw locations over time (present or not)
+def strawLocations(strawID, connection):
+    retList = []
+    for toop in strawPresences(strawID, connection):
+        retList += [entryLocation(toop[0], connection, checkIntegrity=False)]
+
+    return retList
 
 # get the current location of a straw
 def strawCurrentLocation(strawID, connection, checkIntegrity=True):
@@ -56,34 +91,69 @@ def strawCurrentLocation(strawID, connection, checkIntegrity=True):
 
     return result
 
+# returns the ID of a position from a location and a position number for that location
+def getPositionID(locationID, positionNum, connection):
+    query = (
+        "SELECT straw_position.id\n"
+        "FROM straw_position\n"
+        f"WHERE straw_position.location = {locationID} AND straw_position.position_number = {positionNum}"
+    )
+    ret = connection.execute(query)
+    result = ret.fetchone()
+
+    # return 0 index because it returns a tuple of the form (<data we want>,)
+    return result[0]
+
+def getLPALID(lpalNum, connection):
+    query = (
+        "SELECT straw_location.id\n"
+        "FROM straw_location\n"
+        f"WHERE straw_location.location_type = 'LPAL' AND straw_location.number = {lpalNum}"
+    )
+    ret = connection.execute(query)
+    result = ret.fetchone()
+
+    # return 0 index because it returns a tuple of the form (<data we want>,)
+    return result[0]
+
 # submit a new entry to the straw_present table
 # returns true if success, false if failed
 def newEntry(strawID, position, present, connection, time_in=None, time_out=None):
     # ensure entry doesn't exist yet
-    for toop in strawIsPresent(strawID, connection):
+    for toop in strawPresences(strawID, connection):
         if toop[2] == position:
             print("This straw/position combo is already in the database!")
             if toop[3] != present or toop[4] != time_in or toop[5] != time_out:
                 print("FYI The entry you're trying to submit disagrees with the one already in the database.")
-            return False
+        return False
 
     # do actual insertion
     t = time.time()
-    query = (
-        "INSERT OR IGNORE INTO straw_present (id, straw, position, present, time_in, time_out, timestamp)"
-        f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {present}, {time_in}, {time_out}, {int(t)});"
-    )
+    if time_out == None:
+        query = (
+            "INSERT OR IGNORE INTO straw_present (id, straw, position, present, time_in, timestamp)"
+            f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {present}, {time_in}, {int(t)});"
+        )
+    else:
+        query = (
+            "INSERT OR IGNORE INTO straw_present (id, straw, position, present, time_in, time_out, timestamp)"
+            f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {present}, {time_in}, {time_out}, {int(t)});"
+        )
 
     try:
         sendIt = connection.execute(query)
-    except:
-        return False
+    except sqla.exc.OperationalError as e:
+        return e
+    except sqla.exc.IntegrityError as e:
+        return e
 
-    return True
+    return "T"
 
 # check if straw has only one entry per position and one present = 1
 # TODO: add check if timestamps line up or contradict each other?
-# returns true if all looks good, false if some sort of contradiction found
+# returns 0 if all is good
+#         1 if two or more of the same position found
+#         2 if two or more present = 1
 def checkStrawIntegrity(strawID, connection):
     # dict of positions
     positions = {}
@@ -91,11 +161,11 @@ def checkStrawIntegrity(strawID, connection):
     presentFound = False
 
     # loop through entries
-    for toop in strawIsPresent(strawID, connection):
+    for toop in strawPresences(strawID, connection):
         # if key (position) exists in dict already --> two positions found
         if toop[2] in positions:
             print("Two locations detected")
-            return False
+            return 1
 
         # if straw is present at this position
         if toop[3] == 1:
@@ -107,7 +177,7 @@ def checkStrawIntegrity(strawID, connection):
             else:
                 # it exists in two places which is bad
                 print("Two presences detected")
-                return False
+                return 2
         
         # add to dict
         #        {position : (present, time_in, time_out)}
@@ -115,7 +185,7 @@ def checkStrawIntegrity(strawID, connection):
     # end of loop body
 
     # didn't find any red flags
-    return True
+    return 0
 
 
 
@@ -131,15 +201,22 @@ def run():
     connection = engine.connect()
 
     #test 1, should return two different locations, one not present and one present
-    print(strawIsPresent(20474, connection))
+    #print(strawPresences(20474, connection))
     #test 2, should return LPAL 360
-    print(entryLocation(16325227138278103,connection))
+    #print(entryLocation(16325227138278103,connection))
     #test 3, should return MN 173
-    print(strawCurrentLocation(20474,connection))
+    #print(strawCurrentLocation(20474,connection))
     #test 4
     #newEntry(99999, 42969, 1, connection, 0, 5)
     #test5, should return true
-    print(checkStrawIntegrity(20474, connection))
+    #print(checkStrawIntegrity(20474, connection))
+    #test6,
+    #print(strawLocations(20474, connection))
+    #test7,
+    #print(getLPALID(259, connection))
+
+    #for toop in strawPresences(16312, connection):
+    #    print(toop)
 
     return
 
