@@ -126,7 +126,7 @@ def run(lpal_file=None):
             result=s_util.newEntry(
                 strawNum,
                 posID,
-                (not inPanel),# needs revisiting
+                (not inPanel),# needs revisiting, DEFAULTS TO TRUE (1) IF NO PANEL FOUND
                 connection,
                 time_in=row["Timestamp"],
                 time_out=(panelInTime if inPanel else None)

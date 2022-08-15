@@ -28,19 +28,19 @@ def strawPresencesReadable(strawID, connection):
     for entry in lst:
         newLoc = str(entryLocation(entry[0], connection, checkIntegrity=False)[0])
         retLst += (
-            entry[0],
-            entry[1],
-            newLoc,
-            entry[2],
-            entry[3],
-            entry[4],
-            entry[5],
-            entry[6]
+            entry[0], # id
+            entry[1], # straw number
+            newLoc,   # location as a string, ex "MN" or "LPAL"
+            entry[2], # location id
+            entry[3], # present (1 or 0)
+            entry[4], # time in (entered this position)
+            entry[5], # time out (exited this position)
+            entry[6]  # committed to DB timestamp
         )
     
     return retLst
 
-# get the location mentioned in an entry in straw_present
+# get the location mentioned in an entry in straw_present as a string and number ex ("MN", 200)
 # takes id of an entry in straw_present
 def entryLocation(presentID, connection, checkIntegrity=True):
 
@@ -63,6 +63,7 @@ def entryLocation(presentID, connection, checkIntegrity=True):
     return result
 
 # return list of all straw locations over time (present or not)
+# list looks like: [("MN", 200), ("LPAL", 400)]
 def strawLocations(strawID, connection):
     retList = []
     for toop in strawPresences(strawID, connection):
@@ -71,6 +72,7 @@ def strawLocations(strawID, connection):
     return retList
 
 # get the current location of a straw
+# returns (<location type>, number), ex ("MN", 200)
 def strawCurrentLocation(strawID, connection, checkIntegrity=True):
 
     # doing this will allow fetchone to get all the results (since there should only be one)
@@ -92,6 +94,8 @@ def strawCurrentLocation(strawID, connection, checkIntegrity=True):
     return result
 
 # returns the ID of a position from a location and a position number for that location
+# so if you want the database ID for position 50 on LPAL 500 use getPositionID(<LPAL500 id>, 50, connection)
+# returns an int
 def getPositionID(locationID, positionNum, connection):
     query = (
         "SELECT straw_position.id\n"
@@ -104,6 +108,8 @@ def getPositionID(locationID, positionNum, connection):
     # return 0 index because it returns a tuple of the form (<data we want>,)
     return result[0]
 
+# useful for getPositionID() if you don't know the database ID of an LPAL
+# returns an int
 def getLPALID(lpalNum, connection):
     query = (
         "SELECT straw_location.id\n"
@@ -117,7 +123,7 @@ def getLPALID(lpalNum, connection):
     return result[0]
 
 # submit a new entry to the straw_present table
-# returns true if success, false if failed
+# returns "T" if success, error message if failed
 def newEntry(strawID, position, present, connection, time_in=None, time_out=None):
     # ensure entry doesn't exist yet
     for toop in strawPresences(strawID, connection):
@@ -127,8 +133,9 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
                 print("FYI The entry you're trying to submit disagrees with the one already in the database.")
             return f"Already present, {toop[2]} = {position}"
 
-    # do actual insertion
+    # do actual insertion (TWSS)
     t = time.time()
+    # sqla doesn't appreciate having time_out be None so make sure you only use that column if it's not None
     if time_out == None:
         query = (
             "INSERT OR IGNORE INTO straw_present (id, straw, position, present, time_in, timestamp)"
@@ -153,7 +160,7 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
 # TODO: add check if timestamps line up or contradict each other?
 # returns 0 if all is good
 #         1 if two or more of the same position found
-#         2 if two or more present = 1
+#         2 if two or more "present = 1" in straw_present for this straw
 def checkStrawIntegrity(strawID, connection):
     # dict of positions
     positions = {}
