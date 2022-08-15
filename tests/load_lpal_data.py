@@ -74,7 +74,7 @@ def run(lpal_file=None):
         integrity = s_util.checkStrawIntegrity(strawNum,connection)
         if integrity==0:
             # all is good if integrity = 0
-            print("yey")
+            print("Integrity check = yey")
         elif integrity == 1:
             print(f'Straw {row["Straw"]} has multiple of the same locaiton.')
             continue
@@ -91,18 +91,28 @@ def run(lpal_file=None):
         # bools to mark panel and LPAL presence
         inPanel = False
         inLPAL = False
+
         for toop in locations:
-            if "MN" in toop:
-                inPanel = True
-            elif "LPAL" in toop:
-                inLPAL = True
+            for thing in toop:
+                if thing == "MN":
+                    inPanel = True
+                elif thing == "LPAL":
+                    inLPAL = True
+
+        print(f"IN PANEL = {inPanel}")
 
         # if panel found
         if inPanel:
             panelInTime = -1
-            for toop in entries:
-                if toop[2] == "MN":
-                    panelInTime = toop[5]
+            # if only one entry
+            if isinstance(entries[0], int):
+                if entries[2] == "MN":
+                    panelInTime = entries[5]
+            # if multiple entries
+            else:
+                for toop in entries:
+                    if toop[2] == "MN":
+                        panelInTime = toop[5]
 
         print(f'Straw ST{strawNum} inPanel={inPanel} inLPAL={inLPAL}') 
         
@@ -112,6 +122,7 @@ def run(lpal_file=None):
             lpalID = s_util.getLPALID(lpalNum, connection)
             posID = s_util.getPositionID(lpalID, row["Position"], connection)
             # add the lpal entry
+            print(f"POSITION ID {posID}")
             result=s_util.newEntry(
                 strawNum,
                 posID,
@@ -129,7 +140,7 @@ def run(lpal_file=None):
         integrity = s_util.checkStrawIntegrity(strawNum,connection)
         if integrity==0:
             # all is good if integrity = 0
-            print("yey")
+            print("Integrity check = yey")
         elif integrity == 1:
             print(f'Straw {row["Straw"]} has multiple of the same locaiton.')
             continue
@@ -140,9 +151,9 @@ def run(lpal_file=None):
     #END LOOP
 
 
-        
-        
-
+# id                straw   position            present time_in time_out    timestamp
+# 16488237931915190	16312	16488229872014158	0	1648823793	1648840911	1648840911
+# 16488409115789145	16312	16486600691503178	1	1648840912	NULL        1648840912
         
 
 

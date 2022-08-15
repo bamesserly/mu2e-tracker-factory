@@ -125,7 +125,7 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
             print("This straw/position combo is already in the database!")
             if toop[3] != present or toop[4] != time_in or toop[5] != time_out:
                 print("FYI The entry you're trying to submit disagrees with the one already in the database.")
-        return False
+            return f"Already present, {toop[2]} = {position}"
 
     # do actual insertion
     t = time.time()
@@ -176,7 +176,7 @@ def checkStrawIntegrity(strawID, connection):
             # if it has been found elsewhere
             else:
                 # it exists in two places which is bad
-                print("Two presences detected")
+                print("Exists as present = 1 in multiple places")
                 return 2
         
         # add to dict
