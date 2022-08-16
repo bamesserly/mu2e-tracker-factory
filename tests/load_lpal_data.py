@@ -7,6 +7,10 @@ import time
 import tests.straw_present_utils as s_util
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.common.db_classes.straw import Straw
+from guis.common.panguilogger import SetupPANGUILogger
+import logging
+
+logger = logging.getLogger("root")
 
 
 def connectDB():
@@ -33,30 +37,50 @@ def read_file(lpal_file):
 def get_or_create_straw(straw_id):
     straw = Straw.exists(straw_id=straw_id)
     if not straw:
-        print("Straw not found in DB, creating straw.")
+        logger.info("Straw not found in DB, creating straw.")
         straw = Straw.Straw(id=straw_id)
     assert straw
 
+# happens twice in main, don't need double the amount of code
+def integrityCheck(strawNum, connection, numErrors, isInitital):
+    initOrNo = "Initial" if isInitital else "Secondary"
+    # check integrity of this straw in straw_present
+    integrity = s_util.checkStrawIntegrity(strawNum,connection)
+    if integrity==0:
+        # all is good if integrity = 0
+        print("Integrity check = yey")
+        logger.info(f"{initOrNo} integrity check: Straw ST{strawNum} passes.")
+    elif integrity == 1:
+        logger.error(f"{initOrNo} integrity check: Straw ST{strawNum} has multiple of the same locaiton.")
+        numErrors += 1
+        return 1
+    elif integrity == 2:
+        logger.error(f"{initOrNo} integrity check: Straw ST{strawNum} is present in multiple locations.")
+        numErrors += 1
+        return 1
+    elif integrity == 3:
+        logger.error(f"{initOrNo} integrity check: Straw ST{strawNum} has conflicting timestamps.")
+        numErrors += 1
+        return 1
+    
+    return 0
 
 
-
+# main function, takes name of lpal file (like LPAL0123_LPALID01.csv)
 def run(lpal_file=None):
 
     # yall ready for this??
-    print('Warning: This script will potentially modify the database.  Enter "Y" to continue.')
+    logger.info('Warning: This script will potentially modify the database.  Enter "Y" to continue.')
     response = input()
     if not(response == "Y" or response =="y"):
-        print("Script aborted.")
+        logger.info("Script aborted.")
         return
 
     # get LPAL number
     lpalNum = int((sys.argv[1])[4:8])
-    print(lpalNum)
 
     # get rows and fields from lpal file
     rows, fields = read_file(lpal_file)
-    for row in rows:
-        print(row)
 
     # connect to DB
     engine, connection = connectDB()
@@ -71,20 +95,15 @@ def run(lpal_file=None):
         get_or_create_straw(strawNum)
 
         # check integrity of this straw in straw_present
-        integrity = s_util.checkStrawIntegrity(strawNum,connection)
-        if integrity==0:
-            # all is good if integrity = 0
-            print("Integrity check = yey")
-        elif integrity == 1:
-            print(f'Straw {row["Straw"]} has multiple of the same locaiton.')
-            continue
-        elif integrity == 2:
-            print(f'Straw {row["Straw"]} is present in multiple locations.')
+        if integrityCheck(strawNum, connection, numErrors, True):
+            # if we get an error code, skip this straw.
             continue
 
         # location names/numbers [(LPAL, 300),(MN, 135),etc...]
         locations = s_util.strawLocations(strawNum, connection)
-        # entries in straw_present
+        # entries in straw_present (the full thing plus a readable string for location)
+        # list of tuples of the form:
+        #   (<id>, <straw>, <LOCATION TYPE AS STRING>, <location>, <present>, <time_in>, <time_out>, <timestamp>)
         entries = s_util.strawPresencesReadable(strawNum, connection)
 
         
@@ -92,6 +111,7 @@ def run(lpal_file=None):
         inPanel = False
         inLPAL = False
 
+        # determine if there's a straw_present entry for LPAL and for panel
         for toop in locations:
             for thing in toop:
                 if thing == "MN":
@@ -99,12 +119,11 @@ def run(lpal_file=None):
                 elif thing == "LPAL":
                     inLPAL = True
 
-        print(f"IN PANEL = {inPanel}")
-
         # if panel found
         if inPanel:
+            # variable to get the time_in from panel
             panelInTime = -1
-            # if only one entry
+            # if only one entry total
             if isinstance(entries[0], int):
                 if entries[2] == "MN":
                     panelInTime = entries[5]
@@ -113,8 +132,6 @@ def run(lpal_file=None):
                 for toop in entries:
                     if toop[2] == "MN":
                         panelInTime = toop[5]
-
-        print(f'Straw ST{strawNum} inPanel={inPanel} inLPAL={inLPAL}') 
         
         # if no lpal entry found
         if not inLPAL:
@@ -122,7 +139,8 @@ def run(lpal_file=None):
             lpalID = s_util.getLPALID(lpalNum, connection)
             posID = s_util.getPositionID(lpalID, row["Position"], connection)
             # add the lpal entry
-            print(f"POSITION ID {posID}")
+            logger.info(f"Submitting straw ST{strawNum} to DB with values:")
+            logger.info(f"Straw: {strawNum}, Position: {posID}, Present: {not inPanel}, time_in: {row['Timestamp']}, time_out: {panelInTime if inPanel else None}")
             result=s_util.newEntry(
                 strawNum,
                 posID,
@@ -131,21 +149,14 @@ def run(lpal_file=None):
                 time_in=row["Timestamp"],
                 time_out=(panelInTime if inPanel else None)
             )
-            print(f'Straw ST{strawNum} result: {result}')
-
+            logger.info(f'Straw ST{strawNum} Query result: {result}')
         else:
-            print("Check lpal damn you")
+            logger.info(f"LPAL entry for ST{strawNum} already found.")
+            
 
         # check integrity of this straw in straw_present
-        integrity = s_util.checkStrawIntegrity(strawNum,connection)
-        if integrity==0:
-            # all is good if integrity = 0
-            print("Integrity check = yey")
-        elif integrity == 1:
-            print(f'Straw {row["Straw"]} has multiple of the same locaiton.')
-            continue
-        elif integrity == 2:
-            print(f'Straw {row["Straw"]} is present in multiple locations.')
+        if integrityCheck(strawNum, connection, numErrors, False):
+            # if we get an error code, skip this straw.
             continue
 
     #END LOOP
@@ -162,4 +173,5 @@ def run(lpal_file=None):
     return
 
 if __name__ == "__main__":
+    logger = SetupPANGUILogger("root", "LoadLPALToPresentData")
     run(sys.argv[1])

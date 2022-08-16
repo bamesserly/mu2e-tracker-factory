@@ -123,7 +123,7 @@ def getLPALID(lpalNum, connection):
     return result[0]
 
 # submit a new entry to the straw_present table
-# returns "T" if success, error message if failed
+# returns "Success" if success, error message if failed
 def newEntry(strawID, position, present, connection, time_in=None, time_out=None):
     # ensure entry doesn't exist yet
     for toop in strawPresences(strawID, connection):
@@ -154,13 +154,14 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
     except sqla.exc.IntegrityError as e:
         return e
 
-    return "T"
+    return "Success"
 
 # check if straw has only one entry per position and one present = 1
 # TODO: add check if timestamps line up or contradict each other?
-# returns 0 if all is good
-#         1 if two or more of the same position found
-#         2 if two or more "present = 1" in straw_present for this straw
+# returns   0 if all is good
+#           1 if two or more of the same position found
+#           2 if two or more "present = 1" in straw_present for this straw
+#           3 if there's a timestamp conflict
 def checkStrawIntegrity(strawID, connection):
     # dict of positions
     positions = {}
@@ -191,6 +192,36 @@ def checkStrawIntegrity(strawID, connection):
         positions[toop[2]] = (toop[3], toop[4], toop[5])
     # end of loop body
 
+    # check timestamps for weirdness
+    # there is likely a faster way to do this, n^2 time is heresy
+    # for each position
+    for key1 in positions:
+        # get the timestamps (tr abbreviation = time range)
+        tr1 = (
+            positions[key1][1] if positions[key1][1] is not None else -1,
+            positions[key1][2] if positions[key1][2] is not None else 1e12
+        )
+        # for each other key
+        for key2 in positions:
+            # each OTHER key
+            if key1 == key2:
+                # skip if it's the same one
+                continue
+            # get the timestamps for another position
+            tr2 = (
+                positions[key2][1] if positions[key2][1] is not None else -1,
+                positions[key2][2] if positions[key2][2] is not None else 1e12
+            )
+            # if tr2 start or end is within range of tr1 we have a problem
+            if tr2[0] > tr1[0] and tr2[0] < tr1[1]:
+                print("Timestamp conflict")
+                return 3
+            if tr2[1] > tr1[0] and tr2[1] < tr1[1]:
+                print("Timestamp conflict")
+                return 3
+
+                
+
     # didn't find any red flags
     return 0
 
@@ -215,7 +246,7 @@ def run():
     #print(strawCurrentLocation(20474,connection))
     #test 4
     #newEntry(99999, 42969, 1, connection, 0, 5)
-    #test5, should return true
+    #test5, should return 0
     #print(checkStrawIntegrity(20474, connection))
     #test6,
     #print(strawLocations(20474, connection))
