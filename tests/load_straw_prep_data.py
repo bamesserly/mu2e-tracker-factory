@@ -3,6 +3,9 @@ from guis.common.getresources import GetProjectPaths, pkg_resources
 import csv
 import tests.straw_present_utils as straw_utils
 import datetime
+import os, time
+import sqlalchemy as sqla
+from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
 paths = GetProjectPaths()
 
@@ -13,13 +16,14 @@ def parse_files():
     failure_cpals = []
     pp_grades=['A','B','C','D']
     cpal_prefix_list=[]
-    problem_files=['CPAL0002.csv', 'CPAL0040.csv', 'CPAL0025.csv', 'prep_CPAL7653.csv']
+    problem_files=['CPAL0002.csv', 'CPAL0040.csv', 'CPAL0025.csv', 'prep_CPAL7653.csv', 'CPAL1234.csv', 'prep_CPAL1234.csv']
 
     
     # format: time, cpalid, cpal, paper pull time, worker
     straws = []
     
     for file in Path(paths['prepdata']).rglob('*.csv'):
+            
         if file.name not in problem_files:
             name=file.name
             f = open(file,'r')
@@ -99,6 +103,7 @@ def parse_files():
                                         straw['grade'] = str(row[i]).upper()
                                 
                             if len(straw) != 0:
+                                straw['time'] = prefixes['time']
                                 cpal_straws.append(straw)
                     
                 pass
@@ -141,6 +146,10 @@ def parse_files():
                             except:
                                 print(name)
                     
+                    # add time to straw
+                    for i in cpal_straws:
+                        i['time'] = prefixes['time']
+                    
                     
                 else:
                     print(name)
@@ -164,21 +173,61 @@ def analyze_data():
     
     '''
     for i in cpal_prefix_list:
-        print(i)
+        cpal = i['cpal']
+        
+        for i in straw_information[cpal]:
+            try:
+                temp = i['grade']
+            except:
+                print(cpal)
     '''
+        
     
-    print(straw_information[cpal_prefix_list[0]['cpal']])
 
     
+    
+
+def update_straw_table(straw_information, cpal_prefix_list):
+    database = GetLocalDatabasePath()
+    engine = sqla.create_engine("sqlite:///" + database)
+    connection = engine.connect()
+    
+    # add an item to each straw dictionary telling whether or not it's currently present in the db
+    for i in cpal_prefix_list:
+        cpal = i['cpal']
+        for y in range(len(straw_information[cpal])):
+            try:
+                straw_information[cpal][y]['present_db'] = straw_utils.strawExists(straw_information[cpal][y]['id'][2::], connection)
+                '''
+                print(straw_utils.strawExists(straw_information[cpal][y]['id'][2::], connection))
+                '''
+            except:
+                print('issue acquiring straw information on cpal ' + str(cpal))
+    
+    # for all straws not present in straw table, add them
+    for i in cpal_prefix_list:
+        cpal = i['cpal']
+        for y in range(len(straw_information[cpal])):
+            if straw_information[cpal][y]['present_db'] == False:
+                straw_id = straw_information[cpal][y]['id'][2::]
+                batch = straw_information[cpal][y]['batch']
+                timestamp = int(straw_information[cpal][y]['time'])
+                                   
+                straw_utils.createStraw(straw_id, batch, timestamp, connection)
+    
+        
+
 
 def save_db():
     failure_cpals, failure_count, cpal_list, straw_information, cpal_prefix_list = parse_files()
     
     
+    update_straw_table(straw_information, cpal_prefix_list)
+    
             
 
 def run():
-    analyze_data()
+    save_db()
     
     
     

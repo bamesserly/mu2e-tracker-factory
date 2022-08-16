@@ -3,6 +3,38 @@ import os, time
 import sqlalchemy as sqla
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 
+# check if a straw id exists in straw
+def strawExists(straw_id, connection):
+    try:
+        straw_id = int(straw_id)
+    except:
+        print('please ensure that straw_id is in integer format')
+    
+    query = f"SELECT * FROM straw WHERE id = {straw_id}"
+    
+    ret = connection.execute(query)
+    lst = ret.fetchall()
+    
+    if len(lst) != 0:
+        return True
+    else:
+        return False
+        
+# insert straw into straw table (not working for an odd reason quite yet)
+def createStraw(straw_id, batch, timestamp, connection):
+    try:
+        straw_id = int(straw_id)
+        batch = str(batch)
+        timestamp = int(timestamp)
+    except:
+        print('please ensure that straw_id is in integer format')
+        
+    query = (
+        f"INSERT INTO straw VALUES ({straw_id}, {batch}, {None}, {timestamp});"
+    )
+    
+    connection.execute(query)
+        
 # get all occurances of a certain straw ID in straw_present
 # returns list of tuples of the form
 # (<id>, <straw>, <position>, <present>, <time_in>, <time_out>, <timestamp>)
