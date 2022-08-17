@@ -343,4 +343,3 @@ ax.set_title(f"Paper Grade Composition by Panel (MN170 - MN230)", fontsize=25)
 fig.savefig(f"ppg_composition_by_panel.png")
 
 plt.close(fig)
-# -
