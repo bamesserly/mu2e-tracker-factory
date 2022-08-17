@@ -1,0 +1,12 @@
+name: mu2e
+channels:
+  - defaults
+dependencies:
+  - python=3.7
+  - sqlalchemy
+  - pre_commit
+  - jupyter
+  - pandas
+  - matplotlib
+  - scikit-learn
+prefix: /Users/Ben/miniconda3/envs/mu2e
