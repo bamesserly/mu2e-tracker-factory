@@ -7,7 +7,7 @@ import os, time
 import sqlalchemy as sqla
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.common.db_classes.straw import Straw
-
+from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet, Pallet
 paths = GetProjectPaths()
 
 def determine_prefix(item):
@@ -98,7 +98,7 @@ def parse_horizontal_straw_rows(reader, prefixes):
                 try:
                     i['batch'] = prefixes['batch']
                 except:
-                    print(name)
+                    print('batch prefix assignment failed: ' + name)
         
         # add time to straw
         for i in cpal_straws:
@@ -214,6 +214,14 @@ def update_straw_table(straw_information, cpal_prefix_list):
                     
     print('done updating straw table')
     
+def update_straw_location_table(cpal_prefix_list):
+    for i in cpal_prefix_list:
+        cpal = i['cpal']
+        cpalid = i['cpalid']
+        time = i['time']
+    
+        location = StrawLocation('CPAL',cpal,cpalid,None,False,time)
+    
     
     
         
@@ -223,7 +231,9 @@ def save_db():
     cpal_list, straw_information, cpal_prefix_list = parse_files()
     
     
-    update_straw_table(straw_information, cpal_prefix_list)
+    # update_straw_table(straw_information, cpal_prefix_list)
+    
+    update_straw_location_table(cpal_prefix_list)
     
             
 

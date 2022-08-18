@@ -48,7 +48,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql.expression import true, false
 import guis.common.db_classes.straw as st
-from time import sleep
+from time import sleep, time
 
 
 class StrawLocation(BASE, OBJECT):
@@ -61,6 +61,7 @@ class StrawLocation(BASE, OBJECT):
     location_type = Column(Integer, ForeignKey("straw_location_type.id"))
     number = Column(Integer)
     pallet_id = Column(Integer)
+    timestamp = Column(Integer)
     __mapper_args__ = {"polymorphic_on": location_type}
 
     # StrawLocation Information
@@ -69,18 +70,20 @@ class StrawLocation(BASE, OBJECT):
     ## INITIALIZATION ##
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, check_key=True, timestamp=time()
     ):
         # Check for authorization with 'create_key'
-        assert (
-            create_key == StrawLocation.__create_key
-        ), "You can only obtain a StrawLocation with one of the following methods: panel(), cpal(), lpal()."
+        if check_key:
+            assert (
+                create_key == StrawLocation.__create_key
+            ), "You can only obtain a StrawLocation with one of the following methods: panel(), cpal(), lpal()."
 
         # Database information
         self.id = self.ID()
         self.location_type = location_type
         self.number = number if number else self.nextNumber()
         self.pallet_id = pallet_id
+        self.timestamp = timestamp
 
         # Record that this StrawLocation was recently made
         self.new = True
@@ -600,6 +603,7 @@ class Pallet(StrawLocation):
         assert self._palletIsEmpty(
             pallet_id
         ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
+            
         super().__init__(
             location_type=location_type,
             number=number,
@@ -660,6 +664,7 @@ class CuttingPallet(Pallet):
             pallet_id=pallet_id,
             create_key=create_key,
         )
+
     
     @classmethod
     def save_to_db(self, straws_passed_list, pallet_id, pallet_number):
