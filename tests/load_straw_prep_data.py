@@ -8,6 +8,8 @@ import sqlalchemy as sqla
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.common.db_classes.straw import Straw
 from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet, Pallet
+from guis.common.db_classes.procedure import Procedure, StrawProcedure
+from guis.common.db_classes.station import Station
 paths = GetProjectPaths()
 
 def determine_prefix(item):
@@ -207,10 +209,11 @@ def update_straw_table(straw_information, cpal_prefix_list):
             straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
             batch = straw_information[cpal][y]['batch']
             timestamp = int(straw_information[cpal][y]['time'])
-                               
+            
+            
         
             straw = Straw.Straw(straw_id, batch, timestamp)
-            print(straw_id)
+
                     
     print('done updating straw table')
     
@@ -220,20 +223,57 @@ def update_straw_location_table(cpal_prefix_list):
         cpalid = i['cpalid']
         time = i['time']
     
-        location = StrawLocation('CPAL',cpal,cpalid,None,False,time)
+        straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).all()
+        if len(straw_location) == 0:
+            location = StrawLocation('CPAL',cpal,cpalid,None,False,time)
     
+    print('done updating straw location table')
     
-    
+def update_measurement_prep_table(cpal_prefix_list, straw_information):
+    for i in cpal_prefix_list:
+        cpal = i['cpal']
+        cpalid = i['cpalid']
+        time = i['time']
+        
+        '''
+        for y in straw_information[cpal]:
+            print(y)
+        '''
+        
+        '''
+        station = Station.get_station('straws',1)
+        print(station.id)
+        print(station.name)      
+        '''
+        
+        
+        print('cpal: ' + str(cpal))
+        straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).all()
+        print(straw_location)
+        
+        
+        
+         
+        '''
+        procedure = StrawProcedure(station, cpalid, 1)
+        print(procedure)
+        '''
+        
+
+            
+
         
 
 
 def save_db():
     cpal_list, straw_information, cpal_prefix_list = parse_files()
-    
+    #
     
     # update_straw_table(straw_information, cpal_prefix_list)
     
     update_straw_location_table(cpal_prefix_list)
+    
+    update_measurement_prep_table(cpal_prefix_list, straw_information)
     
             
 
