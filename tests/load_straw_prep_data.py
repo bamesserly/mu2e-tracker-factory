@@ -214,6 +214,7 @@ def update_straw_table(straw_information, cpal_prefix_list):
             
         
             straw = Straw.Straw(straw_id, batch, timestamp)
+        print(cpal)
 
                     
     print('done updating straw table')
@@ -242,28 +243,13 @@ def update_measurement_prep_table(cpal_prefix_list, straw_information):
             paper_pull = straw_information[cpal][y]['grade']
             timestamp = int(straw_information[cpal][y]['time'])
         
-            '''
-            for y in straw_information[cpal]:
-                print(y)
-            '''
             
-            '''
-            station = Station.get_station('straws',1)
-            '''
-            '''
-            straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).all()[0]
-            '''
-            '''
-            procedure = StrawProcedure(station, straw_location)
-            '''
+            procedure = Procedure.StrawProcedure(2,cpalid,cpal,timestamp)
             
-            
-            procedure = Procedure.StrawProcedure(1,cpalid,cpal)
-            print(procedure)
-            
-            '''
-            prep_instance = Prep.StrawPrepMeasurement(procedure, straw_id, paper_pull, 1)
-            '''
+            print('paper pull: ' + str(paper_pull))
+            prep_measurement = Prep.StrawPrepMeasurement(procedure, straw_id, paper_pull[-1], 1, timestamp)
+            prep_measurement.commit()
+
             
 def update_straw_present_table(cpal_prefix_list, straw_information):
     for i in cpal_prefix_list:
@@ -290,7 +276,6 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
             
             
             straw_location.forceAddStraw(straw_id, y, True, True, timestamp)
-        print(cpal)
         
         
         positions = StrawLocation.queryStrawPositions(straw_location.number).all()
@@ -309,11 +294,11 @@ def save_db():
     
     # update_straw_table(straw_information, cpal_prefix_list)
     
-    update_straw_location_table(cpal_prefix_list)
+    # update_straw_location_table(cpal_prefix_list)
     
-    # update_measurement_prep_table(cpal_prefix_list, straw_information)
+    update_measurement_prep_table(cpal_prefix_list, straw_information)
     
-    update_straw_present_table(cpal_prefix_list, straw_information)
+    # update_straw_present_table(cpal_prefix_list, straw_information)
     
             
 

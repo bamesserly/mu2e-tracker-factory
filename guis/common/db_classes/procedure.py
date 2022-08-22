@@ -58,6 +58,7 @@ class Procedure(BASE, OBJECT):
     station = Column(CHAR(4), ForeignKey("station.id"))
     straw_location = Column(Integer, ForeignKey("straw_location.id"))
     elapsed_time = Column(Integer, default=0)
+    timestamp = Column(Integer)
     __mapper_args__ = {"polymorphic_on": station}
 
     # Instance Variables
@@ -80,7 +81,7 @@ class Procedure(BASE, OBJECT):
                                             thus it is only accessible within the class.
     """
 
-    def __init__(self, station, straw_location, create_key):
+    def __init__(self, station, straw_location, create_key, timestamp=time()):
         # Enforce internal use only
         assert (
             create_key == Procedure.__create_key
@@ -90,6 +91,7 @@ class Procedure(BASE, OBJECT):
         self.id = self.ID()
         self.station = station.id
         self.straw_location = straw_location.id
+        self.timestamp = timestamp
 
         # Record that this is a new Procedure (constructed, not queried)
         self.new = True
@@ -103,7 +105,7 @@ class Procedure(BASE, OBJECT):
     # This is the only place a Procedure (of type Panel or Straw) is
     # initialized.
     @classmethod
-    def _startProcedure(cls, station, straw_location):
+    def _startProcedure(cls, station, straw_location, timestamp=time()):
         # Must tell procedure that it has subclasses by importing them! Tricky
         # error if you dont.
         import guis.common.db_classes.procedures_panel
@@ -117,7 +119,7 @@ class Procedure(BASE, OBJECT):
             if c.__mapper_args__["polymorphic_identity"] == station.id:
                 cls = c
                 break
-
+        
         procedure = (
             cls.query()
             .filter(cls.station == station.id)
@@ -135,6 +137,7 @@ class Procedure(BASE, OBJECT):
                 station=station,
                 straw_location=straw_location,
                 create_key=cls.__create_key,
+                timestamp=timestamp,
             )
 
     """
@@ -163,7 +166,7 @@ class Procedure(BASE, OBJECT):
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
 
     @classmethod
-    def StrawProcedure(cls, process, pallet_id, pallet_number):
+    def StrawProcedure(cls, process, pallet_id, pallet_number, timestamp=time()):
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
@@ -176,7 +179,9 @@ class Procedure(BASE, OBJECT):
             pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
 
         # Use Procedure._startProcedure() to return object.
-        return StrawProcedure._startProcedure(station=station, straw_location=pallet)
+        val = StrawProcedure._startProcedure(station=station, straw_location=pallet, timestamp=timestamp)
+        return val
+
 
     @staticmethod
     def _queryStation(station=None, production_stage=None, production_step=None):
@@ -286,9 +291,7 @@ class Procedure(BASE, OBJECT):
             self.details = dc(id=self.ID(),procedure=self.id)
 
     def _getDetailsClass(self):
-        # TODO: If additional procedure data is recorded at this station,
-        # have this function define a mapper class and return it
-        return None
+        pass
 
     def isNew(self):
         return self.new
@@ -471,5 +474,5 @@ class PanelProcedure(Procedure):
 
 # For functions common to all straw procedures
 class StrawProcedure(Procedure):
-    def __init__(self, station, straw_location, create_key):
-        super().__init__(station, straw_location, create_key)
+    def __init__(self, station, straw_location, create_key, timestamp=time()):
+        super().__init__(station, straw_location, create_key, timestamp)

@@ -70,7 +70,7 @@ class StrawLocation(BASE, OBJECT):
     ## INITIALIZATION ##
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, check_key=True, timestamp=time()
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, check_key=True
     ):
         # Check for authorization with 'create_key'
         if check_key:
