@@ -793,12 +793,13 @@ class StrawPresent(BASE, OBJECT):
     time_out = Column(Integer)
     timestamp = Column(Integer)
 
-    def __init__(self, straw, position, present=true(), time_out=None, timestamp=time()):
+    def __init__(self, straw, position, present=true(), time_out=None, time_in=None, timestamp=time()):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
         self.present = present
         self.time_out = time_out
+        self.time_in = time_in
         self.timestamp = timestamp
 
     def __repr__(self):

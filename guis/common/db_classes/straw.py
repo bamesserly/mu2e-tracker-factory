@@ -162,6 +162,21 @@ class Straw(BASE, OBJECT):
             .all()
         )
 
+    # get the "present" occurance in straw_present
+    def currentPresence(self):
+        return (
+            DM.query(
+                        sl.StrawPresent.id,
+                        sl.StrawPresent.position,
+                        sl.StrawPresent.present,
+                        sl.StrawPresent.time_in,
+                        sl.StrawPresent.time_out
+                    )
+            .filter(sl.StrawPresent.straw == self.id)
+            .filter(sl.StrawPresent.present == 1)
+            .all()
+        )
+
     # get all occurances in straw_position
     def presences(self):
         return (
@@ -175,6 +190,8 @@ class Straw(BASE, OBJECT):
             .filter(sl.StrawPresent.straw == self.id)
             .all()
         )
+
+    def 
 
     # remove straw from all locations
     def removeFromAllLocations(self):
