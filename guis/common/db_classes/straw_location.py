@@ -70,7 +70,7 @@ class StrawLocation(BASE, OBJECT):
     ## INITIALIZATION ##
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, check_key=True
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, check_key=True, timestamp=time()
     ):
         # Check for authorization with 'create_key'
         if check_key:
@@ -791,7 +791,6 @@ class StrawPresent(BASE, OBJECT):
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
     time_out = Column(Integer)
-    time_in = Column(Integer)
     timestamp = Column(Integer)
 
     def __init__(self, straw, position, present=true(), time_out=None, timestamp=time()):
