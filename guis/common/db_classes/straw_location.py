@@ -791,6 +791,7 @@ class StrawPresent(BASE, OBJECT):
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
     time_out = Column(Integer)
+    time_in = Column(Integer)
     timestamp = Column(Integer)
 
     def __init__(self, straw, position, present=true(), time_out=None, timestamp=time()):

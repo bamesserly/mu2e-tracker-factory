@@ -46,21 +46,21 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
 #           1 if two or more of the same position found
 #           2 if two or more "present = 1" in straw_present for this straw
 #           3 if there's a timestamp conflict
-def checkStrawIntegrity(strawID, connection):
+def checkStrawIntegrity(straw, connection):
     # dict of positions
     positions = {}
     # bool for tracking number of "present = 1" found
     presentFound = False
 
     # loop through entries
-    for toop in strawPresences(strawID, connection):
+    for toop in straw.presences():
         # if key (position) exists in dict already --> two positions found
-        if toop[2] in positions:
+        if toop[1] in positions:
             print("Two locations detected")
             return 1
 
         # if straw is present at this position
-        if toop[3] == 1:
+        if toop[2] == 1:
             # if it hasn't been found elsewhere yet
             if not presentFound:
                 # mark that we found it
@@ -73,7 +73,7 @@ def checkStrawIntegrity(strawID, connection):
         
         # add to dict
         #        {position : (present, time_in, time_out)}
-        positions[toop[2]] = (toop[3], toop[4], toop[5])
+        positions[toop[1]] = (toop[2], toop[3], toop[4])
     # end of loop body
 
     # check timestamps for weirdness

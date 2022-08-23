@@ -136,6 +136,7 @@ class Straw(BASE, OBJECT):
         return d
 
     # return list of StrawPositions where this straw is marked present
+    # example: [<16486600691503178 straw position 38 on 1648660069119168 straw location MN0233>]
     def locate(self):
         return (
             DM.query(sl.StrawPosition)  # Get all the straw positions
@@ -145,6 +146,33 @@ class Straw(BASE, OBJECT):
             )  # that also have straw present entries
             .filter(sl.StrawPresent.present == 1)  # where our straw is in fact present
             .filter(sl.StrawPresent.straw == self.id)  # for this straw
+            .all()
+        )
+
+    # same as above but returns ALL locations, not just the current one
+    # example: [<16499606623611227 straw position 84 on 1649960662278015 straw location LPAL0486 at LPALID01>, <16499477136822270 straw position 84 on 1649947713619747 straw location MN0238>]
+    def locations(self):
+        return (
+            DM.query(sl.StrawPosition)  # Get all the straw positions
+            # .join(sl.StrawPosition, sl.StrawPosition.location == sl.StrawLocation.id) # where straw positions have an entry in the straw location
+            .join(
+                sl.StrawPresent, sl.StrawPresent.position == sl.StrawPosition.id
+            )  # that also have straw present entries
+            .filter(sl.StrawPresent.straw == self.id)  # for this straw
+            .all()
+        )
+
+    # get all occurances in straw_position
+    def presences(self):
+        return (
+            DM.query(
+                        sl.StrawPresent.id,
+                        sl.StrawPresent.position,
+                        sl.StrawPresent.present,
+                        sl.StrawPresent.time_in,
+                        sl.StrawPresent.time_out
+                    )
+            .filter(sl.StrawPresent.straw == self.id)
             .all()
         )
 
