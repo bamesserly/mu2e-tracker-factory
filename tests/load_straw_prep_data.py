@@ -21,24 +21,24 @@ def determine_prefix(item):
         time = datetime.datetime.timestamp(time)
         type = 'time'
         return_val = int(time)
-    if len(item) == 19 and 2015 < int(item[0:4]) < 2023 and item[10] == ' ':
+    elif len(item) == 19 and 2015 < int(item[0:4]) < 2023 and item[10] == ' ':
         time = datetime.datetime.strptime(item, "%Y-%m-%d %H:%M:%S")
         time = datetime.datetime.timestamp(time)
         return_val = int(time)
         type = 'time'
-    if len(item) == 19 and 2015 < int(item[0:4]) < 2023 and item[10] == '_':
+    elif len(item) == 19 and 2015 < int(item[0:4]) < 2023 and item[10] == '_':
         time = datetime.datetime.strptime(item, "%Y-%m-%d_%H:%M:%S")
         time = datetime.datetime.timestamp(time)
         return_val = int(time)
         type = 'time'
-    if len(item) == 8:
+    elif len(item) == 8:
         if item[0:6].upper() == 'CPALID':
             return_val = int(item[6:8])
             type = 'cpalid'
-    if len(item) > 5 and item[-2] == 'B':
+    elif len(item) > 5 and item[-2] == 'B':
         return_val = str(item)
         type = 'batch'
-    if item[0:3].lower() == 'wk-':
+    elif item[0:3].lower() == 'wk-':
         return_val = item
         type = 'worker'
     
@@ -52,15 +52,17 @@ def parse_vertical_straw_row(row, reached_data, prefixes):
                 if len(row[i]) == 7:
                     if str(row[i])[0:2].lower() == 'st' and str(row[i][2].isnumeric()):
                         straw['id'] = str(row[i]).lower()
-                if len(row[i]) > 3 and str(row[i][-2]) == 'B':
+                elif len(row[i]) > 3 and str(row[i][-2]) == 'B':
                     straw['batch'] = str(row[i])
-                if len(str(row[i])) == 4 or len(str(row[i])) == 3:
+                elif len(str(row[i])) == 4 or len(str(row[i])) == 3:
                     if str(row[i][0:2]).upper() == 'PP' or str(row[i]) == 'DNE':
                         straw['grade'] = str(row[i]).upper()
+
                 
-            if len(straw) != 0:
+            if len(straw.keys()) != 0:
                 straw['time'] = prefixes['time']
                 return straw
+
     return False
 
 def parse_horizontal_straw_rows(reader, prefixes):
@@ -110,7 +112,6 @@ def parse_horizontal_straw_rows(reader, prefixes):
         return cpal_straws
         
     else:
-        print('horizontal data lacking: ' + str(name))
         return False
 
 def get_cpal_prefix(problem_files, file):
@@ -141,6 +142,7 @@ def get_straws(problem_files):
     cpal_list=[]
     straw_information={}
     cpal_prefix_list=[]
+    problem_straws=[]
     
     for file in Path(paths['prepdata']).rglob('*.csv'):
         name = file.name
@@ -172,11 +174,16 @@ def get_straws(problem_files):
                         if str(row[0]) == 'straw':
                             reached_data = True
                     straw = parse_vertical_straw_row(row, reached_data, prefixes)
-                    if straw != False:
+                    if straw is not False and straw['grade'] != 'DNE':
                         cpal_straws.append(straw)
+                if len(cpal_straws) == 0:
+                    print('Problem acquiring straw data on cpal ' + str(name))
 
             else:
                 cpal_straws = parse_horizontal_straw_rows(reader, prefixes)
+                
+                if cpal_straws is False:
+                    print('Problem acquiring straw data on cpal ' + str(name))
                                 
             cpal_list.append(name)
             straw_information[name[-8:-4]] = cpal_straws
@@ -211,12 +218,8 @@ def update_straw_table(straw_information, cpal_prefix_list):
             batch = straw_information[cpal][y]['batch']
             timestamp = int(straw_information[cpal][y]['time'])
             
-            
-        
             straw = Straw.Straw(straw_id, batch, timestamp)
-        print(cpal)
 
-                    
     print('done updating straw table')
     
 def update_straw_location_table(cpal_prefix_list):
@@ -257,17 +260,6 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
         cpalid = i['cpalid']
         time = i['time']
         
-        '''
-        for y in range(len(straw_information[cpal])):
-            straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
-            batch = straw_information[cpal][y]['batch']
-            paper_pull = straw_information[cpal][y]['grade']
-            timestamp = int(straw_information[cpal][y]['time'])
-            
-            print(straw_id)
-        '''
-        
-        
         straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).all()[0]
         
         for y in range(len(straw_information[cpal])):
@@ -280,25 +272,18 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
         
         positions = StrawLocation.queryStrawPositions(straw_location.number).all()
         
-            
-
-
-            
-
         
-
-
 def save_db():
     cpal_list, straw_information, cpal_prefix_list = parse_files()
     #
     
-    # update_straw_table(straw_information, cpal_prefix_list)
+    update_straw_table(straw_information, cpal_prefix_list)
     
-    # update_straw_location_table(cpal_prefix_list)
+    update_straw_location_table(cpal_prefix_list)
     
     update_measurement_prep_table(cpal_prefix_list, straw_information)
     
-    # update_straw_present_table(cpal_prefix_list, straw_information)
+    update_straw_present_table(cpal_prefix_list, straw_information)
     
             
 
