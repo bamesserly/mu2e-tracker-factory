@@ -30,7 +30,7 @@ import pandas as pd
 from pathlib import Path
 from numpy import real
 
-INPUT_FILE = Path("all_straws_2022-06-13.csv")
+INPUT_FILE = Path("resources/all_straws_2022-06-13.csv")
 
 
 class LeakTest:
@@ -71,11 +71,14 @@ if __name__ == "__main__":
         print("\n")
         try:
             straw = int(input("Enter straw ID> ")[-5:])
-        except:
+        except ValueError:
             print(
                 "Invalid straw input. Must be 5 or 7 characters-long, like: ST01234 or 01234."
             )
             continue
+        except KeyboardInterrupt:
+            print("Goodbye")
+            break
         leak_tests = get_straw_info(df, straw)
         print(len(leak_tests), "leak tests found for ST", straw, "\n")
         for leak_test in leak_tests:
