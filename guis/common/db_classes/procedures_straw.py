@@ -39,11 +39,11 @@ class Prep(StrawProcedure):
         "polymorphic_identity": "prep"
     }  # foreign link to which station.id
 
-    def __init__(self, station, straw_location, create_key, timestamp=time.time()):
+    def __init__(self, station, straw_location, create_key):
         assert (
             station.id == "prep"
         ), f"Error. Tried to construct prep procedure for a station '{station.id}' not 'prep'."
-        super().__init__(station, straw_location, create_key, timestamp)
+        super().__init__(station, straw_location, create_key)
     
     def _getDetailsClass(self):
         class Details(BASE, OBJECT):

@@ -58,7 +58,6 @@ class Procedure(BASE, OBJECT):
     station = Column(CHAR(4), ForeignKey("station.id"))
     straw_location = Column(Integer, ForeignKey("straw_location.id"))
     elapsed_time = Column(Integer, default=0)
-    timestamp = Column(Integer)
     __mapper_args__ = {"polymorphic_on": station}
 
     # Instance Variables
@@ -81,7 +80,7 @@ class Procedure(BASE, OBJECT):
                                             thus it is only accessible within the class.
     """
 
-    def __init__(self, station, straw_location, create_key, timestamp=time()):
+    def __init__(self, station, straw_location, create_key):
         # Enforce internal use only
         assert (
             create_key == Procedure.__create_key
@@ -91,7 +90,6 @@ class Procedure(BASE, OBJECT):
         self.id = self.ID()
         self.station = station.id
         self.straw_location = straw_location.id
-        self.timestamp = timestamp
 
         # Record that this is a new Procedure (constructed, not queried)
         self.new = True
@@ -105,7 +103,7 @@ class Procedure(BASE, OBJECT):
     # This is the only place a Procedure (of type Panel or Straw) is
     # initialized.
     @classmethod
-    def _startProcedure(cls, station, straw_location, timestamp=time()):
+    def _startProcedure(cls, station, straw_location):
         # Must tell procedure that it has subclasses by importing them! Tricky
         # error if you dont.
         import guis.common.db_classes.procedures_panel
@@ -137,7 +135,6 @@ class Procedure(BASE, OBJECT):
                 station=station,
                 straw_location=straw_location,
                 create_key=cls.__create_key,
-                timestamp=timestamp,
             )
 
     """
@@ -166,7 +163,7 @@ class Procedure(BASE, OBJECT):
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
 
     @classmethod
-    def StrawProcedure(cls, process, pallet_id, pallet_number, timestamp=time()):
+    def StrawProcedure(cls, process, pallet_id, pallet_number, is_historical=False):
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
@@ -176,10 +173,10 @@ class Procedure(BASE, OBJECT):
         if station.id == "load":
             pallet = StrawLocation.LPAL(pallet_id=pallet_id, number=pallet_number)
         else:
-            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
+            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number, is_historical=is_historical)
 
         # Use Procedure._startProcedure() to return object.
-        val = StrawProcedure._startProcedure(station=station, straw_location=pallet, timestamp=timestamp)
+        val = StrawProcedure._startProcedure(station=station, straw_location=pallet)
         return val
 
 
@@ -474,5 +471,5 @@ class PanelProcedure(Procedure):
 
 # For functions common to all straw procedures
 class StrawProcedure(Procedure):
-    def __init__(self, station, straw_location, create_key, timestamp=time()):
-        super().__init__(station, straw_location, create_key, timestamp)
+    def __init__(self, station, straw_location, create_key):
+        super().__init__(station, straw_location, create_key)

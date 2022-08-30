@@ -48,7 +48,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql.expression import true, false
 import guis.common.db_classes.straw as st
-from time import sleep, time
+from time import sleep
 
 
 class StrawLocation(BASE, OBJECT):
@@ -61,7 +61,6 @@ class StrawLocation(BASE, OBJECT):
     location_type = Column(Integer, ForeignKey("straw_location_type.id"))
     number = Column(Integer)
     pallet_id = Column(Integer)
-    timestamp = Column(Integer)
     __mapper_args__ = {"polymorphic_on": location_type}
 
     # StrawLocation Information
@@ -70,20 +69,18 @@ class StrawLocation(BASE, OBJECT):
     ## INITIALIZATION ##
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, check_key=True, timestamp=time()
+        self, location_type=None, number=int(), pallet_id=None, create_key=None
     ):
         # Check for authorization with 'create_key'
-        if check_key:
-            assert (
-                create_key == StrawLocation.__create_key
-            ), "You can only obtain a StrawLocation with one of the following methods: panel(), cpal(), lpal()."
+        assert (
+            create_key == StrawLocation.__create_key
+        ), "You can only obtain a StrawLocation with one of the following methods: panel(), cpal(), lpal()."
 
         # Database information
         self.id = self.ID()
         self.location_type = location_type
         self.number = number if number else self.nextNumber()
         self.pallet_id = pallet_id
-        self.timestamp = timestamp
 
         # Record that this StrawLocation was recently made
         self.new = True
@@ -129,7 +126,7 @@ class StrawLocation(BASE, OBJECT):
     # an existing number but new id, then you'll just get returned the existing
     # pallet when instead you should get an error.
     @classmethod
-    def _construct(cls, number=int(), pallet_id=None):
+    def _construct(cls, number=int(), pallet_id=None, is_historical=False):
         assert int(
             number
         ), "Error: attempting to retrieve or create a straw location with a non-integer number."
@@ -144,9 +141,13 @@ class StrawLocation(BASE, OBJECT):
                 number=number,
                 pallet_id=pallet_id,
                 create_key=cls.__create_key,
+                is_historical=is_historical
             )
 
         return sl
+    
+
+
 
     ## CONSTRUCTORS ##
 
@@ -157,13 +158,13 @@ class StrawLocation(BASE, OBJECT):
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def CPAL(number=int(), pallet_id=None):
-        return CuttingPallet._construct(number=number, pallet_id=pallet_id)
-
+    def CPAL(number=int(), pallet_id=None, is_historical=False):
+        return CuttingPallet._construct(number=number, pallet_id=pallet_id, is_historical=is_historical)
+    
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def LPAL(number=int(), pallet_id=None):
+    def LPAL(number=int(), pallet_id=None, is_historical=False):
         return LoadingPallet._construct(number=number, pallet_id=pallet_id)
 
     ## PROPERTIES ##
@@ -355,14 +356,8 @@ class StrawLocation(BASE, OBJECT):
             straw_present.commit()
 
         return straw_present
-
-    # Safely transfer a straw from previous location(s) to target location.
-    #
-    # 1. Remove given straw from all current locations (unless one of them is
-    # the target location).
-    # 2. Remove any straws from target location.
-    # 3. Finally, add the straw.
-    def forceAddStraw(self, straw, position, commit=True, past=False, timestamp=time()):
+        
+    def add_historical_straw(self, straw, position, commit=True):
         # Get or create target position
         target_position = (
             self._queryStrawPositions()
@@ -378,42 +373,72 @@ class StrawLocation(BASE, OBJECT):
             )
             target_position = StrawPosition(location=self.id, position=position)
             target_position.commit()
-        if past is False:
-            # Get positions where straw is currently located.
-            # Nothing stopping from a straw existing in two places at once, so get
-            # all possible. This is a list of StrawPresent objects.
-            straw_presents = (
-                self._queryStrawPresents().filter(StrawPresent.straw == straw).all()
-            )
-            if len(straw_presents) > 1:
-                logger.debug(f"Straw ST{straw} located in > 1 position :(.")
+        
+        straw_present = StrawPresent(
+            straw=straw, position=target_position.id, present=False
+        )
 
-            # Remove straw from all current positions, unless one of them is the
-            # target position, in which case quit when done.
-            done = False
-            for straw_present in straw_presents:
-                if straw_present.getStrawPosition() == target_position:
-                    logger.debug(
-                        f"Straw ST{straw} already in target location {target_position}."
-                    )
-                    done = True
-                else:
-                    straw_present.remove()
-            if done:
-                return
+        if commit:
+            sleep(0.4)  # so the order of events in the DB is clear
+            straw_present.commit()
+            logger.debug(f"Straw ST{straw_present.straw} added to {target_position}.")
 
-            # Clear the target position of all straws
-            target_position.unloadPresentStraws()
+        return straw_present
 
-            # Add the straw to the target position (add entry to straw_position
-            # table).
-            straw_present = StrawPresent(
-                straw=straw, position=target_position.id, present=true()
+    # Safely transfer a straw from previous location(s) to target location.
+    #
+    # 1. Remove given straw from all current locations (unless one of them is
+    # the target location).
+    # 2. Remove any straws from target location.
+    # 3. Finally, add the straw.
+    def forceAddStraw(self, straw, position, commit=True):
+        # Get or create target position
+        target_position = (
+            self._queryStrawPositions()
+            .filter(StrawPosition.position_number == position)
+            .one_or_none()
+        )
+        if not target_position:
+            logger.warning(
+                f"Adding straw {straw} to position {self.location_type}{self.number} - {position}, which doesn't exist in the DB. This is weird, and you should let Ben know."
             )
-        else:
-            straw_present = StrawPresent(
-                straw=straw, position=target_position.id, present=False, time_out=int(time()), timestamp=timestamp
+            logger.warning(
+                "Anways, I'm creating the position and adding the straw to it."
             )
+            target_position = StrawPosition(location=self.id, position=position)
+            target_position.commit()
+
+        # Get positions where straw is currently located.
+        # Nothing stopping from a straw existing in two places at once, so get
+        # all possible. This is a list of StrawPresent objects.
+        straw_presents = (
+            self._queryStrawPresents().filter(StrawPresent.straw == straw).all()
+        )
+        if len(straw_presents) > 1:
+            logger.debug(f"Straw ST{straw} located in > 1 position :(.")
+
+        # Remove straw from all current positions, unless one of them is the
+        # target position, in which case quit when done.
+        done = False
+        for straw_present in straw_presents:
+            if straw_present.getStrawPosition() == target_position:
+                logger.debug(
+                    f"Straw ST{straw} already in target location {target_position}."
+                )
+                done = True
+            else:
+                straw_present.remove()
+        if done:
+            return
+
+        # Clear the target position of all straws
+        target_position.unloadPresentStraws()
+
+        # Add the straw to the target position (add entry to straw_position
+        # table).
+        straw_present = StrawPresent(
+            straw=straw, position=target_position.id, present=true()
+        )
 
         if commit:
             sleep(0.4)  # so the order of events in the DB is clear
@@ -603,12 +628,24 @@ class Panel(StrawLocation):
 
 class Pallet(StrawLocation):
     def __init__(
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, is_historical=False
+    ):
+        if not is_historical:
+            assert self._palletIsEmpty(
+                pallet_id
+            ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
+                
+        super().__init__(
+            location_type=location_type,
+            number=number,
+            pallet_id=pallet_id,
+            create_key=create_key,
+        )
+    
+    @classmethod
+    def historical_pallet(
         self, location_type=None, number=int(), pallet_id=None, create_key=None
     ):
-        assert self._palletIsEmpty(
-            pallet_id
-        ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
-            
         super().__init__(
             location_type=location_type,
             number=number,
@@ -656,21 +693,20 @@ class LoadingPallet(Pallet):
             create_key=create_key,
         )
 
-
 class CuttingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "CPAL"}
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, is_historical=False
     ):
         super().__init__(
             location_type="CPAL",
             number=number,
             pallet_id=pallet_id,
             create_key=create_key,
+            is_historical=is_historical,
         )
 
-    
     @classmethod
     def save_to_db(self, straws_passed_list, pallet_id, pallet_number):
         logger = logging.getLogger("root")
@@ -791,16 +827,13 @@ class StrawPresent(BASE, OBJECT):
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
     time_out = Column(Integer)
-    timestamp = Column(Integer)
 
-    def __init__(self, straw, position, present=true(), time_out=None, time_in=None, timestamp=time()):
+    def __init__(self, straw, position, present=true(), time_out=None):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
         self.present = present
         self.time_out = time_out
-        self.time_in = time_in
-        self.timestamp = timestamp
 
     def __repr__(self):
         return "<StrawPresent(id='%s',straw'%s',position='%s')>" % (
