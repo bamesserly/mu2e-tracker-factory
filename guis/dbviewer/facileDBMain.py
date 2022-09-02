@@ -2167,7 +2167,6 @@ class facileDBGUI(QMainWindow):
                     f'Mean: {str(statistics.mean(paasATemps))[:8]}',  # mean of paas A
                     f'Min: {str(min(paasATemps))[:8]}',  # min of paas A
                     f'Max: {str(max(paasATemps))[:8]}',  # max of paas A
-                    f'Std Dev: {str(statistics.stdev(paasATemps))[:8]}',  # standard dev of paas A
                     f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
                     f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
                 ]
@@ -2181,7 +2180,6 @@ class facileDBGUI(QMainWindow):
                     f'Mean: {str(statistics.mean(paasBCTemps))[:8]}',  # mean of paas BC
                     f'Min: {str(min(paasBCTemps))[:8]}',  # min of paas BC
                     f'Max: {str(max(paasBCTemps))[:8]}',  # max of paas BC
-                    f'Std Dev: {str(statistics.stdev(paasBCTemps))[:8]}',  # standard dev of paas BC
                     f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
                     f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
                 ]
