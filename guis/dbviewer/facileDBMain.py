@@ -2443,7 +2443,7 @@ class facileDBGUI(QMainWindow):
         # make subplot for PAAS A
         labelAddOn = "of PAAS A " if pro == 1 else ""
         plt.subplot(211)
-        plt.plot_date(xData, yDataA, label="PAAS A")  # make plot
+        plt.plot_date(xData, yDataA, label="PAAS A", markersize=2)  # make plot
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
         plt.ylabel(f'Temperature {labelAddOn}(°C)', fontsize=20)  # set y axis label
@@ -2451,7 +2451,7 @@ class facileDBGUI(QMainWindow):
 
         if pro > 1:
             letter = "B" if pro == 2 else "C"
-            plt.plot_date(xData, yDataBC, label=f'PAAS {letter}')  # make plot
+            plt.plot_date(xData, yDataBC, label=f'PAAS {letter}', markersize=2)  # make plot
             plt.legend(loc="upper left")
 
         plt.tight_layout()
