@@ -244,33 +244,19 @@ def update_straw_table(straw_information, cpal_prefix_list):
     # for all straws not present in straw table, add them
     for i in cpal_prefix_list:
         cpal = i['cpal']
-        for y in range(len(straw_information[cpal])):
-            straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
-            batch = straw_information[cpal][y]['batch']
-            timestamp = int(straw_information[cpal][y]['time'])
-            
-            try:
-                straw = Straw.Straw(straw_id, batch, timestamp)
-            except:
-                print('Error saving straw ' + str(straw_id) + ' on cpal ' + str(cpal))
+
+        try:
+            for y in range(len(straw_information[cpal])):
+                straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
+                batch = straw_information[cpal][y]['batch']
+                timestamp = int(straw_information[cpal][y]['time'])
+
+                straw = Straw.Straw(straw_id, batch)
+        except:
+            print('Error updating straw table for cpal ' + str(cpal))
+
 
     print('done updating straw table')
-    
-def update_straw_location_table(cpal_prefix_list):
-    for i in cpal_prefix_list:
-        cpal = i['cpal']
-        cpalid = i['cpalid']
-        time = i['time']
-    
-        try:
-            straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).all()
-            if len(straw_location) == 0:
-                location = StrawLocation('CPAL',cpal,cpalid,None,False,time)
-                #location = Pallet('CPAL',cpal,cpalid,None,time)
-        except:
-            print('Error saving cpal ' + str(cpal))
-    
-    print('done updating straw location table')
     
 def update_measurement_prep_table(cpal_prefix_list, straw_information):
     for i in cpal_prefix_list:
@@ -290,9 +276,10 @@ def update_measurement_prep_table(cpal_prefix_list, straw_information):
                 
                 prep_measurement = Prep.StrawPrepMeasurement(procedure, straw_id, paper_pull[-1], 1, timestamp)
                 prep_measurement.commit()
+                
+                # print('Updated measurement prep table for cpal ' + str(cpal))
         except:
-            print('Error saving to measurement prep table for cpal ' + str(cpal))
-
+            print('Error updating measurement_prep data for cpal ' + str(cpal))
             
 def update_straw_present_table(cpal_prefix_list, straw_information):
     for i in cpal_prefix_list:
@@ -300,32 +287,38 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
         cpalid = i['cpalid']
         time = i['time']
         
-        straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).all()[0]
+        straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).one_or_none()
         
-        try:
-            for y in range(len(straw_information[cpal])):
-                straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
-                timestamp = int(straw_information[cpal][y]['time'])
+        if straw_location is not None:
+            try:
+                for position in range(len(straw_information[cpal])):
+                    # straw_id is the straw_id
+                    # cpal is the cpal, used as a key
+                    # straw is the key to the dictionary containing assorted straw information
+                    
+                    # all but the last two chars in the recovered id are taken
+                    # then all leading zeros are stripped
+                    straw_id = straw_information[cpal][position]['id'][2::].lstrip('0')
+                    timestamp = int(straw_information[cpal][position]['time'])
+                    
+                    straw_location.add_historical_straw(straw_id, position, True)
+                # print('Updated straw present table for cpal ' + str(cpal))
                 
-                straw_location.forceAddStraw(straw_id, y, True, True, timestamp)
-            
-            
-            positions = StrawLocation.queryStrawPositions(straw_location.number).all()
-        except:
-            print('Error saving positions on cpal ' + str(cpal))
+            except:
+                print('Error saving positions on cpal ' + str(cpal))
+        else:
+            print('Straw location not found for cpal ' + str(cpal))
         
         
 def save_db():
     cpal_list, straw_information, cpal_prefix_list = parse_files()
     #
     
-    # update_straw_table(straw_information, cpal_prefix_list)
-    
-    # update_straw_location_table(cpal_prefix_list)
+    update_straw_table(straw_information, cpal_prefix_list)
     
     update_measurement_prep_table(cpal_prefix_list, straw_information)
     
-    # update_straw_present_table(cpal_prefix_list, straw_information)
+    update_straw_present_table(cpal_prefix_list, straw_information)
     
             
 

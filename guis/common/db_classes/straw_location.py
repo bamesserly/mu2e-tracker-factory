@@ -126,7 +126,7 @@ class StrawLocation(BASE, OBJECT):
     # an existing number but new id, then you'll just get returned the existing
     # pallet when instead you should get an error.
     @classmethod
-    def _construct(cls, number=int(), pallet_id=None, is_historical=False):
+    def _construct(cls, number=int(), pallet_id=None, override_empty_check=False):
         assert int(
             number
         ), "Error: attempting to retrieve or create a straw location with a non-integer number."
@@ -141,7 +141,7 @@ class StrawLocation(BASE, OBJECT):
                 number=number,
                 pallet_id=pallet_id,
                 create_key=cls.__create_key,
-                is_historical=is_historical
+                override_empty_check=override_empty_check
             )
 
         return sl
@@ -158,14 +158,14 @@ class StrawLocation(BASE, OBJECT):
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def CPAL(number=int(), pallet_id=None, is_historical=False):
-        return CuttingPallet._construct(number=number, pallet_id=pallet_id, is_historical=is_historical)
+    def CPAL(number=int(), pallet_id=None, override_empty_check=False):
+        return CuttingPallet._construct(number=number, pallet_id=pallet_id, override_empty_check=override_empty_check)
     
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def LPAL(number=int(), pallet_id=None, is_historical=False):
-        return LoadingPallet._construct(number=number, pallet_id=pallet_id)
+    def LPAL(number=int(), pallet_id=None, override_empty_check=False):
+        return LoadingPallet._construct(number=number, pallet_id=pallet_id, override_empty_check=override_empty_check)
 
     ## PROPERTIES ##
     def getStraws(self):
@@ -628,9 +628,9 @@ class Panel(StrawLocation):
 
 class Pallet(StrawLocation):
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, is_historical=False
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
     ):
-        if not is_historical:
+        if not override_empty_check:
             assert self._palletIsEmpty(
                 pallet_id
             ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
@@ -642,17 +642,6 @@ class Pallet(StrawLocation):
             create_key=create_key,
         )
     
-    @classmethod
-    def historical_pallet(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None
-    ):
-        super().__init__(
-            location_type=location_type,
-            number=number,
-            pallet_id=pallet_id,
-            create_key=create_key,
-        )
-
     @property
     def palletBarcode(self):
         return self.getLocationType().palletBarcode(self.pallet_id)
@@ -697,14 +686,14 @@ class CuttingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "CPAL"}
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, is_historical=False
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
     ):
         super().__init__(
             location_type="CPAL",
             number=number,
             pallet_id=pallet_id,
             create_key=create_key,
-            is_historical=is_historical,
+            override_empty_check=override_empty_check,
         )
 
     @classmethod

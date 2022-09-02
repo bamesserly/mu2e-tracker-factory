@@ -189,8 +189,6 @@ class Straw(BASE, OBJECT):
             .all()
         )
 
-    def 
-
     # remove straw from all locations
     def removeFromAllLocations(self):
         for position in self.locate():
