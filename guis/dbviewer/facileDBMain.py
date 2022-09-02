@@ -915,6 +915,90 @@ class facileDBGUI(QMainWindow):
 
         return hasData
 
+    # takes in heatdata, and then analyzes it, returning pertinent values to the dbviewer for display
+    # parameters: self, heatdata
+    # returns: paasATemps, paasBTemps, time_begin_above_50_paasA, time_end_above_50_paasA, time_begin_above_50_paasB, time_end_above_50_paasB, elapsed_time_above_50_paasA, elapsed_time_above_50_paasB
+    def process_heatdata(self, heatdata):
+        # initialize assorted variables
+        paasATemps=[]
+        paasBTemps=[]
+        time_begin_above_50_paasA=None
+        time_end_above_50_paasA=None
+        time_begin_above_50_paasB=None
+        time_end_above_50_paasB=None
+        
+        elapsed_time_above_50_paasA=None
+        elapsed_time_above_50_paasB=None
+        
+        # iterate through all heat datapoints
+        for datapoint in heatdata:
+            # only analyze datapoint if it has the proper number of values
+            if len(datapoint) == 5:
+                temp_paasA=datapoint[2]
+                temp_paasB=datapoint[3]
+                
+                # ensure that the temperature points are reasonable
+                if 0 < temp_paasA < 100 and 0 < temp_paasB < 100:
+                    
+                    # put datapoints into individual temporary variables
+                    temp_paasA=datapoint[2]
+                    temp_paasB=datapoint[3]
+                    timestamp=datapoint[1]
+                    
+                    # append temperature values to lists
+                    paasATemps.append(temp_paasA)
+                    paasBTemps.append(temp_paasB)
+                    
+                    # if the begin time above 50 C for paas A hasn't been acquired yet, acquire it
+                    if time_begin_above_50_paasA is None and temp_paasA >=50:
+                        time_begin_above_50_paasA = timestamp
+                    
+                    # if the begin time above 50 C for paas B hasn't been acquired yet, acquire it
+                    if time_begin_above_50_paasB is None and temp_paasB >=50:
+                        time_begin_above_50_paasB = timestamp
+                    
+                    # if proper, acquire last time above 50 C for paas A
+                    if time_begin_above_50_paasA is not None and temp_paasA < 50:
+                        time_end_above_50_paasA = timestamp
+
+                    # if proper, acquire last time above 50 C for paas B
+                    if time_begin_above_50_paasB is not None and temp_paasB < 50:
+                        time_end_above_50_paasB = timestamp
+
+        # acquire the elapsed time for paas A above 50 C
+        if time_begin_above_50_paasA is not None:
+            if time_end_above_50_paasA is not None:
+                elapsed_time_above_50_paasA = time_end_above_50_paasA - time_begin_above_50_paasA
+                elapsed_time_above_50_paasA = round(elapsed_time_above_50_paasA / 3600, 2)
+            else:
+                elapsed_time_above_50_paasA = processed_heatdata[-1]['timestamp'] - time_begin_above_50_paasA
+        
+        # acquire the elapsed time for paas B above 50 C
+        if time_begin_above_50_paasB is not None:
+            if time_end_above_50_paasB is not None:
+                elapsed_time_above_50_paasB = time_end_above_50_paasB - time_begin_above_50_paasB
+                elapsed_time_above_50_paasB = round(elapsed_time_above_50_paasB / 3600, 2)
+            else:
+                elapsed_time_above_50_paasB = processed_heatdata[-1]['timestamp'] - time_begin_above_50_paasB
+        
+        # convert assorted times to human friendly format for display in dbviewer
+        if time_begin_above_50_paasA is not None:
+            time_begin_above_50_paasA = datetime.fromtimestamp(time_begin_above_50_paasA)
+        if time_end_above_50_paasA is not None:
+            time_end_above_50_paasA = datetime.fromtimestamp(time_end_above_50_paasA)
+        if time_begin_above_50_paasB is not None:
+            time_begin_above_50_paasB = datetime.fromtimestamp(time_begin_above_50_paasB)
+        if time_end_above_50_paasB is not None:
+            time_end_above_50_paasB = datetime.fromtimestamp(time_begin_above_50_paasB)
+        
+        # return all pertinent values
+        return paasATemps, paasBTemps, time_begin_above_50_paasA, time_end_above_50_paasA, time_begin_above_50_paasB, time_end_above_50_paasB, elapsed_time_above_50_paasA, elapsed_time_above_50_paasB
+        
+        
+        
+                    
+            
+
     # finds and returns the database id for the panel in question
     # the database id is a really long int, usually 16 characters
     # parameters: no parameters
@@ -2157,15 +2241,18 @@ class facileDBGUI(QMainWindow):
                 button.setEnabled(True)
             ###################################################
             # make lists of temps for paas A and B/C in order to calculate
-            # statistics. Remove Nones for this purpose.
-            paasATemps = [toop[2] for toop in heatData if toop[2]]
-            paasBCTemps = [toop[3] for toop in heatData if toop[3]]
+            # statistics. Remove Nones for this purpose.        
+            paasATemps, paasBCTemps, time_begin_above_50_paasA, time_end_above_50_paasA, time_begin_above_50_paasB, time_end_above_50_paasB, elapsed_time_above_50_paasA, elapsed_time_above_50_paasB = self.process_heatdata(heatData)
+            
             if len(paasATemps) > 1:  # if paas A data exits
                 # make a list of stats
                 paasAStats = [
                     "PAAS A Statistics",
                     f'Mean: {str(statistics.mean(paasATemps))[:8]}',  # mean of paas A
                     f'Max: {str(max(paasATemps))[:8]}',  # max of paas A
+                    f'First time above 50 C: {str(time_begin_above_50_paasA)}', # first time paas A went above 50 C
+                    f'Last time above 50 C: {str(time_end_above_50_paasA)}', # last time paas A dipped below 50 C
+                    f'Elapsed time above 50 C (hours): {str(elapsed_time_above_50_paasA)}', # time between first going above and finally dipping below 50 C
                     f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
                     f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
                 ]
@@ -2178,6 +2265,9 @@ class facileDBGUI(QMainWindow):
                     f'PAAS {"B" if pro == 2 else "C"} Statistics',
                     f'Mean: {str(statistics.mean(paasBCTemps))[:8]}',  # mean of paas BC
                     f'Max: {str(max(paasBCTemps))[:8]}',  # max of paas BC
+                    f'First time above 50 C: {str(time_begin_above_50_paasB)}', # first time paas BC went above 50 C
+                    f'Last time above 50 C: {str(time_end_above_50_paasB)}', # last time paas BC dipped below 50 C
+                    f'Elapsed time above 50 C (hours): {str(elapsed_time_above_50_paasB)}', # time between first going above and finally dipping below 50 C
                     f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
                     f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
                 ]
