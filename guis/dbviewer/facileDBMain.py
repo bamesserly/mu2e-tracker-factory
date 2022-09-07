@@ -2525,6 +2525,7 @@ class facileDBGUI(QMainWindow):
         # make subplot for PAAS A
         labelAddOn = "of PAAS A " if pro == 1 else ""
         plt.subplot(211)
+        plt.grid(color='k', linestyle='-', linewidth=1)
         plt.plot_date(xData, yDataA, label="PAAS A", markersize=2)  # make plot
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
