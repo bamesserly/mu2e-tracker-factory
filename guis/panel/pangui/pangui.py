@@ -408,8 +408,6 @@ class panelGUI(QMainWindow):
         disabled_widgets = [
             self.ui.epoxy_batch,
             self.ui.epoxy_batch_2,
-            self.ui.temp4,
-            self.ui.temp4_2,
             # self.ui.launch_straw_tensioner,
             self.ui.epoxy_inject1,
             self.ui.epoxy_inject2,
@@ -1119,10 +1117,6 @@ class panelGUI(QMainWindow):
         self.ui.mrInput1.setValidator(valid_mr)
         self.ui.mrInput2.setValidator(valid_mr)
 
-        valid_temp = QDoubleValidator(bottom=50.0, top=99.9, decimals=1)
-        self.ui.temp4.setValidator(valid_temp)
-        self.ui.temp4_2.setValidator(valid_temp)
-
         set_validator(self.ui.wireInput, "(WIRE\.)\d{6}")
 
         valid_weight = QDoubleValidator(bottom=0.01, top=99.99, decimals=2)
@@ -1209,8 +1203,6 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_inject1,
                 self.ui.epoxy_batch_2,
                 self.ui.epoxy_inject2,
-                self.ui.temp4,
-                self.ui.temp4_2,
                 self.ui.heat_finished,
                 self.ui.paasBInput,
             ],
@@ -2756,41 +2748,39 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.ui.birInput.text()
         self.data[self.pro_index][3] = self.ui.pirInputLA.text()
         self.data[self.pro_index][4] = self.ui.pirInputLB.text()
-        self.data[self.pro_index][5] = self.ui.pirInputLC.text()
-        self.data[self.pro_index][6] = self.ui.pirInputRA.text()
-        self.data[self.pro_index][7] = self.ui.pirInputRB.text()
-        self.data[self.pro_index][8] = self.ui.pirInputRC.text()
-        self.data[self.pro_index][9] = self.ui.mirInput.text()
-        self.data[self.pro_index][10] = self.ui.alfInput.text()
-        self.data[self.pro_index][11] = self.ui.alfInput_2.text()
-        self.data[self.pro_index][12] = (
+        self.data[self.pro_index][5] = self.ui.pirInputRB.text()
+        self.data[self.pro_index][6] = self.ui.pirInputRC.text()
+        self.data[self.pro_index][7] = self.ui.mirInput.text()
+        self.data[self.pro_index][8] = self.ui.alfInput.text()
+        self.data[self.pro_index][9] = self.ui.alfInput_2.text()
+        self.data[self.pro_index][10] = (
             int(self.ui.leftgap.currentText())
             if self.ui.leftgap.currentIndex() != 0
             else None
         )
-        self.data[self.pro_index][13] = (
+        self.data[self.pro_index][11] = (
             int(self.ui.rightgap.currentText())
             if self.ui.rightgap.currentIndex() != 0
             else None
         )
-        self.data[self.pro_index][14] = (
+        self.data[self.pro_index][12] = (
             int(self.ui.mingap.currentText())
             if self.ui.mingap.currentIndex() != 0
             else None
         )
-        self.data[self.pro_index][15] = (
+        self.data[self.pro_index][13] = (
             int(self.ui.maxgap.currentText())
             if self.ui.maxgap.currentIndex() != 0
             else None
         )
-        self.data[self.pro_index][16] = self.ui.epoxy_batch1.text()
-        self.data[self.pro_index][17] = self.timerTuple(self.timers[1])
-        self.data[self.pro_index][18] = self.ui.paasAInput.text()
-        self.data[self.pro_index][19] = self.ui.paasCInput.text()
-        self.data[self.pro_index][20] = (
+        self.data[self.pro_index][14] = self.ui.epoxy_batch1.text()
+        self.data[self.pro_index][15] = self.timerTuple(self.timers[1])
+        self.data[self.pro_index][16] = self.ui.paasAInput.text()
+        self.data[self.pro_index][17] = self.ui.paasCInput.text()
+        self.data[self.pro_index][18] = (
             str(self.ui.pallet1code.text()) if self.ui.pallet1code.text() else None
         )
-        self.data[self.pro_index][21] = (
+        self.data[self.pro_index][19] = (
             str(self.ui.pallet2code.text()) if self.ui.pallet2code.text() else None
         )
 
@@ -2804,14 +2794,8 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][4] = self.timerTuple(
             self.timers[3]
         )  # Upper Epoxy Time
-        self.data[self.pro_index][5] = (
-            float(self.ui.temp4.text()) if self.ui.temp4.text() else None
-        )  # PAAS-A Max Temp
-        self.data[self.pro_index][6] = (
-            float(self.ui.temp4_2.text()) if self.ui.temp4_2.text() else None
-        )  # PAAS-B Max Temp
-        self.data[self.pro_index][7] = self.timerTuple(self.timers[4])  # Heat Time
-        self.data[self.pro_index][8] = self.ui.paasBInput.text()  # paas B input
+        self.data[self.pro_index][5] = self.timerTuple(self.timers[4])  # Heat Time
+        self.data[self.pro_index][6] = self.ui.paasBInput.text()  # paas B input
 
     def updateDataProcess3(self):
         # pro-specific Data
@@ -2836,28 +2820,22 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][
             4
         ] = self.ui.epoxy_batch_4.text()  # clear epoxy right - batch
-        self.data[self.pro_index][5] = self.timerTuple(
-            self.timers[13]
-        )  # clear epoxy right - application duration
-        self.data[self.pro_index][6] = self.timerTuple(
-            self.timers[14]
-        )  # clear epoxy right - cure duration
         self.data[self.pro_index][
-            7
+            5
         ] = self.ui.epoxy_batch_5.text()  # silver epoxy left - batch
-        self.data[self.pro_index][8] = self.timerTuple(
+        self.data[self.pro_index][6] = self.timerTuple(
             self.timers[15]
         )  # silver epoxy left - application duration
-        self.data[self.pro_index][9] = self.timerTuple(
+        self.data[self.pro_index][7] = self.timerTuple(
             self.timers[17]
         )  # silver epoxy left - cure duration
         self.data[self.pro_index][
-            10
+            8
         ] = self.ui.epoxy_batch_6.text()  # silver epoxy right - batch
-        self.data[self.pro_index][11] = self.timerTuple(
+        self.data[self.pro_index][9] = self.timerTuple(
             self.timers[16]
         )  # silver epoxy right - application duration
-        self.data[self.pro_index][12] = self.timerTuple(
+        self.data[self.pro_index][10] = self.timerTuple(
             self.timers[18]
         )  # silver epoxy right - cure duration
 
@@ -2878,17 +2856,11 @@ class panelGUI(QMainWindow):
             if self.ui.bpmirgapL.currentIndex() != 0
             else None
         )
-        self.data[self.pro_index][5] = (
-            int(self.ui.bpmirgapR.currentText())
-            if self.ui.bpmirgapR.currentIndex() != 0
-            else None
-        )
-        self.data[self.pro_index][6] = self.ui.epoxy_batch41.text()
-        self.data[self.pro_index][7] = self.timerTuple(self.timers[6])
-        self.data[self.pro_index][8] = self.ui.epoxy_batch42.text()
-        self.data[self.pro_index][9] = self.ui.epoxy_batch42_2.text()
-        self.data[self.pro_index][10] = self.timerTuple(self.timers[7])
-        self.data[self.pro_index][13] = self.timerTuple(self.timers[8])
+        self.data[self.pro_index][5] = self.timerTuple(self.timers[6])
+        self.data[self.pro_index][6] = self.ui.epoxy_batch42.text()
+        self.data[self.pro_index][7] = self.ui.epoxy_batch42_2.text()
+        self.data[self.pro_index][8] = self.timerTuple(self.timers[7])
+        self.data[self.pro_index][11] = self.timerTuple(self.timers[8])
 
     def updateDataProcess7(self):
         self.data[self.pro_index][0] = self.ui.panelInput7.text()
@@ -2896,8 +2868,6 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][2] = self.timerTuple(self.timers[9])
         self.data[self.pro_index][3] = self.ui.epoxy_batch5_3.text()
         self.data[self.pro_index][4] = self.timerTuple(self.timers[10])
-        self.data[self.pro_index][5] = self.ui.epoxy_batch5_4.text()
-        self.data[self.pro_index][6] = self.ui.epoxy_batch5_5.text()
 
     def updateDataProcess8(self):
         self.data[self.pro_index][0] = self.ui.panelInput_8.text()
@@ -2906,19 +2876,17 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][3] = self.ui.right_cover_6.text()
 
         self.data[self.pro_index][4] = self.ui.leftRing1LE.text()
-        self.data[self.pro_index][5] = self.ui.leftRing2DE.date().toString("ddMMMyy")
-        self.data[self.pro_index][6] = self.ui.leftRing3TE.time().toString("HHmm")
-        self.data[self.pro_index][7] = self.ui.leftRing4LE.text()
+        self.data[self.pro_index][5] = self.ui.leftRing4LE.text()
 
-        self.data[self.pro_index][8] = self.ui.rightRing1LE.text()
-        self.data[self.pro_index][9] = self.ui.rightRing2DE.date().toString("ddMMMyy")
-        self.data[self.pro_index][10] = self.ui.rightRing3TE.time().toString("HHmm")
-        self.data[self.pro_index][11] = self.ui.rightRing4LE.text()
+        self.data[self.pro_index][6] = self.ui.rightRing1LE.text()
+        self.data[self.pro_index][7] = self.ui.rightRing2DE.date().toString("ddMMMyy")
+        self.data[self.pro_index][8] = self.ui.rightRing3TE.time().toString("HHmm")
+        self.data[self.pro_index][9] = self.ui.rightRing4LE.text()
 
-        self.data[self.pro_index][12] = self.ui.centerRing1LE.text()
-        self.data[self.pro_index][13] = self.ui.centerRing2DE.date().toString("ddMMMyy")
-        self.data[self.pro_index][14] = self.ui.centerRing3TE.time().toString("HHmm")
-        self.data[self.pro_index][15] = self.ui.centerRing4LE.text()
+        self.data[self.pro_index][10] = self.ui.centerRing1LE.text()
+        self.data[self.pro_index][11] = self.ui.centerRing2DE.date().toString("ddMMMyy")
+        self.data[self.pro_index][12] = self.ui.centerRing3TE.time().toString("HHmm")
+        self.data[self.pro_index][13] = self.ui.centerRing4LE.text()
 
     # fmt: off
     # ██╗      ██████╗  █████╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
