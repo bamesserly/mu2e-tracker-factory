@@ -989,7 +989,7 @@ class facileDBGUI(QMainWindow):
         if time_begin_above_50_paasB is not None:
             time_begin_above_50_paasB = datetime.fromtimestamp(time_begin_above_50_paasB)
         if time_end_above_50_paasB is not None:
-            time_end_above_50_paasB = datetime.fromtimestamp(time_begin_above_50_paasB)
+            time_end_above_50_paasB = datetime.fromtimestamp(time_end_above_50_paasB)
         
         # return all pertinent values
         return paasATemps, paasBTemps, time_begin_above_50_paasA, time_end_above_50_paasA, time_begin_above_50_paasB, time_end_above_50_paasB, elapsed_time_above_50_paasA, elapsed_time_above_50_paasB
