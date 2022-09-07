@@ -989,7 +989,7 @@ class facileDBGUI(QMainWindow):
         if time_begin_above_50_paasB is not None:
             time_begin_above_50_paasB = datetime.fromtimestamp(time_begin_above_50_paasB)
         if time_end_above_50_paasB is not None:
-            time_end_above_50_paasB = datetime.fromtimestamp(time_begin_above_50_paasB)
+            time_end_above_50_paasB = datetime.fromtimestamp(time_end_above_50_paasB)
         
         # return all pertinent values
         return paasATemps, paasBTemps, time_begin_above_50_paasA, time_end_above_50_paasA, time_begin_above_50_paasB, time_end_above_50_paasB, elapsed_time_above_50_paasA, elapsed_time_above_50_paasB
@@ -2248,13 +2248,11 @@ class facileDBGUI(QMainWindow):
                 # make a list of stats
                 paasAStats = [
                     "PAAS A Statistics",
-                    f'Mean: {str(statistics.mean(paasATemps))[:8]}',  # mean of paas A
-                    f'Max: {str(max(paasATemps))[:8]}',  # max of paas A
+                    f'Mean: {str(round(statistics.mean(paasATemps),1))[:8]}',  # mean of paas A
+                    f'Max: {str(round(max(paasATemps),1))[:8]}',  # max of paas A
                     f'First time above 50 C: {str(time_begin_above_50_paasA)}', # first time paas A went above 50 C
                     f'Last time above 50 C: {str(time_end_above_50_paasA)}', # last time paas A dipped below 50 C
                     f'Elapsed time above 50 C (hours): {str(elapsed_time_above_50_paasA)}', # time between first going above and finally dipping below 50 C
-                    f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
-                    f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
                 ]
             else:
                 paasAStats = []
@@ -2263,13 +2261,11 @@ class facileDBGUI(QMainWindow):
                 paasBCStats = [
                     '', # empty line
                     f'PAAS {"B" if pro == 2 else "C"} Statistics',
-                    f'Mean: {str(statistics.mean(paasBCTemps))[:8]}',  # mean of paas BC
-                    f'Max: {str(max(paasBCTemps))[:8]}',  # max of paas BC
+                    f'Mean: {str(round(statistics.mean(paasBCTemps),1))[:8]}',  # mean of paas BC
+                    f'Max: {str(round(max(paasBCTemps),1))[:8]}',  # max of paas BC
                     f'First time above 50 C: {str(time_begin_above_50_paasB)}', # first time paas BC went above 50 C
                     f'Last time above 50 C: {str(time_end_above_50_paasB)}', # last time paas BC dipped below 50 C
                     f'Elapsed time above 50 C (hours): {str(elapsed_time_above_50_paasB)}', # time between first going above and finally dipping below 50 C
-                    f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
-                    f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
                 ]
             else:
                 paasBCStats = []
@@ -2528,7 +2524,8 @@ class facileDBGUI(QMainWindow):
 
         # make subplot for PAAS A
         labelAddOn = "of PAAS A " if pro == 1 else ""
-        plt.subplot(211)
+        plt.subplots(1,1,figsize=(12,7))
+        plt.grid(color='k', linestyle='-', linewidth=1)
         plt.plot_date(xData, yDataA, label="PAAS A", markersize=2)  # make plot
         mpl.dates.HourLocator()
         plt.xlabel("Time", fontsize=20)  # set x axis label
