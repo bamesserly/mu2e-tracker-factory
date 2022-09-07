@@ -2253,8 +2253,6 @@ class facileDBGUI(QMainWindow):
                     f'First time above 50 C: {str(time_begin_above_50_paasA)}', # first time paas A went above 50 C
                     f'Last time above 50 C: {str(time_end_above_50_paasA)}', # last time paas A dipped below 50 C
                     f'Elapsed time above 50 C (hours): {str(elapsed_time_above_50_paasA)}', # time between first going above and finally dipping below 50 C
-                    f'Upper σ: {str(statistics.mean(paasATemps) - statistics.stdev(paasATemps))[:8]}',  # upper std dev
-                    f'Lower σ: {str(statistics.mean(paasATemps) + statistics.stdev(paasATemps))[:8]}',  # lower std dev
                 ]
             else:
                 paasAStats = []
@@ -2268,8 +2266,6 @@ class facileDBGUI(QMainWindow):
                     f'First time above 50 C: {str(time_begin_above_50_paasB)}', # first time paas BC went above 50 C
                     f'Last time above 50 C: {str(time_end_above_50_paasB)}', # last time paas BC dipped below 50 C
                     f'Elapsed time above 50 C (hours): {str(elapsed_time_above_50_paasB)}', # time between first going above and finally dipping below 50 C
-                    f'Upper σ: {str(statistics.mean(paasBCTemps) - statistics.stdev(paasBCTemps))[:8]}',  # upper std dev
-                    f'Lower σ: {str(statistics.mean(paasBCTemps) + statistics.stdev(paasBCTemps))[:8]}',  # lower std dev
                 ]
             else:
                 paasBCStats = []
