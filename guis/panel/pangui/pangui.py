@@ -350,7 +350,7 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_mixed1.clicked.connect(self.pro1part2)
         self.ui.epoxy_applied1.clicked.connect(self.pro1CheckEpoxySteps)
         self.ui.pro1PanelHeater.clicked.connect(self.panelHeaterPopup)
-        self.ui.validateStraws.clicked.connect(self.checkLPALs)
+        self.ui.validateStraws.clicked.connect(self.ensure_lpal_mergedown)
         self.ui.picone1.clicked.connect(lambda: self.diagram_popup("PAAS_A_C.png"))
         self.ui.picone2.clicked.connect(lambda: self.diagram_popup("d2_mix_epoxy.png"))
         self.ui.picone3.clicked.connect(lambda: self.diagram_popup("d1_BIRgroove.png"))
@@ -4292,6 +4292,23 @@ class panelGUI(QMainWindow):
             # Save straws
             self.saveData()
             return True
+    
+    # Aggressively reminds the user that a mergedown must be done.
+    def ensure_lpal_mergedown(self):
+        box = QMessageBox()
+        box.setIcon(QMessageBox.Question)
+        box.setWindowTitle('WARNING!')
+        box.setText('YOU MUST DO A MERGEDOWN AFTER THE LPAL LOADER IS RUN FOR THESE LPALS. \n\n HAVE YOU DONE A MERGEDOWN SINCE THE LPAL LOADER WAS RUN FOR THESE LPALS? \n\n NOT SURE? CLOSE THE GUI AND DO A MERGEDOWN BEFORE PROCEEDING.')
+        box.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        buttonY = box.button(QMessageBox.Yes)
+        buttonY.setText('YES I HAVE DONE A MERGEDOWN SINCE THE LPAL LOADER WAS LAST RUN FOR THIS LPAL')
+        buttonN = box.button(QMessageBox.No)
+        buttonN.setText('NO I WILL TO CLOSE THE GUI NOW AND DO IT')
+        box.exec_()
+        
+        if box.clickedButton() == buttonY:
+            self.checkLPALs()
+        
 
     """
     resetpro1(self)
