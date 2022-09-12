@@ -384,11 +384,9 @@ class panelGUI(QMainWindow):
             lambda: self.diagram_popup("d2_mix_epoxy.png")
         )
         self.ui.epoxy_mixed.clicked.connect(self.pro2part2)
-        self.ui.heat_start.clicked.connect(self.pro2Heating)
         self.ui.epoxy_inject2.clicked.connect(self.pro2part2_3)
         self.ui.epoxy_mixed_2.clicked.connect(self.pro2part2_2)
         self.ui.epoxy_inject1.clicked.connect(self.pro2EpoxyInjected)
-        self.ui.heat_finished.clicked.connect(self.pro2CheckTemp)
 
         ## Timers
         self.pro2TimerNum1 = [self.ui.hour_disp, self.ui.min_disp, self.ui.sec_disp]
@@ -408,7 +406,6 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_inject2,
             self.ui.epoxy_mixed,
             self.ui.epoxy_mixed_2,
-            self.ui.heat_finished,
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -775,7 +772,6 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch42_2,
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
-            self.ui.heat_start,
             self.ui.launchHVpro6,
         ]
         self.setWidgetsDisabled(disabled_widgets)
@@ -1191,7 +1187,6 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_inject1,
                 self.ui.epoxy_batch_2,
                 self.ui.epoxy_inject2,
-                self.ui.heat_finished,
                 self.ui.paasBInput,
             ],
             # pro 3 Widgets
@@ -3402,10 +3397,7 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_inject2.setDisabled(
                     True
                 )  # disable upper epoxy inject button (timer must have been stopped)
-                self.ui.heat_start.setEnabled(
-                    True
-                )  # enable heat start button (epoxy stuff has been finished)
-
+            
         # heat stuff -----------------------------------------------------------------------------
         if data[5] is not None:  # if paas A max temp num data exists
             self.ui.temp4.setText(
@@ -3417,8 +3409,6 @@ class panelGUI(QMainWindow):
             )  # set text of paas B max temp line edit widget to num
 
         if data[7] is not None:  # if heat timer data exists (if timer has been started)
-            self.ui.heat_start.setDisabled(True)  # disable heat start button
-
             elapsed_time, running = data[
                 7
             ]  # extract timer tuple data [<timedeltaObj>, <isRunningBool>]
