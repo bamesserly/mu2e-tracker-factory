@@ -3573,71 +3573,6 @@ Heater GUI</string>
                     </layout>
                    </widget>
                   </item>
-                  <item row="0" column="2">
-                   <widget class="QGroupBox" name="groupBox_51">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <family>Arial</family>
-                      <pointsize>11</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="title">
-                     <string>Heating</string>
-                    </property>
-                    <layout class="QGridLayout" name="gridLayout_23">
-                     <item row="2" column="0" colspan="2">
-                      <widget class="QPushButton" name="heat_finished">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Heat Finished</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0" colspan="2">
-                      <widget class="QPushButton" name="heat_start">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Heat Start</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
                  </layout>
                 </item>
                 <item row="3" column="0">
@@ -8271,7 +8206,6 @@ Heater GUI</string>
   <tabstop>epoxy_batch_2</tabstop>
   <tabstop>epoxy_mixed_2</tabstop>
   <tabstop>epoxy_inject2</tabstop>
-  <tabstop>heat_start</tabstop>
   <tabstop>panelInput4</tabstop>
   <tabstop>startButton4</tabstop>
   <tabstop>epoxy_batch_3</tabstop>
@@ -8380,7 +8314,6 @@ Heater GUI</string>
   <tabstop>pallet2code</tabstop>
   <tabstop>validateStraws</tabstop>
   <tabstop>pro1PanelHeater</tabstop>
-  <tabstop>heat_finished</tabstop>
   <tabstop>picone2_2</tabstop>
   <tabstop>paas_attach_2</tabstop>
   <tabstop>pro2PanelHeater</tabstop>
@@ -8420,8 +8353,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
   <buttongroup name="PortalButtons"/>
+  <buttongroup name="proSelectButtons"/>
  </buttongroups>
 </ui>
