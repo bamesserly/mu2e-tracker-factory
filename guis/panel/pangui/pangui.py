@@ -397,12 +397,7 @@ class panelGUI(QMainWindow):
             self.ui.min_disp_2,
             self.ui.sec_disp_2,
         ]
-        self.pro2TimerNum3 = [
-            self.ui.hour_disp_3,
-            self.ui.min_disp_3,
-            self.ui.sec_disp_3,
-        ]
-        self.pro2Timers = [self.pro2TimerNum1, self.pro2TimerNum2, self.pro2TimerNum3]
+        self.pro2Timers = [self.pro2TimerNum1, self.pro2TimerNum2]
 
         # Disable Widgets
         disabled_widgets = [
@@ -849,12 +844,6 @@ class panelGUI(QMainWindow):
                 lambda: self.Timer_3.emit(),
             ),  # 3
             QLCDTimer(
-                self.ui.hour_disp_3,
-                self.ui.min_disp_3,
-                self.ui.sec_disp_3,
-                lambda: self.Timer_4.emit(),
-            ),  # 4
-            QLCDTimer(
                 self.ui.hour_disp_13,
                 self.ui.min_disp_13,
                 self.ui.sec_disp_13,
@@ -959,7 +948,6 @@ class panelGUI(QMainWindow):
         self.Timer_15.connect(self.timers[15].display)
         self.Timer_16.connect(self.timers[16].display)
         self.Timer_17.connect(self.timers[17].display)
-        self.Timer_18.connect(self.timers[18].display)
 
         self.startTimer = lambda index: self.timers[index].start()
         self.stopTimer = lambda index: self.timers[index].stop()
