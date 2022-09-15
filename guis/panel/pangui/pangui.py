@@ -944,6 +944,7 @@ class panelGUI(QMainWindow):
         self.Timer_15.connect(self.timers[15].display)
         self.Timer_16.connect(self.timers[16].display)
         self.Timer_17.connect(self.timers[17].display)
+        self.Timer_18.connect(self.timers[18].display)
 
         self.startTimer = lambda index: self.timers[index].start()
         self.stopTimer = lambda index: self.timers[index].stop()
