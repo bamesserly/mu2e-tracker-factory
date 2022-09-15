@@ -4466,11 +4466,6 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch_2.setFocus()
         self.saveData()
 
-    def pro2CheckTemp(self):
-        if self.validateInput(indices=[5, 6]):
-            self.stopTimer(4)
-            self.pro2part2_4()
-
     """
     resetpro2(self)
 
