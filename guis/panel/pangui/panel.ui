@@ -1581,7 +1581,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="p1IR">
                <layout class="QGridLayout" name="gridLayout_15">
@@ -3253,166 +3253,6 @@ Heater GUI</string>
                 </item>
                 <item row="2" column="0">
                  <layout class="QGridLayout" name="gridLayout_62">
-                  <item row="0" column="0">
-                   <widget class="QGroupBox" name="groupBox_52">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <family>Arial</family>
-                      <pointsize>11</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="title">
-                     <string>Bottom Row</string>
-                    </property>
-                    <layout class="QGridLayout" name="gridLayout_21">
-                     <item row="1" column="0">
-                      <widget class="QLineEdit" name="epoxy_batch">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>12</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>6</number>
-                       </property>
-                       <property name="placeholderText">
-                        <string>EP****</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0" colspan="3">
-                      <widget class="QPushButton" name="epoxy_mixed">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Epoxy Mixed</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0" colspan="3">
-                      <widget class="QLabel" name="label_617">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Mix 16g 815C, 12g 3140</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1" colspan="2">
-                      <widget class="QLabel" name="label_615">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string>Epoxy Sample</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0" colspan="3">
-                      <widget class="QPushButton" name="epoxy_inject1">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Epoxy Injected</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0" colspan="3">
-                      <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,1,1">
-                       <item>
-                        <widget class="QLCDNumber" name="hour_disp">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLCDNumber" name="min_disp">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLCDNumber" name="sec_disp">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QGroupBox" name="groupBox_53">
                     <property name="sizePolicy">
@@ -3573,8 +3413,8 @@ Heater GUI</string>
                     </layout>
                    </widget>
                   </item>
-                  <item row="0" column="2">
-                   <widget class="QGroupBox" name="groupBox_51">
+                  <item row="0" column="0">
+                   <widget class="QGroupBox" name="groupBox_52">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                       <horstretch>0</horstretch>
@@ -3590,11 +3430,11 @@ Heater GUI</string>
                      </font>
                     </property>
                     <property name="title">
-                     <string>Heating</string>
+                     <string>Bottom Row</string>
                     </property>
-                    <layout class="QGridLayout" name="gridLayout_23">
-                     <item row="2" column="1" colspan="2">
-                      <widget class="QLabel" name="label_614">
+                    <layout class="QGridLayout" name="gridLayout_21">
+                     <item row="1" column="0">
+                      <widget class="QLineEdit" name="epoxy_batch">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -3604,18 +3444,24 @@ Heater GUI</string>
                        <property name="font">
                         <font>
                          <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
+                         <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
-                        <string>PAAS-A Max Temp [C]</string>
+                        <string/>
+                       </property>
+                       <property name="maxLength">
+                        <number>6</number>
+                       </property>
+                       <property name="placeholderText">
+                        <string>EP****</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="0" column="0" colspan="3">
-                      <widget class="QPushButton" name="heat_start">
+                     <item row="2" column="0" colspan="3">
+                      <widget class="QPushButton" name="epoxy_mixed">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -3631,12 +3477,12 @@ Heater GUI</string>
                         </font>
                        </property>
                        <property name="text">
-                        <string>Heat Start</string>
+                        <string>Epoxy Mixed</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="1" colspan="2">
-                      <widget class="QLabel" name="label_619">
+                     <item row="0" column="0" colspan="3">
+                      <widget class="QLabel" name="label_617">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -3652,12 +3498,25 @@ Heater GUI</string>
                         </font>
                        </property>
                        <property name="text">
-                        <string>PAAS-B Max Temp [C]</string>
+                        <string>Mix 16g 815C, 12g 3140</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0">
-                      <widget class="QLineEdit" name="temp4_2">
+                     <item row="1" column="1" colspan="2">
+                      <widget class="QLabel" name="label_615">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Epoxy Sample</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="0" colspan="3">
+                      <widget class="QPushButton" name="epoxy_inject1">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -3667,47 +3526,20 @@ Heater GUI</string>
                        <property name="font">
                         <font>
                          <family>Arial</family>
-                         <pointsize>12</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
+                         <pointsize>11</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>3</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLineEdit" name="temp4">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>12</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="maxLength">
-                        <number>3</number>
+                        <string>Epoxy Injected</string>
                        </property>
                       </widget>
                      </item>
                      <item row="5" column="0" colspan="3">
-                      <layout class="QHBoxLayout" name="horizontalLayout_13">
+                      <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,1,1">
                        <item>
-                        <widget class="QLCDNumber" name="hour_disp_3">
+                        <widget class="QLCDNumber" name="hour_disp">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                            <horstretch>0</horstretch>
@@ -3717,7 +3549,7 @@ Heater GUI</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLCDNumber" name="min_disp_3">
+                        <widget class="QLCDNumber" name="min_disp">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                            <horstretch>0</horstretch>
@@ -3727,7 +3559,7 @@ Heater GUI</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLCDNumber" name="sec_disp_3">
+                        <widget class="QLCDNumber" name="sec_disp">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                            <horstretch>0</horstretch>
@@ -3737,27 +3569,6 @@ Heater GUI</string>
                         </widget>
                        </item>
                       </layout>
-                     </item>
-                     <item row="4" column="0" colspan="3">
-                      <widget class="QPushButton" name="heat_finished">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>11</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Heat Finished</string>
-                       </property>
-                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -8395,9 +8206,6 @@ Heater GUI</string>
   <tabstop>epoxy_batch_2</tabstop>
   <tabstop>epoxy_mixed_2</tabstop>
   <tabstop>epoxy_inject2</tabstop>
-  <tabstop>heat_start</tabstop>
-  <tabstop>temp4</tabstop>
-  <tabstop>temp4_2</tabstop>
   <tabstop>panelInput4</tabstop>
   <tabstop>startButton4</tabstop>
   <tabstop>epoxy_batch_3</tabstop>
@@ -8506,7 +8314,6 @@ Heater GUI</string>
   <tabstop>pallet2code</tabstop>
   <tabstop>validateStraws</tabstop>
   <tabstop>pro1PanelHeater</tabstop>
-  <tabstop>heat_finished</tabstop>
   <tabstop>picone2_2</tabstop>
   <tabstop>paas_attach_2</tabstop>
   <tabstop>pro2PanelHeater</tabstop>
@@ -8546,8 +8353,8 @@ Heater GUI</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="PortalButtons"/>
   <buttongroup name="proSelectButtons"/>
   <buttongroup name="saveButtons"/>
+  <buttongroup name="PortalButtons"/>
  </buttongroups>
 </ui>
