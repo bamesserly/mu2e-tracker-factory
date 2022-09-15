@@ -843,6 +843,12 @@ class panelGUI(QMainWindow):
                 self.ui.hour_disp_13,
                 self.ui.min_disp_13,
                 self.ui.sec_disp_13,
+                lambda: self.Timer_18.emit(),
+            ),   # This is just a placeholder, duplicate of timer 18
+            QLCDTimer(
+                self.ui.hour_disp_13,
+                self.ui.min_disp_13,
+                self.ui.sec_disp_13,
                 lambda: self.Timer_5.emit(),
             ),  # 5 sense wire insertion time
             QLCDTimer(
@@ -2786,7 +2792,7 @@ class panelGUI(QMainWindow):
         self.data[self.pro_index][6] = (
             None
         )  # PAAS-B Max Temp
-        self.data[self.pro_index][7] = self.timerTuple(self.timers[4])  # Heat Time
+        self.data[self.pro_index][7] = None
         self.data[self.pro_index][8] = self.ui.paasBInput.text()  # paas B input
 
     def updateDataProcess3(self):
