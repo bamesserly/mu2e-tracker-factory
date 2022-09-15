@@ -384,11 +384,9 @@ class panelGUI(QMainWindow):
             lambda: self.diagram_popup("d2_mix_epoxy.png")
         )
         self.ui.epoxy_mixed.clicked.connect(self.pro2part2)
-        self.ui.heat_start.clicked.connect(self.pro2Heating)
         self.ui.epoxy_inject2.clicked.connect(self.pro2part2_3)
         self.ui.epoxy_mixed_2.clicked.connect(self.pro2part2_2)
         self.ui.epoxy_inject1.clicked.connect(self.pro2EpoxyInjected)
-        self.ui.heat_finished.clicked.connect(self.pro2CheckTemp)
 
         ## Timers
         self.pro2TimerNum1 = [self.ui.hour_disp, self.ui.min_disp, self.ui.sec_disp]
@@ -397,25 +395,17 @@ class panelGUI(QMainWindow):
             self.ui.min_disp_2,
             self.ui.sec_disp_2,
         ]
-        self.pro2TimerNum3 = [
-            self.ui.hour_disp_3,
-            self.ui.min_disp_3,
-            self.ui.sec_disp_3,
-        ]
-        self.pro2Timers = [self.pro2TimerNum1, self.pro2TimerNum2, self.pro2TimerNum3]
+        self.pro2Timers = [self.pro2TimerNum1, self.pro2TimerNum2]
 
         # Disable Widgets
         disabled_widgets = [
             self.ui.epoxy_batch,
             self.ui.epoxy_batch_2,
-            self.ui.temp4,
-            self.ui.temp4_2,
             # self.ui.launch_straw_tensioner,
             self.ui.epoxy_inject1,
             self.ui.epoxy_inject2,
             self.ui.epoxy_mixed,
             self.ui.epoxy_mixed_2,
-            self.ui.heat_finished,
         ]
         self.setWidgetsDisabled(disabled_widgets)
 
@@ -782,7 +772,6 @@ class panelGUI(QMainWindow):
             self.ui.epoxy_batch42_2,
             self.ui.bpmirgapL,
             self.ui.bpmirgapR,
-            self.ui.heat_start,
             self.ui.launchHVpro6,
         ]
         self.setWidgetsDisabled(disabled_widgets)
@@ -850,12 +839,6 @@ class panelGUI(QMainWindow):
                 self.ui.sec_disp_2,
                 lambda: self.Timer_3.emit(),
             ),  # 3
-            QLCDTimer(
-                self.ui.hour_disp_3,
-                self.ui.min_disp_3,
-                self.ui.sec_disp_3,
-                lambda: self.Timer_4.emit(),
-            ),  # 4
             QLCDTimer(
                 self.ui.hour_disp_13,
                 self.ui.min_disp_13,
@@ -961,7 +944,6 @@ class panelGUI(QMainWindow):
         self.Timer_15.connect(self.timers[15].display)
         self.Timer_16.connect(self.timers[16].display)
         self.Timer_17.connect(self.timers[17].display)
-        self.Timer_18.connect(self.timers[18].display)
 
         self.startTimer = lambda index: self.timers[index].start()
         self.stopTimer = lambda index: self.timers[index].stop()
@@ -1119,10 +1101,6 @@ class panelGUI(QMainWindow):
         self.ui.mrInput1.setValidator(valid_mr)
         self.ui.mrInput2.setValidator(valid_mr)
 
-        valid_temp = QDoubleValidator(bottom=50.0, top=99.9, decimals=1)
-        self.ui.temp4.setValidator(valid_temp)
-        self.ui.temp4_2.setValidator(valid_temp)
-
         set_validator(self.ui.wireInput, "(WIRE\.)\d{6}")
 
         valid_weight = QDoubleValidator(bottom=0.01, top=99.99, decimals=2)
@@ -1209,9 +1187,6 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_inject1,
                 self.ui.epoxy_batch_2,
                 self.ui.epoxy_inject2,
-                self.ui.temp4,
-                self.ui.temp4_2,
-                self.ui.heat_finished,
                 self.ui.paasBInput,
             ],
             # pro 3 Widgets
@@ -2805,10 +2780,10 @@ class panelGUI(QMainWindow):
             self.timers[3]
         )  # Upper Epoxy Time
         self.data[self.pro_index][5] = (
-            float(self.ui.temp4.text()) if self.ui.temp4.text() else None
+            None
         )  # PAAS-A Max Temp
         self.data[self.pro_index][6] = (
-            float(self.ui.temp4_2.text()) if self.ui.temp4_2.text() else None
+            None
         )  # PAAS-B Max Temp
         self.data[self.pro_index][7] = self.timerTuple(self.timers[4])  # Heat Time
         self.data[self.pro_index][8] = self.ui.paasBInput.text()  # paas B input
@@ -3446,50 +3421,6 @@ class panelGUI(QMainWindow):
                 self.ui.epoxy_inject2.setDisabled(
                     True
                 )  # disable upper epoxy inject button (timer must have been stopped)
-                self.ui.heat_start.setEnabled(
-                    True
-                )  # enable heat start button (epoxy stuff has been finished)
-
-        # heat stuff -----------------------------------------------------------------------------
-        if data[5] is not None:  # if paas A max temp num data exists
-            self.ui.temp4.setText(
-                str(data[5])
-            )  # set text of paas A max temp line edit widget to num
-        if data[6] is not None:  # if paas B max temp num data exists
-            self.ui.temp4_2.setText(
-                str(data[6])
-            )  # set text of paas B max temp line edit widget to num
-
-        if data[7] is not None:  # if heat timer data exists (if timer has been started)
-            self.ui.heat_start.setDisabled(True)  # disable heat start button
-
-            elapsed_time, running = data[
-                7
-            ]  # extract timer tuple data [<timedeltaObj>, <isRunningBool>]
-            self.timers[4].setElapsedTime(
-                elapsed_time
-            )  # set time on corresponding timer
-            if running:  # if loaded data indicates the timer should be running
-                self.startTimer(4)  # start the timer
-                self.ui.heat_finished.setEnabled(
-                    True
-                )  # enable heat finish button (button that stops the timer)
-                self.ui.temp4.setEnabled(
-                    True
-                )  # enable paas A max temp line edit widget
-                self.ui.temp4_2.setEnabled(
-                    True
-                )  # enable paas B max temp line edit widget
-            else:  # loaded data indicates the timer should NOT be running
-                self.ui.heat_finished.setDisabled(
-                    True
-                )  # disable heat finished button (timer must've been stopped)
-                self.ui.temp4.setDisabled(
-                    True
-                )  # disable paas A max temp line edit widget
-                self.ui.temp4_2.setDisabled(
-                    True
-                )  # disable paas B max temp line edit widget
 
         # PAAS B Entry ---------------------------------------------------------------------------
         if data[8] is not None:
@@ -4509,32 +4440,6 @@ class panelGUI(QMainWindow):
 
         # (Dis/En)able widgets
         self.ui.epoxy_inject2.setDisabled(True)
-        self.ui.heat_start.setEnabled(True)
-
-        # Save data
-        self.saveData()
-
-    """
-    pro2part2_4(self)
-
-        Description: Function called by the 'Heat Finished' button. Records the maximum temperatures and heating time.
-
-        Disables: PAAS-A Max Temp Input
-                  PAAS-B Max Temp Input
-                  Heat Finished Button
-    """
-
-    def pro2part2_4(self):
-
-        # Reset stylesheets of temperature inputs
-        self.ui.temp4.setStyleSheet("")
-        self.ui.temp4_2.setStyleSheet("")
-
-        # Disable heat widgets
-        self.setWidgetsDisabled([self.ui.heat_finished, self.ui.temp4, self.ui.temp4_2])
-
-        # Focus on comment box
-        self.ui.commentBox2.setFocus()
 
         # Save data
         self.saveData()
@@ -4560,29 +4465,6 @@ class panelGUI(QMainWindow):
         self.ui.epoxy_batch_2.setEnabled(True)
         self.ui.epoxy_batch_2.setFocus()
         self.saveData()
-
-    """
-    pro2Heating(self)
-
-        Description: Function called by clicking 'Heat Start' button. Starts the pro 2 heating timer thread.
-
-        Disables: Heat Start Button
-
-        Enables: Heat Finished Button
-                 PAAS-A Max Temp Input
-                 PAAS-B Max Temp Input
-    """
-
-    def pro2Heating(self):
-        # Disable start heat button
-        self.ui.heat_start.setDisabled(True)
-
-        # Enable temperature inputs and stop heating button
-        self.setWidgetsEnabled([self.ui.heat_finished, self.ui.temp4, self.ui.temp4_2])
-        self.ui.temp4.setFocus()
-
-        # Start Timer
-        self.startTimer(4)
 
     def pro2CheckTemp(self):
         if self.validateInput(indices=[5, 6]):
@@ -4611,8 +4493,6 @@ class panelGUI(QMainWindow):
         self.ui.paasBInput.setText("")
         self.ui.epoxy_batch.setText("")
         self.ui.epoxy_batch_2.setText("")
-        self.ui.temp4.setText("")
-        self.ui.temp4_2.setText("")
         self.ui.commentBox2.document().setPlainText("")
         for timer in self.timers[2:5]:
             timer.reset()
