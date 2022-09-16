@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import QApplication, QLCDNumber
 from guis.common.db_classes.straw import Straw
 from guis.common.getresources import GetProjectPaths
 from guis.common.gui_utils import except_hook
+from data.workers.credentials.credentials import Credentials
 
 
 def getInput(prompt, checkcondition):
@@ -44,7 +45,7 @@ def getYN(instructions):
     return "N" not in s.upper()
 
 
-def getLPALFile(lpalid, lpal):
+def getLPALFile(lpalid, lpal, worker):
     outfile = (
         GetProjectPaths()["lpals"]
         / f"LPAL{str(lpal).zfill(4)}_LPALID{str(lpalid).zfill(2)}.csv"
@@ -53,7 +54,7 @@ def getLPALFile(lpalid, lpal):
     # If it doesn't exist yet, writes a header and all the positions
     if not outfile.exists():
         with outfile.open("w") as f:
-            f.write("Position,Straw,Timestamp,Cpal\n")
+            f.write("Position,Straw,Timestamp,Cpal,"+str(worker)+"\n")
 
             for i in range(0, 96, 2):
                 f.write(f"{i},,\n")
@@ -306,6 +307,16 @@ def run():
     """
     )
     ############################################################################
+    # Get User
+    ############################################################################
+    credential_checker=Credentials("prep")
+    
+    worker = getInput(
+        prompt='Please input your username: ',
+        checkcondition=lambda s: credential_checker.checkCredentials(s)
+    )
+    
+    ############################################################################
     # Get CPAL Info
     ############################################################################
     cpal = getInput(
@@ -366,7 +377,7 @@ def run():
     ############################################################################
     # Get outfile
     ############################################################################
-    outfile = getLPALFile(lpal.pallet_id, lpal.number)
+    outfile = getLPALFile(lpal.pallet_id, lpal.number, worker)
 
     ############################################################################
     # Scan-in straws
