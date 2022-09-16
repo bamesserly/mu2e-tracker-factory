@@ -248,7 +248,7 @@ def update_straw_table(straw_information, cpal_prefix_list):
         try:
             for y in range(len(straw_information[cpal])):
                 straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
-                batch = straw_information[cpal][y]['batch']
+                batch = straw_information[cpal][y]['batch'].replace('.','')
                 timestamp = int(straw_information[cpal][y]['time'])
 
                 straw = Straw.Straw(straw_id, batch)
@@ -267,7 +267,7 @@ def update_measurement_prep_table(cpal_prefix_list, straw_information):
         try:
             for y in range(len(straw_information[cpal])):
                 straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
-                batch = straw_information[cpal][y]['batch']
+                batch = straw_information[cpal][y]['batch'].replace('.','')
                 paper_pull = straw_information[cpal][y]['grade']
                 timestamp = int(straw_information[cpal][y]['time'])
             
