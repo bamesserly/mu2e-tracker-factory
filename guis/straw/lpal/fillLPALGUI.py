@@ -45,7 +45,7 @@ def getYN(instructions):
     return "N" not in s.upper()
 
 
-def getLPALFile(lpalid, lpal, worker):
+def getLPALFile(lpalid, lpal, worker, cpal_list):
     outfile = (
         GetProjectPaths()["lpals"]
         / f"LPAL{str(lpal).zfill(4)}_LPALID{str(lpalid).zfill(2)}.csv"
@@ -54,7 +54,7 @@ def getLPALFile(lpalid, lpal, worker):
     # If it doesn't exist yet, writes a header and all the positions
     if not outfile.exists():
         with outfile.open("w") as f:
-            f.write("Position,Straw,Timestamp,Cpal,"+str(worker)+"\n")
+            f.write("Position,Straw,Timestamp,Cpal,"+str(worker)+','+str(cpal_list[0])+','+str(cpal_list[1])+"\n")
 
             for i in range(0, 96, 2):
                 f.write(f"{i},,\n")
@@ -153,7 +153,7 @@ def removeStrawFromCurrentLocations(straw, cpals):
         return True
 
 
-def addStrawToLPAL(lpal, outfile, cpals, cpal):
+def addStrawToLPAL(lpal, outfile, cpals, cpal_list):
     ########################################################################
     # Check: is the lPAL full?
     ########################################################################
@@ -197,7 +197,7 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal):
     ########################################################################
     # format POS.0 - POS.99
     position = getInput(
-        prompt="Scan position barcode",
+        prompt="Scan position barcode for straw.",
         checkcondition=lambda s: len(s) in [5, 6]
         and s.upper().startswith("POS.")
         and s[4:].isnumeric()
@@ -212,21 +212,38 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal):
             return "scanning"
 
     ########################################################################
-    # Scan straw
+    # Scan straw/detect change in cpal
     ########################################################################
-    straw_id = getInput(
-        prompt="Scan straw barcode",
-        checkcondition=lambda s: len(s) == 7
-        and s.upper().startswith("ST")
-        and s[2:].isnumeric(),
-    )
-    if not straw_id:
-        return "scanning"
+    straw_id=None
+    while straw_id is None:
+        straw_cpal_id = getInput(
+            prompt="Scan straw barcode, or CPAL barcode to switch.",
+            checkcondition=lambda s: len(s) == 7 or len(s) == 8
+            and (s.upper().startswith("ST") or s.upper().startswith('CPAL'))
+            and s[4:].isnumeric(),
+        )
+        if not straw_cpal_id:
+            return "scanning"
+    
+        if straw_cpal_id.upper().startswith('ST'):
+            straw_id=straw_cpal_id
+        elif straw_cpal_id in cpal_list:
+            if straw_cpal_id == cpal_list[0]:
+                cpal_list[:] = [cpal_list[0],cpal_list[1]]
+                print('Switched to cpal ' + str(cpal_list[0]))
+            else:
+                cpal_list[:] = [cpal_list[1],cpal_list[0]]
+                print('Switched to cpal ' + str(cpal_list[1]))
+        else:
+            print('Please ensure that your cpal choice is one of the two initially selected.')
+            
+    
+    
 
     ########################################################################
     # Save to Text -- add straw to LPAL txt file
     ########################################################################
-    saveStrawToLPAL(outfile, position, straw_id, cpal)
+    saveStrawToLPAL(outfile, position, straw_id, cpal_list[0])
 
     ########################################################################
     # Save to DB
@@ -319,14 +336,25 @@ def run():
     ############################################################################
     # Get CPAL Info
     ############################################################################
-    cpal = getInput(
-        prompt='HEY! Please scan the CPAL first!',
+    cpal_1 = getInput(
+        prompt='HEY! Please scan CPAL number 1 first!',
         checkcondition=lambda s: len(s) == 8
         and s.startswith('CPAL')
         and s[-4:].isnumeric(),
     )
-    if cpal is None:
+    if cpal_1 is None:
         return
+    
+    cpal_2 = getInput(
+        prompt='HEY! Please scan CPAL number 2 now!',
+        checkcondition=lambda s: len(s) == 8
+        and s.startswith('CPAL')
+        and s[-4:].isnumeric(),
+    )
+    if cpal_2 is None:
+        return
+        
+    cpal_list=[cpal_1, cpal_2]
     
     ############################################################################
     # Scan-in LPAL Info
@@ -377,7 +405,7 @@ def run():
     ############################################################################
     # Get outfile
     ############################################################################
-    outfile = getLPALFile(lpal.pallet_id, lpal.number, worker)
+    outfile = getLPALFile(lpal.pallet_id, lpal.number, worker, cpal_list)
 
     ############################################################################
     # Scan-in straws
@@ -388,7 +416,7 @@ def run():
     status = "scanning"
     while status == "scanning":
         print("\n")
-        status = addStrawToLPAL(lpal, outfile, cpals, cpal)
+        status = addStrawToLPAL(lpal, outfile, cpals, cpal_list)
 
     lpalgui.stopTimer()
 
