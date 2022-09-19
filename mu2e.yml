@@ -11,4 +11,3 @@ dependencies:
   - matplotlib
   - scikit-learn
   - jupytext
-prefix: /Users/Ben/miniconda3/envs/mu2e
