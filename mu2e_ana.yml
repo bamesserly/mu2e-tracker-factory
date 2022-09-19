@@ -1,0 +1,13 @@
+name: mu2e
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python>=3.7
+  - sqlalchemy
+  - pre_commit
+  - jupyter
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - jupytext
