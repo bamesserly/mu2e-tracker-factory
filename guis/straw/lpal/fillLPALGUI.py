@@ -215,29 +215,36 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count):
     # Scan straw/detect change in cpal
     ########################################################################
     straw_id=None
+    # 
     while straw_id is None:
+        # obtain input, whether that's a straw or a cpal to switch to
         straw_cpal_id = getInput(
-            prompt="Scan straw barcode, or CPAL barcode to switch.",
+            prompt="Scan straw barcode, or CPAL barcode to switch. Currently on cpal " + str(cpal_list[0]),
             checkcondition=lambda s: len(s) == 7 or len(s) == 8
             and (s.upper().startswith("ST") or s.upper().startswith('CPAL'))
             and s[4:].isnumeric(),
         )
+        # check validity of input
         if not straw_cpal_id:
             return "scanning"
-        
+        # automatically detect as soon as cpal is empty.
         if len(cpal_count[0]) == 24:
             print('Switched to cpal ' + str(cpal_list[1] + ' since cpal ' + str(cpal_list[0]) + str(' is empty.')))
             cpal_list=[cpal_list[1], cpal_list[0]]
-    
+        
+        # determine if input is a straw, or a cpal switch.
+        # case for straw input
         if straw_cpal_id.upper().startswith('ST'):
             straw_id=straw_cpal_id
             if straw_id not in cpal_count[0]:
                 cpal_count[0].append(straw_id)
+        # case for cpal input
         elif straw_cpal_id in cpal_list:
             if straw_cpal_id == cpal_list[0]:
                 cpal_list[:] = [cpal_list[0],cpal_list[1]]
                 print('Switched to cpal ' + str(cpal_list[0]))
             else:
+                # switch the current cpal
                 cpal_list[:] = [cpal_list[1],cpal_list[0]]
                 print('Switched to cpal ' + str(cpal_list[1]))
         else:
