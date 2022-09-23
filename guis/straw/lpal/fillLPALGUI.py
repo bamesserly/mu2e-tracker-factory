@@ -246,7 +246,7 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count):
             else:
                 # switch the current cpal
                 cpal_list[:] = [cpal_list[1],cpal_list[0]]
-                print('Switched to cpal ' + str(cpal_list[1]))
+                print('Switched to cpal ' + str(cpal_list[0]))
         else:
             print('Please ensure that your cpal choice is one of the two initially selected.')
             
