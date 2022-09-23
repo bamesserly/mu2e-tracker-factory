@@ -250,8 +250,13 @@ def update_straw_table(straw_information, cpal_prefix_list):
                 straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
                 batch = straw_information[cpal][y]['batch'].replace('.','')
                 timestamp = int(straw_information[cpal][y]['time'])
+                
+                check_straw=Straw.exists(straw_id)
+                if check_straw is not None:
+                    check_straw.updateBatch(batch)
+                else:
+                    straw=Straw.Straw(straw_id, batch)
 
-                straw = Straw.Straw(straw_id, batch)
         except:
             print('Error updating straw table for cpal ' + str(cpal))
 

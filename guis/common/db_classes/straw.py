@@ -69,6 +69,10 @@ class Straw(BASE, OBJECT):
     def strpBarcode(cls, barcode):
         n = int(barcode[2:])
         return cls.Straw(n)
+        
+    def updateBatch(self, batch):
+        self.batch=batch
+        self.commit()
 
     def __repr__(self):
         return "<Straw(id='%s')>" % (self.id)
