@@ -26,25 +26,27 @@ class Straw(BASE, OBJECT):
     id = Column(Integer, primary_key=True)
     batch = Column(VARCHAR)
     parent = Column(Integer, ForeignKey("straw.id"))
+    timestamp = Column(Integer, default=time.time())
 
-    def __init__(self, id, batch=None, parent=None, create_key=None):
+    def __init__(self, id, batch=None, parent=None, create_key=None, timestamp=time.time()):
         # Check for authorization with 'create_key'
         assert create_key == Straw.__create_key, "You can only make a Straw internally."
 
         self.id = id
         self.batch = batch
         self.parent = parent
+        self.timestamp = timestamp
         self.commit()
 
     @classmethod
-    def Straw(cls, id, batch=None):
+    def Straw(cls, id, batch=None, timestamp=time.time()):
 
         # Try to query the straw
         s = cls.queryWithId(id)
 
         # If None is found, construct straw
         if s is None:
-            s = Straw(id, batch, None, cls.__create_key)
+            s = Straw(id, batch, None, cls.__create_key, timestamp)
 
         # Return straw
         return s

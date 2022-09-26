@@ -255,7 +255,7 @@ def update_straw_table(straw_information, cpal_prefix_list):
                 if check_straw is not None:
                     check_straw.updateBatch(batch)
                 else:
-                    straw=Straw.Straw(straw_id, batch)
+                    straw=Straw.Straw(straw_id, batch, timestamp)
 
         except:
             print('Error updating straw table for cpal ' + str(cpal))
