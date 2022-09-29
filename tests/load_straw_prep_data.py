@@ -306,7 +306,7 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
                     straw_id = straw_information[cpal][position]['id'][2::].lstrip('0')
                     timestamp = int(straw_information[cpal][position]['time'])
                     
-                    straw_location.add_historical_straw(straw_id, position, True)
+                    straw_location.add_historical_straw(straw_id, position, True, time)
                 # print('Updated straw present table for cpal ' + str(cpal))
                 
             except:

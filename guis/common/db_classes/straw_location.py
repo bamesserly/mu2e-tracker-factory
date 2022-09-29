@@ -48,7 +48,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql.expression import true, false
 import guis.common.db_classes.straw as st
-from time import sleep
+from time import sleep, time
 
 
 class StrawLocation(BASE, OBJECT):
@@ -357,7 +357,7 @@ class StrawLocation(BASE, OBJECT):
 
         return straw_present
         
-    def add_historical_straw(self, straw, position, commit=True):
+    def add_historical_straw(self, straw, position, commit=True, timestamp=time()):
         # Get or create target position
         target_position = (
             self._queryStrawPositions()
@@ -375,7 +375,7 @@ class StrawLocation(BASE, OBJECT):
             target_position.commit()
         
         straw_present = StrawPresent(
-            straw=straw, position=target_position.id, present=False
+            straw=straw, position=target_position.id, present=False, time_in=timestamp
         )
 
         if commit:
@@ -815,13 +815,15 @@ class StrawPresent(BASE, OBJECT):
     straw = Column(Integer, ForeignKey("straw.id"))
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
+    time_in = Column(Integer)
     time_out = Column(Integer)
 
-    def __init__(self, straw, position, present=true(), time_out=None):
+    def __init__(self, straw, position, present=true(), time_in=None, time_out=None):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
         self.present = present
+        self.time_in = time_in
         self.time_out = time_out
 
     def __repr__(self):
