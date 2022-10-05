@@ -227,10 +227,6 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count):
         # check validity of input
         if not straw_cpal_id:
             return "scanning"
-        # automatically detect as soon as cpal is empty.
-        if len(cpal_count[0]) == 24:
-            print('Switched to cpal ' + str(cpal_list[1] + ' since cpal ' + str(cpal_list[0]) + str(' is empty.')))
-            cpal_list=[cpal_list[1], cpal_list[0]]
         
         # determine if input is a straw, or a cpal switch.
         # case for straw input
@@ -242,13 +238,21 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count):
         elif straw_cpal_id in cpal_list:
             if straw_cpal_id == cpal_list[0]:
                 cpal_list[:] = [cpal_list[0],cpal_list[1]]
+                cpal_count.reverse()
                 print('Switched to cpal ' + str(cpal_list[0]))
             else:
                 # switch the current cpal
                 cpal_list[:] = [cpal_list[1],cpal_list[0]]
+                cpal_count.reverse()
                 print('Switched to cpal ' + str(cpal_list[0]))
         else:
             print('Please ensure that your cpal choice is one of the two initially selected.')
+        
+        # automatically detect as soon as cpal is empty.
+        if len(cpal_count[0]) == 24:
+            print('Switched to cpal ' + str(cpal_list[1] + ' since cpal ' + str(cpal_list[0]) + str(' is empty.')))
+            cpal_list=[cpal_list[1], cpal_list[0]]
+            cpal_count.reverse()
             
     
     
@@ -427,7 +431,8 @@ def run():
     ############################################################################
     cpals = set()  # straw location objects from which this lpal was filled
     status = "scanning"
-    cpal_count=[[],[]]
+    cpal_count=[[i for i in range(22)],[]]
+    print('length: ' + str(len(cpal_count[0])))
     while status == "scanning":
         print("\n")
         status = addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count)
