@@ -431,8 +431,7 @@ def run():
     ############################################################################
     cpals = set()  # straw location objects from which this lpal was filled
     status = "scanning"
-    cpal_count=[[i for i in range(22)],[]]
-    print('length: ' + str(len(cpal_count[0])))
+    cpal_count=[[],[]]
     while status == "scanning":
         print("\n")
         status = addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count)
