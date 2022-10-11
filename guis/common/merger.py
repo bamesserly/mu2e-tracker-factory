@@ -84,7 +84,7 @@ class Merger:
     # e.g. non-critical failure: table exists in target but not source.
     def mergeAll(self):
         start = datetime.now()
-        logger.info("Beginning Automerge")
+        logger.debug("Beginning Automerge")
         # logger.debug("\n".join([self.merge(t,execute=False) for t in sorted(self.getTables())]))
         self.__execute(
             "\n".join([self.merge(t, execute=False) for t in self.getTables()])
@@ -96,7 +96,7 @@ class Merger:
         #   )
         finish = datetime.now()
         dt = (finish - start).total_seconds()
-        logger.info(f"Automerge complete ({dt}s)")
+        logger.debug(f"Automerge complete ({dt}s)")
 
     def __execute(self, script, fetchall=False):
         return self.executeScript(
