@@ -153,7 +153,7 @@ def removeStrawFromCurrentLocations(straw, cpals):
         return True
 
 
-def addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count):
+def addStrawToLPAL(lpal, outfile, cpals, cpal_list):
     ########################################################################
     # Check: is the lPAL full?
     ########################################################################
@@ -232,27 +232,19 @@ def addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count):
         # case for straw input
         if straw_cpal_id.upper().startswith('ST'):
             straw_id=straw_cpal_id
-            if straw_id not in cpal_count[0]:
-                cpal_count[0].append(straw_id)
+            
         # case for cpal input
         elif straw_cpal_id in cpal_list:
             if straw_cpal_id == cpal_list[0]:
                 cpal_list[:] = [cpal_list[0],cpal_list[1]]
-                cpal_count.reverse()
                 print('Switched to cpal ' + str(cpal_list[0]))
             else:
                 # switch the current cpal
                 cpal_list[:] = [cpal_list[1],cpal_list[0]]
-                cpal_count.reverse()
                 print('Switched to cpal ' + str(cpal_list[0]))
         else:
             print('Please ensure that your cpal choice is one of the two initially selected.')
-        
-        # automatically detect as soon as cpal is empty.
-        if len(cpal_count[0]) == 24:
-            print('Switched to cpal ' + str(cpal_list[1] + ' since cpal ' + str(cpal_list[0]) + str(' is empty.')))
-            cpal_list=[cpal_list[1], cpal_list[0]]
-            cpal_count.reverse()
+    
             
     
     
@@ -431,10 +423,9 @@ def run():
     ############################################################################
     cpals = set()  # straw location objects from which this lpal was filled
     status = "scanning"
-    cpal_count=[[],[]]
     while status == "scanning":
         print("\n")
-        status = addStrawToLPAL(lpal, outfile, cpals, cpal_list, cpal_count)
+        status = addStrawToLPAL(lpal, outfile, cpals, cpal_list)
 
     lpalgui.stopTimer()
 
