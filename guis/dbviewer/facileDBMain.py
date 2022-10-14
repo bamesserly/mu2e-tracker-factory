@@ -695,7 +695,8 @@ class facileDBGUI(QMainWindow):
         callDict = {
             "Process 3, 1100V"  : (lambda: graphHV(self, self.data.hv1100P3)),
             "Process 3, 1500V"  : (lambda: graphHV(self, self.data.hv1500P3)),
-            "Process 5"         : (lambda: graphHV(self, self.data.hvXXXXP5)),
+            "Process 5, 1100V"         : (lambda: graphHV(self, self.data.hv1100P5)),
+            "Process 5, 1500V"         : (lambda: graphHV(self, self.data.hv1500P5)),
             "Process 6, 1500V"  : (lambda: graphHV(self, self.data.hv1500P6)),
             "Process 1, Inner Rings": (lambda: graphHeat(self, 1)),
             "Process 2, Straws"     : (lambda: graphHeat(self, 2)),
@@ -719,7 +720,8 @@ class facileDBGUI(QMainWindow):
         callDict = {
             "Process 3, 1100V"  : (lambda: self.updateCombo(3,1100)),
             "Process 3, 1500V"  : (lambda: self.updateCombo(3,1500)),
-            "Process 5"         : (lambda: self.updateCombo(5,1)),
+            "Process 5, 1100V"         : (lambda: self.updateCombo(5,1100)),
+            "Process 5, 1500V"         : (lambda: self.updateCombo(5,1500)),
             "Process 6, 1500V"  : (lambda: self.updateCombo(6,1500)),
             "Process 1, Inner Rings": (lambda: self.updateCombo(1,0)),
             "Process 2, Straws"     : (lambda: self.updateCombo(2,0)),
@@ -898,8 +900,10 @@ class facileDBGUI(QMainWindow):
         # find hv data
         funcRetI = self.findSpecificHV(3,1100)
         funcRetII = self.findSpecificHV(3,1500)
-        funcRetIII = self.findSpecificHV(6,1500)
-        hasData = hasData or funcRetI or funcRetII or funcRetIII
+        funcRetIII = self.findSpecificHV(5,1100)
+        funcRetIV = self.findSpecificHV(5,1500)
+        funcRetV = self.findSpecificHV(6,1500)
+        hasData = hasData or funcRetI or funcRetII or funcRetIII or funcRetIV or funcRetV
         # find heat data
         funcRetI = self.findSpecificHeat(1)
         funcRetII = self.findSpecificHeat(2)
@@ -1039,6 +1043,7 @@ class facileDBGUI(QMainWindow):
             ]
             # where straw_location = db panel ID
         ).where(self.proceduresTable.columns.straw_location == self.data.dbID)
+        print(proceduresQuery)
 
         # make proxy
         resultProxy = self.connection.execute(proceduresQuery)

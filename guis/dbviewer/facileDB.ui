@@ -937,7 +937,7 @@ wire used</string>
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="summaryTab">
            <attribute name="title">
@@ -1702,7 +1702,12 @@ wire used</string>
                   </item>
                   <item>
                    <property name="text">
-                    <string>Process 5</string>
+                    <string>Process 5, 1100V</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Process 5, 1500V</string>
                    </property>
                   </item>
                   <item>
@@ -1884,6 +1889,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -1903,6 +1910,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -1922,6 +1931,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -1941,6 +1952,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -1960,6 +1973,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -1979,6 +1994,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -1998,6 +2015,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -2017,6 +2036,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -2052,6 +2073,7 @@ wire used</string>
                  <widget class="QListWidget" name="leakTestsLW">
                   <property name="font">
                    <font>
+                    <pointsize>8</pointsize>
                     <weight>50</weight>
                     <bold>false</bold>
                    </font>
@@ -2207,6 +2229,8 @@ wire used</string>
               <property name="font">
                <font>
                 <pointsize>8</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
              </widget>
@@ -2695,7 +2719,7 @@ wire used</string>
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuExport_Location">
