@@ -163,7 +163,7 @@ class Procedure(BASE, OBJECT):
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
 
     @classmethod
-    def StrawProcedure(cls, process, pallet_id, pallet_number, override_empty_check=False):
+    def StrawProcedure(cls, process, pallet_id, pallet_number):
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
@@ -171,9 +171,9 @@ class Procedure(BASE, OBJECT):
 
         # Get panel
         if station.id == "load":
-            pallet = StrawLocation.LPAL(pallet_id=pallet_id, number=pallet_number, override_empty_check=override_empty_check)
+            pallet = StrawLocation.LPAL(pallet_id=pallet_id, number=pallet_number)
         else:
-            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number, override_empty_check=override_empty_check)
+            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
 
         # Use Procedure._startProcedure() to return object.
         val = StrawProcedure._startProcedure(station=station, straw_location=pallet)

@@ -140,8 +140,7 @@ class StrawLocation(BASE, OBJECT):
             sl = cls(
                 number=number,
                 pallet_id=pallet_id,
-                create_key=cls.__create_key,
-                override_empty_check=override_empty_check
+                create_key=cls.__create_key
             )
 
         return sl
@@ -685,14 +684,13 @@ class CuttingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "CPAL"}
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
+        self, location_type=None, number=int(), pallet_id=None, create_key=None
     ):
         super().__init__(
             location_type="CPAL",
             number=number,
             pallet_id=pallet_id,
             create_key=create_key,
-            override_empty_check=override_empty_check,
         )
 
     @classmethod

@@ -138,8 +138,7 @@ class PanelData:
         # (<position>, <current>, <trip status>, <side>, <timestamp>)
         self.hv1100P3 = []
         self.hv1500P3 = []
-        self.hv1100P5 = []
-        self.hv1500P5 = []
+        self.hvXXXXP5 = []
         self.hv1500P6 = []
 
         # Heat data: list of heat measurements by procedure
@@ -185,8 +184,7 @@ class PanelData:
 
         self.hv1100P3 = []
         self.hv1500P3 = []
-        self.hv1100P5 = []
-        self.hv1500P5 = []
+        self.hvXXXXP5 = []
         self.hv1500P6 = []
 
         self.p3tbData = []
@@ -236,9 +234,7 @@ PANEL: {self.humanID}
 
     HV P3 1.5kV: {self.hv1500P3}
 
-    HV P5 1.1kV: {self.hv1100P5}
-    
-    HV P5 1.5KV: {self.hv1500P5}
+    HV P5 ???kV: {self.hvXXXXP5}
 
     HV P6 1.5kV: {self.hv1500P6}   
 
