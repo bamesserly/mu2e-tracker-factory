@@ -229,7 +229,8 @@ def parse_files():
     'CPAL3945.csv', 'CPAL6997.csv', 'CPAL0484.csv', 'CPAL9119.csv', 'CPAL0312.csv', 'CPAL9999.csv', 'CPAL1551.csv', 'prep_CPAL0591.csv',
     'prep_CPAL7474.csv', 'prep_CPAL8476.csv', 'CPAL1008.csv', 'prep_CPAL0615.csv', 'CPAL2929.csv', 'prep_CPAL0659.csv',
     'CPAL7326.csv', 'prep_CPAL0666.csv', 'prep_CPAL0668.csv', 'prep_CPAL0669.csv', 'prep_CPAL2081.csv', 'prep_CPAL2082.csv', 'prep_CPAL1231.csv','prep_CPAL1232.csv',
-    'prep_CPAL1233.csv','prep_CPAL1234.csv','prep_CPAL1235.csv','prep_CPAL1236.csv','prep_CPAL1237.csv','prep_CPAL1238.csv','prep_CPAL1239.csv','prep_CPAL1240.csv']
+    'prep_CPAL1233.csv','prep_CPAL1234.csv','prep_CPAL1235.csv','prep_CPAL1236.csv','prep_CPAL1237.csv','prep_CPAL1238.csv','prep_CPAL1239.csv','prep_CPAL1240.csv',
+    'prep_CPAL1241.csv','prep_CPAL1242.csv','prep_CPAL1243.csv']
 
     cpal_list, straw_information, cpal_prefix_list = get_straws(problem_files)
 
