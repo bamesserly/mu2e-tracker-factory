@@ -228,7 +228,8 @@ def parse_files():
     problem_files=['CPAL0002.csv', 'CPAL0040.csv', 'CPAL0025.csv', 'prep_CPAL7653.csv', 'CPAL1234.csv', 'prep_CPAL1234.csv', 'CPAL0010.csv', 'CPAL0056',
     'CPAL3945.csv', 'CPAL6997.csv', 'CPAL0484.csv', 'CPAL9119.csv', 'CPAL0312.csv', 'CPAL9999.csv', 'CPAL1551.csv', 'prep_CPAL0591.csv',
     'prep_CPAL7474.csv', 'prep_CPAL8476.csv', 'CPAL1008.csv', 'prep_CPAL0615.csv', 'CPAL2929.csv', 'prep_CPAL0659.csv',
-    'CPAL7326.csv', 'prep_CPAL0666.csv', 'prep_CPAL0668.csv', 'prep_CPAL0669.csv', 'prep_CPAL2081.csv', 'prep_CPAL2082.csv']
+    'CPAL7326.csv', 'prep_CPAL0666.csv', 'prep_CPAL0668.csv', 'prep_CPAL0669.csv', 'prep_CPAL2081.csv', 'prep_CPAL2082.csv', 'prep_CPAL1231.csv','prep_CPAL1232.csv',
+    'prep_CPAL1233.csv','prep_CPAL1234.csv','prep_CPAL1235.csv','prep_CPAL1236.csv','prep_CPAL1237.csv','prep_CPAL1238.csv','prep_CPAL1239.csv','prep_CPAL1240.csv']
 
     cpal_list, straw_information, cpal_prefix_list = get_straws(problem_files)
 
@@ -277,7 +278,7 @@ def update_measurement_prep_table(cpal_prefix_list, straw_information):
                 timestamp = int(straw_information[cpal][y]['time'])
             
                 
-                procedure = Procedure.StrawProcedure(2,cpalid,cpal,timestamp)
+                procedure = Procedure.StrawProcedure(2,cpalid,cpal,timestamp,True)
                 
                 prep_measurement = Prep.StrawPrepMeasurement(procedure, straw_id, paper_pull[-1], 1, timestamp)
                 prep_measurement.commit()
@@ -292,7 +293,10 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
         cpalid = i['cpalid']
         time = i['time']
         
-        straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).one_or_none()
+        try:
+            straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).one_or_none()
+        except:
+            print('Problem with CPAL: ' + str(cpal))
         
         if straw_location is not None:
             try:
