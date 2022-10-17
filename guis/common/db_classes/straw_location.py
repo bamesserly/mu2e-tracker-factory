@@ -699,7 +699,6 @@ class CuttingPallet(Pallet):
     @classmethod
     def save_to_db(self, straws_passed_list, pallet_id, pallet_number):
         logger = logging.getLogger("root")
-        print('hi')
         #assert len(straws_passed_list) == 24
         # Get a cpal in the DB
         try:
