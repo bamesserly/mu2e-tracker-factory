@@ -273,6 +273,7 @@ def update_measurement_prep_table(cpal_prefix_list, straw_information):
         
         try:
             for y in range(len(straw_information[cpal])):
+                
                 straw_id = straw_information[cpal][y]['id'][2::].lstrip('0')
                 batch = straw_information[cpal][y]['batch'].replace('.','')
                 paper_pull = straw_information[cpal][y]['grade']
@@ -283,8 +284,8 @@ def update_measurement_prep_table(cpal_prefix_list, straw_information):
                 
                 prep_measurement = Prep.StrawPrepMeasurement(procedure, straw_id, paper_pull[-1], 1, timestamp)
                 prep_measurement.commit()
-                
-                # print('Updated measurement prep table for cpal ' + str(cpal))
+                    
+                    # print('Updated measurement prep table for cpal ' + str(cpal))
         except:
             print('Error updating measurement_prep data for cpal ' + str(cpal))
             
@@ -293,7 +294,6 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
         cpal = i['cpal']
         cpalid = i['cpalid']
         time = i['time']
-        
         try:
             straw_location = StrawLocation.query().filter(StrawLocation.location_type == 'CPAL').filter(StrawLocation.number == cpal).one_or_none()
         except:
@@ -313,7 +313,7 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
                     
                     straw_location.add_historical_straw(straw_id, position, True, time)
                 # print('Updated straw present table for cpal ' + str(cpal))
-                
+                        
             except:
                 print('Error saving positions on cpal ' + str(cpal))
         else:
