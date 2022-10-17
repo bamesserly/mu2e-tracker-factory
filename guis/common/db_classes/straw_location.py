@@ -126,7 +126,7 @@ class StrawLocation(BASE, OBJECT):
     # an existing number but new id, then you'll just get returned the existing
     # pallet when instead you should get an error.
     @classmethod
-    def _construct(cls, number=int(), pallet_id=None):
+    def _construct(cls, number=int(), pallet_id=None, override_empty_check=False):
         assert int(
             number
         ), "Error: attempting to retrieve or create a straw location with a non-integer number."
@@ -140,7 +140,8 @@ class StrawLocation(BASE, OBJECT):
             sl = cls(
                 number=number,
                 pallet_id=pallet_id,
-                create_key=cls.__create_key
+                create_key=cls.__create_key,
+                override_empty_check=override_empty_check
             )
 
         return sl
@@ -157,8 +158,8 @@ class StrawLocation(BASE, OBJECT):
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def CPAL(number=int(), pallet_id=None):
-        return CuttingPallet._construct(number=number, pallet_id=pallet_id)
+    def CPAL(number=int(), pallet_id=None, override_empty_check=False):
+        return CuttingPallet._construct(number=number, pallet_id=pallet_id, override_empty_check=override_empty_check)
     
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
@@ -627,11 +628,12 @@ class Panel(StrawLocation):
 
 class Pallet(StrawLocation):
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
     ):
-        assert self._palletIsEmpty(
-            pallet_id
-        ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
+        if not override_empty_check:
+            assert self._palletIsEmpty(
+                pallet_id
+            ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
                 
         super().__init__(
             location_type=location_type,
@@ -684,20 +686,21 @@ class CuttingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "CPAL"}
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
     ):
         super().__init__(
             location_type="CPAL",
             number=number,
             pallet_id=pallet_id,
             create_key=create_key,
+            override_empty_check=override_empty_check,
         )
 
     @classmethod
     def save_to_db(self, straws_passed_list, pallet_id, pallet_number):
         logger = logging.getLogger("root")
+        print('hi')
         #assert len(straws_passed_list) == 24
-        
         # Get a cpal in the DB
         try:
             cpal = self.CPAL(pallet_id=pallet_id, number=pallet_number)
