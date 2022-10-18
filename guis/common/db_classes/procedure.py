@@ -117,7 +117,7 @@ class Procedure(BASE, OBJECT):
             if c.__mapper_args__["polymorphic_identity"] == station.id:
                 cls = c
                 break
-
+        
         procedure = (
             cls.query()
             .filter(cls.station == station.id)
@@ -163,7 +163,7 @@ class Procedure(BASE, OBJECT):
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
 
     @classmethod
-    def StrawProcedure(cls, process, pallet_id, pallet_number):
+    def StrawProcedure(cls, process, pallet_id, pallet_number,timestamp=time(),override_empty_check=False):
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
@@ -173,10 +173,12 @@ class Procedure(BASE, OBJECT):
         if station.id == "load":
             pallet = StrawLocation.LPAL(pallet_id=pallet_id, number=pallet_number)
         else:
-            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number)
+            pallet = StrawLocation.CPAL(pallet_id=pallet_id, number=pallet_number,override_empty_check=override_empty_check)
 
         # Use Procedure._startProcedure() to return object.
-        return StrawProcedure._startProcedure(station=station, straw_location=pallet)
+        val = StrawProcedure._startProcedure(station=station, straw_location=pallet)
+        return val
+
 
     @staticmethod
     def _queryStation(station=None, production_stage=None, production_step=None):
@@ -286,9 +288,7 @@ class Procedure(BASE, OBJECT):
             self.details = dc(id=self.ID(),procedure=self.id)
 
     def _getDetailsClass(self):
-        # TODO: If additional procedure data is recorded at this station,
-        # have this function define a mapper class and return it
-        return None
+        pass
 
     def isNew(self):
         return self.new
