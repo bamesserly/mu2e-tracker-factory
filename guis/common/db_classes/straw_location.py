@@ -126,7 +126,7 @@ class StrawLocation(BASE, OBJECT):
     # an existing number but new id, then you'll just get returned the existing
     # pallet when instead you should get an error.
     @classmethod
-    def _construct(cls, number=int(), pallet_id=None, override_empty_check=False):
+    def _construct(cls, number=int(), pallet_id=None, override_empty_check=None):
         assert int(
             number
         ), "Error: attempting to retrieve or create a straw location with a non-integer number."
@@ -136,14 +136,21 @@ class StrawLocation(BASE, OBJECT):
         sl = cls._queryStrawLocation(number)
 
         # If None was found, make a new one.
-        if sl is None:
-            sl = cls(
-                number=number,
-                pallet_id=pallet_id,
-                create_key=cls.__create_key,
-                override_empty_check=override_empty_check
-            )
-
+        if override_empty_check is not None:
+            if sl is None:
+                sl = cls(
+                    number=number,
+                    pallet_id=pallet_id,
+                    create_key=cls.__create_key,
+                    override_empty_check=override_empty_check
+                )
+        else:
+            if sl is None:
+                sl = cls(
+                    number=number,
+                    pallet_id=pallet_id,
+                    create_key=cls.__create_key,
+                )
         return sl
     
 
@@ -158,7 +165,7 @@ class StrawLocation(BASE, OBJECT):
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def CPAL(number=int(), pallet_id=None, override_empty_check=False):
+    def CPAL(number=int(), pallet_id=None, override_empty_check=None):
         return CuttingPallet._construct(number=number, pallet_id=pallet_id, override_empty_check=override_empty_check)
     
     # TODO check here (not in construct) for existing pallets with this number
@@ -628,9 +635,9 @@ class Panel(StrawLocation):
 
 class Pallet(StrawLocation):
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=None
     ):
-        if not override_empty_check:
+        if override_empty_check is not True:
             assert self._palletIsEmpty(
                 pallet_id
             ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
@@ -686,15 +693,23 @@ class CuttingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "CPAL"}
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=False
+        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=None
     ):
-        super().__init__(
-            location_type="CPAL",
-            number=number,
-            pallet_id=pallet_id,
-            create_key=create_key,
-            override_empty_check=override_empty_check,
-        )
+        if override_empty_check is not None:
+            super().__init__(
+                location_type="CPAL",
+                number=number,
+                pallet_id=pallet_id,
+                create_key=create_key,
+                override_empty_check=override_empty_check,
+            )
+        else:
+            super().__init__(
+                location_type="CPAL",
+                number=number,
+                pallet_id=pallet_id,
+                create_key=create_key,
+            )
 
     @classmethod
     def save_to_db(self, straws_passed_list, pallet_id, pallet_number):
@@ -822,8 +837,10 @@ class StrawPresent(BASE, OBJECT):
         self.straw = straw
         self.position = position
         self.present = present
-        self.time_in = time_in
-        self.time_out = time_out
+        if time_in != None:
+            self.time_in = time_in
+        if time_out != None:
+            self.time_out = time_out
 
     def __repr__(self):
         return "<StrawPresent(id='%s',straw'%s',position='%s')>" % (
