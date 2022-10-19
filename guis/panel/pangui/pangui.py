@@ -1141,7 +1141,7 @@ class panelGUI(QMainWindow):
             self.ui.startButton7,
             self.ui.startButton_8,
         ]
-
+    
         # without the loop it would look like self.ui.startButton1.clicked.connect(self.pro1part1)
         for btn in self.startButtons:
             btn.clicked.connect(
@@ -2928,6 +2928,7 @@ class panelGUI(QMainWindow):
         ## Try to load all previous data
         try:
             (data, elapsed_time, steps_completed) = self.DP.loadData()
+            logger.info('Loaded Panel ' + str(self.getCurrentPanel()))
         except Exception as e:
             c = sys.exc_info()[0]
             t = traceback.format_exc()
