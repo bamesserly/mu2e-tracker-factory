@@ -163,7 +163,7 @@ class Procedure(BASE, OBJECT):
         return PanelProcedure._startProcedure(station=station, straw_location=panel)
 
     @classmethod
-    def StrawProcedure(cls, process, pallet_id, pallet_number,timestamp=time(),override_empty_check=False):
+    def StrawProcedure(cls, process, pallet_id, pallet_number,timestamp=time(),override_empty_check=None):
         # Get Station
         station = Station.get_station(stage="straws", step=process)
 
