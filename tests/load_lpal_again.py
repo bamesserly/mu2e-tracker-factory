@@ -1,7 +1,6 @@
 import sys, sqlalchemy as sqla
 from csv import DictReader, DictWriter
 import time
-import tests.straw_present_utils as s_util
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.common.db_classes.straw import Straw
 from guis.common.db_classes.straw_location import StrawLocation, LoadingPallet
@@ -15,6 +14,18 @@ def read_file(lpal_file):
         reader = DictReader(line for line in f if line.split(",")[0])
         rows = [row for row in reader]
     return rows, reader.fieldnames
+
+# make sure straw exists and return it
+# from load_lpal_to_db_from_file.py
+def get_or_create_straw(straw_id):
+    straw = Straw.exists(straw_id=straw_id)
+    if not straw:
+        #logger.info("Straw not found in DB, creating straw.")
+        straw = Straw.Straw(id=straw_id)
+    assert straw
+    return straw
+
+
 
 def run(lpal_file):
 
@@ -33,6 +44,33 @@ def run(lpal_file):
 
     # for each straw (row) from the file...
     for row in rows:
+        #logger.info(f'Straw{(row["Straw"])[2:]}')
+        # get the number and make sure it exists
+        #straw = get_or_create_straw((row["Straw"])[2:])
+        straw = get_or_create_straw(20854)
+        print(straw)
+
+        # search for any location that is a panel
+        inPanel = any(str(e).find("MN") for e in straw.locate())
+
+        print(straw.locate())
+
+        if inPanel:
+
+            return 0
+
+
+        # also search for presence in an LPAL
+        # if this is true, there's already an LPAL entry in straw_present for this
+        #   straw and it could be skipped (although we could verify the accuracy...)
+        inLPAL = any(str(e).find("LPAL") for e in straw.locate())
+        if inLPAL:
+            # verify data here
+            continue # possibly heresy
+
+
+
+
 
 
 
