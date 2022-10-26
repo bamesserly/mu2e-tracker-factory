@@ -1,9 +1,10 @@
 import sys, sqlalchemy as sqla
 from csv import DictReader, DictWriter
 import time
+from guis import panel
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.common.db_classes.straw import Straw
-from guis.common.db_classes.straw_location import StrawLocation, LoadingPallet
+from guis.common.db_classes.straw_location import StrawLocation, LoadingPallet, StrawPresent, StrawPosition
 from guis.common.panguilogger import SetupPANGUILogger
 import logging
 
@@ -44,20 +45,19 @@ def run(lpal_file):
 
     # for each straw (row) from the file...
     for row in rows:
-        #logger.info(f'Straw{(row["Straw"])[2:]}')
+        logger.info(f'Straw{(row["Straw"])[2:]}')
         # get the number and make sure it exists
-        #straw = get_or_create_straw((row["Straw"])[2:])
-        straw = get_or_create_straw(20854)
-        print(straw)
+        straw = get_or_create_straw((row["Straw"])[2:])
 
+        
         # search for any location that is a panel
         inPanel = any(str(e).find("MN") for e in straw.locate())
-
-        print(straw.locate())
-
+        # if there's a panel entry in straw_present for this straw get the time it entered the panel
         if inPanel:
-
-            return 0
+            print("Skip here")
+            panelInTime = -1
+            #panelEntry = StrawPresent._queryObject().filter(StrawPresent.straw == straw.id).join(StrawPosition, StrawPosition.id == StrawPresent.id).join(StrawLocation, StrawLocation.id == StrawPosition.location).filter(StrawLocation.location_type == "MN")
+            #panelEntry = straw.query().filter(StrawPresent.straw == straw.id).join(StrawPosition, StrawPosition.id == StrawPresent.id).join(StrawLocation, StrawLocation.id == StrawPosition.location).filter(StrawLocation.location_type == "MN")
 
 
         # also search for presence in an LPAL
@@ -67,8 +67,10 @@ def run(lpal_file):
         if inLPAL:
             # verify data here
             continue # possibly heresy
-
-
+        else:
+            logger.info(f"Submitting straw ST{straw.id} to DB with values:")
+            logger.info(f"Straw: {straw.id}, Position: {42}, Present: {not inPanel}, time_in: {row['Timestamp']}, time_out: {panelInTime if inPanel else None}")
+            #StrawPresent.StrawPresent(straw.id, lpalLoc, not inPanel, row['Timestamp'], (panelInTime if inPanel else None))
 
 
 
