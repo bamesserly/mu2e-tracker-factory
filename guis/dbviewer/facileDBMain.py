@@ -1,7 +1,7 @@
 #  - -    --   - - /|_/|          .-----------------------.
 #  _______________| @.@|         /  Written by Adam Arnett )
 # (______         >\_W/<  ------/  Created 05/28/2020     /
-#  -   / ______  _/____)       /  Last Update 05/10/2022 /
+#  -   / ______  _/____)       /  Last Update 10/25/2022 /
 # -   / /\ \   \ \            (  PS: Meow! :3           /
 #  - (_/  \_) - \_)            `-----------------------'
 
@@ -695,6 +695,7 @@ class facileDBGUI(QMainWindow):
         callDict = {
             "Process 3, 1100V"  : (lambda: graphHV(self, self.data.hv1100P3)),
             "Process 3, 1500V"  : (lambda: graphHV(self, self.data.hv1500P3)),
+            "Process 4, 1500V"  : (lambda: graphHV(self, self.data.hv1500P4)),
             "Process 5"         : (lambda: graphHV(self, self.data.hvXXXXP5)),
             "Process 6, 1500V"  : (lambda: graphHV(self, self.data.hv1500P6)),
             "Process 1, Inner Rings": (lambda: graphHeat(self, 1)),
@@ -719,6 +720,7 @@ class facileDBGUI(QMainWindow):
         callDict = {
             "Process 3, 1100V"  : (lambda: self.updateCombo(3,1100)),
             "Process 3, 1500V"  : (lambda: self.updateCombo(3,1500)),
+            "Process 4, 1500V"  : (lambda: self.updateCombo(4,1500)),
             "Process 5"         : (lambda: self.updateCombo(5,1)),
             "Process 6, 1500V"  : (lambda: self.updateCombo(6,1500)),
             "Process 1, Inner Rings": (lambda: self.updateCombo(1,0)),
@@ -898,8 +900,9 @@ class facileDBGUI(QMainWindow):
         # find hv data
         funcRetI = self.findSpecificHV(3,1100)
         funcRetII = self.findSpecificHV(3,1500)
-        funcRetIII = self.findSpecificHV(6,1500)
-        hasData = hasData or funcRetI or funcRetII or funcRetIII
+        funcRetIII = self.findSpecificHV(4,1500)
+        funcRetIV = self.findSpecificHV(6,1500)
+        hasData = hasData or funcRetI or funcRetII or funcRetIII or funcRetIV
         # find heat data
         funcRetI = self.findSpecificHeat(1)
         funcRetII = self.findSpecificHeat(2)
@@ -993,12 +996,7 @@ class facileDBGUI(QMainWindow):
         
         # return all pertinent values
         return paasATemps, paasBTemps, time_begin_above_50_paasA, time_end_above_50_paasA, time_begin_above_50_paasB, time_end_above_50_paasB, elapsed_time_above_50_paasA, elapsed_time_above_50_paasB
-        
-        
-        
-                    
-            
-
+                 
     # finds and returns the database id for the panel in question
     # the database id is a really long int, usually 16 characters
     # parameters: no parameters

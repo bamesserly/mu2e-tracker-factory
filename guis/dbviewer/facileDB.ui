@@ -1081,6 +1081,11 @@ wire used</string>
                  </item>
                  <item>
                   <property name="text">
+                   <string>Process 4, 1500V</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
                    <string>Process 5</string>
                   </property>
                  </item>
@@ -1698,6 +1703,11 @@ wire used</string>
                   <item>
                    <property name="text">
                     <string>Process 3, 1500V</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Process 4, 1500V</string>
                    </property>
                   </item>
                   <item>

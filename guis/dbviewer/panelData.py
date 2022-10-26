@@ -138,6 +138,7 @@ class PanelData:
         # (<position>, <current>, <trip status>, <side>, <timestamp>)
         self.hv1100P3 = []
         self.hv1500P3 = []
+        self.hv1500P4 = []
         self.hvXXXXP5 = []
         self.hv1500P6 = []
 
