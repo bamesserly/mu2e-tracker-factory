@@ -3,6 +3,8 @@ Software for the Mu2e tracker straw and panel production at the University of Mi
 
 Several [PyQt](https://pypi.org/project/PyQt5/) "guis"/apps that guide users through straw processing and panel construction, and record data into and visualize data from a SQLite database (and redundantly to csv files).
 
+Credit is owed to many unknown authors who contributed to an original codebase before it moved to github.
+
 ## Repository Tour
 `guis/` contains mostly frontend code for `straw/`, `panel/`, `dbviewer/`, and `labstatus/` (deprecated) apps.
 
