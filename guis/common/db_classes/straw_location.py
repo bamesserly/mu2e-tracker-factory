@@ -779,17 +779,11 @@ class StrawPresent(BASE, OBJECT):
     id = Column(Integer, primary_key=True)
     straw = Column(Integer, ForeignKey("straw.id"))
     position = Column(Integer, ForeignKey("straw_position.id"))
+    present = Column(BOOLEAN)
     time_in = Column(Integer)
     time_out = Column(Integer)
-    present = Column(BOOLEAN)
 
-    def __init__(self, straw, position, present=true()):
-        self.id = self.IncrementID()
-        self.straw = straw
-        self.position = position
-        self.present = present
-
-    def __init__(self, straw, position, present, time_in, time_out):
+    def __init__(self, straw, position, present=true(), time_in=None, time_out=None):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
