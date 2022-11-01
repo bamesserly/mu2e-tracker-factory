@@ -133,8 +133,8 @@ class Straw(BASE, OBJECT):
         return d
 
     # return list of StrawPositions where this straw...
-    #   current = False --> is marked present
-    #   current = True  --> has been in the past or present (present = 1 or 0)
+    #   current = True  --> is marked present
+    #   current = False --> has been in the past or present (present = 1 or 0)
     def locate(self, current=True):
         if current:
             return (
