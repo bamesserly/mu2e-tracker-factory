@@ -148,6 +148,9 @@ def checkStrawIntegrity(straw):
 
 
 def load(lpal_file, manual=True):
+    # log number of errors and return at the end
+    # returns 0 if no errors
+    numErrors = 0
 
     # make sure user wants to proceed
     if manual:
@@ -162,7 +165,7 @@ def load(lpal_file, manual=True):
 
     # find LPAL number
     num = lpal_file.find("LPAL")
-    lpalNum = lpal_file[(num+4):(num+8)]
+    lpalNum = int(lpal_file[(num+4):(num+8)])
 
     # connect to DB
     engine, connection = connectDB()
@@ -179,7 +182,7 @@ def load(lpal_file, manual=True):
     if lpalLoc == None:
         logger.info(f'LPAL {lpalNum} not found, aborting.')
         # bad ending :(
-        return 1
+        return -1
 
     # for each straw (row) from the file...
     for row in rows:
@@ -188,6 +191,7 @@ def load(lpal_file, manual=True):
             straw = get_or_create_straw((row["Straw"])[2:])
         except Exception as e:
             logger.error(f'Aborting submission for straw {row["Straw"]}, not found in DB and could not be created.\nException: {e}')
+            numErrors += 1
             continue
 
         # get the id of the correct position
@@ -195,6 +199,7 @@ def load(lpal_file, manual=True):
             position = (StrawPosition.query().filter(StrawPosition.location == lpalLoc.id).filter(StrawPosition.position_number == row["Position"]).one_or_none()).id
         except Exception as e:
             logger.error(f'Aborting submission for straw {straw.id}, position not found.\nException: {e}')
+            numErrors += 1
             continue
 
         # search for any location that is an LPAL, if found we can skip this one
@@ -229,13 +234,14 @@ def load(lpal_file, manual=True):
         if integrity != 0:
             # problem found!
             logger.info(f'The script may have corrupted the data for straw {straw.id}.  Sowwy! >_<')
+            numErrors += 1
 
     # end of for row in rows loop
     # !!! Loop contains two continue statements, one in the "if integrity != 0", and one in the "if inLPAL" block.
 
 
     # end of script
-    return 0
+    return numErrors
 
 if __name__ == "__main__":
     logger = SetupPANGUILogger("root", "LoadLPALToStrawPresentData")

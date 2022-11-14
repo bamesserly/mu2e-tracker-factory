@@ -15,7 +15,11 @@ def run():
 
     for file in files:
         logger.info(f'Loading {file}...')
-        load(file, manual=False)
+        numErrors = load(file, manual=False)
+        if numErrors > -1:
+            logger.info(f'Loaded {file}.  {numErrors} errors.\n\n\n\n\n')
+        else:
+            logger.info(f'Could not load {file}.  LPAL not found in database.\n\n\n\n\n')
     
     return 0
 
