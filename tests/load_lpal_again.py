@@ -43,12 +43,12 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
     if time_out == None:
         query = (
             "INSERT OR IGNORE INTO straw_present (id, straw, position, present, time_in, timestamp)"
-            f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {present}, {time_in}, {int(t)});"
+            f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {0}, {time_in}, {int(t)});"
         )
     else:
         query = (
             "INSERT OR IGNORE INTO straw_present (id, straw, position, present, time_in, time_out, timestamp)"
-            f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {present}, {time_in}, {time_out}, {int(t)});"
+            f"VALUES ({int(float(t)*1e6)}, {strawID}, {position}, {0}, {time_in}, {time_out}, {int(t)});"
         )
     # attempt to commit to DB
     try:
@@ -147,37 +147,55 @@ def checkStrawIntegrity(straw):
 ###################################################################################################
 
 
-def run(lpal_file):
+def load(lpal_file, manual=True):
 
     # make sure user wants to proceed
-    logger.info('Warning: This script will potentially modify the database.  Enter "Y" to continue.')
-    response = input()
-    if not(response == "Y" or response =="y"):
-        logger.info("Script aborted.")
-        return
+    if manual:
+        logger.info('Warning: This script will potentially modify the database.  Enter "Y" to continue.')
+        response = input()
+        if not(response == "Y" or response =="y"):
+            logger.info("Script aborted.")
+            return
 
     # get rows and fields from lpal file
     rows, fields = read_file(lpal_file)
+
+    # find LPAL number
+    num = lpal_file.find("LPAL")
+    lpalNum = lpal_file[(num+4):(num+8)]
 
     # connect to DB
     engine, connection = connectDB()
 
 
     # get LPAL location ID
-    lpalLoc = StrawLocation.query().filter(StrawLocation.location_type == 'LPAL').filter(StrawLocation.number == int((sys.argv[1])[4:8])).one_or_none()
+    try:
+        lpalLoc = StrawLocation.query().filter(StrawLocation.location_type == 'LPAL').filter(StrawLocation.number == int(lpalNum)).one_or_none()
+    except Exception as e:
+        logger.error(f'Aborting submission for LPAL {lpalNum}, not found in DB.\nException: {e}')
+        lpalLoc = None
+
     # if no LPAL found
     if lpalLoc == None:
-        logger.error(f'LPAL {(sys.argv[1])[4:8]} not found, aborting.')
+        logger.info(f'LPAL {lpalNum} not found, aborting.')
         # bad ending :(
         return 1
 
     # for each straw (row) from the file...
     for row in rows:
         # get the number and make sure it exists
-        straw = get_or_create_straw((row["Straw"])[2:])
+        try:
+            straw = get_or_create_straw((row["Straw"])[2:])
+        except Exception as e:
+            logger.error(f'Aborting submission for straw {row["Straw"]}, not found in DB and could not be created.\nException: {e}')
+            continue
 
         # get the id of the correct position
-        position = (StrawPosition.query().filter(StrawPosition.location == lpalLoc.id).filter(StrawPosition.position_number == row["Position"]).one_or_none()).id
+        try:
+            position = (StrawPosition.query().filter(StrawPosition.location == lpalLoc.id).filter(StrawPosition.position_number == row["Position"]).one_or_none()).id
+        except Exception as e:
+            logger.error(f'Aborting submission for straw {straw.id}, position not found.\nException: {e}')
+            continue
 
         # search for any location that is an LPAL, if found we can skip this one
         inLPAL = any(findSpecial(e, "LPAL") for e in straw.locate(current=False))
@@ -203,8 +221,8 @@ def run(lpal_file):
 
         if not inLPAL:
             logger.info(f"Submitting straw ST{straw.id} to DB with values:")
-            logger.info(f"Straw: {straw.id}, Position: {position}, Present: {not inPanel}, time_in: {row['Timestamp']}, time_out: {panelInTime if inPanel else None}")
-            newEntry(straw.id, position, not inPanel, connection, row['Timestamp'], (panelInTime if inPanel else None))
+            logger.info(f"Straw: {straw.id}, Position: {position}, Present: {0}, time_in: {row['Timestamp']}, time_out: {panelInTime if inPanel else None}")
+            newEntry(straw.id, position, 0, connection, row['Timestamp'], (panelInTime if inPanel else None))
             #StrawPresent(straw.id, position, not inPanel, row['Timestamp'], (panelInTime if inPanel else None))
 
         integrity = checkStrawIntegrity(straw)
@@ -221,5 +239,5 @@ def run(lpal_file):
 
 if __name__ == "__main__":
     logger = SetupPANGUILogger("root", "LoadLPALToStrawPresentData")
-    run(sys.argv[1])
+    load(sys.argv[1])
 
