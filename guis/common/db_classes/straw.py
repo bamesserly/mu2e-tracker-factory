@@ -15,6 +15,7 @@ from sqlalchemy import (
     func,
 )
 import guis.common.db_classes.straw_location as sl
+import time
 
 
 class Straw(BASE, OBJECT):
@@ -25,25 +26,27 @@ class Straw(BASE, OBJECT):
     id = Column(Integer, primary_key=True)
     batch = Column(VARCHAR)
     parent = Column(Integer, ForeignKey("straw.id"))
+    timestamp = Column(Integer, default=time.time())
 
-    def __init__(self, id, batch=None, parent=None, create_key=None):
+    def __init__(self, id, batch=None, parent=None, create_key=None, timestamp=time.time()):
         # Check for authorization with 'create_key'
         assert create_key == Straw.__create_key, "You can only make a Straw internally."
 
         self.id = id
         self.batch = batch
         self.parent = parent
+        self.timestamp = timestamp
         self.commit()
 
     @classmethod
-    def Straw(cls, id, batch=None):
+    def Straw(cls, id, batch=None, timestamp=time.time()):
 
         # Try to query the straw
         s = cls.queryWithId(id)
 
         # If None is found, construct straw
         if s is None:
-            s = Straw(id, batch, None, cls.__create_key)
+            s = Straw(id, batch, None, cls.__create_key, timestamp)
 
         # Return straw
         return s
@@ -68,6 +71,10 @@ class Straw(BASE, OBJECT):
     def strpBarcode(cls, barcode):
         n = int(barcode[2:])
         return cls.Straw(n)
+        
+    def updateBatch(self, batch):
+        self.batch=batch
+        self.commit()
 
     def __repr__(self):
         return "<Straw(id='%s')>" % (self.id)
@@ -133,6 +140,7 @@ class Straw(BASE, OBJECT):
         return d
 
     # return list of StrawPositions where this straw is marked present
+    # example: [<16486600691503178 straw position 38 on 1648660069119168 straw location MN0233>]
     def locate(self):
         return (
             DM.query(sl.StrawPosition)  # Get all the straw positions
@@ -142,6 +150,48 @@ class Straw(BASE, OBJECT):
             )  # that also have straw present entries
             .filter(sl.StrawPresent.present == 1)  # where our straw is in fact present
             .filter(sl.StrawPresent.straw == self.id)  # for this straw
+            .all()
+        )
+
+    # same as above but returns ALL locations, not just the current one
+    # example: [<16499606623611227 straw position 84 on 1649960662278015 straw location LPAL0486 at LPALID01>, <16499477136822270 straw position 84 on 1649947713619747 straw location MN0238>]
+    def locations(self):
+        return (
+            DM.query(sl.StrawPosition)  # Get all the straw positions
+            # .join(sl.StrawPosition, sl.StrawPosition.location == sl.StrawLocation.id) # where straw positions have an entry in the straw location
+            .join(
+                sl.StrawPresent, sl.StrawPresent.position == sl.StrawPosition.id
+            )  # that also have straw present entries
+            .filter(sl.StrawPresent.straw == self.id)  # for this straw
+            .all()
+        )
+
+    # get the "present" occurance in straw_present
+    def currentPresence(self):
+        return (
+            DM.query(
+                        sl.StrawPresent.id,
+                        sl.StrawPresent.position,
+                        sl.StrawPresent.present,
+                        sl.StrawPresent.time_in,
+                        sl.StrawPresent.time_out
+                    )
+            .filter(sl.StrawPresent.straw == self.id)
+            .filter(sl.StrawPresent.present == 1)
+            .all()
+        )
+
+    # get all occurances in straw_position
+    def presences(self):
+        return (
+            DM.query(
+                        sl.StrawPresent.id,
+                        sl.StrawPresent.position,
+                        sl.StrawPresent.present,
+                        sl.StrawPresent.time_in,
+                        sl.StrawPresent.time_out
+                    )
+            .filter(sl.StrawPresent.straw == self.id)
             .all()
         )
 

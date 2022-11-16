@@ -31,6 +31,7 @@ from sqlalchemy import (
 from datetime import datetime
 from guis.common.db_classes.procedure import StrawProcedure
 from guis.common.db_classes.straw import Straw
+import time
 
 
 class Prep(StrawProcedure):
@@ -43,6 +44,16 @@ class Prep(StrawProcedure):
             station.id == "prep"
         ), f"Error. Tried to construct prep procedure for a station '{station.id}' not 'prep'."
         super().__init__(station, straw_location, create_key)
+    
+    def _getDetailsClass(self):
+        class Details(BASE, OBJECT):
+            __tablename__ = "procedure"
+            id = Column(Integer, primary_key=True)
+            station = Column(CHAR(4), ForeignKey("station.id"))
+            straw_location = Column(Integer, ForeignKey("straw_location.id"))
+            elapsed_time = Column(Integer, default=0)
+
+        return Details
 
     class StrawPrepMeasurement(BASE, OBJECT):
         __tablename__ = "measurement_prep"
@@ -53,12 +64,15 @@ class Prep(StrawProcedure):
         evaluation = Column(BOOLEAN)
         timestamp = Column(Integer, default=int(datetime.now().timestamp()))
 
-        def __init__(self, procedure, straw_id, paper_pull_grade, evaluation):
+        def __init__(self, procedure, straw_id, paper_pull_grade, evaluation, timestamp=time.time()):
             self.id = self.ID()
             self.procedure = procedure.id
             self.straw = straw_id
             self.paper_pull_grade = paper_pull_grade
             self.evaluation = evaluation
+            self.timestamp = timestamp
+                
+                
 
 
 class Resistance(StrawProcedure):
