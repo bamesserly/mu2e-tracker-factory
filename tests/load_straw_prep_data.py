@@ -18,7 +18,7 @@ def determine_prefix(item):
     type=''
     
     # determine which type of data the prefix is, and assign it accordingly
-    item=item.strip()
+    
     if len(item) == 16 and 2015 < int(item[0:4]) < 2023:
         time = datetime.datetime.strptime(item, "%Y-%m-%d_%H:%M")
         time = datetime.datetime.timestamp(time)

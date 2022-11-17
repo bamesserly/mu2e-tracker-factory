@@ -48,7 +48,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql.expression import true, false
 import guis.common.db_classes.straw as st
-from time import sleep, time
+from time import sleep
 
 
 class StrawLocation(BASE, OBJECT):
@@ -126,7 +126,7 @@ class StrawLocation(BASE, OBJECT):
     # an existing number but new id, then you'll just get returned the existing
     # pallet when instead you should get an error.
     @classmethod
-    def _construct(cls, number=int(), pallet_id=None, override_empty_check=None):
+    def _construct(cls, number=int(), pallet_id=None):
         assert int(
             number
         ), "Error: attempting to retrieve or create a straw location with a non-integer number."
@@ -136,25 +136,14 @@ class StrawLocation(BASE, OBJECT):
         sl = cls._queryStrawLocation(number)
 
         # If None was found, make a new one.
-        if override_empty_check is not None:
-            if sl is None:
-                sl = cls(
-                    number=number,
-                    pallet_id=pallet_id,
-                    create_key=cls.__create_key,
-                    override_empty_check=override_empty_check
-                )
-        else:
-            if sl is None:
-                sl = cls(
-                    number=number,
-                    pallet_id=pallet_id,
-                    create_key=cls.__create_key,
-                )
+        if sl is None:
+            sl = cls(
+                number=number,
+                pallet_id=pallet_id,
+                create_key=cls.__create_key,
+            )
+
         return sl
-    
-
-
 
     ## CONSTRUCTORS ##
 
@@ -165,9 +154,9 @@ class StrawLocation(BASE, OBJECT):
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
-    def CPAL(number=int(), pallet_id=None, override_empty_check=None):
-        return CuttingPallet._construct(number=number, pallet_id=pallet_id, override_empty_check=override_empty_check)
-    
+    def CPAL(number=int(), pallet_id=None):
+        return CuttingPallet._construct(number=number, pallet_id=pallet_id)
+
     # TODO check here (not in construct) for existing pallets with this number
     # but a different id.
     @staticmethod
@@ -363,34 +352,6 @@ class StrawLocation(BASE, OBJECT):
             straw_present.commit()
 
         return straw_present
-        
-    def add_historical_straw(self, straw, position, commit=True, timestamp=time()):
-        # Get or create target position
-        target_position = (
-            self._queryStrawPositions()
-            .filter(StrawPosition.position_number == position)
-            .one_or_none()
-        )
-        if not target_position:
-            logger.warning(
-                f"Adding straw {straw} to position {self.location_type}{self.number} - {position}, which doesn't exist in the DB. This is weird, and you should let Ben know."
-            )
-            logger.warning(
-                "Anways, I'm creating the position and adding the straw to it."
-            )
-            target_position = StrawPosition(location=self.id, position=position)
-            target_position.commit()
-        
-        straw_present = StrawPresent(
-            straw=straw, position=target_position.id, present=False, time_in=timestamp
-        )
-
-        if commit:
-            sleep(0.4)  # so the order of events in the DB is clear
-            straw_present.commit()
-            logger.debug(f"Straw ST{straw_present.straw} added to {target_position}.")
-
-        return straw_present
 
     # Safely transfer a straw from previous location(s) to target location.
     #
@@ -451,7 +412,6 @@ class StrawLocation(BASE, OBJECT):
             sleep(0.4)  # so the order of events in the DB is clear
             straw_present.commit()
             logger.debug(f"Straw ST{straw_present.straw} added to {target_position}.")
-    
 
         return straw_present
 
@@ -635,20 +595,18 @@ class Panel(StrawLocation):
 
 class Pallet(StrawLocation):
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=None
+        self, location_type=None, number=int(), pallet_id=None, create_key=None
     ):
-        if override_empty_check is not True:
-            assert self._palletIsEmpty(
-                pallet_id
-            ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
-                
+        assert self._palletIsEmpty(
+            pallet_id
+        ), f"Unable to create pallet {number}: pallet {pallet_id} is not empty."
         super().__init__(
             location_type=location_type,
             number=number,
             pallet_id=pallet_id,
             create_key=create_key,
         )
-    
+
     @property
     def palletBarcode(self):
         return self.getLocationType().palletBarcode(self.pallet_id)
@@ -689,32 +647,25 @@ class LoadingPallet(Pallet):
             create_key=create_key,
         )
 
+
 class CuttingPallet(Pallet):
     __mapper_args__ = {"polymorphic_identity": "CPAL"}
 
     def __init__(
-        self, location_type=None, number=int(), pallet_id=None, create_key=None, override_empty_check=None
+        self, location_type=None, number=int(), pallet_id=None, create_key=None
     ):
-        if override_empty_check is not None:
-            super().__init__(
-                location_type="CPAL",
-                number=number,
-                pallet_id=pallet_id,
-                create_key=create_key,
-                override_empty_check=override_empty_check,
-            )
-        else:
-            super().__init__(
-                location_type="CPAL",
-                number=number,
-                pallet_id=pallet_id,
-                create_key=create_key,
-            )
-
+        super().__init__(
+            location_type="CPAL",
+            number=number,
+            pallet_id=pallet_id,
+            create_key=create_key,
+        )
+    
     @classmethod
     def save_to_db(self, straws_passed_list, pallet_id, pallet_number):
         logger = logging.getLogger("root")
         #assert len(straws_passed_list) == 24
+        
         # Get a cpal in the DB
         try:
             cpal = self.CPAL(pallet_id=pallet_id, number=pallet_number)
@@ -829,18 +780,12 @@ class StrawPresent(BASE, OBJECT):
     straw = Column(Integer, ForeignKey("straw.id"))
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
-    time_in = Column(Integer)
-    time_out = Column(Integer)
 
-    def __init__(self, straw, position, present=true(), time_in=None, time_out=None):
+    def __init__(self, straw, position, present=true()):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
         self.present = present
-        if time_in != None:
-            self.time_in = time_in
-        if time_out != None:
-            self.time_out = time_out
 
     def __repr__(self):
         return "<StrawPresent(id='%s',straw'%s',position='%s')>" % (
