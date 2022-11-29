@@ -239,6 +239,8 @@ def load(lpal_file, manual=True):
     # end of for row in rows loop
     # !!! Loop contains two continue statements, one in the "if integrity != 0", and one in the "if inLPAL" block.
 
+    connection.close()
+    engine.dispose()
 
     # end of script
     return numErrors
