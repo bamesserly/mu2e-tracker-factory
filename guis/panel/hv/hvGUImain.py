@@ -251,6 +251,15 @@ class highVoltageGUI(QMainWindow):
 
         points = [{'pos': [ys[z],xs[z]], 'data':1} for z in range(numPoints)]
 
+        for z in range(numPoints):
+            x = float(xs[z])
+            y = float(ys[z])
+            label = pg.TextItem(
+                text = f'({xs[z]}, {ys[z]})'
+            )
+            label.setPos(y,x)
+            self.plot.addItem(label)
+
         self.scatter.addPoints(points)
 
     # linked to the submit panel button
