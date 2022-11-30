@@ -837,10 +837,15 @@ class StrawPresent(BASE, OBJECT):
         self.straw = straw
         self.position = position
         self.present = present
-        if time_in != None:
+        
+        if time_in is not None:
             self.time_in = time_in
-        if time_out != None:
+        else:
+            self.time_in = int(time())
+            
+        if time_out is not None:
             self.time_out = time_out
+        
 
     def __repr__(self):
         return "<StrawPresent(id='%s',straw'%s',position='%s')>" % (
