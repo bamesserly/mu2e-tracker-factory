@@ -235,6 +235,7 @@ class highVoltageGUI(QMainWindow):
 
         self.plot.addItem(self.scatter)
         self.ui.graphLayout.addWidget(self.plot)
+        self.plot.setYRange(-0.5,1)
 
     # update graph
     def replot(self):
@@ -255,7 +256,7 @@ class highVoltageGUI(QMainWindow):
             x = float(xs[z])
             y = float(ys[z])
             label = pg.TextItem(
-                text = f'({xs[z]}, {ys[z]})'
+                text = f'({xs[z]}, channel {int(ys[z])})'
             )
             label.setPos(y,x)
             self.plot.addItem(label)
