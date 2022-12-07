@@ -780,12 +780,16 @@ class StrawPresent(BASE, OBJECT):
     straw = Column(Integer, ForeignKey("straw.id"))
     position = Column(Integer, ForeignKey("straw_position.id"))
     present = Column(BOOLEAN)
+    time_in = Column(Integer)
+    time_out = Column(Integer)
 
-    def __init__(self, straw, position, present=true()):
+    def __init__(self, straw, position, present=true(), time_in=None, time_out=None):
         self.id = self.IncrementID()
         self.straw = straw
         self.position = position
         self.present = present
+        self.time_in = time_in
+        self.time_out = time_out
 
     def __repr__(self):
         return "<StrawPresent(id='%s',straw'%s',position='%s')>" % (
@@ -793,6 +797,10 @@ class StrawPresent(BASE, OBJECT):
             self.straw,
             self.position,
         )
+
+    # return a query object for straw_present table
+    def _queryObject(self):
+        return DM.query(StrawPresent)
 
     def getStrawPosition(self):
         return (

@@ -132,18 +132,31 @@ class Straw(BASE, OBJECT):
             d[k] = bool(v)  # Convert 1,0 to True,False
         return d
 
-    # return list of StrawPositions where this straw is marked present
-    def locate(self):
-        return (
-            DM.query(sl.StrawPosition)  # Get all the straw positions
-            # .join(sl.StrawPosition, sl.StrawPosition.location == sl.StrawLocation.id) # where straw positions have an entry in the straw location
-            .join(
-                sl.StrawPresent, sl.StrawPresent.position == sl.StrawPosition.id
-            )  # that also have straw present entries
-            .filter(sl.StrawPresent.present == 1)  # where our straw is in fact present
-            .filter(sl.StrawPresent.straw == self.id)  # for this straw
-            .all()
-        )
+    # return list of StrawPositions where this straw...
+    #   current = True  --> is marked present
+    #   current = False --> has been in the past or present (present = 1 or 0)
+    def locate(self, current=True):
+        if current:
+            return (
+                DM.query(sl.StrawPosition)  # Get all the straw positions
+                # .join(sl.StrawPosition, sl.StrawPosition.location == sl.StrawLocation.id) # where straw positions have an entry in the straw location
+                .join(
+                    sl.StrawPresent, sl.StrawPresent.position == sl.StrawPosition.id
+                )  # that also have straw present entries
+                .filter(sl.StrawPresent.present == 1)  # where our straw is
+                .filter(sl.StrawPresent.straw == self.id)  # for this straw
+                .all()
+            )
+        else:
+            return (
+                DM.query(sl.StrawPosition)  # Get all the straw positions
+                # .join(sl.StrawPosition, sl.StrawPosition.location == sl.StrawLocation.id) # where straw positions have an entry in the straw location
+                .join(
+                    sl.StrawPresent, sl.StrawPresent.position == sl.StrawPosition.id
+                )  # that also have straw present entries
+                .filter(sl.StrawPresent.straw == self.id)  # for this straw
+                .all()
+            )
 
     # remove straw from all locations
     def removeFromAllLocations(self):
