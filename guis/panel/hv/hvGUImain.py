@@ -169,6 +169,10 @@ class highVoltageGUI(QMainWindow):
         # setup graph
         self._init_plot()
 
+        # setup display options
+        self._init_display_options()
+        self.ui.displayOptionsBox.setDisabled(True)
+
         # disable panel line edit if launched from gui
         if panel is not None:
             self.ui.panelNumLE.setText(panel)
@@ -229,7 +233,12 @@ class highVoltageGUI(QMainWindow):
 
             self.currentLists.append([])
 
-        
+    # add more options to display options box because I'm not doing that much work in qt designer lol
+    def _init_display_options(self):
+        for i in range(96):
+            self.ui.displayOptionsBox.addItem(f'Position {i}')
+
+        self.ui.displayOptionsBox.currentIndexChanged.connect(self.replot)
 
     # input validation.  TODO
     def _init_validation(self):
@@ -239,6 +248,7 @@ class highVoltageGUI(QMainWindow):
 
     # graph on right
     def _init_plot(self):
+        self.pItem = pg.PlotItem()
         self.plot = pg.plot()
 
         self.scatterMain = pg.ScatterPlotItem(
@@ -256,9 +266,15 @@ class highVoltageGUI(QMainWindow):
         self.ui.graphLayout.addWidget(self.plot)
         self.plot.setYRange(-0.05,1)
 
+        # keep track of labels
+        self.plotItems = []
+
     # update graph
     def replot(self):
         self.scatterMain.clear()
+        self.scatterLatest.clear()
+        for thing in self.plotItems:
+            self.plot.removeItem(thing)
 
         # L indicates "latest", all the most recent measurements
         numPoints = 0
@@ -267,7 +283,11 @@ class highVoltageGUI(QMainWindow):
         ys = []
         xsL = []
         ysL = []
+
         for z in range(96):
+            # if we only want one position then set z to that position
+            if self.ui.displayOptionsBox.currentIndex() not in [0,1]:
+                z = ((self.ui.displayOptionsBox.currentIndex())-2)
             #if self.getAmp(z) != "":
             #    numPoints += 1
             #    xs.append(float(self.getAmp(z)))
@@ -289,19 +309,26 @@ class highVoltageGUI(QMainWindow):
                     xsL.append(float(self.currentLists[z][a][0]))
                     ysL.append(float(self.currentLists[z][a][4]))
                     numPointsL += 1
+
+            # if we only want one position, break from loop when we have that data
+            if self.ui.displayOptionsBox.currentIndex() not in [0,1]:
+                break
             
 
         points = [{'pos': [ys[z],xs[z]], 'data':1} for z in range(numPoints)]
         pointsL = [{'pos': [ysL[z],xsL[z]], 'data':1} for z in range(numPointsL)]
 
-        for z in range(numPoints):
-            x = float(xs[z])
-            y = float(ys[z])
-            label = pg.TextItem(
-                text = f'{int(ys[z])}'
-            )
-            label.setPos(y,x)
-            self.plot.addItem(label)
+        # if not just the latest data, plot the old data
+        if self.ui.displayOptionsBox.currentIndex() != 1:
+            for z in range(numPoints):
+                x = float(xs[z])
+                y = float(ys[z])
+                label = pg.TextItem(
+                    text = f'{int(ys[z])}'
+                )
+                self.plotItems.append(label)
+                label.setPos(y,x)
+                self.plot.addItem(label)
 
         for z in range(numPointsL):
             x = float(xsL[z])
@@ -309,11 +336,17 @@ class highVoltageGUI(QMainWindow):
             label = pg.TextItem(
                 text = f'{int(ysL[z])}'
             )
+            self.plotItems.append(label)
             label.setPos(y,x)
             self.plot.addItem(label)
 
-        self.scatterMain.addPoints(points)
+        # if not just the latest data, plot the old data
+        if self.ui.displayOptionsBox.currentIndex() != 1:
+            self.scatterMain.addPoints(points)
         self.scatterLatest.addPoints(pointsL)
+
+        vb = self.pItem.getViewBox()
+        vb.autoRange()
 
     # linked to the submit panel button
     def submitPanel(self):
@@ -357,6 +390,9 @@ class highVoltageGUI(QMainWindow):
 
         # show plot
         self.replot()
+
+        # enable display options
+        self.ui.displayOptionsBox.setEnabled(True)
 
 
     # connected to the return pressed event for the
@@ -406,7 +442,6 @@ class highVoltageGUI(QMainWindow):
             self.saveCSV(index, side, current, volts, isTrip)
 
         # ensure that list and scroll area is updated
-        print(self.currentLists)
         self.currentLists[index].append(
             [current,None,volts,isTrip,index,int(datetime.datetime.now().timestamp())]
         )
