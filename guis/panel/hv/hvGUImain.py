@@ -73,8 +73,14 @@ HOW DATA IS STORED:
         and
         self.isTripped
         are lists of the widgets in the scroll area.
-    These will be used to store all the data, rather than a
+
+    > These will be used to store all the data, rather than a
         big list or something.
+    JK.  I'm adding a list, self.currentLists which contains lists
+        of measurements for each channel since we want to be
+        displaying ALL measurements, including those that aren't
+        the most current ones.  self.currentLists is init'ed in
+        the same function as self.current, _init_scroll().
 
     The current list can have it's text accessed by .text()
         and it can be changed with .setText(<string>)
@@ -213,10 +219,17 @@ class highVoltageGUI(QMainWindow):
         self.ui.scrollContents.setLayout(self.ui.hvGrid)
         # scrollontents is made in the .ui file, and hvGrid is made in this file by the stuff above in this function
 
-        # disable everything
-        for i in range(95):
+        # create list of lists for additional data storage
+        self.currentLists = []
+
+        # disable everything and populate currentLists
+        for i in range(96):
             self.current[i].setReadOnly(True)
             self.isTripped[i].setDisabled(True)
+
+            self.currentLists.append([])
+
+        
 
     # input validation.  TODO
     def _init_validation(self):
@@ -228,30 +241,79 @@ class highVoltageGUI(QMainWindow):
     def _init_plot(self):
         self.plot = pg.plot()
 
-        self.scatter = pg.ScatterPlotItem(
+        self.scatterMain = pg.ScatterPlotItem(
             size=10,
             brush=pg.mkBrush(255, 255, 255, 120)
         )
+        self.scatterLatest = pg.ScatterPlotItem(
+            size=10,
+            brush=pg.mkBrush(255, 255, 255, 255),
+            symbol='t1'
+        )
 
-        self.plot.addItem(self.scatter)
+        self.plot.addItem(self.scatterMain)
+        self.plot.addItem(self.scatterLatest)
         self.ui.graphLayout.addWidget(self.plot)
+        self.plot.setYRange(-0.05,1)
 
     # update graph
     def replot(self):
-        self.scatter.clear()
+        self.scatterMain.clear()
 
+        # L indicates "latest", all the most recent measurements
         numPoints = 0
+        numPointsL = 0
         xs = []
         ys = []
+        xsL = []
+        ysL = []
         for z in range(96):
-            if self.getAmp(z) != "":
-                numPoints += 1
-                xs.append(float(self.getAmp(z)))
-                ys.append(float(z))
+            #if self.getAmp(z) != "":
+            #    numPoints += 1
+            #    xs.append(float(self.getAmp(z)))
+            #    ys.append(float(z))
+            
+            #if len(self.currentLists[z]) > 0:
+            for a in range(len(self.currentLists[z])):
+                # get current
+                if float(self.getAmp(self.currentLists[z][a][4])) != float(self.currentLists[z][a][0]):
+                    xs.append(float(self.currentLists[z][a][0]))
+                    # get channel number (position)
+                    ys.append(float(self.currentLists[z][a][4]))
+                    # for other indexes in the contents of self.currentLists look
+                    #   at the function loadHVMeasurements().
+                    # add one to number of points collected
+                    numPoints += 1
+                else:
+                    # do all the same but for the lists for the latest stuff
+                    xsL.append(float(self.currentLists[z][a][0]))
+                    ysL.append(float(self.currentLists[z][a][4]))
+                    numPointsL += 1
+            
 
         points = [{'pos': [ys[z],xs[z]], 'data':1} for z in range(numPoints)]
+        pointsL = [{'pos': [ysL[z],xsL[z]], 'data':1} for z in range(numPointsL)]
 
-        self.scatter.addPoints(points)
+        for z in range(numPoints):
+            x = float(xs[z])
+            y = float(ys[z])
+            label = pg.TextItem(
+                text = f'{int(ys[z])}'
+            )
+            label.setPos(y,x)
+            self.plot.addItem(label)
+
+        for z in range(numPointsL):
+            x = float(xsL[z])
+            y = float(ysL[z])
+            label = pg.TextItem(
+                text = f'{int(ysL[z])}'
+            )
+            label.setPos(y,x)
+            self.plot.addItem(label)
+
+        self.scatterMain.addPoints(points)
+        self.scatterLatest.addPoints(pointsL)
 
     # linked to the submit panel button
     def submitPanel(self):
@@ -292,6 +354,10 @@ class highVoltageGUI(QMainWindow):
 
         # if launching from pangui, utilize load method
         self.loadHVMeasurements()
+
+        # show plot
+        self.replot()
+
 
     # connected to the return pressed event for the
     # amps line edit and submit straw button
@@ -339,7 +405,11 @@ class highVoltageGUI(QMainWindow):
         else:
             self.saveCSV(index, side, current, volts, isTrip)
 
-        # ensure that scroll area is updated
+        # ensure that list and scroll area is updated
+        print(self.currentLists)
+        self.currentLists[index].append(
+            [current,None,volts,isTrip,index,int(datetime.datetime.now().timestamp())]
+        )
         self.setAmp(index, current)
         self.setTrip(index, isTrip)
 
@@ -382,8 +452,9 @@ class highVoltageGUI(QMainWindow):
                         tSList[toop[4]] = toop[5]
                         self.setAmp(toop[4], str(toop[side]))
                         self.setTrip(toop[4], toop[3])
-
-            self.replot()
+                    # either way, add to the main list
+                    self.currentLists[toop[4]].append(toop)
+            
 
     # Save one HV measurement, append CSV file
     def saveCSV(self, position, side, current, voltage, is_tripped):
