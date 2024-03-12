@@ -1,14 +1,14 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py
+#     formats: ipynb,py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.14.0
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -20,15 +20,16 @@ import pandas as pd
 from pathlib import Path
 import sys
 
-sys.path.append("/Users/Ben/Home/Working/mu2e-tracker-factory/")
-# print(sys.path)
+sys.path.append("/Users/ben/Projects/mu2e-tracker-factory/tests/")
+print(sys.path)
 
 # ## Make df of straws from file
 
 # organized by their panel; includes batch, position number
 # straw_list_file = Path("straws_on_panels.csv")
-straw_list_file = Path("2022-04-07_straws_on_panels.csv")
-straw_list_file = Path("2022-04-15_straws_on_panels.csv")  # include paper pull grade
+#straw_list_file = Path("2022-04-07_straws_on_panels.csv")
+#straw_list_file = Path("2022-04-15_straws_on_panels.csv")  # include paper pull grade
+straw_list_file = Path("2022-08-17_straws_on_panels.csv")  # include paper pull grade
 assert straw_list_file.is_file()
 straws_df = pd.read_csv(straw_list_file, sep=",")
 # straws_list = np.loadtxt(straw_list_file, delimiter=",", dtype=int, skiprows=1, usecols=range(1))
