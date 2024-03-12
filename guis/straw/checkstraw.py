@@ -7,6 +7,13 @@ from guis.common.getresources import GetProjectPaths
 from pathlib import Path
 
 
+def GetLastLineOfFile(file):
+    # Files are only few lines, so OK to read like this
+    with open(file, "r") as f:
+        last_line = f.readlines()[-1]
+    return last_line
+
+
 class StrawFailedError(Exception):
     # Raised when attempting to test a straw that has failed a previous step, but was not removed
     def __init__(self, message):
@@ -67,18 +74,27 @@ class Check:
         PASS = False
         results = []
         straws = []
+        straws2 = []
 
         # get all straws
+        straws.extend(
+            [
+                e
+                for e in GetLastLineOfFile(pfile).split(",")
+                if e.upper().startswith("ST")
+            ]
+        )
+
+        # get entire file contents
         for pfile in self.findPalletFiles(CPAL):
+            history = []
             with open(pfile, "r") as file:
                 dummy = csv.reader(file)
-                history = []
                 for line in dummy:
                     if line != []:
                         history.append(line)
-                for entry in history[len(history) - 1]:
-                    if entry.upper().startswith("ST"):
-                        straws.append(entry)
+
+        assert straws == straws2
 
         # check each straw
         # TODO this is so bad: it opens the same file for every one of these
