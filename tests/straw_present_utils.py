@@ -10,10 +10,11 @@ from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 def get_or_create_straw(straw_id):
     straw = Straw.exists(straw_id=straw_id)
     if not straw:
-        #logger.info("Straw not found in DB, creating straw.")
+        # logger.info("Straw not found in DB, creating straw.")
         straw = Straw.Straw(id=straw_id)
     assert straw
     return straw
+
 
 # submit a new entry to the straw_present table
 # returns "Success" if success, error message if failed
@@ -40,6 +41,7 @@ def newEntry(strawID, position, present, connection, time_in=None, time_out=None
         return e
 
     return "Success"
+
 
 # check if straw has only one entry per position and one present = 1
 # returns   0 if all is good
@@ -70,7 +72,7 @@ def checkStrawIntegrity(straw, connection):
                 # it exists in two places which is bad
                 print("Exists as present = 1 in multiple places")
                 return 2
-        
+
         # add to dict
         #        {position : (present, time_in, time_out)}
         positions[toop[1]] = (toop[2], toop[3], toop[4])
@@ -83,7 +85,7 @@ def checkStrawIntegrity(straw, connection):
         # get the timestamps (tr abbreviation = time range)
         tr1 = (
             positions[key1][1] if positions[key1][1] is not None else -1,
-            positions[key1][2] if positions[key1][2] is not None else 1e12
+            positions[key1][2] if positions[key1][2] is not None else 1e12,
         )
         # for each other key
         for key2 in positions:
@@ -94,7 +96,7 @@ def checkStrawIntegrity(straw, connection):
             # get the timestamps for another position
             tr2 = (
                 positions[key2][1] if positions[key2][1] is not None else -1,
-                positions[key2][2] if positions[key2][2] is not None else 1e12
+                positions[key2][2] if positions[key2][2] is not None else 1e12,
             )
             # if tr2 start or end is within range of tr1 we have a problem
             if tr2[0] > tr1[0] and tr2[0] < tr1[1]:
@@ -104,15 +106,12 @@ def checkStrawIntegrity(straw, connection):
                 print("Timestamp conflict")
                 return 3
 
-                
-
     # didn't find any red flags
     return 0
 
 
-
 def run():
-    if os.getlogin() != 'Adam':
+    if os.getlogin() != "Adam":
         print("Don't try this on a lab (production) machine")
         print("Add your username to the first if in run() to use your own machine")
         return
@@ -122,25 +121,26 @@ def run():
     engine = sqla.create_engine("sqlite:///" + database)
     connection = engine.connect()
 
-    #test 1, should return two different locations, one not present and one present
-    #print(strawPresences(20474, connection))
-    #test 2, should return LPAL 360
-    #print(entryLocation(16325227138278103,connection))
-    #test 3, should return MN 173
-    #print(strawCurrentLocation(20474,connection))
-    #test 4
-    #newEntry(99999, 42969, 1, connection, 0, 5)
-    #test5, should return 0
-    #print(checkStrawIntegrity(20474, connection))
-    #test6,
-    #print(strawLocations(20474, connection))
-    #test7,
-    #print(getLPALID(259, connection))
+    # test 1, should return two different locations, one not present and one present
+    # print(strawPresences(20474, connection))
+    # test 2, should return LPAL 360
+    # print(entryLocation(16325227138278103,connection))
+    # test 3, should return MN 173
+    # print(strawCurrentLocation(20474,connection))
+    # test 4
+    # newEntry(99999, 42969, 1, connection, 0, 5)
+    # test5, should return 0
+    # print(checkStrawIntegrity(20474, connection))
+    # test6,
+    # print(strawLocations(20474, connection))
+    # test7,
+    # print(getLPALID(259, connection))
 
-    #for toop in strawPresences(16312, connection):
+    # for toop in strawPresences(16312, connection):
     #    print(toop)
 
     return
+
 
 if __name__ == "__main__":
     run()
