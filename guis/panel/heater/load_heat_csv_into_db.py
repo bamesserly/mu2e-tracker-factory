@@ -17,6 +17,7 @@ logger = logging.getLogger("root")
 
 kPROCESSES = list(range(1, 8))
 
+
 # Given a panel and process, access the DB to get the procedure ID
 def GetProcedureID(connection, panel, process):
     assert isinstance(panel, int) and panel <= 999
@@ -77,7 +78,6 @@ def run(panel, process, data_file):
         logger.debug(f"Opening {data_file} in mode 'r'...")
 
         with open(data_file, "r") as f:
-
             # mark that we got to the point right after opening the file
             logger.debug(f"Opened {data_file} in mode 'r'!")
 
@@ -87,28 +87,28 @@ def run(panel, process, data_file):
             logger.debug("Successfully initialized DictReader")
 
             # a row from measurements:
-            # {"Date" : 2022-04-19_160641}, {"PAASA_Temp[C]" : 22.35}, 
+            # {"Date" : 2022-04-19_160641}, {"PAASA_Temp[C]" : 22.35},
             #   {"2ndPAAS_Temp[C]": -99.00}, {"Epoc" : 1650402401.968532}
 
             # take one row so we can see what it looks like
             for row in measurements:
-                logger.debug(f'Sample row from measurements: {row}')
+                logger.debug(f"Sample row from measurements: {row}")
                 # breaking after one iteration seems like heresy but it works for what I want to do
                 # (Not sure if you can index a dict reader like an array)
                 break
 
             to_db = [
                 (
-                    int(float(row["Epoc"])*1e6),
+                    int(float(row["Epoc"]) * 1e6),
                     pid,
                     row["PAASA_Temp[C]"],
                     row["2ndPAAS_Temp[C]"],
-                    int(float(row["Epoc"]))
+                    int(float(row["Epoc"])),
                 )
                 for row in measurements
             ]
 
-            logger.debug(f'Length of to_db: {len(to_db)}')
+            logger.debug(f"Length of to_db: {len(to_db)}")
 
             try:
                 logger.debug("Entering try/except/else block, executing")
@@ -132,7 +132,9 @@ def run(panel, process, data_file):
                 logger.info(f"    Loaded {r_set.rowcount} data points into local DB.")
 
     logger.info("Doing an automerge so you don't have to!")
-    logger.info("Seriously the data will definitely be in the network DB and in the DBV after this.")
+    logger.info(
+        "Seriously the data will definitely be in the network DB and in the DBV after this."
+    )
     isolated_automerge()
     logger.info("All done! You can close the heater window now.")
 

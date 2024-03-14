@@ -1,6 +1,7 @@
 import sys, tkinter, tkinter.messagebox, csv, pandas as pd, re, os, random
-#pip install openpyxl
-#pip install xlrd==1.2.0
+
+# pip install openpyxl
+# pip install xlrd==1.2.0
 
 
 from PyQt5.QtWidgets import (
@@ -29,7 +30,7 @@ import logging
 
 logger = logging.getLogger("root")
 
-'''
+"""
 Reminder: these are the columns that we need to submit
  procedure     INTEGER NOT NULL
  position      INTEGER NOT NULL, (a number 0-96)
@@ -38,7 +39,8 @@ Reminder: these are the columns that we need to submit
  voltage       REAL, (either 1500 or 1100, or NULL)
  is_tripped    BOOLEAN DEFAULT (either 0 (false) or 1 (true))
  timestamp     INTEGER ("epoch" time (msec, sec), if no time avail, use file create datetime).
-'''
+"""
+
 
 # the same as int() but returns None or '' as 0
 def intx(i):
@@ -49,9 +51,7 @@ def intx(i):
     return retval
 
 
-
 class hvLoader(QMainWindow):
-
     def __init__(self, ui_layout):
         # initialize superclass
         QMainWindow.__init__(self)
@@ -97,9 +97,9 @@ class hvLoader(QMainWindow):
                 message=f"Please only load one file at a time.",
             )
             return
-        self.ui.fileLE.setText(f'{files[0]}')
-        logger.info(f'File {files[0]} dropped in.')
-        self.loadCSV(f'{files[0]}')
+        self.ui.fileLE.setText(f"{files[0]}")
+        logger.info(f"File {files[0]} dropped in.")
+        self.loadCSV(f"{files[0]}")
 
     def clear(self):
         self.ui.table.clear()
@@ -111,7 +111,7 @@ class hvLoader(QMainWindow):
                 "current_right",
                 "voltage",
                 "is_tripped",
-                "timestamp"
+                "timestamp",
             ]
         )
         self.dataArr = []
@@ -122,20 +122,23 @@ class hvLoader(QMainWindow):
 
     def connectToDB(self):
         db = GetLocalDatabasePath()
-        self.engine = sqla.create_engine("sqlite:///"+db)
+        self.engine = sqla.create_engine("sqlite:///" + db)
         self.connection = self.engine.connect()
 
         # Given a panel and process, access the DB to get the procedure ID
+
     def getProcedureID(self, panel, process):
         try:
             assert isinstance(panel, int) and panel <= 999
-            assert process in range(1,9)
+            assert process in range(1, 9)
         except AssertionError:
             tkinter.messagebox.showerror(
                 "Not Found",
-                f'The procedure {process} could not be found for panel MN{panel}.'
+                f"The procedure {process} could not be found for panel MN{panel}.",
             )
-            logger.error(f'The procedure {process} could not be found for panel MN{panel}.')
+            logger.error(
+                f"The procedure {process} could not be found for panel MN{panel}."
+            )
             return -1
 
         query = f"""
@@ -151,45 +154,45 @@ class hvLoader(QMainWindow):
         except:
             tkinter.messagebox.showerror(
                 "Not Found",
-                f'The procedure {process} could not be found for panel MN{panel}.'
+                f"The procedure {process} could not be found for panel MN{panel}.",
             )
-            logger.error(f'The procedure {process} could not be found for panel MN{panel}.')
+            logger.error(
+                f"The procedure {process} could not be found for panel MN{panel}."
+            )
             return -1
         return result
-
 
     # loads the contents of the CSV into self.dataArr
     # doesn't handle parsing of data to the table
     def loadCSV(self, file):
         filename = file[-16:]
-        logger.info(f'Loading {filename} into csvLoader...')
+        logger.info(f"Loading {filename} into csvLoader...")
         self.panelNum = int(filename[2:5])
         self.panelPro = int(filename[9:10])
         self.fileNum = int(filename[11:12])
         self.ui.fileLE.setText(str(file))
 
-        if self.panelPro not in [3,4,5,6]:
+        if self.panelPro not in [3, 4, 5, 6]:
             tkinter.messagebox.showwarning(
                 "Incorrect file name format.",
-                f'The panel procedure must be 3, 4, 5, or 6.  The file you submitted provided "{self.panelPro}".'
+                f'The panel procedure must be 3, 4, 5, or 6.  The file you submitted provided "{self.panelPro}".',
             )
-            logger.error(f'Unable to load file {file}.')
+            logger.error(f"Unable to load file {file}.")
             self.clear()
             return
 
-        if self.panelNum not in range(1,301):
+        if self.panelNum not in range(1, 301):
             tkinter.messagebox.showwarning(
                 "Incorrect file name format.",
-                f'The panel number must be between 1 and 300.  The file you submitted provided "{self.panelNum}".'
+                f'The panel number must be between 1 and 300.  The file you submitted provided "{self.panelNum}".',
             )
-            logger.error(f'Unable to load file {file}.')
+            logger.error(f"Unable to load file {file}.")
             self.clear()
             return
-
 
         with open(file) as file:
             reader = csv.reader(file)
-            
+
             for row in reader:
                 self.dataArr += [row]
 
@@ -199,7 +202,7 @@ class hvLoader(QMainWindow):
     def parseCSV(self):
         # column & row index
         # row starts at 1 to skip header
-        #cI = 0
+        # cI = 0
         rI = 1
 
         # get voltage - there must be an easier way than this...
@@ -211,47 +214,46 @@ class hvLoader(QMainWindow):
         # anything tripped?
         tripped = len(self.dataArr[0]) == 5
 
-
-        for i in range(len(self.dataArr)-1):
+        for i in range(len(self.dataArr) - 1):
             self.ui.table.insertRow(i)
-        
-        while rI < len(self.dataArr):
 
+        while rI < len(self.dataArr):
             for cI in range(6 if tripped else 5):
                 # position or current
-                if cI <3 :  # <3 <3 <3
+                if cI < 3:  # <3 <3 <3
                     newItem = QTableWidgetItem(str(self.dataArr[rI][cI]))
-                    self.ui.table.setItem(rI-1,cI,newItem)
+                    self.ui.table.setItem(rI - 1, cI, newItem)
                 # voltage
                 elif cI == 3:
                     newItem = QTableWidgetItem(str(volts))
-                    self.ui.table.setItem(rI-1,cI,newItem)
+                    self.ui.table.setItem(rI - 1, cI, newItem)
                 # trip status or timestamp if not tripped
                 elif cI == 4:
                     if tripped:
                         newItem = QTableWidgetItem(str(self.dataArr[rI][3]))
-                        self.ui.table.setItem(rI-1,cI,newItem)
+                        self.ui.table.setItem(rI - 1, cI, newItem)
                     else:
                         newItem = QTableWidgetItem("0")
-                        self.ui.table.setItem(rI-1,cI,newItem)
+                        self.ui.table.setItem(rI - 1, cI, newItem)
                         newItem = QTableWidgetItem(
-                        str(self.dataArr[rI][int(4 if tripped else 3)])
+                            str(self.dataArr[rI][int(4 if tripped else 3)])
                         )
-                        self.ui.table.setItem(rI-1,cI+1,newItem)
+                        self.ui.table.setItem(rI - 1, cI + 1, newItem)
                 # timestamp if tripped
                 else:
                     newItem = QTableWidgetItem(
                         str(self.dataArr[rI][int(4 if tripped else 3)])
-                        )
-                    self.ui.table.setItem(rI-1,cI,newItem)
+                    )
+                    self.ui.table.setItem(rI - 1, cI, newItem)
             rI += 1
 
         self.ui.submitToDbPB.setEnabled(True)
 
     def submitData(self):
+        logger.info(
+            f"Attempting to submit {len(self.dataArr)-1} data points for MN{self.panelNum}, procedure {self.panelPro}"
+        )
 
-        logger.info(f'Attempting to submit {len(self.dataArr)-1} data points for MN{self.panelNum}, procedure {self.panelPro}')
-        
         query = """
         INSERT OR IGNORE INTO measurement_pan5 (id, procedure, position, current_left, current_right, voltage, is_tripped, timestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
@@ -270,9 +272,9 @@ class hvLoader(QMainWindow):
         if int(volts) != 1100 and int(volts) != 1500:
             tkinter.messagebox.showwarning(
                 "Unable to submit",
-                f'Data could not be submitted due to invalid voltage: {volts}'
+                f"Data could not be submitted due to invalid voltage: {volts}",
             )
-            logger.error(f'Unable to submit.  Reason: Invalid voltage {volts}')
+            logger.error(f"Unable to submit.  Reason: Invalid voltage {volts}")
             return
 
         # get procedure ID
@@ -282,21 +284,26 @@ class hvLoader(QMainWindow):
         if proID < 1560000000000000:
             tkinter.messagebox.showwarning(
                 "Unable to submit",
-                f'Data could not be submitted due to invalid procudure ID: {proID}'
+                f"Data could not be submitted due to invalid procudure ID: {proID}",
             )
-            logger.error(f'Unable to submit.  Reason: Invalid procedure ID {proID}')
+            logger.error(f"Unable to submit.  Reason: Invalid procedure ID {proID}")
             return
 
         toCommit = [
             (
-                int(i[4 if tripped else 3]) + int(self.panelNum)*13 + int(self.panelPro)*688 + int(i[0])*(self.fileNum+1) + intx(i[1]) + intx(i[2]),
+                int(i[4 if tripped else 3])
+                + int(self.panelNum) * 13
+                + int(self.panelPro) * 688
+                + int(i[0]) * (self.fileNum + 1)
+                + intx(i[1])
+                + intx(i[2]),
                 proID,
                 i[0],
                 i[1],
                 i[2],
                 volts,
                 i[3] if tripped else False,
-                i[4 if tripped else 3]
+                i[4 if tripped else 3],
             )
             for i in self.dataArr[1:]
         ]
@@ -307,9 +314,7 @@ class hvLoader(QMainWindow):
             logger.error(e)
             error = str(e.__dict__["orig"])
             logger.error(error)
-            logger.error(
-                "Unable to submit.  Reason: Operational Error."
-            )
+            logger.error("Unable to submit.  Reason: Operational Error.")
         except sqla.exc.IntegrityError as e:
             logger.error(e)
             error = str(e.__dict__["orig"])
@@ -318,26 +323,23 @@ class hvLoader(QMainWindow):
                 "Unable to submit.  Reason: Integrity error, an identical data point was already in the DB."
             )
         else:
-            logger.info(f'Successfully loaded {len(self.dataArr)-1} data points into the local DB.')
+            logger.info(
+                f"Successfully loaded {len(self.dataArr)-1} data points into the local DB."
+            )
             tkinter.messagebox.showinfo(
                 "Success!",
-                f'Successfully loaded {len(self.dataArr)-1} data points into the local DB.  The data will now be cleared from this program.'
+                f"Successfully loaded {len(self.dataArr)-1} data points into the local DB.  The data will now be cleared from this program.",
             )
             self.clear()
         return
-        
-
-
 
 
 def run():
-
-
     app = QApplication(sys.argv)  # make an app
     app.setStyle(QStyleFactory.create("Fusion"))  # aestetics
     window = hvLoader(Ui_MainWindow())  # make a window
 
-    #window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
+    # window.showMaximized()  # open in maximized window (using show() would open in a smaller one with weird porportions)
     window.show()
 
     app.exec_()  # run the app!

@@ -189,7 +189,15 @@ def load_test_details(connection, pid, timestamp, tag=None, elapsed_days=None):
     VALUES (?, ?, ?, ?, ?);
     """
 
-    to_db = [(int(str(timestamp)+str(randint(1000,9999))), pid, tag, elapsed_days, timestamp)]
+    to_db = [
+        (
+            int(str(timestamp) + str(randint(1000, 9999))),
+            pid,
+            tag,
+            elapsed_days,
+            timestamp,
+        )
+    ]
 
     execute_query(connection, query, to_db)
 
