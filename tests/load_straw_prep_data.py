@@ -10,9 +10,6 @@
 # then we update the DB:
 #   1. create straws if needed
 #   2. batch # and ppg in prep table
-#   update_straw_table(straw_information, cpal_prefix_list)
-#   update_measurement_prep_table(cpal_prefix_list, straw_information)
-#   update_straw_present_table(cpal_prefix_list, straw_information)
 # ===============================================================================
 
 from pathlib import Path
@@ -35,36 +32,32 @@ from sqlalchemy.exc import IntegrityError
 
 problem_files = [
     "CPAL0002.csv",
-    "CPAL0040.csv",
+    # "CPAL0010.csv",
     "CPAL0025.csv",
-    "prep_CPAL7653.csv",
-    "CPAL1234.csv",
-    "prep_CPAL1234.csv",
-    "CPAL0010.csv",
+    "CPAL0040.csv",
     "CPAL0056",
+    "CPAL0312.csv",
+    "CPAL0484.csv",
+    "CPAL1008.csv",
+    "CPAL1234.csv",
+    "CPAL1551.csv",
+    "CPAL2929.csv",
     "CPAL3945.csv",
     "CPAL6997.csv",
-    "CPAL0484.csv",
-    "CPAL9119.csv",
-    "CPAL0312.csv",
-    "CPAL9999.csv",
-    "CPAL1551.csv",
-    "prep_CPAL0591.csv",
-    "prep_CPAL7474.csv",
-    "prep_CPAL8476.csv",
-    "CPAL1008.csv",
-    "prep_CPAL0615.csv",
-    "CPAL2929.csv",
-    "prep_CPAL0659.csv",
     "CPAL7326.csv",
+    "CPAL9119.csv",
+    "CPAL9999.csv",
+    "prep_CPAL0591.csv",
+    "prep_CPAL0615.csv",
+    "prep_CPAL0659.csv",
     "prep_CPAL0666.csv",
     "prep_CPAL0668.csv",
     "prep_CPAL0669.csv",
-    "prep_CPAL2081.csv",
-    "prep_CPAL2082.csv",
+    "prep_CPAL1229.csv",
     "prep_CPAL1231.csv",
     "prep_CPAL1232.csv",
     "prep_CPAL1233.csv",
+    "prep_CPAL1234.csv",
     "prep_CPAL1234.csv",
     "prep_CPAL1235.csv",
     "prep_CPAL1236.csv",
@@ -75,7 +68,11 @@ problem_files = [
     "prep_CPAL1241.csv",
     "prep_CPAL1242.csv",
     "prep_CPAL1243.csv",
-    "prep_CPAL1229.csv",
+    "prep_CPAL2081.csv",
+    "prep_CPAL2082.csv",
+    "prep_CPAL7474.csv",
+    "prep_CPAL7653.csv",
+    "prep_CPAL8476.csv",
 ]
 
 pp_grades = ["A", "B", "C", "D"]
@@ -288,85 +285,6 @@ def parse_single_file(file, cpal_list, straw_information, cpal_prefix_list):
     return cpal_list, straw_information, cpal_prefix_list
 
 
-def insert_or_compare_batch(connection, table, insert_data_list):
-    print(f"Attempting to insert {len(insert_data_list)} entries.")
-    insert_count = 0
-    ignore_count = 0
-    mismatch_count = 0
-    batch_update_count = 0
-    for insert_data in insert_data_list:
-        insert_stmt = table.insert().values(**insert_data)
-
-        try:
-            # new straw added
-            connection.execute(insert_stmt)
-            print("Insert successful for:", insert_data)
-            insert_count += 1
-        except IntegrityError as e:
-            # this straw already has an entry in the straw table
-            existing_row = connection.execute(
-                sqla.select(table).where(table.c.id == insert_data["id"])
-            ).fetchone()
-
-            # problem with the row
-            if existing_row is None:
-                print("No existing row found with the conflicting id.")
-                continue
-
-            ignore_count += 1
-
-            # compare new and existing entry
-            for key in insert_data.keys():
-                new_value = insert_data[key]
-                old_value = getattr(existing_row, key, None)
-
-                if key == "batch" and old_value is None and new_value is not None:
-                    # add missing batch
-                    entry_id = insert_data.get("id")
-                    # use the smaller of the two timestamps as the date that the straw was originally added to the DB.
-                    new_timestamp = min(insert_data.get("timestamp"), getattr(existing_row, 'timestamp',None))
-                    update_stmt = (
-                        table.update()
-                        .where(table.c.id == entry_id)
-                        .values(batch=new_value, timestamp=new_timestamp)
-                    )
-                    connection.execute(update_stmt)
-                    time_diff_days = (new_timestamp - getattr(existing_row, 'timestamp',None))/86400.
-                    print(
-                        f"Updated batch and timestamp for entry with id {entry_id}: "
-                        f"new batch is {new_value}, new timestamp is {new_timestamp}, "
-                        f"old timestamp was {getattr(existing_row, 'timestamp',None)}."
-                    )
-                    batch_update_count += 1
-                    ignore_count -= 1
-                    break  # Break out of the loop after handling the update to avoid redundant checks
-                elif key == "timestamp" and abs(int(old_value) - int(new_value)) <= 100:
-                    # ignore small timestamp differences
-                    continue
-                elif old_value != new_value:
-                    mismatch_count += 1
-                    ignore_count -= 1
-                    # For all other mismatches not handled above
-                    entry_id = insert_data.get("id", None) or getattr(
-                        existing_row, "id", None
-                    )
-                    print(
-                        f"Mismatch for {key} in entry with id {entry_id}: "
-                        f"existing value is {old_value}, attempted insert value is {new_value}"
-                    )
-
-    print(
-        "insert_count",
-        insert_count,
-        "batch_update_count",
-        batch_update_count,
-        "mismatch_count",
-        mismatch_count,
-        "ignore_count",
-        ignore_count,
-    )
-
-
 def find_duplicate_straw_ids(entries):
     """
     Finds duplicate straw_id values in a list of dictionaries.
@@ -387,6 +305,104 @@ def find_duplicate_straw_ids(entries):
     return duplicates
 
 
+def insert_or_compare_straw(connection, table, insert_data_list):
+    print(f"Attempting to insert {len(insert_data_list)} entries.")
+    insert_count = 0
+    ignore_count = 0
+    mismatch_count = 0
+    batch_update_count = 0
+    with connection.begin():
+        for insert_data in insert_data_list:
+            insert_stmt = table.insert().values(**insert_data)
+
+            straw_id = insert_data["id"]
+            csv_batch = insert_data.get("batch")
+            csv_timestamp = insert_data.get("timestamp")
+
+            try:
+                # new straw added
+                connection.execute(insert_stmt)
+                print(f"{straw_id} - added")
+                if csv_batch == None or csv_batch == "":
+                    print(f"  {straw_id} - missing batch")
+                insert_count += 1
+            except IntegrityError as e:
+                # this straw already has an entry in the straw table
+                existing_row = connection.execute(
+                    sqla.select(table).where(table.c.id == straw_id)
+                ).fetchone()
+
+                # problem with the row
+                if existing_row is None:
+                    print(f"{straw_id} - problem")
+                    continue
+
+                db_batch = getattr(existing_row, "batch", None)
+                db_timestamp = getattr(existing_row, "timestamp", None)
+                time_diff_days = (csv_timestamp - db_timestamp) / 86400.0
+                earlier_timestamp = min(csv_timestamp, db_timestamp)
+
+                if db_batch is None or db_batch.strip() == "":
+                    # batch is currently missing
+                    if csv_batch == None:
+                        print(f"{straw_id} - missing batch")
+                    else:
+                        update_stmt = (
+                            table.update()
+                            .where(table.c.id == straw_id)
+                            .values(batch=csv_batch, timestamp=earlier_timestamp)
+                        )
+                        result = connection.execute(update_stmt)
+                        print(f"{straw_id} - added batch", result.rowcount)
+                        batch_update_count += 1
+                elif db_batch != csv_batch:
+                    # batch mismatch
+                    print(f"{straw_id} - batch mismatch")
+                    while True:
+                        user_input = input(
+                            f"0 for db batch: {db_batch}, or 1 for csv batch: {csv_batch}"
+                        )
+                        if user_input in ["0", "1"]:
+                            user_input = int(user_input)
+                            break
+                        else:
+                            print("Invalid input. Please enter 0 or 1.")
+                    batch = csv_batch if user_input else db_batch
+                    update_stmt = (
+                        table.update()
+                        .where(table.c.id == straw_id)
+                        .values(batch=batch, timestamp=earlier_timestamp)
+                    )
+                    result = connection.execute(update_stmt)
+                    print(f"{straw_id} - added batch", result.rowcount)
+                    batch_update_count += 1
+                elif abs(int(db_timestamp) - int(csv_timestamp)) > 100:
+                    # timestamp mismatch
+                    print(
+                        f"{straw_id} - timestamp mismatch - {db_timestamp} - {csv_timestamp} - {time_diff_days}"
+                    )
+                else:
+                    ignore_count += 1
+
+    print(
+        "insert_count",
+        insert_count,
+        "batch_update_count",
+        batch_update_count,
+        "mismatch_count",
+        mismatch_count,
+        "ignore_count",
+        ignore_count,
+    )
+
+    # METHOD USING SQLALCHEMY METHODS
+    # check_straw = Straw.exists(straw_id)
+    # if check_straw is not None:
+    #    check_straw.updateBatch(batch)
+    # else:
+    #    straw = Straw.Straw(straw_id, batch, timestamp)
+
+
 def update_straw_table(straw_table, connection, straw_information, cpal_prefix_list):
     # Prepare a list to hold all rows to be inserted
     values_to_insert = []
@@ -397,8 +413,10 @@ def update_straw_table(straw_table, connection, straw_information, cpal_prefix_l
 
         for y in range(len(straw_information[cpal])):
             straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
-            batch = straw_information[cpal][y]["batch"].replace(".", "")
+            batch = straw_information[cpal][y]["batch"].strip().replace(".", "").upper()
             timestamp = int(straw_information[cpal][y]["time"])
+
+            # csv_batch = insert_data.get("batch", "").strip().replace(".", "").upper()
 
             # Append a dictionary for each row to the list
             values_to_insert.append(
@@ -409,65 +427,79 @@ def update_straw_table(straw_table, connection, straw_information, cpal_prefix_l
                 }
             )
 
-    # print(values_to_insert)
-
     assert not find_duplicate_straw_ids(values_to_insert), "Duplicates were found."
 
-    insert_or_compare_batch(connection, straw_table, values_to_insert)
-
-    ## SQL query using named placeholders with 'INSERT OR IGNORE INTO'
-    # query = """
-    # INSERT OR IGNORE INTO straw(id, batch, timestamp)
-    # VALUES (:straw_id, :batch, :timestamp);
-    # """
-
-    ## Execute all inserts in a batch
-    # for values in values_to_insert:
-    #    connection.execute(query, values)
-
-    # try:
-    #    sendIt = connection.execute(query)
-    # except sqla.exc.OperationalError as e:
-    #    return e
-    # except sqla.exc.IntegrityError as e:
-    #    return e
-
-    # METHOD USING SQLALCHEMY METHODS
-    # check_straw = Straw.exists(straw_id)
-    # if check_straw is not None:
-    #    check_straw.updateBatch(batch)
-    # else:
-    #    straw = Straw.Straw(straw_id, batch, timestamp)
-
-    # except:
-    #    print("Error updating straw table for cpal " + str(cpal))
+    insert_or_compare_straw(connection, straw_table, values_to_insert)
 
     print("done updating straw table")
 
 
-def update_measurement_prep_table(cpal_prefix_list, straw_information):
+def update_measurement_prep_table(
+    procedure_table,
+    straw_location_table,
+    connection,
+    cpal_prefix_list,
+    straw_information,
+):
     for i in cpal_prefix_list:
         cpal = i["cpal"]
         cpalid = i["cpalid"]
         time = i["time"]
+        straw_location_timestamp_updated = False
 
-        try:
+        with connection.begin():
             for y in range(len(straw_information[cpal])):
-                straw_id = straw_information[cpal][y]["id"][2::].lstrip("0")
+                straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
                 batch = straw_information[cpal][y]["batch"].replace(".", "")
                 paper_pull = straw_information[cpal][y]["grade"]
-                timestamp = int(straw_information[cpal][y]["time"])
+                csv_timestamp = int(straw_information[cpal][y]["time"])
 
-                procedure = Procedure.StrawProcedure(2, cpalid, cpal, timestamp, True)
-
-                prep_measurement = Prep.StrawPrepMeasurement(
-                    procedure, straw_id, paper_pull[-1], 1, timestamp
+                # Fetch or create a procedure for this (prep,cpal) pair
+                procedure = Procedure.StrawProcedure(
+                    process=2, pallet_id=cpalid, pallet_number=cpal
                 )
-                prep_measurement.commit()
+
+                if (not straw_location_timestamp_updated) and procedure.isNew():
+                    # Correct the straw_location timestamp if we just created it.
+                    # Not airtight, but also not that important.
+                    update_stmt = (
+                        straw_location_table.update()
+                        .where(straw_location_table.c.id == procedure.straw_location)
+                        .values(timestamp=csv_timestamp)
+                    )
+                    straw_location_timestamp_updated = True
+                    result = connection.execute(update_stmt)
+                else:
+                    # Correct the procedure timestamp if we can find an earlier one
+                    this_procedure_db_entry = connection.execute(
+                        sqla.select(procedure_table).where(
+                            procedure_table.c.id == procedure.id
+                        )
+                    ).fetchone()
+
+                    procedure_db_timestamp = getattr(
+                        this_procedure_db_entry, "timestamp", None
+                    )
+
+                    earlier_timestamp = min(csv_timestamp, procedure_db_timestamp)
+                    time_diff = abs(int(csv_timestamp) - int(procedure_db_timestamp))
+
+                    if time_diff > 100 and procedure_db_timestamp != earlier_timestamp:
+                        update_stmt = (
+                            procedure_table.update()
+                            .where(procedure_table.c.id == procedure.id)
+                            .values(timestamp=earlier_timestamp)
+                        )
+                        result = connection.execute(update_stmt)
+
+                # print(procedure.id, procedure.station, procedure.straw_location)
+
+                # prep_measurement = Prep.StrawPrepMeasurement(
+                #    procedure, straw_id, paper_pull[-1], 1, timestamp
+                # )
+                # prep_measurement.commit()
 
                 # print('Updated measurement prep table for cpal ' + str(cpal))
-        except:
-            print("Error updating measurement_prep data for cpal " + str(cpal))
 
 
 def update_straw_present_table(cpal_prefix_list, straw_information):
@@ -506,7 +538,7 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
             print("Straw location not found for cpal " + str(cpal))
 
 
-def save_db():
+def run():
     cpal_list = []
     straw_information = {}
     cpal_prefix_list = []
@@ -515,17 +547,24 @@ def save_db():
 
     # accumulate all straw prep data from csv files into a few lists and dicts
     for file in Path(paths["prepdata"]).rglob("*.csv"):
+        if not (
+            "0010" in str(file)
+            or "0941" in str(file)
+            or "0799" in str(file)
+            or "0396" in str(file)
+        ):
+            continue
         cpal_list, straw_information, cpal_prefix_list = parse_single_file(
             file, cpal_list, straw_information, cpal_prefix_list
         )
-        if switch:
-            break
-        else:
-            switch = True
+        # if switch:
+        #    break
+        # else:
+        #    switch = True
 
-    # print(cpal_list)
+    print(cpal_list)
     # print(straw_information)
-    # print(cpal_prefix_list)
+    print(cpal_prefix_list)
 
     database = GetLocalDatabasePath()
     print("Using database:", database)
@@ -534,17 +573,31 @@ def save_db():
 
     # reflect table structure
     straw_table = Table("straw", metadata, autoload_with=engine)
+    procedure_table = Table("procedure", metadata, autoload_with=engine)
+    straw_location_table = Table("straw_location", metadata, autoload_with=engine)
 
+    """
+    with engine.connect() as connection:
+        existing_row = connection.execute(
+            sqla.select(straw_table).where(straw_table.c.id == 1090)
+        ).fetchone()
+        print(existing_row)
+        #batch = getattr(existing_row, "batch", None)
+        #print(batch, "|", str(batch), "|", bool(batch))
+    """
     with engine.connect() as connection:
         update_straw_table(straw_table, connection, straw_information, cpal_prefix_list)
 
-        # update_measurement_prep_table(cpal_prefix_list, straw_information)
+    with engine.connect() as connection:
+        update_measurement_prep_table(
+            procedure_table,
+            straw_location_table,
+            connection,
+            cpal_prefix_list,
+            straw_information,
+        )
 
         # update_straw_present_table(cpal_prefix_list, straw_information)
-
-
-def run():
-    save_db()
 
 
 if __name__ == "__main__":
