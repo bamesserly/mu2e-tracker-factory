@@ -20,6 +20,7 @@ import datetime
 import os, time, sys
 import sqlalchemy as sqla
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
+import re
 
 # from guis.common.db_classes.straw import Straw
 from guis.common.db_classes.straw_location import StrawLocation, CuttingPallet, Pallet
@@ -31,53 +32,55 @@ from sqlalchemy.exc import IntegrityError
 
 
 problem_files = [
-    "CPAL0002.csv",
-    # "CPAL0010.csv",
-    "CPAL0025.csv",
-    "CPAL0040.csv",
-    "CPAL0056",
-    "CPAL0312.csv",
-    "CPAL0484.csv",
-    "CPAL1008.csv",
-    "CPAL1234.csv",
-    "CPAL1551.csv",
-    "CPAL2929.csv",
-    "CPAL3945.csv",
-    "CPAL6997.csv",
-    "CPAL7326.csv",
-    "CPAL9119.csv",
-    "CPAL9999.csv",
-    "prep_CPAL0591.csv",
-    "prep_CPAL0615.csv",
-    "prep_CPAL0659.csv",
-    "prep_CPAL0666.csv",
-    "prep_CPAL0668.csv",
-    "prep_CPAL0669.csv",
-    "prep_CPAL1229.csv",
-    "prep_CPAL1231.csv",
-    "prep_CPAL1232.csv",
-    "prep_CPAL1233.csv",
-    "prep_CPAL1234.csv",
-    "prep_CPAL1234.csv",
-    "prep_CPAL1235.csv",
-    "prep_CPAL1236.csv",
-    "prep_CPAL1237.csv",
-    "prep_CPAL1238.csv",
-    "prep_CPAL1239.csv",
-    "prep_CPAL1240.csv",
-    "prep_CPAL1241.csv",
-    "prep_CPAL1242.csv",
-    "prep_CPAL1243.csv",
-    "prep_CPAL2081.csv",
-    "prep_CPAL2082.csv",
-    "prep_CPAL7474.csv",
-    "prep_CPAL7653.csv",
-    "prep_CPAL8476.csv",
+    #    "CPAL9999.csv",
+        "CPAL0002.csv", # no batch number
+    #    "CPAL0010.csv",
+        "CPAL0025.csv", # no batch number
+        "CPAL0040.csv", # no batch number
+    #    "CPAL0056",
+    #    "CPAL0312.csv",
+    #    "CPAL0484.csv",
+    #    "CPAL1008.csv",
+    #    "CPAL1234.csv",
+    #    "CPAL1551.csv",
+    #    "CPAL2929.csv",
+    #    "CPAL3945.csv",
+    #    "CPAL6997.csv",
+    #    "CPAL7326.csv",
+    #    "CPAL9119.csv",
+    #    "prep_CPAL0591.csv",
+    #    "prep_CPAL0615.csv",
+    #    "prep_CPAL0659.csv",
+    #    "prep_CPAL0666.csv",
+    #    "prep_CPAL0668.csv",
+    #    "prep_CPAL0669.csv",
+    #    "prep_CPAL1229.csv",
+    #    "prep_CPAL1231.csv",
+    #    "prep_CPAL1232.csv",
+    #    "prep_CPAL1233.csv",
+    #    "prep_CPAL1234.csv",
+    #    "prep_CPAL1234.csv",
+    #    "prep_CPAL1235.csv",
+    #    "prep_CPAL1236.csv",
+    #    "prep_CPAL1237.csv",
+    #    "prep_CPAL1238.csv",
+    #    "prep_CPAL1239.csv",
+    #    "prep_CPAL1240.csv",
+    #    "prep_CPAL1241.csv",
+    #    "prep_CPAL1242.csv",
+    #    "prep_CPAL1243.csv",
+    #    "prep_CPAL2081.csv",
+    #    "prep_CPAL2082.csv",
+    #    "prep_CPAL7474.csv",
+    #    "prep_CPAL7653.csv",
+    #    "prep_CPAL8476.csv",
 ]
 
 pp_grades = ["A", "B", "C", "D"]
 
 paths = GetProjectPaths()
+
+desired_batch_format = r"^\d{6}B\d$"
 
 
 def determine_prefix(item):
@@ -122,27 +125,37 @@ def determine_prefix(item):
 # used for parsing each row in vertically oriented cpal files
 def parse_vertical_straw_row(row, reached_data, prefixes):
     # checks if the data has been reached, since the first lines aren't data
-    if reached_data == True:
-        straw = {}
-        # for each row where data has been detected, goes through assigning pertinent data to the straw dictionary
-        if len(row) >= 3:
-            for i in range(3):
-                if len(row[i]) == 7:
-                    # acquires straw_id
-                    if str(row[i])[0:2].lower() == "st" and str(row[i][2].isnumeric()):
-                        straw["id"] = str(row[i]).lower()
-                elif len(row[i]) > 3 and str(row[i][-2]) == "B":
-                    # acquires straw batch
-                    straw["batch"] = str(row[i])
-                elif len(str(row[i])) == 4 or len(str(row[i])) == 3:
-                    # acquires straw grade (paper pull)
-                    if str(row[i][0:2]).upper() == "PP" and str(row[i]) != "DNE":
-                        straw["grade"] = str(row[i]).upper()
-            # only return the straw data if there is actually data present
-            # additionally, save the time in the straw dictionary, from the cpal prefixes dictionary
-            if len(straw.keys()) != 0:
-                straw["time"] = prefixes["time"]
-                return straw
+    if not reached_data:
+        return False
+
+    # not a valid straw row
+    if len(row) < 3:
+        return False
+
+    straw = {}
+    # for each row where data has been detected, goes through assigning
+    # pertinent data to the straw dictionary
+    for i in range(3):
+        if len(row[i]) == 7:
+            # acquires straw_id
+            if str(row[i])[0:2].lower() == "st" and str(row[i][2].isnumeric()):
+                straw["id"] = str(row[i]).lower()
+        elif len(row[i]) > 3 and str(row[i][-2]) == "B":
+            # acquires straw batch
+            straw["batch"] = str(row[i])
+        elif len(str(row[i])) == 4 or len(str(row[i])) == 3:
+            # acquires straw grade (paper pull)
+            if str(row[i][0:2]).upper() == "PP" and str(row[i]) != "DNE":
+                straw["grade"] = str(row[i]).upper()
+            elif str(row[i]).upper() == "DNE":
+                straw["grade"] = ""
+
+    # only return the straw data if there is actually data present
+    # additionally, save the time in the straw dictionary, from the cpal
+    # prefixes dictionary
+    if len(straw.keys()) != 0:
+        straw["time"] = prefixes["time"]
+        return straw
 
     # if the data wasn't determined to be valid, return False
     return False
@@ -175,6 +188,8 @@ def parse_horizontal_straw_rows(reader, prefixes):
                 # check for grade (paper pull)
                 if str(i[0:3]).upper() == "PP." and str(i).upper() != "DNE":
                     inner_grade.append(str(i).upper())
+                elif str(i).upper() == "DNE":
+                    inner_grade.append("")
 
     # check that the list of straw id's matches the other data
     if len(inner_straw) == len(inner_batch) or len(inner_straw) == len(inner_grade):
@@ -219,7 +234,7 @@ def get_cpal_prefix(file):
 
             prefixes = {"cpal": name[-8:-4]}
 
-            print(file.name)
+            #print(file.name)
             for row in reader:
                 # acquire cpal prefix information
                 if (
@@ -305,102 +320,136 @@ def find_duplicate_straw_ids(entries):
     return duplicates
 
 
+def insert_new_straw(connection, table, insert_data):
+    insert_stmt = table.insert().values(**insert_data)
+
+    batch = insert_data.get("batch")
+    assert (
+        re.match(desired_batch_format, batch) or batch is None
+    ), "formatted batch is neither correct format nor None."
+
+    try:
+        connection.execute(insert_stmt)
+        print(f"{insert_data['id']} - added")
+        if not batch:
+            print(f"  {insert_data['id']} - missing batch")
+        return True
+    except IntegrityError:
+        return False
+
+
+def update_batch(connection, table, insert_data):
+    straw_id = insert_data["id"]
+    csv_batch = insert_data.get("batch")
+    csv_timestamp = insert_data.get("timestamp")
+
+    assert re.match(
+        desired_batch_format, csv_batch
+    ), "Formatted batch is not in correct format."
+
+    existing_row = connection.execute(
+        sqla.select(table).where(table.c.id == straw_id)
+    ).fetchone()
+
+    if existing_row is None:
+        print(f"{straw_id} - db problem")
+        return False
+
+    db_batch = getattr(existing_row, "batch", None)
+    db_timestamp = getattr(existing_row, "timestamp", None)
+    earlier_timestamp = min(csv_timestamp, db_timestamp)
+
+    if db_batch is None or not db_batch.strip():
+        # add missing batch to db
+        update_stmt = (
+            table.update()
+            .where(table.c.id == straw_id)
+            .values(batch=csv_batch, timestamp=earlier_timestamp)
+        )
+        result = connection.execute(update_stmt)
+        print(f"{straw_id} - added batch", result.rowcount)
+        return True
+    elif db_batch != csv_batch:
+        # csv and db disagree
+        print(f"{straw_id}")
+        batch = handle_batch_mismatch(db_batch, csv_batch)
+        update_stmt = (
+            table.update()
+            .where(table.c.id == straw_id)
+            .values(batch=batch, timestamp=earlier_timestamp)
+        )
+        result = connection.execute(update_stmt)
+        print(f"{straw_id} - added batch", result.rowcount)
+        return True
+    else:
+        # csv and db agree
+        return False
+
+    # I don't care about timestamp mismatches
+    # if abs(int(db_timestamp) - int(csv_timestamp)) > 100:
+    #    time_diff_days = (csv_timestamp - db_timestamp) / 86400.0
+    #    print(
+    #        f"{straw_id} - timestamp mismatch - {db_timestamp} - {csv_timestamp} - {time_diff_days}"
+    #    )
+
+    return False
+
+
+def handle_batch_mismatch(db_batch, csv_batch):
+    while True:
+        user_input = input(
+            f"  0 for db batch: {db_batch}, or 1 for csv batch: {csv_batch}> "
+        )
+        if user_input in ["0", "1"]:
+            user_input = int(user_input)
+            break
+        else:
+            print("Invalid input. Please enter 0 or 1.")
+    return csv_batch if user_input else db_batch
+
+
 def insert_or_compare_straw(connection, table, insert_data_list):
     print(f"Attempting to insert {len(insert_data_list)} entries.")
     insert_count = 0
-    ignore_count = 0
-    mismatch_count = 0
     batch_update_count = 0
+    ignore_count = 0
+    empty_csv_batch_count = 0
+
     with connection.begin():
         for insert_data in insert_data_list:
-            insert_stmt = table.insert().values(**insert_data)
-
-            straw_id = insert_data["id"]
-            csv_batch = insert_data.get("batch")
-            csv_timestamp = insert_data.get("timestamp")
-
-            try:
-                # new straw added
-                connection.execute(insert_stmt)
-                print(f"{straw_id} - added")
-                if csv_batch == None or csv_batch == "":
-                    print(f"  {straw_id} - missing batch")
+            batch = insert_data.get("batch")
+            if not batch:
+                empty_csv_batch_count += 1
+            if insert_new_straw(connection, table, insert_data):
                 insert_count += 1
-            except IntegrityError as e:
-                # this straw already has an entry in the straw table
-                existing_row = connection.execute(
-                    sqla.select(table).where(table.c.id == straw_id)
-                ).fetchone()
-
-                # problem with the row
-                if existing_row is None:
-                    print(f"{straw_id} - problem")
-                    continue
-
-                db_batch = getattr(existing_row, "batch", None)
-                db_timestamp = getattr(existing_row, "timestamp", None)
-                time_diff_days = (csv_timestamp - db_timestamp) / 86400.0
-                earlier_timestamp = min(csv_timestamp, db_timestamp)
-
-                if db_batch is None or db_batch.strip() == "":
-                    # batch is currently missing
-                    if csv_batch == None:
-                        print(f"{straw_id} - missing batch")
-                    else:
-                        update_stmt = (
-                            table.update()
-                            .where(table.c.id == straw_id)
-                            .values(batch=csv_batch, timestamp=earlier_timestamp)
-                        )
-                        result = connection.execute(update_stmt)
-                        print(f"{straw_id} - added batch", result.rowcount)
-                        batch_update_count += 1
-                elif db_batch != csv_batch:
-                    # batch mismatch
-                    print(f"{straw_id} - batch mismatch")
-                    while True:
-                        user_input = input(
-                            f"0 for db batch: {db_batch}, or 1 for csv batch: {csv_batch}"
-                        )
-                        if user_input in ["0", "1"]:
-                            user_input = int(user_input)
-                            break
-                        else:
-                            print("Invalid input. Please enter 0 or 1.")
-                    batch = csv_batch if user_input else db_batch
-                    update_stmt = (
-                        table.update()
-                        .where(table.c.id == straw_id)
-                        .values(batch=batch, timestamp=earlier_timestamp)
-                    )
-                    result = connection.execute(update_stmt)
-                    print(f"{straw_id} - added batch", result.rowcount)
+            else:
+                if batch and update_batch(connection, table, insert_data):
                     batch_update_count += 1
-                elif abs(int(db_timestamp) - int(csv_timestamp)) > 100:
-                    # timestamp mismatch
-                    print(
-                        f"{straw_id} - timestamp mismatch - {db_timestamp} - {csv_timestamp} - {time_diff_days}"
-                    )
                 else:
-                    ignore_count += 1
+                    ignore_count += 1  # csv batch is None OR csv and DB agree
 
     print(
         "insert_count",
         insert_count,
         "batch_update_count",
         batch_update_count,
-        "mismatch_count",
-        mismatch_count,
         "ignore_count",
         ignore_count,
+        "empty_csv_batch_count",
+        empty_csv_batch_count,
     )
 
-    # METHOD USING SQLALCHEMY METHODS
-    # check_straw = Straw.exists(straw_id)
-    # if check_straw is not None:
-    #    check_straw.updateBatch(batch)
-    # else:
-    #    straw = Straw.Straw(straw_id, batch, timestamp)
+
+# put batch in desired format XXXXXXBX or else return None
+def clean_batch(batch):
+    if batch is None:
+        return None
+    batch = batch.strip()
+    batch = re.sub(r"[^\d\w]", "", batch)  # Remove non-alphanumeric characters
+    batch = batch.upper()
+    if re.match(desired_batch_format, batch):
+        return batch
+    return None
 
 
 def update_straw_table(straw_table, connection, straw_information, cpal_prefix_list):
@@ -416,18 +465,33 @@ def update_straw_table(straw_table, connection, straw_information, cpal_prefix_l
             batch = straw_information[cpal][y]["batch"].strip().replace(".", "").upper()
             timestamp = int(straw_information[cpal][y]["time"])
 
-            # csv_batch = insert_data.get("batch", "").strip().replace(".", "").upper()
+            formatted_batch = batch
+            if batch is None or re.match(desired_batch_format, batch):
+                # batch is either None or in the correct format
+                pass
+            else:
+                # attempt to format it
+                formatted_batch = clean_batch(batch)
+                if batch is not None and formatted_batch is None:
+                    print(f"Batch reformat failed for {straw_id}-{batch}-{cpal}")
+                # either way, formatted_batch is either correct or None. Either
+                # way, proceed.
 
             # Append a dictionary for each row to the list
             values_to_insert.append(
                 {
                     "id": straw_id,
-                    "batch": batch,
+                    "batch": formatted_batch,
                     "timestamp": timestamp,
                 }
             )
 
-    assert not find_duplicate_straw_ids(values_to_insert), "Duplicates were found."
+    duplicates = find_duplicate_straw_ids(values_to_insert)
+    try:
+        assert not duplicates, "Duplicates were found."
+    except AssertionError:
+        print("Trying to insert duplicate straws.\n", len(duplicates), duplicates)
+        sys.exit()
 
     insert_or_compare_straw(connection, straw_table, values_to_insert)
 
@@ -449,15 +513,22 @@ def update_measurement_prep_table(
 
         with connection.begin():
             for y in range(len(straw_information[cpal])):
-                straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
-                batch = straw_information[cpal][y]["batch"].replace(".", "")
-                paper_pull = straw_information[cpal][y]["grade"]
-                csv_timestamp = int(straw_information[cpal][y]["time"])
+                try:
+                    straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
+                    batch = straw_information[cpal][y]["batch"].replace(".", "")
+                    paper_pull = straw_information[cpal][y]["grade"]
+                    csv_timestamp = int(straw_information[cpal][y]["time"])
+                except KeyError:
+                    print("ERROR", cpal, straw_information[cpal])
 
                 # Fetch or create a procedure for this (prep,cpal) pair
-                procedure = Procedure.StrawProcedure(
-                    process=2, pallet_id=cpalid, pallet_number=cpal
-                )
+                try:
+                    procedure = Procedure.StrawProcedure(
+                        process=2, pallet_id=cpalid, pallet_number=cpal
+                    )
+                except Exception as e:
+                    print("CPAL/PROCEDURE CREATION ERROR", cpalid, cpal)
+                    sys.exit()
 
                 if (not straw_location_timestamp_updated) and procedure.isNew():
                     # Correct the straw_location timestamp if we just created it.
@@ -545,26 +616,35 @@ def run():
 
     switch = False
 
+    counter = 0
+
     # accumulate all straw prep data from csv files into a few lists and dicts
     for file in Path(paths["prepdata"]).rglob("*.csv"):
-        if not (
-            "0010" in str(file)
-            or "0941" in str(file)
-            or "0799" in str(file)
-            or "0396" in str(file)
-        ):
-            continue
+        counter += 1
+        # if counter > 200:
+        #    break
+        # if not (
+        #    "0604" in str(file)
+        #    "0067" in str(file)
+        #    #"0010" in str(file)
+        #    #or "0941" in str(file)
+        #    #or "0799" in str(file)
+        #    #or "0396" in str(file)
+        # ):
+        #    continue
+
         cpal_list, straw_information, cpal_prefix_list = parse_single_file(
             file, cpal_list, straw_information, cpal_prefix_list
         )
+
         # if switch:
         #    break
         # else:
         #    switch = True
 
-    print(cpal_list)
+    #print(cpal_list)
     # print(straw_information)
-    print(cpal_prefix_list)
+    #print(cpal_prefix_list)
 
     database = GetLocalDatabasePath()
     print("Using database:", database)
