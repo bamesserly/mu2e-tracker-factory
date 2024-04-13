@@ -32,48 +32,81 @@ from sqlalchemy.exc import IntegrityError
 
 
 problem_files = [
-    #    "CPAL9999.csv",
-        "CPAL0002.csv", # no batch number
-    #    "CPAL0010.csv",
-        "CPAL0025.csv", # no batch number
-        "CPAL0040.csv", # no batch number
-    #    "CPAL0056",
-    #    "CPAL0312.csv",
-    #    "CPAL0484.csv",
-    #    "CPAL1008.csv",
-    #    "CPAL1234.csv",
-    #    "CPAL1551.csv",
-    #    "CPAL2929.csv",
-    #    "CPAL3945.csv",
-    #    "CPAL6997.csv",
-    #    "CPAL7326.csv",
-    #    "CPAL9119.csv",
-    #    "prep_CPAL0591.csv",
-    #    "prep_CPAL0615.csv",
-    #    "prep_CPAL0659.csv",
-    #    "prep_CPAL0666.csv",
-    #    "prep_CPAL0668.csv",
-    #    "prep_CPAL0669.csv",
-    #    "prep_CPAL1229.csv",
-    #    "prep_CPAL1231.csv",
-    #    "prep_CPAL1232.csv",
-    #    "prep_CPAL1233.csv",
-    #    "prep_CPAL1234.csv",
-    #    "prep_CPAL1234.csv",
-    #    "prep_CPAL1235.csv",
-    #    "prep_CPAL1236.csv",
-    #    "prep_CPAL1237.csv",
-    #    "prep_CPAL1238.csv",
-    #    "prep_CPAL1239.csv",
-    #    "prep_CPAL1240.csv",
-    #    "prep_CPAL1241.csv",
-    #    "prep_CPAL1242.csv",
-    #    "prep_CPAL1243.csv",
-    #    "prep_CPAL2081.csv",
-    #    "prep_CPAL2082.csv",
-    #    "prep_CPAL7474.csv",
-    #    "prep_CPAL7653.csv",
-    #    "prep_CPAL8476.csv",
+    "CPAL0002.csv",  # no batch number
+    "CPAL0010.csv",
+    "CPAL0023.csv",
+    "CPAL0025.csv",  # no batch number
+    "CPAL0040.csv",  # no batch number
+    "CPAL0056.csv",
+    "CPAL0111.csv",
+    "CPAL0112.csv",
+    "CPAL0113.csv",
+    "CPAL0114.csv",
+    "CPAL0120.csv",
+    "CPAL0121.csv",
+    "CPAL0122.csv",
+    "CPAL0125.csv",
+    "CPAL0130.csv",
+    "CPAL0150.csv",
+    "CPAL0155.csv",
+    "CPAL0160.csv",
+    "CPAL0165.csv",
+    "CPAL0170.csv",
+    "CPAL0175.csv",
+    "CPAL0180.csv",
+    "CPAL0185.csv",
+    "CPAL0190.csv",
+    "CPAL0195.csv",
+    "CPAL0200.csv",
+    "CPAL0250.csv",
+    "CPAL0260.csv",
+    "CPAL0270.csv",
+    "CPAL1008.csv",
+    "CPAL1094.csv",
+    "CPAL1191.csv",
+    "CPAL1207.csv",
+    "CPAL1209.csv",
+    "CPAL1234.csv",
+    "CPAL1235.csv",
+    "CPAL1287.csv",
+    "CPAL1362.csv",
+    "CPAL1551.csv",
+    "CPAL1654.csv",
+    "CPAL2044.csv",
+    "CPAL2456.csv",
+    "CPAL2929.csv",
+    "CPAL3467.csv",
+    "CPAL3945.csv",
+    "CPAL4657.csv",
+    "CPAL4747.csv",
+    "CPAL5462.csv",
+    "CPAL6154.csv",
+    "CPAL6439.csv",
+    "CPAL6489.csv",
+    "CPAL6767.csv",
+    "CPAL6997.csv",
+    "CPAL7164.csv",
+    "CPAL7315.csv",
+    "CPAL7326.csv",
+    "CPAL7615.csv",
+    "CPAL7954.csv",
+    "CPAL8181.csv",
+    "CPAL9825.csv",
+    "prep_CPAL1234.csv",
+    "prep_CPAL2081.csv",
+    "prep_CPAL2082.csv",
+    "prep_CPAL2345.csv",
+    "prep_CPAL2501.csv",
+    "prep_CPAL5028.csv",
+    "prep_CPAL7474.csv",
+    "prep_CPAL7652.csv",
+    "prep_CPAL7653.csv",
+    "prep_CPAL7654.csv",
+    "prep_CPAL8372.csv",
+    "prep_CPAL8472.csv",
+    "prep_CPAL8476.csv",  # most likely bogus. batch 010101.B1
+    "prep_CPAL8763.csv",
+    "prep_CPAL9834.csv",
 ]
 
 pp_grades = ["A", "B", "C", "D"]
@@ -234,7 +267,7 @@ def get_cpal_prefix(file):
 
             prefixes = {"cpal": name[-8:-4]}
 
-            #print(file.name)
+            # print(file.name)
             for row in reader:
                 # acquire cpal prefix information
                 if (
@@ -283,6 +316,8 @@ def parse_single_file(file, cpal_list, straw_information, cpal_prefix_list):
                         if str(row[0]) == "straw":
                             reached_data = True
 
+                cpal_straws = [{**d, "cpal": name} for d in cpal_straws]
+
                 if len(cpal_straws) == 0:
                     print("Problem acquiring straw data on cpal " + str(name))
                 else:
@@ -290,7 +325,9 @@ def parse_single_file(file, cpal_list, straw_information, cpal_prefix_list):
                     straw_information[name[-8:-4]] = cpal_straws
             else:
                 cpal_straws = parse_horizontal_straw_rows(reader, prefixes)
-
+                cpal_straws = [{**d, "cpal": name} for d in cpal_straws]
+                # [{'id': 'st02942', 'grade': '', 'batch': '110717.B2',
+                #     'time': 1538516460, 'cpal': 'CPAL0067.csv'}, ... ]
                 if cpal_straws is False:
                     print("Problem acquiring straw data on cpal " + str(name))
                 else:
@@ -428,6 +465,8 @@ def insert_or_compare_straw(connection, table, insert_data_list):
                 else:
                     ignore_count += 1  # csv batch is None OR csv and DB agree
 
+    print("done updating straw table")
+
     print(
         "insert_count",
         insert_count,
@@ -452,7 +491,7 @@ def clean_batch(batch):
     return None
 
 
-def update_straw_table(straw_table, connection, straw_information, cpal_prefix_list):
+def organize_straw_data(straw_information, cpal_prefix_list):
     # Prepare a list to hold all rows to be inserted
     values_to_insert = []
 
@@ -483,19 +522,11 @@ def update_straw_table(straw_table, connection, straw_information, cpal_prefix_l
                     "id": straw_id,
                     "batch": formatted_batch,
                     "timestamp": timestamp,
+                    "cpal": cpal,
                 }
             )
 
-    duplicates = find_duplicate_straw_ids(values_to_insert)
-    try:
-        assert not duplicates, "Duplicates were found."
-    except AssertionError:
-        print("Trying to insert duplicate straws.\n", len(duplicates), duplicates)
-        sys.exit()
-
-    insert_or_compare_straw(connection, straw_table, values_to_insert)
-
-    print("done updating straw table")
+    return values_to_insert
 
 
 def update_measurement_prep_table(
@@ -624,14 +655,14 @@ def run():
         # if counter > 200:
         #    break
         # if not (
-        #    "0604" in str(file)
-        #    "0067" in str(file)
-        #    #"0010" in str(file)
-        #    #or "0941" in str(file)
-        #    #or "0799" in str(file)
-        #    #or "0396" in str(file)
+        #   #"0604" in str(file)
+        #   "0067" in str(file)
+        #   #"0010" in str(file)
+        #   #or "0941" in str(file)
+        #   #or "0799" in str(file)
+        #   #or "0396" in str(file)
         # ):
-        #    continue
+        #   continue
 
         cpal_list, straw_information, cpal_prefix_list = parse_single_file(
             file, cpal_list, straw_information, cpal_prefix_list
@@ -642,19 +673,10 @@ def run():
         # else:
         #    switch = True
 
-    #print(cpal_list)
-    # print(straw_information)
-    #print(cpal_prefix_list)
-
     database = GetLocalDatabasePath()
     print("Using database:", database)
     engine = sqla.create_engine("sqlite:///" + database)
     metadata = MetaData()
-
-    # reflect table structure
-    straw_table = Table("straw", metadata, autoload_with=engine)
-    procedure_table = Table("procedure", metadata, autoload_with=engine)
-    straw_location_table = Table("straw_location", metadata, autoload_with=engine)
 
     """
     with engine.connect() as connection:
@@ -665,9 +687,40 @@ def run():
         #batch = getattr(existing_row, "batch", None)
         #print(batch, "|", str(batch), "|", bool(batch))
     """
-    with engine.connect() as connection:
-        update_straw_table(straw_table, connection, straw_information, cpal_prefix_list)
 
+    # UPDATE STRAW TABLE
+    straw_table = Table("straw", metadata, autoload_with=engine)
+    straw_data = organize_straw_data(straw_information, cpal_prefix_list)
+    duplicates = find_duplicate_straw_ids(straw_data)
+    """
+    try:
+        assert not duplicates, "Duplicates were found."
+    except AssertionError:
+        print(
+            "Trying to insert duplicate straws.\n", len(duplicates), sorted(duplicates)
+        )
+        sys.exit()
+    """
+
+    dupe_batches = []
+    print(len(duplicates))
+    # print out the duplicate entries in order, with their info.
+    for straw in sorted(duplicates):
+        dupe_straw_info = [d for d in straw_data if d["id"] == straw]
+        for entry in dupe_straw_info:
+            if entry["batch"] not in dupe_batches:
+                dupe_batches.append(entry["batch"])
+            print(entry)
+    print(sorted(dupe_batches))
+    sys.exit()
+
+    with engine.connect() as connection:
+        insert_or_compare_straw(connection, straw_table, straw_data)
+
+    # UPDATE PREP TABLE (I.E. PPG)
+    procedure_table = Table("procedure", metadata, autoload_with=engine)
+    straw_location_table = Table("straw_location", metadata, autoload_with=engine)
+    """
     with engine.connect() as connection:
         update_measurement_prep_table(
             procedure_table,
@@ -678,6 +731,7 @@ def run():
         )
 
         # update_straw_present_table(cpal_prefix_list, straw_information)
+    """
 
 
 if __name__ == "__main__":
