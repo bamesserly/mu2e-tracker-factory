@@ -510,7 +510,58 @@ def update_measurement_prep_table(
         straw_location_timestamp_updated = False
 
         with connection.begin():
+            # FETCH OR CREATE A PROCEDURE FOR THIS (PREP,CPAL) PAIR
+            try:
+                procedure = Procedure.StrawProcedure(
+                    process=2, pallet_id=cpalid, pallet_number=cpal
+                )
+            except Exception as e:
+                print("CPAL/PROCEDURE CREATION ERROR", cpalid, cpal)
+                raise
+
+            # IF STRAW_LOCATION JUST CREATED, FIX TIMESTAMP
+            csv_timestamp = int(straw_information[cpal][0]["time"])
+            if (not straw_location_timestamp_updated) and procedure.isNew():
+                # update straw_location timestamp
+                # Correct the straw_location timestamp if we just created it.
+                # Not airtight, but also not that important.
+                update_stmt = (
+                    straw_location_table.update()
+                    .where(straw_location_table.c.id == procedure.straw_location)
+                    .values(timestamp=csv_timestamp)
+                )
+                result = connection.execute(update_stmt)
+
+                straw_location_timestamp_updated = True
+
+            # CORRECT THE PROCEDURE TIMESTAMP IF THE CSV TIMESTAMP IS MUCH EARLIER
+            # (A bunch of preps got uploaded at once and this was not fixed)
+            this_procedure_db_entry = connection.execute(
+                sqla.select(procedure_table).where(
+                    procedure_table.c.id == procedure.id
+                )
+            ).fetchone()
+
+            procedure_db_timestamp = getattr(
+                this_procedure_db_entry, "timestamp", None
+            )
+
+            earlier_timestamp = min(csv_timestamp, procedure_db_timestamp)
+            time_diff = abs(int(csv_timestamp) - int(procedure_db_timestamp))
+
+            if time_diff > 36000 and procedure_db_timestamp != earlier_timestamp:
+                #print("procedure DB timestamp later than csv", procedure_db_timestamp, csv_timestamp)
+                update_stmt = (
+                    procedure_table.update()
+                    .where(procedure_table.c.id == procedure.id)
+                    .values(timestamp=earlier_timestamp)
+                )
+                result = connection.execute(update_stmt)
+
+            # LOOP STRAWS AND INSERT PPG MEASUREMENTS
             for y in range(len(straw_information[cpal])):
+                # collect info from straw_information list of dicts
+                # one straw at a time
                 try:
                     straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
                     batch = straw_information[cpal][y]["batch"].replace(".", "")
@@ -519,54 +570,17 @@ def update_measurement_prep_table(
                 except KeyError:
                     print("ERROR", cpal, straw_information[cpal])
 
-                # Fetch or create a procedure for this (prep,cpal) pair
-                try:
-                    procedure = Procedure.StrawProcedure(
-                        process=2, pallet_id=cpalid, pallet_number=cpal
-                    )
-                except Exception as e:
-                    print("CPAL/PROCEDURE CREATION ERROR", cpalid, cpal)
-                    sys.exit()
-
-                if (not straw_location_timestamp_updated) and procedure.isNew():
-                    # Correct the straw_location timestamp if we just created it.
-                    # Not airtight, but also not that important.
-                    update_stmt = (
-                        straw_location_table.update()
-                        .where(straw_location_table.c.id == procedure.straw_location)
-                        .values(timestamp=csv_timestamp)
-                    )
-                    straw_location_timestamp_updated = True
-                    result = connection.execute(update_stmt)
-                else:
-                    # Correct the procedure timestamp if we can find an earlier one
-                    this_procedure_db_entry = connection.execute(
-                        sqla.select(procedure_table).where(
-                            procedure_table.c.id == procedure.id
-                        )
-                    ).fetchone()
-
-                    procedure_db_timestamp = getattr(
-                        this_procedure_db_entry, "timestamp", None
-                    )
-
-                    earlier_timestamp = min(csv_timestamp, procedure_db_timestamp)
-                    time_diff = abs(int(csv_timestamp) - int(procedure_db_timestamp))
-
-                    if time_diff > 100 and procedure_db_timestamp != earlier_timestamp:
-                        update_stmt = (
-                            procedure_table.update()
-                            .where(procedure_table.c.id == procedure.id)
-                            .values(timestamp=earlier_timestamp)
-                        )
-                        result = connection.execute(update_stmt)
-
                 # print(procedure.id, procedure.station, procedure.straw_location)
 
-                # prep_measurement = Prep.StrawPrepMeasurement(
-                #    procedure, straw_id, paper_pull[-1], 1, timestamp
-                # )
-                # prep_measurement.commit()
+                if not paper_pull:
+                    continue
+
+                prep_measurement = Prep.StrawPrepMeasurement(
+                   procedure=procedure, straw_id=straw_id, paper_pull_grade=paper_pull[-1], evaluation=1
+                )
+                prep_measurement.timestamp = csv_timestamp
+                #print(prep_measurement.procedure, prep_measurement.straw, prep_measurement.paper_pull_grade, prep_measurement.timestamp)
+                prep_measurement.commit()
 
                 # print('Updated measurement prep table for cpal ' + str(cpal))
 
@@ -620,17 +634,17 @@ def run():
         counter += 1
         # if counter > 200:
         #    break
-        if not (
-            #   #"0604" in str(file)
-            #   "0067" in str(file)
-            #   #"0010" in str(file)
-            #   #or "0941" in str(file)
-            #   #or "0799" in str(file)
-            #   #or "0396" in str(file)
-            "1216"
-            in str(file)
-        ):
-            continue
+        # if not (
+        #   #"0604" in str(file)
+        #   "0067" in str(file)
+        #   #"0010" in str(file)
+        #   #or "0941" in str(file)
+        #   #or "0799" in str(file)
+        #   #or "0396" in str(file)
+        #    "1216"
+        #    in str(file)
+        # ):
+        #    continue
 
         name = file.name
 
@@ -668,25 +682,6 @@ def run():
         # else:
         #    switch = True
 
-    # set up DB
-    database = GetLocalDatabasePath()
-    print("Using database:", database)
-    engine = sqla.create_engine("sqlite:///" + database)
-    metadata = MetaData()
-
-    """
-    #  DB query example for tests
-    with engine.connect() as connection:
-        existing_row = connection.execute(
-            sqla.select(straw_table).where(straw_table.c.id == 1090)
-        ).fetchone()
-        print(existing_row)
-        #batch = getattr(existing_row, "batch", None)
-        #print(batch, "|", str(batch), "|", bool(batch))
-    """
-
-    # add entries to and update batches in straw db table
-    straw_table = Table("straw", metadata, autoload_with=engine)
     straw_data = organize_straw_data(straw_information, metainfo_list)
 
     # duplicate straws found in the csv files? (There shouldn't be.)
@@ -714,13 +709,32 @@ def run():
         sys.exit()
     """
 
+    # set up DB
+    database = GetLocalDatabasePath()
+    print("Using database:", database)
+    engine = sqla.create_engine("sqlite:///" + database)
+    metadata = MetaData()
+
+    straw_table = Table("straw", metadata, autoload_with=engine)
+    procedure_table = Table("procedure", metadata, autoload_with=engine)
+    straw_location_table = Table("straw_location", metadata, autoload_with=engine)
+
+    """
+    #  DB query example for tests
+    with engine.connect() as connection:
+        existing_row = connection.execute(
+            sqla.select(straw_table).where(straw_table.c.id == 1090)
+        ).fetchone()
+        print(existing_row)
+        #batch = getattr(existing_row, "batch", None)
+        #print(batch, "|", str(batch), "|", bool(batch))
+    """
+
+    # insert new straws and add missing batches in straw table
     with engine.connect() as connection:
         insert_or_compare_straw(connection, straw_table, straw_data)
 
-    """
-    # UPDATE PREP TABLE (I.E. PPG)
-    procedure_table = Table("procedure", metadata, autoload_with=engine)
-    straw_location_table = Table("straw_location", metadata, autoload_with=engine)
+    # update prep table (paper pull grades, ppg)
     with engine.connect() as connection:
         update_measurement_prep_table(
             procedure_table,
@@ -731,7 +745,6 @@ def run():
         )
 
         # update_straw_present_table(metainfo_list, straw_information)
-    """
 
 
 if __name__ == "__main__":

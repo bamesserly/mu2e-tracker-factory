@@ -191,6 +191,8 @@ class SilvProcedure(StrawProcedure):
     dp190       INTEGER,
     timestamp   INTEGER NOT NULL
 """
+
+
 class CO2(StrawProcedure):
     __mapper_args__ = {"polymorphic_identity": "co2"}
 
@@ -200,17 +202,17 @@ class CO2(StrawProcedure):
         ), f"Error. Tried to construct co2 procedure for a station '{station.id}' not 'co2'."
         # creates/gets entries in procedure table and procedure_details_co2
         super().__init__(station, straw_location, create_key)
-    
+
     def _init_details(self):
         try:
             dc = self._getDetailsClass()
         except Exception:
             dc = None
         if dc is None:
-            print('got none')
+            print("got none")
             return
 
-        self.details = dc(id=self.ID(),procedure=self.id)
+        self.details = dc(id=self.ID(), procedure=self.id)
 
     def _getDetailsClass(self):
         class Details(BASE, OBJECT):
@@ -220,7 +222,6 @@ class CO2(StrawProcedure):
             epoxy_batch = Column(Integer)
             epoxy_time = Column(Integer)
             dp190 = Column(Integer)
-
 
         return Details
 
