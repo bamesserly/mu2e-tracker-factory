@@ -3,7 +3,7 @@
 # update straw present info
 #
 # loop over files and get the following:
-#     cpal_list, straw_information, cpal_prefix_list
+#     cpal_list, straw_information, metainfo_list
 # where straw information is a dict
 #     {CPAL# : [{'id': 'st20472', 'batch': '120417.B2', 'grade': 'PP.A', 'time': 1630424400}}
 #
@@ -32,11 +32,10 @@ from sqlalchemy.exc import IntegrityError
 
 
 problem_files = [
-    "CPAL0002.csv",  # no batch number
+    "CPAL0002.csv",  # oddly formatted, no batch numbers
     "CPAL0010.csv",
     "CPAL0023.csv",
-    "CPAL0025.csv",  # no batch number
-    "CPAL0040.csv",  # no batch number
+    "CPAL0025.csv",  # no ppgs, none on panels
     "CPAL0056.csv",
     "CPAL0111.csv",
     "CPAL0112.csv",
@@ -116,12 +115,13 @@ paths = GetProjectPaths()
 desired_batch_format = r"^\d{6}B\d$"
 
 
-def determine_prefix(item):
+# Get metainfo item from element of header row
+# Looks for datetime, cpalid, batch, and worker.
+def get_metainfo_item(item):
     return_val = None
     type = ""
 
-    # determine which type of data the prefix is, and assign it accordingly
-
+    # determine which type of data the metainfo is, and assign it accordingly
     item = item.strip()
     if len(item) == 16 and 2015 < int(item[0:4]) < 2023:
         time = datetime.datetime.strptime(item, "%Y-%m-%d_%H:%M")
@@ -140,15 +140,12 @@ def determine_prefix(item):
         type = "time"
     elif len(item) == 8:
         if item[0:6].upper() == "CPALID":
-            # saves pallet id prefix data
             return_val = int(item[6:8])
             type = "cpalid"
     elif len(item) > 5 and item[-2] == "B":
-        # saves batch data prefix
         return_val = str(item)
         type = "batch"
     elif item[0:3].lower() == "wk-":
-        # saves worker prefix data
         return_val = item
         type = "worker"
 
@@ -156,46 +153,47 @@ def determine_prefix(item):
 
 
 # used for parsing each row in vertically oriented cpal files
-def parse_vertical_straw_row(row, reached_data, prefixes):
-    # checks if the data has been reached, since the first lines aren't data
-    if not reached_data:
-        return False
+def parse_vertical_prep_file(file, metainfo):
+    cpal_straws = []
+    is_header = True
 
-    # not a valid straw row
-    if len(row) < 3:
-        return False
+    with open(file, "r") as f:
+        for row in csv.reader(f):
+            # Are we done with the header and onto the straw data?
+            if is_header and row and str(row[0]) == "straw":
+                is_header = False
+                continue
 
-    straw = {}
-    # for each row where data has been detected, goes through assigning
-    # pertinent data to the straw dictionary
-    for i in range(3):
-        if len(row[i]) == 7:
-            # acquires straw_id
-            if str(row[i])[0:2].lower() == "st" and str(row[i][2].isnumeric()):
-                straw["id"] = str(row[i]).lower()
-        elif len(row[i]) > 3 and str(row[i][-2]) == "B":
-            # acquires straw batch
-            straw["batch"] = str(row[i])
-        elif len(str(row[i])) == 4 or len(str(row[i])) == 3:
-            # acquires straw grade (paper pull)
-            if str(row[i][0:2]).upper() == "PP" and str(row[i]) != "DNE":
-                straw["grade"] = str(row[i]).upper()
-            elif str(row[i]).upper() == "DNE":
-                straw["grade"] = ""
+            if is_header or len(row) < 3:
+                continue
 
-    # only return the straw data if there is actually data present
-    # additionally, save the time in the straw dictionary, from the cpal
-    # prefixes dictionary
-    if len(straw.keys()) != 0:
-        straw["time"] = prefixes["time"]
-        return straw
+            straw = {}
+            # for each row where data has been detected, goes through assigning
+            # pertinent data to the straw dictionary
+            for i in range(3):
+                if len(row[i]) == 7:
+                    # acquires straw_id
+                    if str(row[i])[0:2].lower() == "st" and str(row[i][2].isnumeric()):
+                        straw["id"] = str(row[i]).lower()
+                elif len(row[i]) > 3 and str(row[i][-2]) == "B":
+                    # acquires straw batch
+                    straw["batch"] = str(row[i])
+                elif len(str(row[i])) == 4 or len(str(row[i])) == 3:
+                    # acquires straw grade (paper pull)
+                    if str(row[i][0:2]).upper() == "PP" and str(row[i]) != "DNE":
+                        straw["grade"] = str(row[i]).upper()
+                    elif str(row[i]).upper() == "DNE":
+                        straw["grade"] = ""
 
-    # if the data wasn't determined to be valid, return False
-    return False
+            if straw:
+                straw["time"] = metainfo["time"]
+                cpal_straws.append(straw)
+
+    return cpal_straws
 
 
 # parses all rows in a horizontally oriented cpal file
-def parse_horizontal_straw_rows(reader, prefixes):
+def parse_horizontal_prep_file(file, metainfo):
     # initialize lists
     inner_straw = []
     inner_batch = []
@@ -206,135 +204,97 @@ def parse_horizontal_straw_rows(reader, prefixes):
     eof = False
 
     # iterate through all acquired lines of the file
-    for row in reader:
-        # go through each row, checking to see if desired data is present
-        # if it is, append it to the pertinent list
-        for i in row:
-            if len(i) == 7:
-                # check for straw id
-                if str(i)[0:2].lower() == "st" and str(i[2].isnumeric()):
-                    inner_straw.append(str(i))
-            elif len(i) > 3 and str(i[-2]) == "B":
-                # check for straw batch
-                inner_batch.append(str(i))
-            elif len(i) == 4 or len(i) == 3:
-                # check for grade (paper pull)
-                if str(i[0:3]).upper() == "PP." and str(i).upper() != "DNE":
-                    inner_grade.append(str(i).upper())
-                elif str(i).upper() == "DNE":
-                    inner_grade.append("")
+    with open(file, "r") as f:
+        for row in csv.reader(f):
+            # go through each row, checking to see if desired data is present
+            # if it is, append it to the pertinent list
+            for i in row:
+                if len(i) == 7:
+                    # check for straw id
+                    if str(i)[0:2].lower() == "st" and str(i[2].isnumeric()):
+                        inner_straw.append(str(i))
+                elif len(i) > 3 and str(i[-2]) == "B":
+                    # check for straw batch
+                    inner_batch.append(str(i))
+                elif len(i) == 4 or len(i) == 3:
+                    # check for grade (paper pull)
+                    if str(i[0:3]).upper() == "PP." and str(i).upper() != "DNE":
+                        inner_grade.append(str(i).upper())
+                    elif str(i).upper() == "DNE":
+                        inner_grade.append("")
 
     # check that the list of straw id's matches the other data
-    if len(inner_straw) == len(inner_batch) or len(inner_straw) == len(inner_grade):
-        for i in range(len(inner_straw)):
-            straw = {"id": inner_straw[i].lower()}
-
-            # save the data corresponding to the straw id
-            if len(inner_batch) == len(inner_straw):
-                straw["batch"] = str(inner_batch[i])
-            if len(inner_grade) == len(inner_straw):
-                straw["grade"] = str(inner_grade[i]).upper()
-
-            cpal_straws.append(straw)
-
-        # use prefix batch information if appropriate
-        if len(inner_batch) != len(inner_straw):
-            for i in cpal_straws:
-                try:
-                    i["batch"] = prefixes["batch"]
-                except:
-                    print("batch prefix assignment failed: " + name)
-
-        # add time to straw
-        for i in cpal_straws:
-            i["time"] = prefixes["time"]
-
-        # if conditions are met, return the cpal_straws data
+    if len(inner_straw) != len(inner_batch) and len(inner_straw) != len(inner_grade):
         return cpal_straws
 
-    else:
-        # if the data is bogus, return False
-        return False
+    # add straws to list
+    for i in range(len(inner_straw)):
+        straw = {"id": inner_straw[i].lower()}
+
+        # save the data corresponding to the straw id
+        if len(inner_batch) == len(inner_straw):
+            straw["batch"] = str(inner_batch[i])
+        if len(inner_grade) == len(inner_straw):
+            straw["grade"] = str(inner_grade[i]).upper()
+
+        cpal_straws.append(straw)
+
+    # use metainfo batch information if appropriate
+    if len(inner_batch) != len(inner_straw):
+        for i in cpal_straws:
+            try:
+                i["batch"] = metainfo["batch"]
+            except KeyError:
+                print("batch metainfo assignment failed: ")
+                print(i.items())
+
+    # add time to straw
+    for i in cpal_straws:
+        i["time"] = metainfo["time"]
+
+    return cpal_straws
 
 
-def get_cpal_prefix(file):
-    prefixes = False
+# Get metainfo from single header row. Header row found based on date.
+# May not find all of these fields:
+# {'cpal': '0799', 'time': 1630424400, 'cpalid': 5, 'worker': 'WK-MHALPERN01',
+# 'batch' : '110817.B3'}
+#
+# "process" refers to this prep procedure defined by a prep file. Not a synonym
+# for "get".
+def get_metainfo(file):
+    if file in problem_files:
+        return {}
 
-    if file.name not in problem_files:
-        name = file.name
-        with open(file, "r") as f:
-            reader = csv.reader(f)
-
-            prefixes = {"cpal": name[-8:-4]}
-
-            # print(file.name)
-            for row in reader:
-                # acquire cpal prefix information
-                if (
-                    len(str(row[0])) == 16
-                    or (len(str(row[0])) == 19)
-                    and 2015 < int(str(row[0][0:4])) < 2023
-                ):
-                    for i in row:
-                        return_val, type = determine_prefix(i)
-                        if type != "":
-                            prefixes[type] = return_val
-                    break
-    return prefixes
-
-
-def parse_single_file(file, cpal_list, straw_information, cpal_prefix_list):
-    name = file.name
-
-    # first determine whether the straws have a horizontal or vertical layout in the csv file
-    vertical_layout = False
+    metainfo = {"cpal": str(file)[-8:-4]}
     with open(file, "r") as f:
-        reader = csv.reader(f)
+        for row in csv.reader(f):
+            if (len(str(row[0])) == 16 or (len(str(row[0])) == 19)) and 2015 < int(
+                str(row[0][0:4])
+            ) < 2023:
+                for item in row:
+                    return_val, type = get_metainfo_item(item)
+                    if type != "":
+                        metainfo[type] = return_val
+                break
 
-        for row in reader:
+    return metainfo
+
+
+def is_vert_layout(file):
+    with open(file, "r") as f:
+        for row in csv.reader(f):
             try:
                 if len(row[0]) != 0 and str(row[0]) == "straw":
-                    vertical_layout = True
+                    return True
             except:
                 pass
 
-    prefixes = get_cpal_prefix(file)
-    if prefixes != False:
-        cpal_prefix_list.append(prefixes)
+    return False
 
-        # acquire constituent straw information
-        with open(file, "r") as f:
-            reader = csv.reader(f)
-            reached_data = False
-            if vertical_layout:
-                cpal_straws = []
-                for row in reader:
-                    straw = parse_vertical_straw_row(row, reached_data, prefixes)
-                    if straw is not False:
-                        cpal_straws.append(straw)
-                    if len(row) >= 1:
-                        if str(row[0]) == "straw":
-                            reached_data = True
 
-                cpal_straws = [{**d, "cpal": name} for d in cpal_straws]
-
-                if len(cpal_straws) == 0:
-                    print("Problem acquiring straw data on cpal " + str(name))
-                else:
-                    cpal_list.append(name)
-                    straw_information[name[-8:-4]] = cpal_straws
-            else:
-                cpal_straws = parse_horizontal_straw_rows(reader, prefixes)
-                cpal_straws = [{**d, "cpal": name} for d in cpal_straws]
-                # [{'id': 'st02942', 'grade': '', 'batch': '110717.B2',
-                #     'time': 1538516460, 'cpal': 'CPAL0067.csv'}, ... ]
-                if cpal_straws is False:
-                    print("Problem acquiring straw data on cpal " + str(name))
-                else:
-                    cpal_list.append(name)
-                    straw_information[name[-8:-4]] = cpal_straws
-
-    return cpal_list, straw_information, cpal_prefix_list
+def parse_prep_file(file, metainfo, parser):
+    return parser(file, metainfo)
 
 
 def find_duplicate_straw_ids(entries):
@@ -454,6 +414,7 @@ def insert_or_compare_straw(connection, table, insert_data_list):
 
     with connection.begin():
         for insert_data in insert_data_list:
+            insert_data = {k: v for k, v in insert_data.items() if k != "cpal"}
             batch = insert_data.get("batch")
             if not batch:
                 empty_csv_batch_count += 1
@@ -491,18 +452,24 @@ def clean_batch(batch):
     return None
 
 
-def organize_straw_data(straw_information, cpal_prefix_list):
+def organize_straw_data(straw_information, metainfo_list):
     # Prepare a list to hold all rows to be inserted
     values_to_insert = []
 
     # for all straws not present in straw table, add them
-    for i in cpal_prefix_list:
-        cpal = i["cpal"]
+    for prep_procedure in metainfo_list:
+        cpal = prep_procedure["cpal"]
 
         for y in range(len(straw_information[cpal])):
-            straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
-            batch = straw_information[cpal][y]["batch"].strip().replace(".", "").upper()
-            timestamp = int(straw_information[cpal][y]["time"])
+            try:
+                straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
+                batch = (
+                    straw_information[cpal][y]["batch"].strip().replace(".", "").upper()
+                )
+                timestamp = int(straw_information[cpal][y]["time"])
+            except KeyError:
+                print(straw_information[cpal][y])
+                raise
 
             formatted_batch = batch
             if batch is None or re.match(desired_batch_format, batch):
@@ -533,13 +500,13 @@ def update_measurement_prep_table(
     procedure_table,
     straw_location_table,
     connection,
-    cpal_prefix_list,
+    metainfo_list,
     straw_information,
 ):
-    for i in cpal_prefix_list:
-        cpal = i["cpal"]
-        cpalid = i["cpalid"]
-        time = i["time"]
+    for prep_procedure in metainfo_list:
+        cpal = prep_procedure["cpal"]
+        cpalid = prep_procedure["cpalid"]
+        time = prep_procedure["time"]
         straw_location_timestamp_updated = False
 
         with connection.begin():
@@ -604,11 +571,11 @@ def update_measurement_prep_table(
                 # print('Updated measurement prep table for cpal ' + str(cpal))
 
 
-def update_straw_present_table(cpal_prefix_list, straw_information):
-    for i in cpal_prefix_list:
-        cpal = i["cpal"]
-        cpalid = i["cpalid"]
-        time = i["time"]
+def update_straw_present_table(metainfo_list, straw_information):
+    for prep_procedure in metainfo_list:
+        cpal = prep_procedure["cpal"]
+        cpalid = prep_procedure["cpalid"]
+        time = prep_procedure["time"]
         try:
             straw_location = (
                 StrawLocation.query()
@@ -641,44 +608,74 @@ def update_straw_present_table(cpal_prefix_list, straw_information):
 
 
 def run():
+    # accumulate all straw prep data from csv files into a few lists and dicts
     cpal_list = []
     straw_information = {}
-    cpal_prefix_list = []
-
+    metainfo_list = []
     switch = False
-
     counter = 0
-
-    # accumulate all straw prep data from csv files into a few lists and dicts
     for file in Path(paths["prepdata"]).rglob("*.csv"):
+        if file.name in problem_files:
+            continue
         counter += 1
         # if counter > 200:
         #    break
-        # if not (
-        #   #"0604" in str(file)
-        #   "0067" in str(file)
-        #   #"0010" in str(file)
-        #   #or "0941" in str(file)
-        #   #or "0799" in str(file)
-        #   #or "0396" in str(file)
-        # ):
-        #   continue
+        if not (
+            #   #"0604" in str(file)
+            #   "0067" in str(file)
+            #   #"0010" in str(file)
+            #   #or "0941" in str(file)
+            #   #or "0799" in str(file)
+            #   #or "0396" in str(file)
+            "1216"
+            in str(file)
+        ):
+            continue
 
-        cpal_list, straw_information, cpal_prefix_list = parse_single_file(
-            file, cpal_list, straw_information, cpal_prefix_list
+        name = file.name
+
+        metainfo = get_metainfo(file)
+
+        if not metainfo:
+            print("Couldn't get any metainfo from", name)
+            continue
+
+        # print(metainfo)
+
+        # Choose the appropriate parser function based on the file layout
+        parser = (
+            parse_vertical_prep_file
+            if is_vert_layout(file)
+            else parse_horizontal_prep_file
         )
+
+        # Get straws from file in a list of dicts:
+        # cpal_straws = [{'id': 'st02942', 'grade': '', 'batch': '110717.B2',
+        #                 'time': 1538516460, 'cpal': 'CPAL0067.csv'}, ... ]
+        straws = parse_prep_file(file, metainfo, parser)
+        straws = [{**d, "cpal": name} for d in straws]
+
+        if len(straws) == 0:
+            print("Didn't get any straws from", metainfo.items())
+            continue
+
+        metainfo_list.append(metainfo)
+        cpal_list.append(name)
+        straw_information[name[-8:-4]] = straws
 
         # if switch:
         #    break
         # else:
         #    switch = True
 
+    # set up DB
     database = GetLocalDatabasePath()
     print("Using database:", database)
     engine = sqla.create_engine("sqlite:///" + database)
     metadata = MetaData()
 
     """
+    #  DB query example for tests
     with engine.connect() as connection:
         existing_row = connection.execute(
             sqla.select(straw_table).where(straw_table.c.id == 1090)
@@ -688,11 +685,12 @@ def run():
         #print(batch, "|", str(batch), "|", bool(batch))
     """
 
-    # UPDATE STRAW TABLE
+    # add entries to and update batches in straw db table
     straw_table = Table("straw", metadata, autoload_with=engine)
-    straw_data = organize_straw_data(straw_information, cpal_prefix_list)
+    straw_data = organize_straw_data(straw_information, metainfo_list)
+
+    # duplicate straws found in the csv files? (There shouldn't be.)
     duplicates = find_duplicate_straw_ids(straw_data)
-    """
     try:
         assert not duplicates, "Duplicates were found."
     except AssertionError:
@@ -700,37 +698,39 @@ def run():
             "Trying to insert duplicate straws.\n", len(duplicates), sorted(duplicates)
         )
         sys.exit()
-    """
 
-    dupe_batches = []
-    print(len(duplicates))
-    # print out the duplicate entries in order, with their info.
-    for straw in sorted(duplicates):
-        dupe_straw_info = [d for d in straw_data if d["id"] == straw]
-        for entry in dupe_straw_info:
-            if entry["batch"] not in dupe_batches:
-                dupe_batches.append(entry["batch"])
-            print(entry)
-    print(sorted(dupe_batches))
-    sys.exit()
+    """
+        # print info about duplicates (cleaning)
+        dupe_batches = []
+        # print(len(duplicates))
+        # print out the duplicate entries in order, with their info.
+        for straw in sorted(duplicates):
+            dupe_straw_info = [d for d in straw_data if d["id"] == straw]
+            for entry in dupe_straw_info:
+                if entry["batch"] not in dupe_batches:
+                    dupe_batches.append(entry["batch"])
+                print(entry)
+        print(sorted(dupe_batches))
+        sys.exit()
+    """
 
     with engine.connect() as connection:
         insert_or_compare_straw(connection, straw_table, straw_data)
 
+    """
     # UPDATE PREP TABLE (I.E. PPG)
     procedure_table = Table("procedure", metadata, autoload_with=engine)
     straw_location_table = Table("straw_location", metadata, autoload_with=engine)
-    """
     with engine.connect() as connection:
         update_measurement_prep_table(
             procedure_table,
             straw_location_table,
             connection,
-            cpal_prefix_list,
+            metainfo_list,
             straw_information,
         )
 
-        # update_straw_present_table(cpal_prefix_list, straw_information)
+        # update_straw_present_table(metainfo_list, straw_information)
     """
 
 
