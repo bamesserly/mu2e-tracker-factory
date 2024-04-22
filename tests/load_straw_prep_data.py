@@ -652,7 +652,7 @@ def run():
     metainfo_list = []
     switch = False
     counter = 0
-    for file in Path(paths["prepdata"]).rglob("*.csv"):
+    for file in Path(paths["prepdata"]).glob("*.csv"):
         if file.name in problem_files:
             continue
         counter += 1
