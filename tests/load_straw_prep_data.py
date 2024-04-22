@@ -1,15 +1,21 @@
 # ===============================================================================
-# (1) Parse input csv, (2) load straw info, (3) load prep data table, (4)
-# update straw present info
+# (1) Parse input csv, (2) load straw info into db, (3) load prep data into db
+#
+# This does NOT currently update straw prep data.
+# I considered creating straw present entries recording when straws were added
+# to their CPALs, but it's not a priority, and it can be done later.
 #
 # loop over files and get the following:
 #     cpal_list, straw_information, metainfo_list
 # where straw information is a dict
 #     {CPAL# : [{'id': 'st20472', 'batch': '120417.B2', 'grade': 'PP.A', 'time': 1630424400}}
 #
-# then we update the DB:
+# Then we update the DB:
 #   1. create straws if needed
-#   2. batch # and ppg in prep table
+#   2. update the batch numbers
+#   3. create CPAL straw location if needed, straw_position entries created
+#   automatically. If CPAL is created, also create a procedure entry.
+#   4. create measurement_prep entries for straws-ppgs
 # ===============================================================================
 
 from pathlib import Path
@@ -115,8 +121,14 @@ paths = GetProjectPaths()
 desired_batch_format = r"^\d{6}B\d$"
 
 
-# Get metainfo item from element of header row
-# Looks for datetime, cpalid, batch, and worker.
+# ===============================================================================
+# CSV Parsing Functions
+# ===============================================================================
+# Input: chunk of comma-separated first line of the prep file
+# Extract metainfo from this chunk.
+# Looks for one of datetime, cpalid, batch, and worker.
+# Intended to be called in succession on each comma-separated element of the
+# first line.
 def get_metainfo_item(item):
     return_val = None
     type = ""
@@ -152,7 +164,39 @@ def get_metainfo_item(item):
     return return_val, type
 
 
-# used for parsing each row in vertically oriented cpal files
+# Get metainfo from single header row. Header row found based on date.
+# May not find all of these fields:
+# {'cpal': '0799', 'time': 1630424400, 'cpalid': 5, 'worker': 'WK-MHALPERN01',
+# 'batch' : '110817.B3'}
+#
+# "process" refers to this prep procedure defined by a prep file. Not a synonym
+# for "get".
+def get_metainfo(file):
+    if file in problem_files:
+        return {}
+
+    metainfo = {"cpal": str(file)[-8:-4]}
+    with open(file, "r") as f:
+        for row in csv.reader(f):
+            if (len(str(row[0])) == 16 or (len(str(row[0])) == 19)) and 2015 < int(
+                str(row[0][0:4])
+            ) < 2023:
+                for item in row:
+                    return_val, type = get_metainfo_item(item)
+                    if type != "":
+                        metainfo[type] = return_val
+                break
+
+    return metainfo
+
+
+# Parse file caller for dependency injection
+def parse_prep_file(file, metainfo, parser):
+    return parser(file, metainfo)
+
+
+# parse each row in vertically-oriented (later-gen) cpal files
+# output: list of dicts, each dict containing info about one straw.
 def parse_vertical_prep_file(file, metainfo):
     cpal_straws = []
     is_header = True
@@ -192,7 +236,8 @@ def parse_vertical_prep_file(file, metainfo):
     return cpal_straws
 
 
-# parses all rows in a horizontally oriented cpal file
+# parse each row in vertically-oriented (earlier-gen) cpal files
+# output: list of dicts, each dict containing info about one straw.
 def parse_horizontal_prep_file(file, metainfo):
     # initialize lists
     inner_straw = []
@@ -255,32 +300,7 @@ def parse_horizontal_prep_file(file, metainfo):
     return cpal_straws
 
 
-# Get metainfo from single header row. Header row found based on date.
-# May not find all of these fields:
-# {'cpal': '0799', 'time': 1630424400, 'cpalid': 5, 'worker': 'WK-MHALPERN01',
-# 'batch' : '110817.B3'}
-#
-# "process" refers to this prep procedure defined by a prep file. Not a synonym
-# for "get".
-def get_metainfo(file):
-    if file in problem_files:
-        return {}
-
-    metainfo = {"cpal": str(file)[-8:-4]}
-    with open(file, "r") as f:
-        for row in csv.reader(f):
-            if (len(str(row[0])) == 16 or (len(str(row[0])) == 19)) and 2015 < int(
-                str(row[0][0:4])
-            ) < 2023:
-                for item in row:
-                    return_val, type = get_metainfo_item(item)
-                    if type != "":
-                        metainfo[type] = return_val
-                break
-
-    return metainfo
-
-
+# Is this file in the newer vertical layout or the older horizontal layout?
 def is_vert_layout(file):
     with open(file, "r") as f:
         for row in csv.reader(f):
@@ -293,10 +313,65 @@ def is_vert_layout(file):
     return False
 
 
-def parse_prep_file(file, metainfo, parser):
-    return parser(file, metainfo)
+# put batch in desired format XXXXXXBX or else return None
+def clean_batch(batch):
+    if batch is None:
+        return None
+    batch = batch.strip()
+    batch = re.sub(r"[^\d\w]", "", batch)  # Remove non-alphanumeric characters
+    batch = batch.upper()
+    if re.match(desired_batch_format, batch):
+        return batch
+    return None
 
 
+def organize_straw_data(straw_information, metainfo_list):
+    # Prepare a list to hold all rows to be inserted
+    values_to_insert = []
+
+    # for all straws not present in straw table, add them
+    for prep_procedure in metainfo_list:
+        cpal = prep_procedure["cpal"]
+
+        for y in range(len(straw_information[cpal])):
+            try:
+                straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
+                batch = (
+                    straw_information[cpal][y]["batch"].strip().replace(".", "").upper()
+                )
+                timestamp = int(straw_information[cpal][y]["time"])
+            except KeyError:
+                print(straw_information[cpal][y])
+                raise
+
+            formatted_batch = batch
+            if batch is None or re.match(desired_batch_format, batch):
+                # batch is either None or in the correct format
+                pass
+            else:
+                # attempt to format it
+                formatted_batch = clean_batch(batch)
+                if batch is not None and formatted_batch is None:
+                    print(f"Batch reformat failed for {straw_id}-{batch}-{cpal}")
+                # either way, formatted_batch is either correct or None. Either
+                # way, proceed.
+
+            # Append a dictionary for each row to the list
+            values_to_insert.append(
+                {
+                    "id": straw_id,
+                    "batch": formatted_batch,
+                    "timestamp": timestamp,
+                    "cpal": cpal,
+                }
+            )
+
+    return values_to_insert
+
+
+# ==============================================================================
+# Data cleaning/organization and individual straw db insert/update methods
+# ==============================================================================
 def find_duplicate_straw_ids(entries):
     """
     Finds duplicate straw_id values in a list of dictionaries.
@@ -440,62 +515,9 @@ def insert_or_compare_straw(connection, table, insert_data_list):
     )
 
 
-# put batch in desired format XXXXXXBX or else return None
-def clean_batch(batch):
-    if batch is None:
-        return None
-    batch = batch.strip()
-    batch = re.sub(r"[^\d\w]", "", batch)  # Remove non-alphanumeric characters
-    batch = batch.upper()
-    if re.match(desired_batch_format, batch):
-        return batch
-    return None
-
-
-def organize_straw_data(straw_information, metainfo_list):
-    # Prepare a list to hold all rows to be inserted
-    values_to_insert = []
-
-    # for all straws not present in straw table, add them
-    for prep_procedure in metainfo_list:
-        cpal = prep_procedure["cpal"]
-
-        for y in range(len(straw_information[cpal])):
-            try:
-                straw_id = int(straw_information[cpal][y]["id"][2::].lstrip("0"))
-                batch = (
-                    straw_information[cpal][y]["batch"].strip().replace(".", "").upper()
-                )
-                timestamp = int(straw_information[cpal][y]["time"])
-            except KeyError:
-                print(straw_information[cpal][y])
-                raise
-
-            formatted_batch = batch
-            if batch is None or re.match(desired_batch_format, batch):
-                # batch is either None or in the correct format
-                pass
-            else:
-                # attempt to format it
-                formatted_batch = clean_batch(batch)
-                if batch is not None and formatted_batch is None:
-                    print(f"Batch reformat failed for {straw_id}-{batch}-{cpal}")
-                # either way, formatted_batch is either correct or None. Either
-                # way, proceed.
-
-            # Append a dictionary for each row to the list
-            values_to_insert.append(
-                {
-                    "id": straw_id,
-                    "batch": formatted_batch,
-                    "timestamp": timestamp,
-                    "cpal": cpal,
-                }
-            )
-
-    return values_to_insert
-
-
+# ==============================================================================
+# Loop all straws and insert into/update db
+# ==============================================================================
 def update_measurement_prep_table(
     procedure_table,
     straw_location_table,
@@ -537,20 +559,16 @@ def update_measurement_prep_table(
             # CORRECT THE PROCEDURE TIMESTAMP IF THE CSV TIMESTAMP IS MUCH EARLIER
             # (A bunch of preps got uploaded at once and this was not fixed)
             this_procedure_db_entry = connection.execute(
-                sqla.select(procedure_table).where(
-                    procedure_table.c.id == procedure.id
-                )
+                sqla.select(procedure_table).where(procedure_table.c.id == procedure.id)
             ).fetchone()
 
-            procedure_db_timestamp = getattr(
-                this_procedure_db_entry, "timestamp", None
-            )
+            procedure_db_timestamp = getattr(this_procedure_db_entry, "timestamp", None)
 
             earlier_timestamp = min(csv_timestamp, procedure_db_timestamp)
             time_diff = abs(int(csv_timestamp) - int(procedure_db_timestamp))
 
             if time_diff > 36000 and procedure_db_timestamp != earlier_timestamp:
-                #print("procedure DB timestamp later than csv", procedure_db_timestamp, csv_timestamp)
+                # print("procedure DB timestamp later than csv", procedure_db_timestamp, csv_timestamp)
                 update_stmt = (
                     procedure_table.update()
                     .where(procedure_table.c.id == procedure.id)
@@ -576,10 +594,13 @@ def update_measurement_prep_table(
                     continue
 
                 prep_measurement = Prep.StrawPrepMeasurement(
-                   procedure=procedure, straw_id=straw_id, paper_pull_grade=paper_pull[-1], evaluation=1
+                    procedure=procedure,
+                    straw_id=straw_id,
+                    paper_pull_grade=paper_pull[-1],
+                    evaluation=1,
                 )
                 prep_measurement.timestamp = csv_timestamp
-                #print(prep_measurement.procedure, prep_measurement.straw, prep_measurement.paper_pull_grade, prep_measurement.timestamp)
+                # print(prep_measurement.procedure, prep_measurement.straw, prep_measurement.paper_pull_grade, prep_measurement.timestamp)
                 prep_measurement.commit()
 
                 # print('Updated measurement prep table for cpal ' + str(cpal))
@@ -621,6 +642,9 @@ def update_straw_present_table(metainfo_list, straw_information):
             print("Straw location not found for cpal " + str(cpal))
 
 
+# ==============================================================================
+# Main
+# ==============================================================================
 def run():
     # accumulate all straw prep data from csv files into a few lists and dicts
     cpal_list = []
@@ -634,16 +658,7 @@ def run():
         counter += 1
         # if counter > 200:
         #    break
-        # if not (
-        #   #"0604" in str(file)
-        #   "0067" in str(file)
-        #   #"0010" in str(file)
-        #   #or "0941" in str(file)
-        #   #or "0799" in str(file)
-        #   #or "0396" in str(file)
-        #    "1216"
-        #    in str(file)
-        # ):
+        # if not ( "0396" in str(file) ):
         #    continue
 
         name = file.name
