@@ -20,7 +20,7 @@ leaktestresults,data/StrawLeak/LeakTestResults.csv
 leaktestresultsLTG,data/StrawLeak/LeakTestResults.csv
 leakworkers,data/workers/straw workers/leak testing
 listsDirectory,data/Panel Data/Lists/
-lpals,data\Loading Pallets
+lpals,data/Loading Pallets
 moldReleasePath,data/Panel Data/Mold Release/Mold Release.csv
 pallets,data/Pallets
 palletsLTG,data/Pallets
