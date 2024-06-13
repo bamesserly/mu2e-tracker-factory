@@ -38,11 +38,138 @@ lpal_skip_list = [
 paths = GetProjectPaths()
 
 
-def ParseLPALFile(file):
+def parse_lpal_file(file):
     with open(file, "r") as f:
         reader = DictReader(line for line in f if line.split(",")[0])
         straws = [row for row in reader]
     return straws
+
+
+# ==============================================================================
+# DB Functions
+# ==============================================================================
+class db_function:
+    # jumping through hoops to avoid passing connection and tables to every
+    # db function
+    connection = None
+    tables = None
+
+    @classmethod
+    def set_connection(cls, _connection):
+        cls.connection = _connection
+
+    @classmethod
+    def set_tables(cls, _tables):
+        cls.tables = _tables
+
+    @classmethod
+    def inject(cls, func):
+        def wrapper(*args, **kwargs):
+            if cls.connection is None:
+                raise ValueError("Connection not set.")
+            if cls.tables is None:
+                raise ValueError("Tables not set.")
+            return func(cls.connection, cls.tables, *args, **kwargs)
+
+        return wrapper
+
+
+@db_function.inject
+def get_lpal_stlid(connection, tables, lpal):
+    ret = connection.execute(
+        sqla.select(tables["straw_location"]).where(
+            sqla.and_(
+                tables["straw_location"].c.number == lpal,
+                tables["straw_location"].c.location_type == "LPAL",
+            )
+        )
+    ).fetchone()
+    return getattr(ret, "id", None)
+
+
+# Get the procedure that uses this lpal in either top or bottom location.
+@db_function.inject
+def get_procedure_data(connection, tables, lpal_stlid):
+    entries = []
+    for pro in [tables["procedure1"], tables["procedure2"]]:
+        query = (
+            sqla.select(pro)
+            .where(sqla.or_(pro.c.lpal_top == lpal_stlid, pro.c.lpal_bot == lpal_stlid))
+            .order_by(pro.c.id)
+        )
+        entries.extend(connection.execute(query).fetchall())
+
+    # Make sure there's only one such procedure
+    assert entries, "lpal not found in any procedure"
+    assert len(entries) == 1, "lpal found in more than one procedure"
+    procedure_details = entries[0]
+    return procedure_details
+
+
+@db_function.inject
+def get_procedure_metadata(connection, tables, procedure_id):
+    procedure_metadata = connection.execute(
+        sqla.select(tables["procedure"]).where(tables["procedure"].c.id == procedure_id)
+    ).fetchone()
+    return procedure_metadata
+
+
+@db_function.inject
+def get_panel_number(connection, tables, panel_stlid):
+    panel_number = connection.execute(
+        sqla.select(tables["straw_location"]).where(
+            tables["straw_location"].c.id == panel_stlid
+        )
+    ).fetchone()
+    stl_type = getattr(panel_number, "location_type", None)
+    assert stl_type == "MN", "panel location not found in DB"
+    panel_number = getattr(panel_number, "number", None)
+    panel_number = f"{panel_number:03d}"
+    return panel_number
+
+
+@db_function.inject
+def get_lpal_straw_position(connection, tables, lpal_position, lpal_stlid):
+    lpal_straw_positions = connection.execute(
+        sqla.select(tables["straw_position"]).where(
+            sqla.and_(
+                tables["straw_position"].c.position_number == lpal_position,
+                tables["straw_position"].c.location == lpal_stlid,
+            )
+        )
+    ).fetchall()
+    assert len(lpal_straw_positions) == 1
+    return lpal_straw_positions[0]
+
+
+@db_function.inject
+def insert_straw_present_entry(connection, tables, straw_present_entry):
+    insert_stmt = (
+        tables["straw_present"]
+        .insert()
+        .values(**straw_present_entry)
+        .prefix_with("OR IGNORE")
+    )
+    try:
+        result = connection.execute(insert_stmt)
+        connection.commit()
+    except IntegrityError:
+        raise
+    return result
+
+
+@db_function.inject
+def get_panel_straw_position(connection, tables, panel_position, panel_stlid):
+    panel_straw_positions = connection.execute(
+        sqla.select(tables["straw_position"]).where(
+            sqla.and_(
+                tables["straw_position"].c.position_number == panel_position,
+                tables["straw_position"].c.location == panel_stlid,
+            )
+        )
+    ).fetchall()
+    assert len(panel_straw_positions) == 1
+    return panel_straw_positions[0]
 
 
 # ==============================================================================
@@ -55,6 +182,7 @@ def run():
     counter = 0
     all_straws = []
     lpal_list = []
+    print(paths["lpals"])
     for file in Path(paths["lpals"]).glob("*.csv"):
         if file.name in lpal_skip_list:
             continue
@@ -65,7 +193,7 @@ def run():
         # if "312" not in str(file.name):
         #   return
 
-        straws = ParseLPALFile(file)
+        straws = parse_lpal_file(file)
 
         if len(straws) < 30:
             print(f"{str(file)} no data")
@@ -82,134 +210,91 @@ def run():
     print(f"Last straw: {all_straws[-1]}")
     print(f"{counter} files loaded")
 
-    print("\nDon't add straws after MN172")
+    print("\nProcessing first batch: all straws up to and including MN172.")
+    print("This corresponds to LPALs 1-358.")
+    print("additionally, skip three lpals: 26, 224, and 225 which are missing straws.")
+
+    bad_lpals = [26, 224, 225]
     # Process first group of straws up to LPAL0173, for which there are no
     # entries in the DB.
-    all_straws = [s for s in all_straws if int(s["lpal"]) <= 358]
-    lpal_list = [l for l in lpal_list if l <= 358]
+    all_straws = [
+        s
+        for s in all_straws
+        if int(s["lpal"]) <= 358 and int(s["lpal"]) not in bad_lpals
+    ]
+    lpal_list = [l for l in lpal_list if l <= 358 and l not in bad_lpals]
 
     # set up DB
     database = GetLocalDatabasePath()
     print("Using database:", database)
     engine = sqla.create_engine("sqlite:///" + database)
     metadata = MetaData()
-    straw_location_table = Table("straw_location", metadata, autoload_with=engine)
-    procedure1_table = Table("procedure_details_pan1", metadata, autoload_with=engine)
-    procedure2_table = Table("procedure_details_pan2", metadata, autoload_with=engine)
-    procedure_table = Table("procedure", metadata, autoload_with=engine)
-    straw_position_table = Table("straw_position", metadata, autoload_with=engine)
-    straw_present_table = Table("straw_present", metadata, autoload_with=engine)
+    tables = {
+        "straw_location": Table("straw_location", metadata, autoload_with=engine),
+        "procedure1": Table("procedure_details_pan1", metadata, autoload_with=engine),
+        "procedure2": Table("procedure_details_pan2", metadata, autoload_with=engine),
+        "procedure": Table("procedure", metadata, autoload_with=engine),
+        "straw_position": Table("straw_position", metadata, autoload_with=engine),
+        "straw_present": Table("straw_present", metadata, autoload_with=engine),
+    }
+    db_function.set_tables(tables)
 
-    # loop over all LPALs and straws
-    # create straw_present entries for each straw in each LPAL and panel
+    # ==============================================================================
+    # Begin DB connection, collect high-level info, then loop LPALs
+    #
+    # For each LPAL, loop straws and fill straw_present table with LPAL and
+    # panel entries
+    # ==============================================================================
     with engine.connect() as connection:
+        db_function.set_connection(connection)
         for lpal in sorted(lpal_list):
-            lpal_stl_entry = connection.execute(
-                sqla.select(straw_location_table).where(
-                    sqla.and_(
-                        straw_location_table.c.number == lpal,
-                        straw_location_table.c.location_type == "LPAL",
-                    )
-                )
-            ).fetchone()
-            lpal_stlid = getattr(lpal_stl_entry, "id", None)
+            # ==================================================================
+            # Collect high-level info about LPAL and Panel
+            # ==================================================================
+            # lpal straw location id
+            lpal_stlid = get_lpal_stlid(lpal)
             if not lpal_stlid:
                 print("straw location not found in DB", lpal_stlid, lpal)
 
-            # Get the procedure that uses this lpal in either top or bottom location.
-            entries = []
-            for p in [procedure1_table, procedure2_table]:
-                query = (
-                    sqla.select(p)
-                    .where(
-                        sqla.or_(p.c.lpal_top == lpal_stlid, p.c.lpal_bot == lpal_stlid)
-                    )
-                    .order_by(p.c.id)
-                )
-                entries.extend(connection.execute(query).fetchall())
+            # procedure 1 or 2 data for this lpal
+            procedure_data = get_procedure_data(lpal_stlid)
+            procedure_id = getattr(procedure_data, "procedure", None)
+            is_top_lpal = getattr(procedure_data, "lpal_top", None) == lpal_stlid
+            procedure_metadata = get_procedure_metadata(procedure_id)
+            pro_timestamp = getattr(procedure_metadata, "timestamp", None)
+            panel_stlid = getattr(procedure_metadata, "straw_location", None)
 
-            # Make sure there's only one such procedure
-            assert entries, "lpal not found in any procedure"
-            assert len(entries) == 1, "lpal found in more than one procedure"
-            procedure_details = entries[0]
-            procedure_id = getattr(procedure_details, "procedure", None)
-            is_top_lpal = getattr(procedure_details, "lpal_top", None) == lpal_stlid
+            # panel number from the straw_location table "number" field
+            panel_number = get_panel_number(panel_stlid)
 
-            # get this procedure's entry in the procedure table
-            procedure_entry = connection.execute(
-                sqla.select(procedure_table).where(procedure_table.c.id == procedure_id)
-            ).fetchone()
-            pro_timestamp = getattr(procedure_entry, "timestamp", None)
-
-            # and get this procedure entry's straw_location
-            panel_stlid = getattr(procedure_entry, "straw_location", None)
-
-            # get the panel number from the straw_location table "number" field
-            panel_number = connection.execute(
-                sqla.select(straw_location_table).where(
-                    straw_location_table.c.id == panel_stlid
-                )
-            ).fetchone()
-            stl_type = getattr(panel_number, "location_type", None)
-            assert stl_type == "MN", "panel location not found in DB"
-            panel_number = getattr(panel_number, "number", None)
-            panel_number = f"{panel_number:03d}"
-
-            # Save straws to LPALs and panels
+            # ==================================================================
+            # Straw Loop. Save each straw to LPAL and panel.
+            # ==================================================================
             count = 0
-            print(f"LPAL {lpal}")
+            print(f"LPAL{lpal:04d}")
             for straw in [s for s in all_straws if s["lpal"] == lpal]:
                 lpal_position = int(straw["Position"])
-                timestamp = int(straw["Timestamp"])
+                lpal_timestamp = int(straw["Timestamp"])
                 straw_id = int(straw["Straw"][2:])
 
-                # get the lpal position id where this straw will go
-                lpal_straw_positions = connection.execute(
-                    sqla.select(straw_position_table).where(
-                        sqla.and_(
-                            straw_position_table.c.position_number == lpal_position,
-                            straw_position_table.c.location == lpal_stlid,
-                        )
-                    )
-                ).fetchall()
-                assert len(lpal_straw_positions) == 1
-                lpal_straw_position_id = getattr(lpal_straw_positions[0], "id", None)
-
-                # assemble the LPAL straw_present entry and attempt to commit it
+                # LPAL straw present entry
+                lpal_straw_position = get_lpal_straw_position(lpal_position, lpal_stlid)
+                lpal_straw_position_id = getattr(lpal_straw_position, "id", None)
                 lpal_straw_present_entry = {
                     "straw": straw_id,
                     "position": lpal_straw_position_id,
                     "present": False,
-                    "time_in": timestamp,
+                    "time_in": lpal_timestamp,
                     "time_out": pro_timestamp,
                 }
-                insert_stmt = (
-                    straw_present_table.insert()
-                    .values(**lpal_straw_present_entry)
-                    .prefix_with("OR IGNORE")
-                )
-                try:
-                    lpal_result = connection.execute(insert_stmt)
-                    connection.commit()
-                except IntegrityError:
-                    raise
+                lpal_result = insert_straw_present_entry(lpal_straw_present_entry)
 
-                # top and bot lpal -> panel position mapping
+                # Panel straw present entry
                 panel_position = lpal_position + 1 if is_top_lpal else lpal_position
-
-                # get the panel position id where this straw will go
-                panel_straw_positions = connection.execute(
-                    sqla.select(straw_position_table).where(
-                        sqla.and_(
-                            straw_position_table.c.position_number == panel_position,
-                            straw_position_table.c.location == panel_stlid,
-                        )
-                    )
-                ).fetchall()
-                assert len(panel_straw_positions) == 1
-                panel_straw_position_id = getattr(panel_straw_positions[0], "id", None)
-
-                # assemble the panel straw_present entry and attempt to commit it
+                panel_straw_position = get_panel_straw_position(
+                    panel_position, panel_stlid
+                )
+                panel_straw_position_id = getattr(panel_straw_position, "id", None)
                 panel_straw_present_entry = {
                     "straw": straw_id,
                     "position": panel_straw_position_id,
@@ -217,98 +302,19 @@ def run():
                     "time_in": pro_timestamp,
                     "time_out": None,
                 }
-                insert_stmt = (
-                    straw_present_table.insert()
-                    .values(**panel_straw_present_entry)
-                    .prefix_with("OR IGNORE")
-                )
-                try:
-                    panel_result = connection.execute(insert_stmt)
-                    connection.commit()
-                except Exception as e:
-                    print(e)
-                    raise
+                panel_result = insert_straw_present_entry(panel_straw_present_entry)
 
                 lpal_txt = "NOT added" if lpal_result.rowcount == 0 else "added"
                 panel_txt = "NOT added" if panel_result.rowcount == 0 else "added"
                 print(
-                    f"\tST{straw_id:05d} - {lpal_txt} to LPAL{lpal:04d} pos {lpal_position} | {panel_txt} to MN{panel_number} pos {panel_position}"
+                    f"\tST{straw_id:05d} - {lpal_txt} to LPAL{lpal:04d} pos {lpal_position:02d} | {panel_txt} to MN{panel_number} pos {panel_position:02d}"
                 )
 
                 count += 1
-                if count > 5:
+                if count > 10:
                     break
 
             break
-
-    # class StrawPresent(BASE, OBJECT):
-    #    __tablename__ = "straw_present"
-    #    id = Column(Integer, primary_key=True)
-    #    straw = Column(Integer, ForeignKey("straw.id"))
-    #    position = Column(Integer, ForeignKey("straw_position.id"))
-    #    present = Column(BOOLEAN)
-
-    # insert_data = {k: v for k, v in insert_data.items() if k != "cpal"}
-    # insert_stmt = table.insert().values(**insert_data)
-
-    """
-    pro2_db_entry = connection.execute(
-        sqla.select(procedure_table).where(procedure_table.c.id == procedure.id)
-    ).fetchone()
-
-    procedure2_db_entry = connection.execute(
-        sqlalchemy.select(procedure2_table).where(...)
-    ).fetchone()
-
-    procedure2_table = Table("procedure_details_pan2", metadata, autoload_with=engine)
-    procedure_table = Table("procedure", metadata, autoload_with=engine)
-    """
-
-    """
-    query = (
-        select(procedure2_table)
-        #.join(procedure_table, procedure_table.c.id == procedure2_table.c.procedure)
-        .join(straw_location_table, straw_location_table.c.id == procedure_table.c.straw_location)
-        .where(straw_location_table.c.number == straw_location_number)
-    )
-
-    straw_table = Table("straw", metadata, autoload_with=engine)
-    straw_present_table = Table("straw_present", metadata, autoload_with=engine)
-    """
-
-    """
-    with engine.connect() as connection:
-        existing_row = connection.execute(
-            sqla.select(straw_table).where(straw_table.c.id == 1090)
-        ).fetchone()
-        print(existing_row)
-        #batch = getattr(existing_row, "batch", None)
-        #print(batch, "|", str(batch), "|", bool(batch))
-
-    lpalLoc = (
-        StrawLocation.query()
-        .filter(StrawLocation.location_type == "LPAL")
-        .filter(StrawLocation.number == int(lpalNum))
-        .one_or_none()
-    )
-    """
-
-    """
-    #  DB query example for tests
-    with engine.connect() as connection:
-        existing_row = connection.execute(
-            sqla.select(straw_table).where(straw_table.c.id == 1090)
-        ).fetchone()
-        print(existing_row)
-        #batch = getattr(existing_row, "batch", None)
-        #print(batch, "|", str(batch), "|", bool(batch))
-    """
-
-    """
-    # insert new straws and add missing batches in straw table
-    with engine.connect() as connection:
-        insert_or_compare_straw(connection, straw_table, straw_data)
-    """
 
 
 if __name__ == "__main__":
