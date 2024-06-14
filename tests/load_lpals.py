@@ -45,6 +45,32 @@ def parse_lpal_file(file):
     return straws
 
 
+def sort_timestamps(lpal_timestamp, pro12_start_time, pro3_start_time):
+    assert (
+        pro12_start_time <= pro3_start_time
+    ), f"pro12_start_time: {pro12_start_time}, pro3_start_time: {pro3_start_time}"
+    # 1. straws on lpal before pro 1/2 start
+    if lpal_timestamp < pro12_start_time:
+        lpal_in_time = lpal_timestamp
+        panel_in_time = pro12_start_time
+    # 2. straws on lpal after pro 1/2 start and before pro 3 start
+    elif pro12_start_time < lpal_timestamp < pro3_start_time:
+        lpal_in_time = lpal_timestamp
+        panel_in_time = pro3_start_time
+    # 3. (sic) straws on lpal after pro 3 start
+    elif pro3_start_time < lpal_timestamp:
+        lpal_in_time = pro12_start_time
+        panel_in_time = pro3_start_time
+    # 4. punt: straws added to lpal, removed from lpal, then added to panel all
+    # at the same time
+    elif lpal_timestamp == pro3_start_time:
+        lpal_in_time = lpal_timestamp
+        panel_in_time = pro3_start_time
+    else:
+        raise ValueError("Timestamps mess. Sanity check failed.")
+    return lpal_in_time, panel_in_time
+
+
 # ==============================================================================
 # DB Functions
 # ==============================================================================
@@ -100,7 +126,7 @@ def get_procedure_data(connection, tables, lpal_stlid):
         entries.extend(connection.execute(query).fetchall())
 
     # Make sure there's only one such procedure
-    assert entries, "lpal not found in any procedure"
+    assert entries, f"LPAL {lpal_stlid} not found in any procedure"
     assert len(entries) == 1, "lpal found in more than one procedure"
     procedure_details = entries[0]
     return procedure_details
@@ -108,10 +134,26 @@ def get_procedure_data(connection, tables, lpal_stlid):
 
 @db_function.inject
 def get_procedure_metadata(connection, tables, procedure_id):
-    procedure_metadata = connection.execute(
+    return connection.execute(
         sqla.select(tables["procedure"]).where(tables["procedure"].c.id == procedure_id)
     ).fetchone()
-    return procedure_metadata
+
+
+@db_function.inject
+def get_pro3_start_time(connection, tables, panel_stlid):
+    pro_metadata_entries = connection.execute(
+        sqla.select(tables["procedure"]).where(
+            sqla.and_(
+                tables["procedure"].c.straw_location == panel_stlid,
+                tables["procedure"].c.station == "pan3",
+            )
+        )
+    ).fetchall()
+    # hit the breaks if extra pro 3 so I can track it down.
+    if len(pro_metadata_entries) > 1:
+        sys.exit(f"Multiple pro 3's for {panel_stlid}")
+    assert len(pro_metadata_entries) == 1, f"missing pro 3 for {panel_stlid}."
+    return getattr(pro_metadata_entries[0], "timestamp", None)
 
 
 @db_function.inject
@@ -138,7 +180,29 @@ def get_lpal_straw_position(connection, tables, lpal_position, lpal_stlid):
             )
         )
     ).fetchall()
-    assert len(lpal_straw_positions) == 1
+    assert len(lpal_straw_positions) <= 1, "more than one position found"
+
+    # create position if missing
+    if len(lpal_straw_positions) == 0:
+        connection.execute(
+            tables["straw_position"]
+            .insert()
+            .values(position_number=lpal_position, location=lpal_stlid)
+            .prefix_with("OR IGNORE")
+        )
+
+        # retrieve it
+        lpal_straw_positions = connection.execute(
+            sqla.select(tables["straw_position"]).where(
+                sqla.and_(
+                    tables["straw_position"].c.position_number == lpal_position,
+                    tables["straw_position"].c.location == lpal_stlid,
+                )
+            )
+        ).fetchall()
+        assert len(lpal_straw_positions) <= 1, "more than one position found"
+
+
     return lpal_straw_positions[0]
 
 
@@ -172,6 +236,26 @@ def get_panel_straw_position(connection, tables, panel_position, panel_stlid):
     return panel_straw_positions[0]
 
 
+# count the number of panel straw present entries the present == 1
+@db_function.inject
+def count_panel_straw_present(connection, tables, panel_stlid):
+    join_condition = tables["straw_present"].c.position == tables["straw_position"].c.id
+
+    panel_straw_present_entries = connection.execute(
+        sqla.select(tables["straw_present"])
+        .select_from(
+            sqla.join(tables["straw_present"], tables["straw_position"], join_condition)
+        )
+        .where(
+            sqla.and_(
+                tables["straw_position"].c.location == panel_stlid,
+                tables["straw_present"].c.present == 1,
+            )
+        )
+    ).fetchall()
+    return len(panel_straw_present_entries)
+
+
 # ==============================================================================
 # Main
 # ==============================================================================
@@ -182,21 +266,28 @@ def run():
     counter = 0
     all_straws = []
     lpal_list = []
-    print(paths["lpals"])
+    # print(paths["lpals"])
     for file in Path(paths["lpals"]).glob("*.csv"):
         if file.name in lpal_skip_list:
             continue
         lpal = int(str(file)[-17:-13])
         assert 0 < lpal < 600
-        print(file.name)
+        #print(file.name)
 
         # if "312" not in str(file.name):
         #   return
 
         straws = parse_lpal_file(file)
 
+        cache = len(straws)
+
+        straws = [s for s in straws if (s["Straw"] and s["Timestamp"])]
+
+        if cache != len(straws):
+            print(f"{file.name} removed {cache - len(straws)} empty straws")
+
         if len(straws) < 30:
-            print(f"{str(file)} no data")
+            print(f"{str(file.name)} no data")
             continue
 
         # add lpal number to each straw
@@ -213,8 +304,9 @@ def run():
     print("\nProcessing first batch: all straws up to and including MN172.")
     print("This corresponds to LPALs 1-358.")
     print("additionally, skip three lpals: 26, 224, and 225 which are missing straws.")
+    print("And 3, 4, and 5 have some issues.")
 
-    bad_lpals = [26, 224, 225]
+    bad_lpals = [26, 224, 225, 3, 4, 5]
     # Process first group of straws up to LPAL0173, for which there are no
     # entries in the DB.
     all_straws = [
@@ -226,7 +318,7 @@ def run():
 
     # set up DB
     database = GetLocalDatabasePath()
-    print("Using database:", database)
+    print("\nUsing database:", database)
     engine = sqla.create_engine("sqlite:///" + database)
     metadata = MetaData()
     tables = {
@@ -247,6 +339,7 @@ def run():
     # ==============================================================================
     with engine.connect() as connection:
         db_function.set_connection(connection)
+        count = 0
         for lpal in sorted(lpal_list):
             # ==================================================================
             # Collect high-level info about LPAL and Panel
@@ -261,7 +354,7 @@ def run():
             procedure_id = getattr(procedure_data, "procedure", None)
             is_top_lpal = getattr(procedure_data, "lpal_top", None) == lpal_stlid
             procedure_metadata = get_procedure_metadata(procedure_id)
-            pro_timestamp = getattr(procedure_metadata, "timestamp", None)
+            pro12_start_time = getattr(procedure_metadata, "timestamp", None)
             panel_stlid = getattr(procedure_metadata, "straw_location", None)
 
             # panel number from the straw_location table "number" field
@@ -270,51 +363,68 @@ def run():
             # ==================================================================
             # Straw Loop. Save each straw to LPAL and panel.
             # ==================================================================
-            count = 0
-            print(f"LPAL{lpal:04d}")
+            lpal_added_count = 0
+            panel_added_count = 0
+            print(f"MN{panel_number} <- LPAL{lpal:04d} {'top' if is_top_lpal else 'bot'}")
             for straw in [s for s in all_straws if s["lpal"] == lpal]:
                 lpal_position = int(straw["Position"])
                 lpal_timestamp = int(straw["Timestamp"])
                 straw_id = int(straw["Straw"][2:])
 
-                # LPAL straw present entry
+                # prepare straw_present entries
+                # positions
                 lpal_straw_position = get_lpal_straw_position(lpal_position, lpal_stlid)
                 lpal_straw_position_id = getattr(lpal_straw_position, "id", None)
-                lpal_straw_present_entry = {
-                    "straw": straw_id,
-                    "position": lpal_straw_position_id,
-                    "present": False,
-                    "time_in": lpal_timestamp,
-                    "time_out": pro_timestamp,
-                }
-                lpal_result = insert_straw_present_entry(lpal_straw_present_entry)
-
-                # Panel straw present entry
                 panel_position = lpal_position + 1 if is_top_lpal else lpal_position
                 panel_straw_position = get_panel_straw_position(
                     panel_position, panel_stlid
                 )
                 panel_straw_position_id = getattr(panel_straw_position, "id", None)
+
+                # timestamps
+                # use pro3 start time as upper limit on when straws went in
+                try:
+                    pro3_start_time = get_pro3_start_time(panel_stlid)
+                except AssertionError as e:
+                    # couldn't find pro3 start time
+                    pro3_start_time = max(pro12_start_time, lpal_timestamp)
+
+                lpal_in_time, panel_in_time = sort_timestamps(
+                    lpal_timestamp, pro12_start_time, pro3_start_time
+                )
+
+                # the entries
+                lpal_straw_present_entry = {
+                    "straw": straw_id,
+                    "position": lpal_straw_position_id,
+                    "present": False,
+                    "time_in": lpal_in_time,
+                    "time_out": panel_in_time,
+                }
                 panel_straw_present_entry = {
                     "straw": straw_id,
                     "position": panel_straw_position_id,
                     "present": True,
-                    "time_in": pro_timestamp,
+                    "time_in": panel_in_time,
                     "time_out": None,
                 }
+
+                # insert
+                lpal_result = insert_straw_present_entry(lpal_straw_present_entry)
                 panel_result = insert_straw_present_entry(panel_straw_present_entry)
 
                 lpal_txt = "NOT added" if lpal_result.rowcount == 0 else "added"
                 panel_txt = "NOT added" if panel_result.rowcount == 0 else "added"
-                print(
-                    f"\tST{straw_id:05d} - {lpal_txt} to LPAL{lpal:04d} pos {lpal_position:02d} | {panel_txt} to MN{panel_number} pos {panel_position:02d}"
-                )
-
-                count += 1
-                if count > 10:
-                    break
-
-            break
+                # print(
+                #    f"\tST{straw_id:05d} - {lpal_txt} to LPAL{lpal:04d} pos {lpal_position:02d} | {panel_txt} to MN{panel_number} pos {panel_position:02d}"
+                # )
+                lpal_added_count += lpal_result.rowcount
+                panel_added_count += panel_result.rowcount
+            print(f"\tlpal adds: {lpal_added_count}, panel adds: {panel_added_count}")
+            print(
+                f"\tpanel straws present: {count_panel_straw_present(panel_stlid)}"
+            )
+        print(f"Done. Total lpals loaded: {count}.")
 
 
 if __name__ == "__main__":
