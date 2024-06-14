@@ -14,11 +14,15 @@ from guis.common.panguilogger import SetupPANGUILogger
 from guis.common.getresources import GetProjectPaths, GetLocalDatabasePath
 from guis.panel.leak.panel_leak_utilities import *
 from random import randint
+from guis.common.db_classes.procedure import Procedure
 
 import logging
 
 logger = logging.getLogger("root")
 
+kFILENAME_DATE_FORMAT = "%y%m%d_%H%M"
+
+DRY_RUN = False
 
 ################################################################################
 # Misc Utilities
@@ -26,26 +30,36 @@ logger = logging.getLogger("root")
 # Converts timestamp of one specific format to epoch time
 # Does not include miliseconds
 def convert_to_epoch(date_time):
-    # 2021-04-13T14:07:16.219870
     # "211012_1749"
-    date_format = "%y%m%d_%H%M"
-    epoch = int(time.mktime(time.strptime(date_time[0:18], date_format)))
+    epoch = int(time.mktime(time.strptime(date_time, kFILENAME_DATE_FORMAT)))
     return epoch
 
 
 # Given a panel and process, access the DB to get the procedure ID
-def get_procedure_id(connection, panel, process):
-    assert isinstance(panel, int) and panel <= 999
+def get_procedure_id(connection, panel_number, process):
+    assert isinstance(panel_number, int) and panel_number <= 999
+    # assert 131 <= panel_number
     assert process in kPROCESSES
     query = f"""
     SELECT procedure.id from procedure
     INNER JOIN straw_location on procedure.straw_location = straw_location.id
     WHERE straw_location.location_type = "MN"
-    AND straw_location.number = {panel}
+    AND straw_location.number = {panel_number}
     AND procedure.station = "pan{process}"
     """
     result = connection.execute(query)
-    result = result.first()[0]
+    result = result.first()
+    try:
+        assert result
+    # procedure doesn't exist
+    except AssertionError:
+        input(
+            f"Process 8 doesn't exist yet for MN{panel_number}. Press any key to create it or <ctrl-C> to quit> "
+        )
+        p = Procedure.PanelProcedure(process=process, panel_number=panel_number)
+        result = p.id
+    else:
+        result = result[0]
     return result
 
 
@@ -66,14 +80,19 @@ def format_tag(tag):
     return "".join(filter(str.isalnum, tag)).lower()
 
 
-# Extract date, panel, and tag from filename
+# Extract date, panel, and tag from filename.
+# Some validation on the results.
 # "211012_1749_MN169 test 1.txt"
 def parse_filename(filename):
-    logger.debug("Getting test info from input file.")
     filename = Path(filename).stem  # remove txt suffix
     timestamp = filename[0:11]
-    panel_number = int(re.search(r"MN\d\d\d", filename).group(0)[2:])
-    tag = format_tag(filename[17:])
+    try:
+        panel_number = re.search(r"MN\d\d\d", filename).group(0)[2:]
+    except:
+        panel_number = re.search(r"MN\d\d", filename).group(0)[2:]
+    # tag = format_tag(filename[17:])
+    tag_start_idx = filename.rfind(panel_number) + len(panel_number)
+    tag = format_tag(filename[tag_start_idx:])
     return timestamp, panel_number, tag
 
 
@@ -93,85 +112,41 @@ def execute_query(connection, query, entries):
             "    At least one datapoint in these entries already exists in the DB."
         )
     else:
-        logger.debug(f"Loaded {r_set.rowcount} data points into local DB.")
-        print(f"\nLOADED {r_set.rowcount} DATA POINTS INTO THE LOCAL DB.")
+        logger.info(f"Loaded {r_set.rowcount} data points into local DB.")
+        # print(f"\nLOADED {r_set.rowcount} DATA POINTS INTO THE LOCAL DB.")
 
 
 ################################################################################
 # Validate inputs
 ################################################################################
-# is test timestamp valid? if not prompt user
-def validate_timestamp(timestamp):
-    # is the timestamp extracted from the filename correct?
-    temp_timestamp = input(
-        f"Found timestamp {timestamp}.\n"
-        "If correct, press <return>, else enter timestamp in format YYMMDD_HHMM> "
-    )
-    timestamp = timestamp if temp_timestamp == "" else temp_timestamp
-
-    # is the timestamp valid?
-    while True:
-        try:
-            epoch_time = int(convert_to_epoch(timestamp))
-            assert 1451628001 < epoch_time < 1672552801  # between 2016 and 2023
-            return timestamp, epoch_time
-        except ValueError:
-            logger.error(
-                f"The timestamp found/provided {timestamp} must be in the format YYMMDD_HHMM."
-            )
-            timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
-            continue
-        except AssertionError:
-            logger.error(
-                f"The timestamp found/provided {timestamp} doesn't make sense."
-            )
-            timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
-            continue
+def timestamp_is_valid(timestamp):
+    try:
+        time.strptime(timestamp, kFILENAME_DATE_FORMAT)
+        epoch_time = int(convert_to_epoch(timestamp))
+        assert 1451628001 < epoch_time < 1672552801  # between 2016 and 2023
+        return True
+    except Exception as e:
+        return False
 
 
-# is panel valid? if not prompt user
-def validate_panel_number(panel_number):
-    temp_panel_number = input(
-        f"Found panel_number {panel_number}. If correct, press <return>, else enter panel_number XXX> "
-    )
-    panel_number = panel_number if temp_panel_number == "" else temp_panel_number
-    while True:
-        try:
-            assert 0 < int(panel_number) < 999
-            return panel_number
-        except ValueError:
-            logger.error(
-                f"The panel_number found/provided {panel_number} isn't an integer."
-            )
-            panel_number = input("enter panel_number XXX> ")
-            continue
-        except AssertionError:
-            logger.error(
-                f"The panel_number found/provided {panel_number} doesn't make sense."
-            )
-            panel_number = input("enter panel_number XXX> ")
-            continue
-        break
+def panel_number_is_valid(panel_number):
+    try:
+        assert 0 < int(panel_number) < 999
+        return True
+    except Exception as e:
+        return False
 
 
-# user confirm tag (e.g. "test1") associated with this test
-def validate_tag(tag):
-    while True:
-        temp_tag = input(
-            f"Using tag {tag}.\n"
-            f"If correct, press <return>,\n"
-            f'else enter a tag like "test1" (whitespace and nonalphanum characters will be removed)> '
-        )
-        if temp_tag == "":
-            return tag
-        else:
-            tag = temp_tag
+def tag_is_valid(tag):
+    try:
+        assert (3 < len(tag) < 13) and ("test" in tag)
+        return True
+    except Exception as e:
+        return False
 
 
 # does file exist
 def validate_data_file(data_file):
-    logger.debug(f"Leak test datafile provided: {data_file}")
-
     # check infile exists
     try:
         assert Path(data_file).is_file()
@@ -231,28 +206,54 @@ def load_test_data(connection, df, test_id):
 ################################################################################
 # main
 ################################################################################
+
+
 def main(data_file):
-    print(
-        f"\nLOADING LEAK TEST DATA INTO THE LOCAL DATABASE FROM FILE\n\n{data_file}\n"
+    # print(
+    #    f"\nLOADING LEAK TEST DATA INTO THE LOCAL DATABASE FROM FILE\n\n{data_file}\n"
+    # )
+
+    ############################################################################
+    # Extract panel number, tag, and timestamp from filename
+    ############################################################################
+    validate_data_file(data_file)
+
+    timestamp, panel_number, tag = parse_filename(data_file)
+
+    logger.info(
+        f"{Path(data_file).parent.name}/{Path(data_file).name}, {timestamp}, {panel_number}, {tag}"
     )
 
-    # check input file, panel number, test timestamp, test tag
-    validate_data_file(data_file)
-    timestamp, panel_number, tag = parse_filename(data_file)
-    logger.debug(f"{timestamp},{panel_number},{tag} extracted from filename.")
-    print(
-        f"Test info:\n\ttimestamp: {timestamp}\n\tpanel: MN{panel_number}\n\ttag: {tag}"
-    )
+    while not timestamp_is_valid(timestamp):
+        timestamp = input("enter timestamp in format YYMMDD_HHMM> ")
+    while not panel_number_is_valid(panel_number):
+        panel_number = input("enter panel_number XXX> ")
+    while not tag_is_valid(tag):
+        tag = input("enter tag like `test1`> ")
+
+    panel_number = int(panel_number)
     epoch_time = convert_to_epoch(timestamp)
 
-    # timestamp, epoch_time = validate_timestamp(timestamp)
-    # panel_number = validate_panel_number(panel_number)
-    # tag = validate_tag(tag)
+    # print(
+    #    f"Test info:\n\ttimestamp: {timestamp}\n\tpanel: MN{panel_number}\n\ttag: {tag}"
+    # )
 
-    # set up database
+    ############################################################################
+    # Read leak csv data into data frame
+    ############################################################################
+    is_new_format = True
+    df = ReadLeakRateFile(data_file, is_new_format)
+
+    ############################################################################
+    # Quit if this is a dry run
+    ############################################################################
+    if DRY_RUN:
+        return
+
+    ############################################################################
+    # Set up DB  connection
+    ############################################################################
     database = GetLocalDatabasePath()
-
-    logger.debug(f"Saving leak test data into the local database {database}")
 
     # db_check = input(f"PRESS <ENTER> TO CONFIRM THIS DATABASE\n{database}\nELSE PRESS CTRL-C\n")
     # if db_check:
@@ -260,27 +261,26 @@ def main(data_file):
 
     engine = sqla.create_engine("sqlite:///" + database)  # create engine
 
-    # Read leak csv data into data frame
-    is_new_format = True
-    df = ReadLeakRateFile(data_file, is_new_format)
-
-    # load up all the data within a database connection
+    ############################################################################
+    # Save test meta info in panel_leak_test_details
+    # Save raw data in measurement_panel_leak
+    ############################################################################
     with engine.connect() as connection:
         # is record of this test already in the db? if so, do nothing
         procedure_id = get_procedure_id(connection, panel_number, 8)
         test_id = get_panel_leak_test_id(connection, procedure_id, epoch_time)
         if test_id:
             test_id = test_id[0]
-            print(
-                f"\nRECORD OF THIS TEST ALREADY EXISTS IN THE DB. WILL ONLY LOAD NEW POINTS."
-            )
-            logger.debug(
+            # print(
+            #    f"\nRECORD OF THIS TEST ALREADY EXISTS IN THE DB. WILL ONLY LOAD NEW POINTS."
+            # )
+            logger.info(
                 f"Found pre-existing leak test ID for MN{panel_number} {timestamp}: {test_id}."
             )
         else:
             # Get the elapsed time of the test
             elapsed_days = df["TIME(DAYS)"].max()
-            assert elapsed_days < 4  # test shouldn't have gone over 4 days, right?
+            assert elapsed_days < 6  # test shouldn't have gone over 4 days, right?
 
             # Load record of this test into the panel_leak_test_details table
             load_test_details(connection, procedure_id, epoch_time, tag, elapsed_days)
