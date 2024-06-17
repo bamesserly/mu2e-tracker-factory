@@ -45,30 +45,49 @@ def parse_lpal_file(file):
     return straws
 
 
+# For first 75-ish panels, which LPALs were being used to load the panel was
+# recorded with a timestamp in process 2. After those panels, the LPALs were
+# switched to pro1 with no timestamps.
+#
+# So, sure, we could use the exact timestamps for the first 75 panels, but we
+# still need rules for the rest.
 def sort_timestamps(lpal_timestamp, pro12_start_time, pro3_start_time):
-    assert (
-        pro12_start_time <= pro3_start_time
-    ), f"pro12_start_time: {pro12_start_time}, pro3_start_time: {pro3_start_time}"
-    # 1. straws on lpal before pro 1/2 start
+    time_counts = [0, 0, 0, 0, 0]
+    # 1. straws on lpal before pro 1/2 start.
     if lpal_timestamp < pro12_start_time:
         lpal_in_time = lpal_timestamp
         panel_in_time = pro12_start_time
-    # 2. straws on lpal after pro 1/2 start and before pro 3 start
-    elif pro12_start_time < lpal_timestamp < pro3_start_time:
-        lpal_in_time = lpal_timestamp
-        panel_in_time = pro3_start_time
-    # 3. (sic) straws on lpal after pro 3 start
-    elif pro3_start_time < lpal_timestamp:
-        lpal_in_time = pro12_start_time
-        panel_in_time = pro3_start_time
-    # 4. punt: straws added to lpal, removed from lpal, then added to panel all
-    # at the same time
-    elif lpal_timestamp == pro3_start_time:
-        lpal_in_time = lpal_timestamp
-        panel_in_time = pro3_start_time
+        time_counts[0] += 1
+    # 2. Following solutions use pro3 start time as upper time limit.
+    elif pro3_start_time is None:
+        lpal_in_time = max(pro12_start_time, lpal_timestamp)
+        panel_in_time = min(pro12_start_time, lpal_timestamp)
+        time_counts[1] += 1
+
+    # Solutions involving pro3 start time
     else:
-        raise ValueError("Timestamps mess. Sanity check failed.")
-    return lpal_in_time, panel_in_time
+        assert (
+            pro12_start_time <= pro3_start_time
+        ), f"pro12_start_time: {pro12_start_time}, pro3_start_time: {pro3_start_time}"
+
+        # 3. straws on lpal after pro 1/2 start and before pro 3 start
+        if pro12_start_time < lpal_timestamp < pro3_start_time:
+            lpal_in_time = lpal_timestamp
+            panel_in_time = pro3_start_time
+            time_counts[2] += 1
+        # 4. (sic) straws on lpal after pro 3 start
+        elif pro3_start_time < lpal_timestamp:
+            lpal_in_time = pro12_start_time
+            panel_in_time = pro3_start_time
+            time_counts[3] += 1
+        # 5. punt: straws added to lpal, removed from lpal, then added to panel
+        # all at the same time
+        else:
+            lpal_in_time = min(pro3_start_time, lpal_timestamp)
+            panel_in_time = min(pro3_start_time, lpal_timestamp)
+            time_counts[4] += 1
+
+    return lpal_in_time, panel_in_time, time_counts
 
 
 # ==============================================================================
@@ -127,9 +146,15 @@ def get_procedure_data(connection, tables, lpal_stlid):
 
     # Make sure there's only one such procedure
     assert entries, f"LPAL {lpal_stlid} not found in any procedure"
-    assert len(entries) == 1, "lpal found in more than one procedure"
-    procedure_details = entries[0]
-    return procedure_details
+
+    # except where we transition from pro1 to pro2
+    for entry in entries:
+        if entry.procedure == 1605889982161047:
+            return entry
+
+    assert len(entries) == 1, f"lpal found in more than one procedure {entries}"
+
+    return entries[0]
 
 
 @db_function.inject
@@ -202,7 +227,6 @@ def get_lpal_straw_position(connection, tables, lpal_position, lpal_stlid):
         ).fetchall()
         assert len(lpal_straw_positions) <= 1, "more than one position found"
 
-
     return lpal_straw_positions[0]
 
 
@@ -272,7 +296,7 @@ def run():
             continue
         lpal = int(str(file)[-17:-13])
         assert 0 < lpal < 600
-        #print(file.name)
+        # print(file.name)
 
         # if "312" not in str(file.name):
         #   return
@@ -306,7 +330,7 @@ def run():
     print("additionally, skip three lpals: 26, 224, and 225 which are missing straws.")
     print("And 3, 4, and 5 have some issues.")
 
-    bad_lpals = [26, 224, 225, 3, 4, 5]
+    bad_lpals = [26, 224, 225, 3, 4, 5, 188]
     # Process first group of straws up to LPAL0173, for which there are no
     # entries in the DB.
     all_straws = [
@@ -340,6 +364,7 @@ def run():
     with engine.connect() as connection:
         db_function.set_connection(connection)
         count = 0
+        total_time_counts = [0, 0, 0, 0, 0]
         for lpal in sorted(lpal_list):
             # ==================================================================
             # Collect high-level info about LPAL and Panel
@@ -360,12 +385,21 @@ def run():
             # panel number from the straw_location table "number" field
             panel_number = get_panel_number(panel_stlid)
 
+            # use pro3 start time as upper limit on when straws went in
+            try:
+                pro3_start_time = get_pro3_start_time(panel_stlid)
+            except AssertionError as e:
+                # couldn't find pro3 start time
+                pro3_start_time = None
+
             # ==================================================================
             # Straw Loop. Save each straw to LPAL and panel.
             # ==================================================================
             lpal_added_count = 0
             panel_added_count = 0
-            print(f"MN{panel_number} <- LPAL{lpal:04d} {'top' if is_top_lpal else 'bot'}")
+            print(
+                f"MN{panel_number} <- LPAL{lpal:04d} {'top' if is_top_lpal else 'bot'}"
+            )
             for straw in [s for s in all_straws if s["lpal"] == lpal]:
                 lpal_position = int(straw["Position"])
                 lpal_timestamp = int(straw["Timestamp"])
@@ -381,17 +415,13 @@ def run():
                 )
                 panel_straw_position_id = getattr(panel_straw_position, "id", None)
 
-                # timestamps
-                # use pro3 start time as upper limit on when straws went in
-                try:
-                    pro3_start_time = get_pro3_start_time(panel_stlid)
-                except AssertionError as e:
-                    # couldn't find pro3 start time
-                    pro3_start_time = max(pro12_start_time, lpal_timestamp)
-
-                lpal_in_time, panel_in_time = sort_timestamps(
+                # times - decide in and out times - lots of edge cases
+                lpal_in_time, panel_in_time, time_counts = sort_timestamps(
                     lpal_timestamp, pro12_start_time, pro3_start_time
                 )
+                total_time_counts = [
+                    x + y for x, y in zip(total_time_counts, time_counts)
+                ]
 
                 # the entries
                 lpal_straw_present_entry = {
@@ -421,10 +451,9 @@ def run():
                 lpal_added_count += lpal_result.rowcount
                 panel_added_count += panel_result.rowcount
             print(f"\tlpal adds: {lpal_added_count}, panel adds: {panel_added_count}")
-            print(
-                f"\tpanel straws present: {count_panel_straw_present(panel_stlid)}"
-            )
+            print(f"\tpanel straws present: {count_panel_straw_present(panel_stlid)}")
         print(f"Done. Total lpals loaded: {count}.")
+        print(f"Time counts: {total_time_counts}")
 
 
 if __name__ == "__main__":
