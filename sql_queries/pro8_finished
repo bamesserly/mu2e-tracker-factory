@@ -1,0 +1,6 @@
+select straw_location.number, procedure.station, procedure_timestamp.procedure, procedure_timestamp.event, procedure_timestamp.timestamp from procedure_timestamp
+inner join procedure on procedure_timestamp.procedure == procedure.id
+inner join straw_location on procedure.straw_location == straw_location.id
+where straw_location.number > 202
+and procedure.station == "pan8"
+and procedure_timestamp.event == "stop"

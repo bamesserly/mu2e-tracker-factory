@@ -1,0 +1,6 @@
+--pragma database.integrity_check
+--reindex database.supply_checked
+--drop table supply_checked
+
+VACUUM;
+

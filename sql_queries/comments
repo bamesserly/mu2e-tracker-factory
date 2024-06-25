@@ -1,0 +1,5 @@
+select straw_location.location_type, straw_location.number, text, timestamp from comment
+inner join procedure on comment.procedure = procedure.id
+inner join straw_location on procedure.straw_location = straw_location.id
+where procedure.station = "pan8" and
+straw_location.number > 195

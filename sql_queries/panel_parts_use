@@ -1,0 +1,4 @@
+SELECT straw_location.location_type, straw_location.number, panel_part.*, * from panel_part_use
+inner join straw_location on panel_part_use.panel == straw_location.id
+inner join panel_part on panel_part_use.panel_part == panel_part.id
+where straw_location.number == 260

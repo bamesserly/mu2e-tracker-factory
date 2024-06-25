@@ -1,0 +1,4 @@
+select straw_location.number, position, tension, wire_timer, calibration_factor from measurement_wire_tension
+inner join procedure on measurement_wire_tension.procedure == procedure.id
+inner join straw_location on procedure.straw_location == straw_location.id
+where straw_location.location_type == "MN"

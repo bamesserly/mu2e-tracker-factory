@@ -1,0 +1,5 @@
+SELECT DISTINCT sl.*
+FROM straw_location sl
+JOIN straw_position sp ON sl.id = sp.location
+JOIN straw_present spt ON sp.id = spt.position
+WHERE spt.timestamp > 1710687982

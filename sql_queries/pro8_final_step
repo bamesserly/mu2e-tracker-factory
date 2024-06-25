@@ -1,0 +1,7 @@
+-- view steps completed for a certain panel
+select straw_location.number, procedure, panel_step, timestamp from panel_step_execution
+inner join procedure on panel_step_execution.procedure == procedure.id
+inner join straw_location on procedure.straw_location == straw_location.id
+where straw_location.number > 200
+and procedure.station == "pan8"
+and panel_step_execution.panel_step == 205

@@ -1,0 +1,8 @@
+SELECT sl.location_type, sl.number, spt.position_number, sp.straw, sp.present, sp.time_in, sp.time_out
+FROM straw_present sp
+JOIN straw_position spt ON sp.position = spt.id
+JOIN straw_location sl ON sl.id = spt.location
+--WHERE spt.location = 1605714811751540
+--WHERE sp.straw = 68
+WHERE sl.location_type = "LPAL"
+GROUP BY sp.straw

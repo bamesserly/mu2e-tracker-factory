@@ -1,0 +1,7 @@
+SELECT panel_step, panel_step.name, panel_step.text from panel_step_execution
+inner join procedure on panel_step_execution.procedure == procedure.id
+inner join straw_location on procedure.straw_location == straw_location.id
+inner join panel_step on panel_step_execution.panel_step == panel_step.id
+where procedure.station == "pan8"
+and
+straw_location.number == 208

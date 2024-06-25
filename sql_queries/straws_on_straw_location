@@ -1,0 +1,10 @@
+SELECT straw_location.number,  straw_position.position_number, straw.id, straw.batch, measurement_prep.paper_pull_grade, straw_present.present, straw_position.id from straw
+inner join straw_present on straw.id = straw_present.straw
+inner join straw_position on straw_present.position = straw_position.id
+inner join straw_location on straw_position.location = straw_location.id
+left join measurement_prep on straw.id = measurement_prep.straw
+where straw_location.location_type = "LPAL"
+and
+straw_location.number == 468
+--and
+--present == 1

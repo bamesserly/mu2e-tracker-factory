@@ -1,0 +1,16 @@
+SELECT straw_location.number AS panel,
+       lpal_top.number AS [lpal_top number],
+       lpal_top.id as [lpal_top id],
+       procedure_details_pan2.lpal_top,
+       lpal_bot.number AS [lpal_bot number],
+       lpal_bot.id as [lpal_bot id],
+       procedure_details_pan2.lpal_bot
+  FROM straw_location
+       INNER JOIN
+       procedure ON straw_location.id = procedure.straw_location
+       INNER JOIN
+       procedure_details_pan2 ON procedure.id = procedure_details_pan2.procedure
+       LEFT JOIN
+       straw_location AS lpal_top ON procedure_details_pan2.lpal_top = lpal_top.id
+       LEFT JOIN
+       straw_location AS lpal_bot ON procedure_details_pan2.lpal_bot = lpal_bot.id;

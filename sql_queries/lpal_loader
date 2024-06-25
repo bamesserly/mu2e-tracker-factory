@@ -1,0 +1,12 @@
+SELECT straw, present, time_in, time_out, timestamp, straw_location.*, straw_position.position_number from straw_present
+inner join straw_position on straw_present.position = straw_position.id
+inner join straw_location on straw_position.location = straw_location.id
+--INNER JOIN straw_location on straw_location.id = procedure.straw_location
+--WHERE straw_position.location = 1641420630385808
+--INNER JOIN straw_position on straw_present.position = straw_position.id
+--INNER JOIN straw_location on straw_position.straw_location = straw_location.id
+WHERE straw_location.location_type = "LPAL" and
+straw_present.present = 1 and
+straw_location.pallet_id = 02
+--straw_location.number = 463
+

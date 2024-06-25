@@ -1,0 +1,8 @@
+SELECT sp.*,spt.position_number, stl.number, stl.id
+FROM straw_present sp
+JOIN straw_position spt ON sp.position = spt.id
+-- WHERE spt.location = 1665078987808047
+JOIN straw_location stl ON spt.location = stl.id
+WHERE stl.location_type = 'LPAL'
+--AND sp.straw = 30205
+AND stl.number = 409

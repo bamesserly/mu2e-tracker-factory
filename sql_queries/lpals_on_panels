@@ -1,0 +1,13 @@
+SELECT procedure.id,
+       panel.location_type,
+       panel.number,
+       procedure_details_pan1.lpal_bot,
+       lpal.location_type,
+       lpal.number
+  FROM straw_location AS panel,
+       straw_location AS lpal
+       INNER JOIN
+       procedure_details_pan1 ON lpal.id = procedure_details_pan1.lpal_bot
+       INNER JOIN
+       procedure ON panel.id = procedure.straw_location
+ WHERE procedure.id = procedure_details_pan1.procedure;
